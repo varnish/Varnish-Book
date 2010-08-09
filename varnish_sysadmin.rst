@@ -5,8 +5,8 @@ Varnish System Administration
 :Author: Tollef Fog Heen, Kristian Lyngstøl
 :Copyright: Varnish Software AS 2010, Redpill Linpro AS 2008-2009
 
-.. image:: bilder/logo.png
-:align: center
+.. image:: img/logo.png
+   :align: center
    :width: 181px
 
 .. header::
@@ -320,7 +320,7 @@ Process Architecture
 
 The multi-process architecture:
 
-.. image:: bilder/architecture.png
+.. image:: img/architecture.png
    :align: center
 
 .. class:: handout
