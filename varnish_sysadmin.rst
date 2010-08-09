@@ -1136,7 +1136,7 @@ VCL - syntax
 VCL - request flow
 ------------------
 
-.. image:: vcl.png
+.. image:: img/vcl.png
    :align: center
    :height: 800px
 
@@ -1151,7 +1151,7 @@ VCL - request flow
 Detailed request flow
 .....................
 
-.. image:: request.png
+.. image:: img/request.png
    :align: center
 
 

@@ -1,13 +1,13 @@
 
 RST2PDF=/usr/local/bin/rst2pdf
 
-all: kurs.html kurs.pdf vcl.png
+all: varnish_sysadmin.html varnish_sysadmin.pdf vcl.png
 
-kurs.html: kurs.rst Makefile
-	/usr/bin/rst2s5 kurs.rst -r 5 --current-slide --theme-url=ui/vs/ kurs.html
+varnish_sysadmin.html: varnish_sysadmin.rst Makefile
+	/usr/bin/rst2s5 varnish_sysadmin.rst -r 5 --current-slide --theme-url=ui/vs/ varnish_sysadmin.html
 
-kurs.pdf: kurs.rst Makefile manual.style
-	 ${RST2PDF} -s ./manual.style -b2 kurs.rst
+varnish_sysadmin.pdf: varnish_sysadmin.rst Makefile manual.style
+	 ${RST2PDF} -s ./manual.style -b2 varnish_sysadmin.rst
 
 %.png: %.dot Makefile
 	dot -Tpng < $< > $@
