@@ -1,0 +1,45 @@
+=version $Id: installation.pds,v 1.5 2005-12-19 13:06:51 lars Exp $
+=topic Installation
+
+=slide Installation
+
+<p>
+<pre>
+rpm -i libvarnish*.rpm
+rpm -i varnish*.rpm
+</pre>
+<pre>
+dpkg -i libvarnish*.deb
+dpkg -i varnish*.deb
+</pre>
+A 64 bit environment is recommended for production.
+</p>
+
+<ul>
+  <li>Setting up a backend</li>
+  <li>Downloading the source</li>
+  <li>Compiling and installing</li>
+</ul>
+
+=comments
+
+<p>You want to use packages for your operating system whenever possible,
+but today we will install Varnish from source.</p>
+
+<p>If the computer you will be using throughout this course has Varnish
+2.0.3 or more recent available through the package system, you are
+encouraged to use this instead if you do not feel you need the exercise in
+installing from source.</p>
+
+<p>We will be using usemod-wiki and apache2 throughout the course (among
+other things) as a backend. Usemod-wiki is a simple yet dynamic web
+application that is well-suited for testing. While you are welcome to
+choose something else, you should wait until the second day of training to
+set a real web-application as backend, due to the extra complications that
+are usually caused by cookies.</p>
+
+=teacher
+
+<p></p>
+
+<!-- flere slides under her -->

@@ -1,0 +1,12 @@
+=version $Id: esi.pds,v 1.6 2005-12-19 13:06:51 lars Exp $
+=topic Purges
+
+=slide Purges
+
+<ul>
+  <li>Purge on anything</li>
+  <li><code>purge req.url ~ "/foo"</code></li>
+  <li><code>purge req.http.user-agent ~ "Firefox" &&
+  obj.http.content-type ~ "text"</code></li>
+</ul>
+

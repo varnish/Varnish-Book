@@ -1,0 +1,54 @@
+=version $Id: loadbalancing.pds,v 1.6 2005-12-19 13:06:51 lars Exp $
+=topic Loadbalancing
+
+=slide Loadbalancing
+
+<ul>
+  <li>Direct support for several backends</li>
+  <li>Health checking</li>
+  <li>round robin</li>
+  <li>random director</li>
+</ul>
+
+=comments
+
+=teacher
+
+Soft spots: Mangler "least connected". Mangler session tracking.
+
+<p></p>
+
+=slide Example: Load balancing
+
+<pre> 
+backend foo {
+  .host = "backend1.example.com";
+  .probe = {
+                .url = "/";
+  }
+}
+
+backend bar {
+  .host = "backend2.example.com";
+  .probe = {
+                .url = "/";
+  }
+}
+
+director wwwdirector random {
+        {
+                .backend = foo;
+                .weight = 100;
+        }
+        {
+                 .backend = bar;
+                 .weight = 200;
+        }
+}
+</pre>
+
+=comments
+
+<p>Note: The backends foo and bar need to be defined.</p>
+
+

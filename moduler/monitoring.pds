@@ -1,0 +1,22 @@
+=topic Monitoring varnish
+
+=slide Munin
+
+<ul>
+    <li>Monitoring tool created by Redpill Linpro</li>
+    <li>http://munin.projects.linpro.no/</li>
+    <li>Centralised data gathering and graphs</li>
+    <li>Distributed sensors and configuration</li>
+    <li>Free software - GPLed</li>
+    <li>Integrates with Nagios for monitoring</li>
+    <li>Not SNMP (but can monitor SNMP items too)</li>
+</ul>
+
+<!-- #slide VarnishSNMP
+
+<ul>
+    <li>Gateway between <code>varnishstat</code> and Net-SNMP</li>
+    <li>Free software</li>
+</ul>
+
+-->

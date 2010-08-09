@@ -1,0 +1,52 @@
+=version $Id: kurs.pds,v 1.4 2005-12-19 13:07:17 lars Exp $
+=event Varnish
+=copyright &copy; 2008-2009 Redpill Linpro AS
+
+<p>&copy; 2008-2009 Redpill Linpro AS<br>
+<font size="-2">Written by: Tollef Fog Heen and Kristian Lyngst&oslash;l</font>
+</p>
+
+=include moduler/maalsetning.pds
+
+=include moduler/introduction.pds
+
+=include moduler/architecture.pds
+
+=include moduler/installation.pds
+=include oppgaver/oppgaver-installation.pds
+
+=include moduler/configuration.pds
+=include oppgaver/oppgaver-configuration.pds
+
+=include moduler/parameters.pds
+<!-- TODO: This is how far you got, Kristian. -->
+=include oppgaver/oppgaver-parameters.pds
+
+=include moduler/programs.pds
+=include oppgaver/oppgaver-programs.pds
+
+=include moduler/vcl.pds
+=include oppgaver/oppgaver-vcl.pds
+
+=include moduler/purge.pds
+
+=include moduler/loadbalancing.pds
+=include oppgaver/oppgaver-loadbalancing.pds
+
+=include moduler/esi.pds
+=include oppgaver/oppgaver-esi.pds
+
+<!-- For "The Hindu", not for the general courses -->
+<!-- #include moduler/escenic.pds -->
+<!-- #include oppgaver/oppgaver-escenic.pds -->
+
+=include moduler/troubleshooting.pds
+<!-- #include oppgaver/oppgaver-troubleshooting.pds-->
+
+=include moduler/monitoring.pds
+=include oppgaver/oppgaver-monitoring.pds
+
+=include moduler/webui.pds
+=include oppgaver/oppgaver-webui.pds
+
+=include moduler/closing.pds

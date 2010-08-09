@@ -1,0 +1,139 @@
+=version $Id$
+=topic Tunable parameters
+
+=slide Tunable parameters
+
+<ul>
+    <li>In the CLI: <code>param.show -l<code></li>
+</ul>
+
+=comments
+
+<p>Varnish has many different parameters which can be adjusted to make
+Varnish act better under specific workloads or with specific software and
+hardware setups. They can all be viewed with "param.show" in the management
+interface and set with the "-p" option passed to varnish - or directly in
+the management interface.</p>
+
+<p>Remember that changes made in the management interface are not stored
+anywhere, so unless you store your changes in a startup script, they will
+be lost when Varnish restarts.</p>
+
+<p>The general advice with regards to parameters is to keep it simple. Most
+of the defaults are very good, and even though they might give a small
+boost to performance, it's generally better to use safe defaults if you
+don't have a very specific need.</p>
+
+=slide Parameters - system
+
+<ul>
+	<li><code>sess_workspace</code> - incoming HTTP header
+	workspace (from client)</li>
+	<li><code>obj_workspace</code> - size of object workspace
+	(HTTP headers from backend)</li>
+</ul>
+
+=comments
+
+<p>Workspaces are some of the things you can change with parameters. The
+session workspace is how much memory is allocated to each HTTP session for
+things like string manipulation of incoming headers. Object workspace is
+the workspace allocated to each object inserted into the cache - in
+addition to the size of the object itself.</p>
+
+<p>Some times you may have to increase these values from the defaults to
+avoid running out of workspace. We will talk more about this when we get to
+troubleshooting.</p>
+
+<p>As most of the parameters can be left unchanged, we will not go through
+all of them, but take a look at the list "param.show" gives you to get an
+impression of what they can do.</p>
+
+=teacher
+Make sure to emphasize that those are just some of the parameters
+
+=slide Parameters - threads
+
+<ul>
+	<li><code>thread_pools</code> - number of worker pools</li>
+	<li><code>thread_pool_max</code> - max number of worker threads</li>
+	<li><code>thread_pool_min</code> - min number of worker
+	threads <strong>per pool</strong></li>
+	<li><code>thread_pool_timeout</code> - idle thread threshold</li>
+	<li><code>thread_pool_add_delay</code> - delay between threads can
+	be created</li>
+</ul>
+
+=comments
+
+<p>Every single active HTTP session is handled by its own thread. As
+assigning threads to incoming requests could be a potential bottle neck,
+you can use multiple pools of threads which can be used independently.
+Experienced has showed that there is little to gain by modifying the number
+of thread pools (thread_pools), but the rule of thumb is to set it to the
+number of CPU cores on the system.</p>
+
+<p>Varnish can adjust the number of threads that runs at any given time
+based on the actual load, but will always run "thread_pool_min" threads in
+every thread pool and no more of "thread_pool_max" threads total. Note that
+"thread_pool_min" is for each thread pool, while the max is not.</p>
+
+<p>After Varnish has added, it will remove it again if it has been
+completely idle for "thread_pool_timeout".</p>
+
+<p>To avoid triggering kernel bugs, Varnish will delay
+"thread_pool_add_delay" milliseconds between creating threads. This is to
+avoid creating 1200 threads instantly, for instance. The default value of
+20ms has proven to be exceedingly conservative which can create problems
+when you start Varnish on a busy site. Reducing it to 2ms for instance is
+perfectly safe.</p>
+
+<p>The original theory with threads was that keeping as few of them as
+possible was good. The downside with this philosophy is that when you
+you are most busy, you will spend extra time creating threads. In other
+words, when you're already busy, you add more work. Today, it is advised to
+always run a few more threads than you need, as there is no real downside
+to this performance-wise. You are just using virtual memory, which is not
+the same as physical memory.</p>
+
+<p>For some actual values, you typically want somewhere between 100 and
+1300 threads as a minimum. When we look at varnishstat, you will see the
+"overflowed work requests" and "threads created" counters, which can give
+you an indication of whether you have a sane value or not.</p>
+
+<p>Due to a limitation of 65535 file descriptors in Varnish 2.0 (this is
+fixed in Varnish 2.1), you do not want to run more than about 5000 threads,
+depending on the session timeout and how fast your clients typically
+are.</p>
+
+=slide Parameters - timers
+
+<ul>
+	<li><code>connect_timeout</code> - how long to wait for backend</li>
+	<li><code>first_byte_timeout</code> - how long to add for
+	first byte</li>
+	<li><code>between_bytes_timeout</code> - how long to wait in
+	the middle of a transfer</li>
+	<li><code>send_timeout</code> - timeout for sending to clients</li>
+	<li><code>sess_timeout</code> - keepalive timeout</li>
+	<li><code>cli_timeout</code> - how long the management process
+	should wait</li>
+</ul>
+
+=comments
+
+<p>The timeout-parameters are generally set to pretty good defaults, but
+you might have to adjust them for strange applications. The connection
+timeout is tuned for a geographically close web server, and might have to
+be increased if your Varnish server and web server are not close.</p>
+
+<p>Keep in mind that the session timeout affects how long sessions are kept
+around, which in turn affects file descriptors left open. It is not wise to
+increase the session timeout without taking this into consideration.</p>
+
+<p>The "cli_timeout" is how long the management thread waits for the worker
+thread to reply before it assumes it's dead, kills it and starts it back
+up. For real loads, the default is very good, but if you manage to starve
+Varnish on CPU, it might be a bit low. After the default was increased to
+10s in Varnish 2.0.4, there have been no reports that indicates that it's
+insufficient on production servers.</p>

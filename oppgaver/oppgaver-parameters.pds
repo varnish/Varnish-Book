@@ -1,0 +1,22 @@
+=version $Id: oppgaver-del2.pds,v 1.4 2005-12-19 13:08:10 lars Exp $
+=slide Exercise: Tune first_byte_timeout
+
+=include ../../template/template_oppgaver_en.html
+
+<ol>
+  <li>Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing:
+<pre>
+#! /bin/sh
+sleep 5
+echo "Content-type: text/plain"
+echo "Cache-control: max-age=0"
+echo
+echo "Hello world"
+</pre>
+  </li>
+  <li>Make it executable</li>
+  <li>Test that it works outside of Varnish</li>
+  <li>Start Varnish, test that it works through Varnish</li>
+  <li>Set <code>first_byte_timeout</code> to 2s</li>
+  <li>Check that it doesn't work.</li>
+</ol>

@@ -1,0 +1,169 @@
+=version $Id$
+=topic Introduction
+
+=slide Introduction 
+
+<ul>
+  <li>What is Varnish?</li>
+  <li>Open source</li>
+  <li>History</li>
+  <li>Design principles</li>
+</ul>
+
+=comments
+
+<p></p>
+
+=teacher
+
+<p>This slide is just a table of contents for this chapter.</p>
+
+=slide What is Varnish?
+
+<ul>
+  <li>HTTP accelerator, aka reverse proxy</li>
+  <li>Designed for modern computers, modern operating systems and modern workloads</li>
+  <li>Very flexible configuration system</li>
+</ul>
+
+=comments
+
+<p>Varnish is a web cache placed in front of your Content Management System
+to reduce the amount of work needed to be done.</p>
+
+<p>It is designed for speed and flexibility. Varnish Configuration Language
+is an important step to achieving the level of flexibility needed by modern
+caching layers.</p>
+
+=slide Open source
+
+<ul>
+  <li>BSD license</li>
+  <li>Runs on Linux, FreeBSD, OpenSolaris</li>
+  <li>Varnish uses the GNU autotools.</li>
+</ul>
+
+=comments
+<p>The BSD License that Varnish is distributed under is the most
+restrain-free license available, as it does not impose any restrictions on
+the use and distribution of the binary and source code. You are free to
+modify, distribute and use Varnish however you like.</p>
+
+<p>It is actively developed and tested on both FreeBSD and GNU/Linux and it
+is an important point for the developers to retain a conservative list of
+dependencies. This should make it easy to make Varnish work and reduce the
+potential problem sources.</p>
+
+=teacher
+<p>
+Explain the BSD licence.
+
+</p>
+
+=slide History
+
+<ul>
+  <li>Developed by Linpro, now Redpill Linpro</li>
+  <li>Copyright Redpill Linpro and VG (but free software)</li>
+  <li>Initial development phase (2006) financed by VG</li>
+  <li>Second development phase (2007/2008) sponsored by Aftenposten, Escenic and API</li>
+  <li>Redpill Linpro offers services related to Varnish</li>
+</ul>
+
+=comments
+
+<p>VG, large Norwegian newspaper initiated the Varnish-project in
+co-operation with Linpro. The lead developer, Poul-Henning Kamp is an
+experienced FreeBSD kernel-hacker and continues to bring his wisdom to
+Varnish in most areas where it counts.</p>
+
+<p>From 2006 throughout 2008, most of the development was sponsored by VG,
+API, Escenic and Aftenposten, with project-management, infrastructure and
+extra man-power provided by Redpill Linpro.</p>
+
+<p>Today Redpill Linpro is able to fund the core development with income
+from service agreements, in addition to offering development of specific
+features on a case-by-case basis.</p>
+
+<p>The interest in Varnish continue to increase on an almost daily basis.
+An informal study based on the list of most popular web sites in Norway
+indicates that about 75% or more of the web traffic that originates in
+Norway is served through Varnish.</p>
+
+=slide Varnish 2.0 major features
+
+<ul>
+  <li>ESI support -- SSI in the cache</li>
+  <li>Load balancing</li>
+  <li>Backend health check</li>
+  <li>Grace - serve expired objects, for a while</li>
+</ul>
+
+=comments
+
+<p>Varnish implementes a subset of the ESI Language 1.0 defined by W3C.
+This is based on what was deemed to be necessary at the time.  </p>
+
+<p>Backend health checks, load balancing and grace all interact with each
+other in Varnish 2.0.5 allowing you to reduce the number of exposed error
+messages to almost zero even when your web servers are struggling
+heavily.</p>
+
+<p>The load balancing of Varnish allow you to define a number of web
+servers that Varnish should balance the traffic between, based on an
+algorithm you can specify. When health checks are enabled, Varnish will
+only direct traffic to web servers it knows is working correctly, and you
+can even tell Varnish to use otherwise expired content instead of giving an
+error message when all your web servers are marked as unhealthy.</p>
+
+=teacher 
+<p>round robin and random backend load balancers</p>
+
+=slide Varnish 2.1
+
+<p>Not yet released</p>
+
+<ul>
+  <li>Persistent storage</li>
+  <li>New and better purge mechanism</li>
+  <li>Several performance tweaks</li>
+  <li>Saint Mode</li>
+</ul>
+
+=comments
+
+<p>Where Varnish 2.0 brought Varnish out of it's childhood, Varnish 2.1
+will make Varnish truly mature. Persistent storage will allow Varnish to
+keep it's cache - or most of it - when it's restarted. This will reduce the
+warm-up time in case of a system upgrade or crash.</p>
+
+<p>Most of the performance tweaks and the improved purging is already
+included in Varnish 2.0.5. With the new mechanism of purging, it is now
+possible to purge - or invalidate - objects based on any data that can be
+recognized in VCL. The smarter purging allows for more dynamic and
+application-oriented purging, instead of having to adapt your web
+application to Varnish.</p>
+
+<p>Saint Mode is a way of telling varnish to use an old object instead of
+the new version of the object. This allow you to check in VCL if you think
+what the web server just gave you is correct. For instance by checking if
+it is a "500 Internal Server Error", you can tell Varnish to not try to get
+this object again from this backend, then try again. If none of your
+backends are able to give you the desired result, Varnish can then use the
+old copy instead of serving an error message.</p>
+
+<p>Most of the performance tweaks that have been made are based on
+experiences either from the Varnish community or from customers of Redpill
+Linpro, and not on guess-work. The close co-operation between developers,
+users and customers ensures that the development is driven by the needs of
+those who use Varnish instead of having the developers try to guess what
+you as a user want.</p>
+
+<p>During the development cycle of Varnish, Redpill Linpro performs nightly
+builds and stress tests on the most current development version on Varnish
+to ensure that the performance and stability doesn't decline. In addition
+to this, the open development model allows anyone who's interested to grab
+the latest development version and try it out.</p>
+
+=teacher 
+

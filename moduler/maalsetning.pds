@@ -1,0 +1,87 @@
+=version $Id$
+=slide Redpill Linpro courses
+
+<ul>
+   <li>Basic courses</li>
+      <ul>
+	<li>Linux/UNIX - basic and intermediate</li>
+	<li>Networking and TCP/IP</li>
+	<li>Linux system administration I</li>
+	<li>LPI level 1 certification</li>
+      </ul>
+     <li>Intermediate courses</li>
+      <ul>
+	<li>Linux/UNIX shell programming</li>
+	<li>Linux system administration II</li>
+	<li>LPI level 2 certification</li>
+      </ul>
+      <li>Advanced courses:</li>
+       <ul>
+	<li>Linux system administration III</li>
+	<li>Linux security</li>
+	<li>DNS</li>
+	<li>LDAP</li>
+	<li>Samba</li>
+	<li>Varnish</li>
+      </ul>
+      <li>Multiple programming courses (Perl, Python, PHP, XML, SQL)</li>
+      <li>Skolelinux</li>
+      <li>Linux on the desktop</li>
+      <li>Customised courses, workshops</li>
+    </ul>
+ 
+=teacher
+<p>Hensikten med denne sliden er å vise "hvor på treet" dette kurset er i
+forhold til andre kurs Linpro holder.</p>
+
+<p>Dessuten er dette en fint mulighet til å reklamere for andre kurs</p>
+
+=slide About this course
+
+<ul>
+  <li>Contents<br><ul>
+         <li>Varnish architecture</li>
+         <li>Installation</li>
+         <li>Varnish configuration</li>
+         <li>Varnish Configuration Language</li>
+         <li>Toolbox</li>
+         <li>Logs</li>
+         <li>Load balancing</li>
+         <li>Backend health checking</li>
+         <li>ESI</li>
+         <li>Monitoring varnish</li>
+      </ul></li>
+  <li>Intended audience<ul>
+         <li>Varnish cache administrators</li>
+         <li>Administrators of backends behind Varnish, who wants to
+  understand why Varnish works the way it does</li> 
+       </ul></li>
+  <li>Prerequisites<br><ul>
+         <li>Familiar with the command line, including file handling
+  and editing</li>
+         <li>Understanding of HTTP, particularly caching</li>
+       </ul></li>
+</ul>
+
+<p><b>Presentation of participants:</b><br>
+Please tell everybody what your name is, what your work is and why you
+are taking the course.  If you have any particular expectations about
+the contents of the course, please state those too.
+</p>
+
+=comments
+
+=slide Practical Information
+
+<ul>
+   <li>50% exercises</li>
+   <li>50% instruction</li>
+   <li>The curriculum is split between the two days based on progress and
+   necessity</li>
+</ul>
+
+=teacher
+<p>Mention frequent breaks.</p>
+
+<p>For v1: mention the facilities available (toilet, coffee machine,
+snacks)</p>

@@ -1,0 +1,125 @@
+=version $Id$
+=topic Configuration
+
+=slide Configuration
+<ul>
+  <li>Command line configuration</li>
+  <li>Tunable parameters</li>
+  <li>VCL</li>
+</ul>
+
+=comments
+<p>Varnish has two conceptually different configuration sets. Tunable
+parameters and command line arguments are used to define how varnish should
+work with operating system and hardware in addition to setting some default
+values, while VCL define how Varnish should interact with web servers and
+clients.</p>
+
+<p>Almost every aspect of Varnish can be reconfigured without restarting
+Varnish. Notable exceptions are cache size and location, the username and
+group that Varnish runs as and hashing algorithm.</p>
+
+<p>While you can change the values, some changes might require restarting
+the child to take effect (modifying the listening port, for instance) or
+might not be visible immediately. Changes to how long objects are cached,
+for instance, usually only take effect after the currently cached objects
+expire and are fetched again.</p>
+
+=slide Command line configuration
+
+<ul>
+	<li><code>-a hostname:port</code> - listen address</li>
+	<li><code>-b hostname:port</code> - backend address</li>
+	<li><code>-f filename.vcl</code> - VCL</li>
+	<li><code>-p parameter=value</code> - set tunable parameters</li>
+	<li><code>-d</code> - debug</li>
+	<li><code>-d -d</code> - debug harder</li>
+	<li><code>-T hostname:port</code> - Telnet interface</li>
+	<li><code>-s storagetype,options</code> - where and how to
+	store objects</li>
+</ul>
+
+=teacher
+
+Pass på å nevne at telnet-grensesnittet bør beskyttes.
+
+=comments
+
+<p>All the options that you can pass to the 'varnishd' binary are
+documented in the varnsihd manual page (<code>man varnishd</code>). You may
+want to take a moment to skim over the options mentioned above.</p>
+
+<p>The only option that is strictly needed to start Varnish is the -b
+option to specify a backend or the mutually exclusive -f to specify a VCL
+file. Note that you can not specify both -b and -f at the same time. Until
+you start working with VCL, use -b to tell Varnish where your web server
+is.</p>
+
+<p>Though they are not strictly required, you almost always want to specify
+a "-s" to select a storage backend, "-a" to make sure Varnish listens for
+clients on the port you expect and -T to enable a management interface,
+often referred to as a telnet interface.</p>
+
+<p>Both for -T and -a, you do not need to specify an IP, but can use ":80"
+to tell Varnish to listen to port 80 on all IPs available. Make sure you
+don't forget the colon, as "-a 80" will tell Varnish to listen to the IP
+with the decimal-representation "80", which is almost certainly not what
+you want. This is a result of the underlying function that accept this kind
+of syntax.</p>
+
+<p>You can specify -p for parameters multiple times. The workflow for
+tuning varnish parameters usually means that you first try the parameter on
+a running varnish through the management interface to find the value you
+want, then store it in a configuration file that will pass it to varnish
+with -p next time you start it up. We will look at these files later
+on.</p>
+
+=slide Storage backends
+
+<ul>
+	<li>file</li>
+	<li>malloc</li>
+</ul>
+
+=comments
+
+<p>Varnish supports two different methods of allocating space for the
+cache, and you choose which one you want with the '-s' argument.</p>
+
+<p>They approach the same basic problem from two different angles. With the
+"malloc"-method, Varnish will request the entire size of the cache with a
+malloc() (memory allocation) system call. The operating system will then
+divide the cache between memory and cache by swapping out what it can't fit
+in memory.</p>
+
+<p>The alternative is to use the "file" storage backend, which instead
+creates a file on a filesystem to contain the entire cache, then tell the
+operating system through the mmap() (memory map) system call to map the
+entire file into memory if possible.</p>
+
+<p><b>The file storage method does not retain data when you stop or restart
+Varnish!</b> This is what persistent storage is for, which is not yet
+available. While it might seem like that's what it would do, remember that
+we do not know which parts of the cache is actually written to the file and
+which are just kept in memory. In fact, the content written to file is
+likely going to be the least accessed content you have. Varnish will not
+try to read the content, though.</p>
+
+<p>So while malloc will use swap to store data to disk, file will use
+memory to cache the data instead, so to speak. The reason that Varnish
+allow you to choose, is that historically, the performance have been
+somewhat different.</p>
+
+<p>When choosing storage backend, the rule of thumb is to use malloc if
+your cache will be contained entirely or mostly in memory, while the file
+storage backend performs far better when you need a large cache that
+exceeds the physical memory available. This might vary based on the kernel
+you use, but seems to be the case for 2.6.18 and later Linux kernel, in
+addition to FreeBSD.</p>
+
+=teacher
+Viktig slide.
+
+Fortell litt om hvordan file og mmap fungerer. Kanskje snakke litt om
+virtuelt minne i sin alminnelighet. Fortell om endringer i VMen i
+Linux 2.6.18+ og FBSD 7+. 

@@ -1,0 +1,93 @@
+=version $Id: backend.pds,v 1.6 2005-12-19 13:06:51 lars Exp $
+=topic Escenic
+=slide Escenic-specific concerns
+
+<ul>
+	<li>Know your cookies</li>
+	<li>Strip cookies where you don't need them</li>
+	<li>Ensure that your session workspace is sufficiently large if ESI
+	is heavily used</li>
+</ul>
+
+=comments
+
+<p>In the context of Varnish, the Escenic platform is similar to most other
+Java-based content management systems. As such, understanding your cookies
+is the key to combining Varnish and Escenic.</p>
+
+<p>During testing, reading varnishlog and monitoring what cookies are
+actually sent by the client and server is a good method to get a general
+overview.</p>
+
+<p>In addition to cookies, Escenic can use ESI which can pose challenges
+for caching. The first obstacle is usually session workspace. Redpill
+Linpro have had to set sess_workspace to 5MB. This will be covered in more
+detail in the Troubleshooting section, but is particularly relevant for
+Escenic.</p>
+
+=teacher
+
+<p>Mention that cookies is the most fundamental challenge for any dynamic
+site.</p>
+
+<p>Some customers have had to use up to 5MB sess_workspace. This is not
+common, but it hasn't caused a significant slowdown either.</p>
+
+=slide Escenic and ESI
+
+<p>Escenic can use ESI, which allow Varnish to combine very dynamic
+elements with fairly static elements and deliver it to the client as a
+single page.</p>
+
+<ul>
+	<li>Different TTL is straight forward</li>
+	<li>The same limitations apply as with any ESI site</li>
+	<li>User-specific content, the Mentometer poll for instance, will
+	require adaptations</li>
+</ul>
+
+=comments
+
+<p>Edge Side Includes, or ESI, allows the caching layer to build up a
+single page based on multiple elements (pages or objects) from the backend.</p>
+
+<p>As with normal ESI, if you just want to modify the TTL, ESI is easy to
+use. If you wish to use the Mentometer through ESI, evaluating the URL then
+removing Mentometer-cookie if it's not the right object is a good
+approach.</p>
+
+=teacher
+
+<p></p>
+
+=slide Mentometer cookie handling example
+
+
+<pre>
+sub vcl_hash {
+	# Remove mentometer cookie unless we're acessing /esi/poll/
+	if (!(req.url ~ "^/esi/poll/")) {
+		set req.http.Cookie = regsub(req.http.Cookie, "
+				*mentometer=[^;]+\;", "");
+		set req.http.Cookie = regsub(req.http.Cookie,
+				"\;? *mentometer=[^;]+", "");
+	}
+	# Remove empty Cookie header
+	if (req.http.Cookie ~ "^ *$" || req.http.Cookie ~
+			"^((Path|Expires)=[^;]+\;? *)+$") { 
+		remove req.http.Cookie; 
+	}
+
+	# And add any remaining cookie to the hash
+	set req.hash += req.http.cookie;
+}
+</pre>
+
+=comments
+
+<p>The above is one example of how Redpill Linpro have solved this
+issue for a customer.</p>
+
+<p>This is after all other potential cookies have been dealt with in
+vcl_recv. Based on your site, you may want to move part of this logic to
+vcl_recv instead.</p>

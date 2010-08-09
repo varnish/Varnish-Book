@@ -1,0 +1,25 @@
+=slide ESI
+
+=include ../../template/template_oppgaver_en.html
+
+<ol>
+  <li>Put 
+<pre>
+#!/bin/sh
+
+echo 'Content-type: text/html'
+echo 'Cache-control: max-age=1'
+echo ''
+date "+%Y-%m-%d %H:%M:%S"
+</pre>
+in <code>/usr/lib/cgi-bin/date.cgi</code> and <code>chmod +x</code> it
+</li>
+
+<li>
+Make /var/www/index.html include /cgi-bin/date.cgi:
+<pre>
+&lt;esi:include src="/cgi-bin/date.cgi"/&gt;
+</pre> 
+</li>
+<li>Look at the number of objects cached</li>
+</ol>

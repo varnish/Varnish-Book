@@ -1,0 +1,15 @@
+=version $Id: oppgaver-del2.pds,v 1.4 2005-12-19 13:08:10 lars Exp $
+=slide Exercise: Try the tools
+
+=include ../../template/template_oppgaver_en.html
+
+<ol>
+  <li>Send a few requests to Varnish using <code>GET -e
+  http://localhost:8000</code></li>
+  <li>verify you have some cached objects using <code>varnishstat</code></li>
+  <li>look at the communication with the clients, using
+  <code>varnishlog</code>.  Try sending various headers and see they
+  appear in varnishlog.</li>
+  <li>Install <code>siege</code></li>
+  <li>Run siege against localhost while looking at varnishhist</li>
+</ol>

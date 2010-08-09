@@ -1,0 +1,1705 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<meta name="version" content="S5 1.1" />
+<title>Varnish System Administration</title>
+<meta name="author" content="Tollef Fog Heen, Kristian Lyngstøl" />
+<meta name="copyright" content="Varnish Software AS 2010, Redpill Linpro AS 2008-2009" />
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<script src="ui/vs//slides.js" type="text/javascript"></script>
+<link rel="stylesheet" href="ui/vs//slides.css"
+      type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/vs//outline.css"
+      type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/vs//print.css"
+      type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/vs//opera.css"
+      type="text/css" media="projection" id="operaFix" />
+</head>
+<body>
+<div class="layout">
+<div id="controls"></div>
+<div id="currentSlide"></div>
+<div id="header">
+<div id="header">
+
+</div>
+
+</div>
+<div id="footer">
+<h1>Varnish System Administration</h1>
+
+</div>
+</div>
+<div class="presentation">
+<div class="slide" id="slide0">
+<h1 class="title">Varnish System Administration</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>Tollef Fog Heen, Kristian Lyngstøl</td></tr>
+<tr><th class="docinfo-name">Copyright:</th>
+<td>Varnish Software AS 2010, Redpill Linpro AS 2008-2009</td></tr>
+</tbody>
+</table>
+<img alt="bilder/logo.png" src="bilder/logo.png" />
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">align:</th><td class="field-body">center
+:width: 181px</td>
+</tr>
+</tbody>
+</table>
+<div class="contents handout topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#introduction" id="id1">1&nbsp;&nbsp;&nbsp;Introduction</a><ul class="auto-toc">
+<li><a class="reference internal" href="#goals" id="id2">1.1&nbsp;&nbsp;&nbsp;Goals</a></li>
+<li><a class="reference internal" href="#prerequisites" id="id3">1.2&nbsp;&nbsp;&nbsp;Prerequisites</a></li>
+<li><a class="reference internal" href="#about-the-course" id="id4">1.3&nbsp;&nbsp;&nbsp;About the course</a></li>
+<li><a class="reference internal" href="#introduction-to-varnish" id="id5">1.4&nbsp;&nbsp;&nbsp;Introduction to Varnish</a></li>
+<li><a class="reference internal" href="#the-history-of-varnish" id="id6">1.5&nbsp;&nbsp;&nbsp;The history of Varnish</a></li>
+<li><a class="reference internal" href="#varnish-2-0" id="id7">1.6&nbsp;&nbsp;&nbsp;Varnish 2.0</a></li>
+<li><a class="reference internal" href="#varnish-2-1" id="id8">1.7&nbsp;&nbsp;&nbsp;Varnish 2.1</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#architecture" id="id9">2&nbsp;&nbsp;&nbsp;Architecture</a><ul class="auto-toc">
+<li><a class="reference internal" href="#design-principles" id="id10">2.1&nbsp;&nbsp;&nbsp;Design principles</a></li>
+<li><a class="reference internal" href="#process-architecture" id="id11">2.2&nbsp;&nbsp;&nbsp;Process Architecture</a><ul class="auto-toc">
+<li><a class="reference internal" href="#the-management-process" id="id12">2.2.1&nbsp;&nbsp;&nbsp;The management process</a></li>
+<li><a class="reference internal" href="#the-child-process" id="id13">2.2.2&nbsp;&nbsp;&nbsp;The child process</a></li>
+<li><a class="reference internal" href="#vcl-compilation" id="id14">2.2.3&nbsp;&nbsp;&nbsp;VCL compilation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-started" id="id15">3&nbsp;&nbsp;&nbsp;Getting started</a><ul class="auto-toc">
+<li><a class="reference internal" href="#exercise-install-backend" id="id16">3.1&nbsp;&nbsp;&nbsp;Exercise: Install backend</a></li>
+<li><a class="reference internal" href="#exercise-installation" id="id17">3.2&nbsp;&nbsp;&nbsp;Exercise: Installation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration" id="id18">4&nbsp;&nbsp;&nbsp;Configuration</a><ul class="auto-toc">
+<li><a class="reference internal" href="#command-line-configuration" id="id19">4.1&nbsp;&nbsp;&nbsp;Command line configuration</a></li>
+<li><a class="reference internal" href="#storage-backends" id="id20">4.2&nbsp;&nbsp;&nbsp;Storage backends</a></li>
+<li><a class="reference internal" href="#exercise-start-varnish" id="id21">4.3&nbsp;&nbsp;&nbsp;Exercise: Start Varnish</a></li>
+<li><a class="reference internal" href="#exercise-start-varnish-solution" id="id22">4.4&nbsp;&nbsp;&nbsp;Exercise: Start Varnish - solution</a></li>
+<li><a class="reference internal" href="#exercise-talking-to-varnish-using-telnet" id="id23">4.5&nbsp;&nbsp;&nbsp;Exercise: Talking to Varnish using telnet</a></li>
+<li><a class="reference internal" href="#exercise-fetch-some-data-through-varnish" id="id24">4.6&nbsp;&nbsp;&nbsp;Exercise: Fetch some data through Varnish</a></li>
+<li><a class="reference internal" href="#best-practices-configuration" id="id25">4.7&nbsp;&nbsp;&nbsp;Best practices: Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tunable-parameters" id="id26">5&nbsp;&nbsp;&nbsp;Tunable parameters</a><ul class="auto-toc">
+<li><a class="reference internal" href="#threads" id="id27">5.1&nbsp;&nbsp;&nbsp;Threads</a><ul class="auto-toc">
+<li><a class="reference internal" href="#details-of-threading-parameters" id="id28">5.1.1&nbsp;&nbsp;&nbsp;Details of threading parameters</a></li>
+<li><a class="reference internal" href="#number-of-threads" id="id29">5.1.2&nbsp;&nbsp;&nbsp;Number of threads</a></li>
+<li><a class="reference internal" href="#timing-thread-growth" id="id30">5.1.3&nbsp;&nbsp;&nbsp;Timing thread growth</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#system" id="id31">5.2&nbsp;&nbsp;&nbsp;System</a></li>
+<li><a class="reference internal" href="#timers" id="id32">5.3&nbsp;&nbsp;&nbsp;Timers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#programs" id="id33">6&nbsp;&nbsp;&nbsp;Programs</a><ul class="auto-toc">
+<li><a class="reference internal" href="#varnishlog" id="id34">6.1&nbsp;&nbsp;&nbsp;varnishlog</a></li>
+<li><a class="reference internal" href="#varnishlog-options" id="id35">6.2&nbsp;&nbsp;&nbsp;varnishlog options</a></li>
+<li><a class="reference internal" href="#varnishncsa" id="id36">6.3&nbsp;&nbsp;&nbsp;varnishncsa</a></li>
+<li><a class="reference internal" href="#varnishstat" id="id37">6.4&nbsp;&nbsp;&nbsp;varnishstat</a></li>
+<li><a class="reference internal" href="#varnishhist" id="id38">6.5&nbsp;&nbsp;&nbsp;varnishhist</a></li>
+<li><a class="reference internal" href="#exercise-try-the-tools" id="id39">6.6&nbsp;&nbsp;&nbsp;Exercise: Try the tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vcl" id="id40">7&nbsp;&nbsp;&nbsp;VCL</a><ul class="auto-toc">
+<li><a class="reference internal" href="#vcl-syntax" id="id41">7.1&nbsp;&nbsp;&nbsp;VCL - syntax</a></li>
+<li><a class="reference internal" href="#vcl-request-flow" id="id42">7.2&nbsp;&nbsp;&nbsp;VCL - request flow</a><ul class="auto-toc">
+<li><a class="reference internal" href="#detailed-request-flow" id="id43">7.2.1&nbsp;&nbsp;&nbsp;Detailed request flow</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vcl-functions" id="id44">7.3&nbsp;&nbsp;&nbsp;VCL - functions</a></li>
+<li><a class="reference internal" href="#vcl-backend-declaration" id="id45">7.4&nbsp;&nbsp;&nbsp;VCL - Backend declaration</a></li>
+<li><a class="reference internal" href="#vcl-vcl-recv" id="id46">7.5&nbsp;&nbsp;&nbsp;VCL - vcl_recv</a></li>
+<li><a class="reference internal" href="#vcl-vcl-recv-return-codes" id="id47">7.6&nbsp;&nbsp;&nbsp;VCL - vcl_recv - return codes</a></li>
+<li><a class="reference internal" href="#vcl-vcl-hash" id="id48">7.7&nbsp;&nbsp;&nbsp;VCL - vcl_hash</a></li>
+<li><a class="reference internal" href="#vcl-vcl-hit" id="id49">7.8&nbsp;&nbsp;&nbsp;VCL - vcl_hit</a></li>
+<li><a class="reference internal" href="#vcl-vcl-miss" id="id50">7.9&nbsp;&nbsp;&nbsp;VCL - vcl_miss</a></li>
+<li><a class="reference internal" href="#vcl-vcl-fetch" id="id51">7.10&nbsp;&nbsp;&nbsp;VCL - vcl_fetch</a></li>
+<li><a class="reference internal" href="#vcl-vcl-deliver" id="id52">7.11&nbsp;&nbsp;&nbsp;VCL - vcl_deliver</a></li>
+<li><a class="reference internal" href="#vcl-vcl-error" id="id53">7.12&nbsp;&nbsp;&nbsp;VCL - vcl_error</a></li>
+<li><a class="reference internal" href="#vcl-variables" id="id54">7.13&nbsp;&nbsp;&nbsp;VCL - variables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+<div class="slide" id="introduction">
+<h1>1&nbsp;&nbsp;&nbsp;Introduction</h1>
+<ul class="simple">
+<li>Goals and prerequisites</li>
+<li>About the course</li>
+<li>Introduction to Varnish</li>
+<li>History</li>
+<li>Varnish 2.0 and Varnish 2.1</li>
+</ul>
+
+</div>
+<div class="slide" id="goals">
+<h2>1.1&nbsp;&nbsp;&nbsp;Goals</h2>
+<ul class="simple">
+<li>Understand how Varnish works</li>
+<li>Be able to set up Varnish from scratch</li>
+<li>Debug cache-related issues</li>
+<li>Avoid pitfalls</li>
+</ul>
+</div>
+
+</div>
+<div class="slide" id="prerequisites">
+<h2>1.2&nbsp;&nbsp;&nbsp;Prerequisites</h2>
+<ul class="simple">
+<li>GNU/Linux/UNIX skills help, but are not a requirement</li>
+<li>Basic understanding of HTTP and related internet protocols</li>
+</ul>
+<div class="handout container">
+<p>The course is oriented around a GNU/Linux server-platform, but the
+majority of the tasks only require minimal knowledge of GNU/Linux.</p>
+<p>The course starts out by installing Varnish and navigating some of the
+common configuration files, which is perhaps the most UNIX-centric part
+of the course. Do not hesitate to ask for help.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="about-the-course">
+<h2>1.3&nbsp;&nbsp;&nbsp;About the course</h2>
+<p>The course is essentially split in two:</p>
+<ol class="arabic simple">
+<li>Architecture, command line tools, installation, parameters, etc</li>
+<li>The Varnish Configuration Language</li>
+</ol>
+<p>The course has roughly 50% exercises and 50% instruction.</p>
+<div class="handout container">
+<p>We will adjust the agenda based on the progress made. There is usually
+ample time to investigate specific aspects of Varnish that may be of
+special interest to some of the participants.</p>
+<p>The exercises will occasionally offer multiple means to reach the same
+goals. Specially when you start working on VCL, you will notice that
+there are almost always more than one way to solve a specific problem,
+and it isn't necessarily given that the solution offered by the
+instructor or this course material is better than what you might come up
+with yourself.</p>
+<p>Always feel free to interrupt the instructor if something is unclear.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="introduction-to-varnish">
+<h2>1.4&nbsp;&nbsp;&nbsp;Introduction to Varnish</h2>
+<ul class="simple">
+<li>What is Varnish?</li>
+<li>Open Source / Free Software</li>
+<li>History</li>
+<li>Design Principles</li>
+</ul>
+<div class="handout container">
+<p>Varnish is a reverse proxy, sometimes referred to as a HTTP accelerator.
+It is designed for modern hardware, modern operating systems and modern
+work loads. This uncompromising philosophy has helped make Varnish a
+very clean and fast piece of software, able to scale and evolve to
+unexpected heights.</p>
+<p>At the same time, Varnish is flexible. The Varnish Configuration
+Language is a lighting fast mechanism that allow the developers to
+implement mechanisms which you as a user can turn into policy. Varnish
+has shown itself to work well both on large (and expensive) servers and
+tiny appliances.</p>
+<p>Varnish is also a open source project, or free software. The development
+process is open, and everyone can submit patches, or just take a peak at
+the code if there is some unclarity as to how Varnish works. There is
+also a community of volunteers which help each other and new-comers. The
+BSD license used by varnish is the most restraint-free license among the
+free licenses, which conceptually makes it possible to use Varnish on so
+called non-free platforms, for example Solaris.</p>
+<p>Varnish is currently developed and tested on GNU/Linux and FreeBSD. The
+code-base is kept as self-contained as possible to avoid introducing
+out-side bugs and unneeded complexity.</p>
+<p>Varnish development is governed by the Varnish Governance Board (VGB),
+which thus far has not needed to intervene. The VGB consist of an
+architect (Poul-Henning Kamp), a representative from the community
+(Artur Bergman) and a representative from Varnish Software (Kristian
+Lyngstøl).</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="the-history-of-varnish">
+<h2>1.5&nbsp;&nbsp;&nbsp;The history of Varnish</h2>
+<ul class="simple">
+<li>Initiated by VG in 2006.</li>
+<li>Redpill Linpro performed the development.</li>
+<li>Later development has been financed through service subscriptions</li>
+<li>Varnish Software was established in 2010 to service the increasing
+commercial interest.</li>
+</ul>
+<div class="handout container">
+<p>VG, large Norwegian newspaper initiated the Varnish-project in
+co-operation with Linpro. The lead developer, Poul-Henning Kamp is an
+experienced FreeBSD kernel-hacker and continues to bring his wisdom
+to Varnish in most areas where it counts.</p>
+<p>From 2006 throughout 2008, most of the development was sponsored by
+VG, API, Escenic and Aftenposten, with project-management,
+infrastructure and extra man-power provided by Redpill Linpro.</p>
+<p>Today Varnish Software is able to fund the core development with
+income from service agreements, in addition to offering development
+of specific features on a case-by-case basis.</p>
+<p>The interest in Varnish continue to increase on an almost daily
+basis.  An informal study based on the list of most popular web
+sites in Norway indicates that about 75% or more of the web traffic
+that originates in Norway is served through Varnish.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="varnish-2-0">
+<h2>1.6&nbsp;&nbsp;&nbsp;Varnish 2.0</h2>
+<ul class="simple">
+<li>Released in October 2008.</li>
+<li>Edge Side Includes (ESI)</li>
+<li>Load balancing</li>
+<li>Backend health checks</li>
+<li>Grace - Controlled delivery of expired objects until a fresh copy is
+available</li>
+</ul>
+<div class="handout container">
+<p>Varnish implements a subset of the ESI Language 1.0 defined by W3C.
+This is based on what was deemed to be necessary at the time.</p>
+<p>Backend health checks, load balancing and grace all interact with
+each other in Varnish 2.0.5 allowing you to reduce the number of
+exposed error messages to almost zero even when your web servers
+are struggling heavily.</p>
+<p>The load balancing of Varnish allow you to define a number of web
+servers that Varnish should balance the traffic between, based on
+an algorithm you can specify. When health checks are enabled,
+Varnish will only direct traffic to web servers it knows is working
+correctly, and you can even tell Varnish to use otherwise expired
+content instead of giving an error message when all your web
+servers are marked as unhealthy.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="varnish-2-1">
+<h2>1.7&nbsp;&nbsp;&nbsp;Varnish 2.1</h2>
+<ul class="simple">
+<li>Version 2.1 was released early in 2010.</li>
+<li>Persistent storage</li>
+<li>Improved purging mechanisms</li>
+<li>Saint mode</li>
+</ul>
+<div class="handout container">
+<p>Where Varnish 2.0 brought Varnish out of it's childhood, Varnish
+2.1 will make Varnish truly mature. Persistent storage will allow
+Varnish to keep it's cache - or most of it - when it's restarted.
+This will reduce the warm-up time in case of a system upgrade or
+crash.</p>
+<p>Most of the performance tweaks and the improved purging is already
+included in Varnish 2.0.5. With the new mechanism of purging, it is
+now possible to purge - or invalidate - objects based on any data
+that can be recognized in VCL. The smarter purging allows for more
+dynamic and application-oriented purging, instead of having to
+adapt your web application to Varnish.</p>
+<p>Saint Mode is a way of telling varnish to use an old object instead
+of the new version of the object. This allow you to check in VCL if
+you think what the web server just gave you is correct. For
+instance by checking if it is a &quot;500 Internal Server Error&quot;, you
+can tell Varnish to not try to get this object again from this
+backend, then try again. If none of your backends are able to give
+you the desired result, Varnish can then use the old copy instead
+of serving an error message.</p>
+<p>Most of the performance tweaks that have been made are based on
+experiences either from the Varnish community or from customers of
+Varnish Software, and not on guess-work. The close co-operation
+between developers, users and customers ensures that the
+development is driven by the needs of those who use Varnish instead
+of having the developers try to guess what you as a user want.</p>
+<p>During the development cycle of Varnish, Varnish Software performs
+nightly builds and stress tests on the most current development
+version on Varnish to ensure that the performance and stability
+doesn't decline. In addition to this, the open development model
+allows anyone who's interested to grab the latest development
+version and try it out.</p>
+</div>
+</div>
+</div>
+
+</div>
+<div class="slide" id="architecture">
+<h1>2&nbsp;&nbsp;&nbsp;Architecture</h1>
+<ul class="simple">
+<li>Design principles</li>
+<li>Process architecture</li>
+</ul>
+
+</div>
+<div class="slide" id="design-principles">
+<h2>2.1&nbsp;&nbsp;&nbsp;Design principles</h2>
+<ul class="simple">
+<li>Optimized for 64-bit - supports 32bit</li>
+<li>Optimized for multi-core/CPU</li>
+<li>Work with the kernel, not against it</li>
+<li>Innovate - not copy/paste<ul>
+<li>VCL, shared memory log, bheaps</li>
+</ul>
+</li>
+<li>Make the fast-path really fast. Delegate.</li>
+<li>Solve real problems.</li>
+</ul>
+<div class="handout container">
+<p>When Varnish was planned, it was decided early on to focus on
+high-performance, flexibility and stability. That meant making some
+sacrifices.</p>
+<p>Varnish is designed for hardware that you buy today, not the hardware
+you bought 15 years ago. Varnish is designed to run on 64-bit
+architectures and will scale almost proportional to the number of CPU cores
+you have available. Though CPU is rarely a problem.</p>
+<p>If you choose to run Varnish on a 32-bit system, you are limited to 2GB
+of virtual memory, which puts a limit on the number of threads you can run
+and the size of your cache. This is a trade-off to gain a simpler design
+and reduce the amount of work Varnish needs to do.</p>
+<p>Varnish does not keep track of whether your cache is on disk or in
+memory, as the operating system do a far better job at this. Instead,
+Varnish will simply request a large chump of memory and leave it to the
+operating system to figure out where that memory really is.</p>
+<p>Features like accept filters, epoll and kqueue are advanced features of
+the operating system that are designed for high-performance services like
+Varnish.</p>
+<p>In addition, Varnish uses a configuration language that is translated to
+C-code, compiled with a normal C compiler and then linked directly into
+Varnish at run-time. This has several advantages, like allowing you to use
+the optimizations of your C-compiler, and adapting Varnish to your exact
+needs even if the developers didn't see your specific use-case.</p>
+<p>The shared memory log allow Varnish to log extensive information at
+almost no cost by having other applications parse the data and extract the
+useful bits. This is important to reduce the lock-contention in a heavily
+threaded environment like Varnish. Lock-contention is also one of the
+reasons why Varnish uses a workspace-oriented memory-model instead of only
+allocating the exact amount of space it needs at run-time.</p>
+<p>This all sums up to a few important principles. First of all,
+Varnish is designed to run on realistic hardware under real
+work-loads and to solve real problems. Varnish do not cater to the
+&quot;I want to make varnish run on my 486 just because&quot;-crowd. If it
+does work on your 486, then that's fine, but that's not where you
+will see our focus. Nor will you see us sacrifice performance or
+simplicity for the sake of niche use-cases that can easily be
+solved by other means - like using a 64-bit OS.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="process-architecture">
+<h2>2.2&nbsp;&nbsp;&nbsp;Process Architecture</h2>
+<p>The multi-process architecture:</p>
+<div align="center" class="align-center"><img alt="bilder/architecture.png" class="align-center" src="bilder/architecture.png" /></div>
+
+</div>
+<div class="handout section" id="the-management-process">
+<h3>2.2.1&nbsp;&nbsp;&nbsp;The management process</h3>
+<p>Varnish has two main process: the management process and the child process.
+The management process has many uses, but usually does very little. It will
+compile VCL, communicate with other processes or a system administrator
+through the management interface, apply parameter changes, initialize
+Varnish and watch.</p>
+<p>By default, the management process polls the child process every few
+seconds to see if it's still there. If it doesn't get a reply within a
+reasonable time, the management process will kill the child and start it
+back up again. The same happens if the child unexpectedly exits, for
+example from a segmentation fault or assert error.</p>
+<p>This ensures that even if Varnish does contain a critical bug, it will
+start back up again fast. Usually within a few seconds, depending on the
+conditions.</p>
+<p>All of this is logged to syslog. This makes it crucially important to
+monitor the syslog for just such restarts, because you may never even know
+unless you look for them, because the perceived downtime is so short.</p>
+</div>
+
+</div>
+<div class="handout section" id="the-child-process">
+<h3>2.2.2&nbsp;&nbsp;&nbsp;The child process</h3>
+<p>The child process is where the real magic goes on. The child process
+consist of several different types of threads, including, but not limited
+to:</p>
+<ul class="simple">
+<li>Acceptor thread to accept new connections and delegate them</li>
+<li>Worker threads - one per session. It's common to use hundreds of worker
+threads.</li>
+<li>Expiry thread, to evict old content from the cache</li>
+</ul>
+<p>Varnish uses workspaces to reduce the contention between each thread when
+they need to acquire or modify some part of the memory. There are multiple
+work spaces, but the most important one is the session workspace, which is
+used to deal with manipulation of session data. An example of such a
+manipulation would be to change the &quot;www.example.com&quot; to &quot;example.com&quot;
+before it is entered into the cache, to reduce the number of duplicates.</p>
+<p>It is important to remember that even if you have 5MB of session workspace
+and are using 1000 threads, the actual memory usage is not 5GB. The virtual
+memory usage will indeed be 5GB, but unless you actually use the memory,
+this is not a problem. Your memory controller and operating system will
+keep track of what you actually use.</p>
+<p>To communicate with the rest of the system, the child process uses a shared
+memory log accessible from the file system. This means that if a thread
+needs to log something, all it has to do is grab a lock, write to a memory
+area and then free the lock. In addition to that, each worker thread has a
+cache for log data to avoid overly frequent locking.</p>
+<p>The log file is usually about 90MB, and split in two. The first part is
+counters, the second part is request data. To view the actual data, a
+number of tools exist that parses the shared memory log. Because the
+log-data is not meant to be written to disk in its raw form, Varnish can
+afford to be very verbose. You then use one of the log-parsing tools to
+extract the piece of information you want - either to store it permanently
+or to monitor Varnish in real-time.</p>
+</div>
+
+</div>
+<div class="handout section" id="vcl-compilation">
+<h3>2.2.3&nbsp;&nbsp;&nbsp;VCL compilation</h3>
+<p>Configuring the caching policies of Varnish is done in the Varnish
+Configuration Language (VCL). Your VCL is then interpreted by the
+management process into to C and then compiled by a normal C compiler -
+typically gcc. Lastly, it is linked into the running Varnish instance.</p>
+<p>As a result of this, changing configuration while Varnish is running is
+very cheap. Varnish may want to keep the old configuration around for a bit
+in case it still has references to it, but the policies of the new VCL
+takes effect immediately.</p>
+<p>Because the compilation is done outside of the child process, there is
+virtually no risk of affecting the running Varnish by accidentally loading
+an ill-formated VCL.</p>
+</div>
+</div>
+</div>
+
+</div>
+<div class="slide" id="getting-started">
+<h1>3&nbsp;&nbsp;&nbsp;Getting started</h1>
+<pre class="literal-block">
+rpm -i libvarnish*.rpm
+rpm -i varnish*.rpm
+</pre>
+<pre class="literal-block">
+dpkg -i libvarnish*.deb
+dpkg -i varnish*.deb
+</pre>
+<p>A 64 bit environment is recommended for production.</p>
+<blockquote>
+<ul class="simple">
+<li>Setting up a backend</li>
+<li>Downloading the source</li>
+<li>Compiling and installing</li>
+</ul>
+</blockquote>
+<div class="handout container">
+<p>You want to use packages for your operating system whenever possible,
+but today you can choose for yourself.</p>
+<p>If the computer you will be using throughout this course has Varnish
+2.0.3 or more recent available through the package system, you are
+encouraged to use that package if you do not feel you need the exercise
+in installing from source.</p>
+<p>We will be using usemod-wiki and apache2 throughout the course (among
+other things) as a backend. Usemod-wiki is a simple yet dynamic web
+application that is well-suited for testing. While you are welcome to
+choose something else, you should wait until the second day of training to
+set a real web-application as backend, due to the extra complications that
+are usually caused by cookies.</p>
+</div>
+
+</div>
+<div class="slide" id="exercise-install-backend">
+<h2>3.1&nbsp;&nbsp;&nbsp;Exercise: Install backend</h2>
+<ol class="arabic simple">
+<li>Install &quot;usemod-wiki&quot; and &quot;apache2&quot;</li>
+<li>Verify they work by going to &quot;<a class="reference external" href="http://localhost/">http://localhost/</a>&quot; and &quot;<a class="reference external" href="http://localhost/cgi-bin/wiki.pl">http://localhost/cgi-bin/wiki.pl</a>&quot;</li>
+<li>If it complains about &quot;Bad page version (or corrupt page).&quot;, run &quot;sudo rm -r /var/lib/usemod-wiki/page&quot;</li>
+</ol>
+<p>XXX: FIXME: More stuff and &quot;solving&quot; it.</p>
+</div>
+
+</div>
+<div class="slide" id="exercise-installation">
+<h2>3.2&nbsp;&nbsp;&nbsp;Exercise: Installation</h2>
+<ol class="arabic simple">
+<li>Install &quot;libncurses5-dev&quot;</li>
+<li>Download Varnish from <a class="reference external" href="http://sourceforge.net/projects/varnish">http://sourceforge.net/projects/varnish</a></li>
+<li>Unpack in your ~</li>
+<li>Run &quot;configure&quot;,</li>
+<li>&quot;make&quot; and &quot;sudo make install&quot;</li>
+</ol>
+<ul class="simple">
+<li>Hint: If you are on Debian-based system, you will need the
+&quot;build-essential&quot; package and you may want to run &quot;apt-get build-dep
+varnish&quot;</li>
+</ul>
+</div>
+</div>
+
+</div>
+<div class="slide" id="configuration">
+<h1>4&nbsp;&nbsp;&nbsp;Configuration</h1>
+<ul class="simple">
+<li>Command line configuration</li>
+<li>Tunable parameters</li>
+<li>VCL</li>
+</ul>
+<div class="handout container">
+<p>Varnish has two conceptually different configuration sets. Tunable
+parameters and command line arguments are used to define how varnish should
+work with operating system and hardware in addition to setting some default
+values, while VCL define how Varnish should interact with web servers and
+clients.</p>
+<p>Almost every aspect of Varnish can be reconfigured without restarting
+Varnish. Notable exceptions are cache size and location, the username and
+group that Varnish runs as and hashing algorithm.</p>
+<p>While you can change the values, some changes might require restarting
+the child to take effect (modifying the listening port, for instance) or
+might not be visible immediately. Changes to how long objects are cached,
+for instance, usually only take effect after the currently cached objects
+expire and are fetched again.</p>
+</div>
+
+</div>
+<div class="slide" id="command-line-configuration">
+<h2>4.1&nbsp;&nbsp;&nbsp;Command line configuration</h2>
+<ul class="simple">
+<li>&quot;-a hostname:port&quot; - listen address</li>
+<li>&quot;-b hostname:port&quot; - backend address</li>
+<li>&quot;-f filename.vcl&quot; - VCL</li>
+<li>&quot;-p parameter=value&quot; - set tunable parameters</li>
+<li>&quot;-d&quot; - debug</li>
+<li>&quot;-d -d&quot; - debug harder</li>
+<li>&quot;-T hostname:port&quot; - Telnet interface</li>
+<li>&quot;-s storagetype,options&quot; - where and how to store objects</li>
+</ul>
+<div class="handout container">
+<p>All the options that you can pass to the 'varnishd' binary are
+documented in the varnsihd manual page (&quot;man varnishd&quot;). You may
+want to take a moment to skim over the options mentioned above.</p>
+<p>The only option that is strictly needed to start Varnish is the -b
+option to specify a backend or the mutually exclusive -f to specify a VCL
+file. Note that you can not specify both -b and -f at the same time. Until
+you start working with VCL, use -b to tell Varnish where your web server
+is.</p>
+<p>Though they are not strictly required, you almost always want to specify
+a &quot;-s&quot; to select a storage backend, &quot;-a&quot; to make sure Varnish listens for
+clients on the port you expect and -T to enable a management interface,
+often referred to as a telnet interface.</p>
+<p>Both for -T and -a, you do not need to specify an IP, but can use &quot;:80&quot;
+to tell Varnish to listen to port 80 on all IPs available. Make sure you
+don't forget the colon, as &quot;-a 80&quot; will tell Varnish to listen to the IP
+with the decimal-representation &quot;80&quot;, which is almost certainly not what
+you want. This is a result of the underlying function that accept this kind
+of syntax.</p>
+<p>You can specify -p for parameters multiple times. The workflow for
+tuning varnish parameters usually means that you first try the parameter on
+a running varnish through the management interface to find the value you
+want, then store it in a configuration file that will pass it to varnish
+with -p next time you start it up. We will look at these files later
+on.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="storage-backends">
+<h2>4.2&nbsp;&nbsp;&nbsp;Storage backends</h2>
+<ul class="simple">
+<li>file</li>
+<li>malloc</li>
+<li>persistent (experimental)</li>
+</ul>
+<div class="handout container">
+<p>Varnish supports two different methods of allocating space for the
+cache, and you choose which one you want with the '-s' argument.</p>
+<p>They approach the same basic problem from two different angles. With the
+&quot;malloc&quot;-method, Varnish will request the entire size of the cache with a
+malloc() (memory allocation) system call. The operating system will then
+divide the cache between memory and cache by swapping out what it can't fit
+in memory.</p>
+<p>The alternative is to use the &quot;file&quot; storage backend, which instead
+creates a file on a filesystem to contain the entire cache, then tell the
+operating system through the mmap() (memory map) system call to map the
+entire file into memory if possible.</p>
+<p><em>The file storage method does not retain data when you stop or restart
+Varnish!</em> This is what persistent storage is for. While it might
+seem like that's what it would do, remember that we do not know
+which parts of the cache is actually written to the file and which
+are just kept in memory. In fact, the content written to file is
+likely going to be the least accessed content you have. Varnish
+will not try to read the content, though.</p>
+<p>So while malloc will use swap to store data to disk, file will use
+memory to cache the data instead, so to speak. The reason that Varnish
+allow you to choose, is that historically, the performance have been
+somewhat different.</p>
+<p>The persistent storage backend is similar to file, but only
+released in an experimental state. It does not yet handle
+situations where you run out of space gracefully. We only recommend
+using persistent if you have a large amount of data that you must
+cache and are prepared to work with us to track down bugs.</p>
+<p>When choosing storage backend, the rule of thumb is to use malloc if
+your cache will be contained entirely or mostly in memory, while the file
+storage backend performs far better when you need a large cache that
+exceeds the physical memory available. This might vary based on the kernel
+you use, but seems to be the case for 2.6.18 and later Linux kernel, in
+addition to FreeBSD.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="exercise-start-varnish">
+<h2>4.3&nbsp;&nbsp;&nbsp;Exercise: Start Varnish</h2>
+<ol class="arabic simple">
+<li>Start Varnish, in debug mode, with the telnet interface on port 1234,
+HTTP listening on <cite>:8000</cite>, with <cite>127.0.0.1:80</cite> as the backend</li>
+</ol>
+</div>
+
+</div>
+<div class="slide" id="exercise-start-varnish-solution">
+<h2>4.4&nbsp;&nbsp;&nbsp;Exercise: Start Varnish - solution</h2>
+<pre class="literal-block">
+varnishd -b 127.0.0.1:80 -a :8000 -T :1234 -d
+</pre>
+<div class="handout container">
+<p>Did you remember the colon?</p>
+<p>To see the difference between &quot;-d&quot; and &quot;-d -d&quot;, try starting Varnish
+with -d, then hitting &quot;Ctrl-d&quot;. This should drop you back to your shell.
+Now run &quot;ps aux | grep varnish&quot; to see if Varnish is running, then try it
+again with &quot;-d -d&quot;. Did you see the difference?</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="exercise-talking-to-varnish-using-telnet">
+<h2>4.5&nbsp;&nbsp;&nbsp;Exercise: Talking to Varnish using telnet</h2>
+<ul class="simple">
+<li>Telnet to <cite>localhost</cite> port <cite>1234</cite></li>
+<li>Type <cite>help</cite></li>
+<li>Find out what the parameter <cite>default_ttl</cite> is set to.</li>
+</ul>
+<div class="handout container">
+<p>The telnet interface - or management interface - is a powerful tool for
+administrating Varnish. Through it you can change most aspect of
+Varnish.</p>
+<p>One important concern that regards the telnet interface is security.
+Because the telnet interface is not encrypted, does not have
+authenticate and still allows almost total control over Varnish, it is
+important to protect it. The easiest way of doing that is by having it
+only listen to localhost (127.0.0.1). An other possibility is firewall
+rules to only allow specific (local) users to connect.</p>
+<p>It is also possible to protect the telnet interface through a shared
+secret, but this makes it impossible to use it without also using
+varnishadm. At the time being, it is reserved for certain scripts. It
+may become a default in the future.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="exercise-fetch-some-data-through-varnish">
+<h2>4.6&nbsp;&nbsp;&nbsp;Exercise: Fetch some data through Varnish</h2>
+<ul class="simple">
+<li>Type <cite>start</cite> in the telnet or CLI interface</li>
+<li>Install <cite>libwww-perl</cite></li>
+<li>Do <cite>GET -Used http://localhost:8000/</cite> (on the command
+line)</li>
+<li>Wait about five seconds</li>
+<li>Repeat the <cite>GET</cite> above and compare the results</li>
+</ul>
+<div class="handout container">
+<p>GET and HEAD is actually the same tool; lwp-request. A HTTP HEAD request
+tells the web server - or Varnish in this case - to only reply with the
+HTTP headers, while GET returns everything.</p>
+<p>&quot;GET -Used&quot; tells lwp-request to do a GET-request, print the request
+headers (U), print the response status code (s), which is typically &quot;200
+OK&quot; or &quot;404 File not found&quot;, print the response headers &quot;-e&quot; and finally to
+not display the content of the response. Feel free to try remove some of
+the options to see the effect.</p>
+<p>GET is also useful to generate requests with custom headers, as you can
+supply extra headers with -H &quot;Header: value&quot;, which can be used multiple
+times.</p>
+<p>You may also be familiar with firebug, an add-on for Firfox used for web
+development and related affairs. This too can show you the response
+headers.</p>
+<p>One thing you will discover soon is that web browsers tend to have their
+own cache which you may not immediately be able to tell if you're using or
+not, so always double-check with GET or HEAD if you are in doubt if what
+you're seeing is coming from Varnish or is part of your browser cache.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="best-practices-configuration">
+<h2>4.7&nbsp;&nbsp;&nbsp;Best practices: Configuration</h2>
+<ul class="simple">
+<li>Use the provided scripts</li>
+<li>Only change what you've demonstrated that you need</li>
+<li>Understand your choices</li>
+</ul>
+<div class="handout container">
+<p>Now that you know how to start Varnish manually and how to interact
+with it, let's take a look at how you want to manage your
+configuration in a production setting.</p>
+<p>First of all, you should not underestimate the startup scripts
+provided. They may seem straight forward to you, but they have some
+important details that separate them from &quot;home brew&quot; scripts. The
+most obvious of which is setting of <cite>ulimit</cite>. On top of that is the
+fact that it will save you a lot of time and effort when you
+upgrade and if you ever need external support.</p>
+<p>Like many init scripts, Varnish' init-script is split in two: The
+actual script and the configuration of it. The actual script is
+typically located in /etc/init.d/varnish and should rarely if ever
+be modified.</p>
+<p>On Debian-related systems, the configuration is stored in
+/etc/defaults/varnish, while they are typically located in
+/etc/sysconfig/varnish on Red Hat-related systems.</p>
+<p>These files are typically just a normal script which is read from
+the init script. That means normal shell-escaping applies.</p>
+<p>There are two basic approaches to managing the options. One is the
+&quot;dynamic&quot; approach, where you specify each detail as a variable and
+the script then puts it together into a program argument. The other
+is specifying the argument(s) directly. There are pros and cons
+with both, and usually a mix makes the most sense.</p>
+<p>XXX: Add more examples</p>
+</div>
+</div>
+</div>
+
+</div>
+<div class="slide" id="tunable-parameters">
+<h1>5&nbsp;&nbsp;&nbsp;Tunable parameters</h1>
+<ul>
+<li><p class="first">In the CLI:</p>
+<pre class="literal-block">
+param.show -l
+</pre>
+</li>
+<li><p class="first">KISS is king.</p>
+</li>
+<li><p class="first">Don't fall for the copy/paste tips</p>
+</li>
+</ul>
+<div class="handout container">
+<p>Varnish has many different parameters which can be adjusted to make
+Varnish act better under specific workloads or with specific software and
+hardware setups. They can all be viewed with &quot;param.show&quot; in the management
+interface and set with the &quot;-p&quot; option passed to varnish - or directly in
+the management interface.</p>
+<p>Remember that changes made in the management interface are not stored
+anywhere, so unless you store your changes in a startup script, they will
+be lost when Varnish restarts.</p>
+<p>The general advice with regards to parameters is to keep it simple. Most
+of the defaults are very good, and even though they might give a small
+boost to performance, it's generally better to use safe defaults if you
+don't have a very specific need.</p>
+</div>
+
+</div>
+<div class="slide" id="threads">
+<h2>5.1&nbsp;&nbsp;&nbsp;Threads</h2>
+<ul class="simple">
+<li>Threads</li>
+<li>Thread pools can safely be ignored</li>
+<li>Maximum: Roughly 5000</li>
+<li>Start them sooner rather than later</li>
+<li>The maximum and minimum number of threads are on different scales!</li>
+</ul>
+
+</div>
+<div class="handout section" id="details-of-threading-parameters">
+<h3>5.1.1&nbsp;&nbsp;&nbsp;Details of threading parameters</h3>
+<p>While most parameters can be left to the defaults, the one big exception
+is number of threads.</p>
+<p>Since Varnish will use one thread for each session, the number of
+threads you let Varnish use is directly proportional to how many
+requests Varnish can serve concurrently.</p>
+<p>The available parameters directly related to threads are:</p>
+<pre class="literal-block">
+thread_pool_add_delay      20 [milliseconds]
+thread_pool_add_threshold  2 [requests]
+thread_pool_fail_delay     200 [milliseconds]
+thread_pool_max            500 [threads]
+thread_pool_min            5 [threads]
+thread_pool_purge_delay    1000 [milliseconds]
+thread_pool_stack          unlimited [bytes]
+thread_pool_timeout        300 [seconds]
+thread_pools               2 [pools]
+thread_stats_rate          10 [requests]
+</pre>
+<p>Out of all of these, the two most important are thread_pool_min and
+thread_pool_max. The thread_pools parameter is also of some importance, but
+mainly because it is used to calculate the real number of minimum threads.</p>
+<p>Varnish splits the threads into multiple pools of threads, the theory being
+that if we only had one thread pool, it might become a contention point in
+a massively multi-tasked environment. In the past, the rule of thumb was to
+have roughly one thread pool for each CPU core. Experience has shown us
+that the importance of multiple thread pools was exaggerated, though, and
+there is little measurable difference between running with one thread pool
+and eight thread pools on a eight-core machine. This holds true even under
+heavy load.</p>
+<p>So for the sake of keeping things simple, the current best practice is to
+leave thread_pools at the default (2).</p>
+</div>
+
+</div>
+<div class="handout section" id="number-of-threads">
+<h3>5.1.2&nbsp;&nbsp;&nbsp;Number of threads</h3>
+<p>The threading model of Varnish allows it to start and stop threads based on
+demand. Time has shown us that this, too, was perhaps a bit unnecessary.
+On a normal 64-bit system, there is little practical difference between
+having 10 threads available and having 1000 threads available. However,
+leaving the minimum amount of threads too low will result in a delay when
+Varnish has to start new threads. The actual delay is likely going to be
+unnoticeable to the user, but since there is virtually no extra cost of
+keeping a few hundred extra threads around, it's generally advisable to
+tune Varnish to always have a few spare threads.</p>
+<p>The thread_pool_min parameter defines how many threads will be running
+for each thread pool even when there is no load. Notice that, unlike
+thread_pool_max, the thread_pool_min parameter has to be multiplied by
+thread_pools (2, by default) to get the total number of minimum threads
+running.</p>
+<p>The defaults of a minimum of 5 threads per thread pool, a maximum of 500
+threads total and 2 thread pools, will result in:</p>
+<ul class="simple">
+<li>At any given time, at least 10 worker threads will be running</li>
+<li>No more than 500 threads will run.</li>
+</ul>
+<p>In other words:</p>
+<ul class="simple">
+<li>Minimum threads running = thread_pools * thread_pool_min</li>
+<li>Maximum threads running = thread_pool_max</li>
+</ul>
+<p>In the past, there was a natural limit to how many threads Varnish could
+use, but this has been removed. Still, we rarely recommend running with
+more than 5000 threads. If you seem to need more than 5000 threads, it's
+very likely that there is something not quite right about your setup, and
+you should investigate elsewhere before you increase the maximum value.</p>
+<p>For minimum, it's common to operate with 500 to 1000 threads minimum
+(total). You can observe if this is enough through varnishstat, by looking
+at the 'overflowed work requests' over time. It should be fairly static
+after startup.</p>
+</div>
+
+</div>
+<div class="handout section" id="timing-thread-growth">
+<h3>5.1.3&nbsp;&nbsp;&nbsp;Timing thread growth</h3>
+<p>When Varnish was initially written, it was revealed that certain operating
+system kernels did not take kindly to a process trying to start a thousand
+threads instantly. To avoid this, a delay between adding threads was added.
+This is tunable through <cite>thread_pool_add_delay</cite>. If you follow the best
+practice of always having enough threads available, this isn't a problem
+for normal operation. However, during initial startup, when Varnish may
+have to start a thousand threads, waiting 20ms (per pool) between each new
+thread is a long time to wait.</p>
+<p>Today, there is little risk involved in reducing the thread_pook_add_delay
+to 1ms. It will, however, reduce the startup time of 1000 threads over 2
+pools from 10 seconds to half a second.</p>
+<p>There are a few, less important parameters related to thread timing. The
+thread_pool_timeout is how long a thread is kept around when there is no
+work for it before it is removed. This only applies if you have more
+threads than the minimum, and is rarely changed.</p>
+<p>An other is the thread_pool_fail_delay, which defines how long to wait
+after the operating system denied us a new thread before we try again.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="system">
+<h2>5.2&nbsp;&nbsp;&nbsp;System</h2>
+<ul class="simple">
+<li>sess_workspace - incoming HTTP header workspace (from client)</li>
+<li>Common values range from 16kB to 10MB</li>
+<li>ESI typically requires exponential growth</li>
+<li>Pre 2.1: obj_workspace.</li>
+<li>Remember: It's all virtual - not physical memory.</li>
+</ul>
+<div class="handout container">
+<p>Workspaces are some of the things you can change with parameters. The
+session workspace is how much memory is allocated to each HTTP session for
+things like string manipulation of incoming headers. It is also
+used to modify the object returned from a web server before the
+precise size is allocated and the object is stored read-only.</p>
+<p>Some times you may have to increase the session workspace to avoid
+running out of workspace. We will talk more about this when we get
+to troubleshooting.</p>
+<p>As most of the parameters can be left unchanged, we will not go through
+all of them, but take a look at the list &quot;param.show&quot; gives you to get an
+impression of what they can do.</p>
+</div>
+<p>XXX: Add stuff! A lot of stuff! (My great intellect shines through in that
+sentence, doesn't it? - K)</p>
+</div>
+
+</div>
+<div class="slide" id="timers">
+<h2>5.3&nbsp;&nbsp;&nbsp;Timers</h2>
+<p>Backend:</p>
+<ul class="simple">
+<li>connect_timeout - OS/network latency</li>
+<li>first_byte_timeout - Page generation?</li>
+<li>between_bytes_timeout - Hiccoughs?</li>
+</ul>
+<p>Client:</p>
+<ul class="simple">
+<li>send_timeout - Client-in-tunnel</li>
+<li>sess_timeout - keep-alive timeout</li>
+</ul>
+<p>Mangement:</p>
+<ul class="simple">
+<li>cli_timeout - Management thread-&gt;child</li>
+</ul>
+<div class="handout container">
+<p>The timeout-parameters are generally set to pretty good defaults, but
+you might have to adjust them for strange applications. The connection
+timeout is tuned for a geographically close web server, and might have to
+be increased if your Varnish server and web server are not close.</p>
+<p>Keep in mind that the session timeout affects how long sessions are kept
+around, which in turn affects file descriptors left open. It is not wise to
+increase the session timeout without taking this into consideration.</p>
+<p>The &quot;cli_timeout&quot; is how long the management thread waits for the worker
+thread to reply before it assumes it's dead, kills it and starts it back
+up. For real loads, the default is very good, but if you manage to starve
+Varnish on CPU, it might be a bit low. After the default was increased to
+10s in Varnish 2.0.4, there have been no reports that indicates that it's
+insufficient on production servers.</p>
+</div>
+</div>
+</div>
+
+</div>
+<div class="slide" id="programs">
+<h1>6&nbsp;&nbsp;&nbsp;Programs</h1>
+<ul class="simple">
+<li>varnishlog</li>
+<li>varnishncsa</li>
+<li>varnishstat</li>
+<li>varnishhist</li>
+<li>varnishtop</li>
+<li>varnishsizes</li>
+</ul>
+
+</div>
+<div class="slide" id="varnishlog">
+<h2>6.1&nbsp;&nbsp;&nbsp;varnishlog</h2>
+<pre class="literal-block">
+97 ReqStart     c 10.1.0.10 50866 117511506
+97 RxRequest    c GET
+97 RxURL        c /style.css
+97 RxProtocol   c HTTP/1.1
+97 RxHeader     c User-Agent: Mozilla/5.0 (Windows; U; Windows NT \
+     6.0; nb-NO; rv:1.9.1b1) Gecko/20081007 Firefox/3.1b1
+97 RxHeader     c Accept: text/css,*/*;q=0.1
+97 RxHeader     c Accept-Charset: ISO-8859-1,*,utf-8
+97 RxHeader     c Accept-Encoding: gzip,deflate,bzip2
+97 RxHeader     c Host: www.example.com
+97 RxHeader     c Connection: Keep-Alive
+97 VCL_call     c recv lookup
+97 VCL_call     c hash hash
+97 Hit          c 117505004
+97 VCL_call     c hit deliver
+97 Length       c 3218
+97 VCL_call     c deliver deliver
+97 TxProtocol   c HTTP/1.1
+97 TxStatus     c 200
+97 TxResponse   c OK
+97 TxHeader     c Server: Apache/2.2.8 (Ubuntu)
+97 TxHeader     c Last-Modified: Fri, 21 Nov 2008 13:49:20 GMT
+97 TxHeader     c ETag: &quot;210215-c32-45ca34fd121800&quot;
+97 TxHeader     c Content-Type: text/css
+97 TxHeader     c Content-Length: 3218
+97 TxHeader     c Date: Sat, 22 Aug 2008 01:10:10 GMT
+97 TxHeader     c X-Varnish: 117511501 117505004
+97 TxHeader     c Age: 2
+97 TxHeader     c Via: 1.1 varnish
+97 TxHeader     c Connection: keep-alive
+97 ReqEnd       c 117511501 1227316210.534358978 \
+     1227316210.535176039  0.035283089 0.000793934 0.000023127
+</pre>
+<!-- Gå nogenlunde kjapt gjennom en eksempel-record som den over.
+ReqStart $addr $port $xid
+RxRequest = req.request
+RxURL = req.url
+RxProtocol = req.proto
+RxHeader = req.http.$name
+VCL_call = call into VCL functions
+Hit = obj->xid
+Length = length of Object
+ReqEnd $xid $time_of_request $time_at_end $delta(open - request)
+       $delta(request - response) $delta(response - end) -->
+</div>
+
+</div>
+<div class="slide" id="varnishlog-options">
+<h2>6.2&nbsp;&nbsp;&nbsp;varnishlog options</h2>
+<ul class="simple">
+<li>-b -- only show traffic to backend</li>
+<li>-c -- only show traffic to client</li>
+<li>-o -- group by request</li>
+</ul>
+<p>Trick: use <cite>-o</cite> together with a regex filter such as:
+<cite>varnishlog -o VCL_call miss</cite>.</p>
+</div>
+
+</div>
+<div class="slide" id="varnishncsa">
+<h2>6.3&nbsp;&nbsp;&nbsp;varnishncsa</h2>
+<p>10.10.0.1 - - [24/Aug/2008:03:46:48 +0100] &quot;GET <a class="reference external" href="http://www.example.com/images/foo.png">http://www.example.com/images/foo.png</a> HTTP/1.1&quot; 200 5330 &quot;<a class="reference external" href="http://www.example.com/">http://www.example.com/</a>&quot; &quot;Mozilla/5.0&quot;</p>
+<!-- Explain this is the common NCSA/Common Logfile Format, useful if you
+need to analyse web server logs using analog, webalizer or similar. -->
+</div>
+
+</div>
+<div class="slide" id="varnishstat">
+<h2>6.4&nbsp;&nbsp;&nbsp;varnishstat</h2>
+<pre class="literal-block">
+7+12:42:47                                                            northpole
+Hitrate ratio:       10      100     1000
+Hitrate avg:     0.9818   0.8365   0.7723
+
+    25594813        33.00        39.34 Client connections accepted
+   116834247       100.99       179.59 Client requests received
+    87993143        60.99       135.26 Cache hits
+       17919         0.00         0.03 Cache hits for pass
+    16891953        33.00        25.96 Cache misses
+    28840874        39.99        44.33 Backend connections success
+           0         0.00         0.00 Backend connections not attempted
+           0         0.00         0.00 Backend connections too many
+           3         0.00         0.00 Backend connections failures
+    27352775        38.99        42.04 Backend connections reuses
+    28513629        39.99        43.83 Backend connections recycles
+           0         0.00         0.00 Backend connections unused
+</pre>
+</div>
+
+</div>
+<div class="slide" id="varnishhist">
+<h2>6.5&nbsp;&nbsp;&nbsp;varnishhist</h2>
+<pre class="literal-block">
+1:100, n = 2000                                    northpole
+
+
+
+
+
+        |
+        |
+        |
+        | |               #
+       || |               #
+       ||||               ##
+       ||||    #          ##
+       |||||   ##       #####  #     #
++-----+-----+-----+-----+-----+-----+-----+-----+-----
+</pre>
+</div>
+
+</div>
+<div class="slide" id="exercise-try-the-tools">
+<h2>6.6&nbsp;&nbsp;&nbsp;Exercise: Try the tools</h2>
+<ul class="simple">
+<li>Send a few requests to Varnish using <cite>GET -e http://localhost:8000</cite></li>
+<li>verify you have some cached objects using <cite>varnishstat</cite></li>
+<li>look at the communication with the clients, using <cite>varnishlog</cite>.
+Try sending various headers and see them appear in varnishlog.</li>
+<li>Install <cite>siege</cite></li>
+<li>Run siege against localhost while looking at varnishhist</li>
+</ul>
+</div>
+</div>
+
+</div>
+<div class="slide" id="vcl">
+<h1>7&nbsp;&nbsp;&nbsp;VCL</h1>
+<ul class="simple">
+<li>Syntax borrowed from C and Perl</li>
+<li>Domain-specific</li>
+<li>No loops, no variables</li>
+<li>Add as little or as much as you want</li>
+</ul>
+<div class="handout container">
+<p>The Varnish Configuration Language (VCL) is used to describe the caching
+policy in use. The VCL file for varnish is also called VCL, so when we
+speak of &quot;the VCL&quot;, it is likely the actual configuration used, as
+specified using the Varnish Configuration Language.</p>
+<p>VCL is driven by a state engine, and defines how a single request is
+handled. All requests will go through the VCL state engine.</p>
+<p>Defining VCL is optional, as Varnish comes with a default VCL that is
+always present. Even if you define your own VCL, the default VCL is
+still present. The default is simply added at the bottom of your own.
+That means you can add just a one line of VCL if you like, and let the
+default VCL do the rest. Or you can specify an extensive VCL and
+terminate the relevant VCL function before it reaches the default VCL.
+It's all up to you.</p>
+<p>Technically, VCL is translated to C code, compiled with a normal C
+compiler and linked into Varnish. If there is something that you can not
+do with normal VCL, it is possible to implement it using in-line C
+instead, which is a way of by-passing the VCL to C conversion, and just
+enter the C code directly. That, however, is far beyond the scope of
+this course, and left intentionally undocumented as it is part of
+programming Varnish, not configuring it.</p>
+</div>
+
+</div>
+<div class="slide" id="vcl-syntax">
+<h2>7.1&nbsp;&nbsp;&nbsp;VCL - syntax</h2>
+<ul class="simple">
+<li># and /* foo */ for comments</li>
+<li>sub $name functions</li>
+<li>No variables (almost true)</li>
+<li>Terminating statements, no return values</li>
+</ul>
+<div class="handout container">
+<p>If you have worked with a programing language or two before, the basic
+syntax of Varnish should be reasonably straight forward. It is inspired
+mainly by C and Perl.</p>
+<p>The functions of VCL are not true functions in the sense that they
+accept variables and return values. To send data inside of VCL, you will
+have to hide it inside of HTTP headers.</p>
+<p>The &quot;return&quot; statement of VCL returns control from the VCL state engine
+to Varnish. If you define your own function and call it from one of the
+default functions, typing &quot;return(foo)&quot; will not return execution from
+your custom function to the default function, but return execution from
+VCL to Varnish. That is why we say that VCL has terminating statements,
+not traditional return values.</p>
+<p>For each domain, you can return control to Varnish using one or more
+different return values. These return statements tell Varnish what to do
+next. Examples include &quot;look this up in cache&quot;, &quot;do not look this up in
+the cache&quot; and &quot;generate an error message&quot;.</p>
+</div>
+</div>
+
+</div>
+<div class="slide" id="vcl-request-flow">
+<h2>7.2&nbsp;&nbsp;&nbsp;VCL - request flow</h2>
+<div align="center" class="align-center"><img alt="vcl.png" class="align-center" src="vcl.png" style="height: 800px;" /></div>
+
+</div>
+<div class="handout section" id="detailed-request-flow">
+<h3>7.2.1&nbsp;&nbsp;&nbsp;Detailed request flow</h3>
+<div align="center" class="align-center"><img alt="request.png" class="align-center" src="request.png" /></div>
+</div>
+</div>
+
+</div>
+<div class="slide" id="vcl-functions">
+<h2>7.3&nbsp;&nbsp;&nbsp;VCL - functions</h2>
+<ul class="simple">
+<li>regsub(str, regex, sub)</li>
+<li>regsuball(str, regex, sub)</li>
+<li>purge_hash(regex)</li>
+<li>purge_url(regex)</li>
+<li>purge(expression)</li>
+<li>restart</li>
+</ul>
+</div>
+
+</div>
+<div class="slide" id="vcl-backend-declaration">
+<h2>7.4&nbsp;&nbsp;&nbsp;VCL - Backend declaration</h2>
+<ul class="simple">
+<li>A backend web server must be named, and it must be referenced.</li>
+<li>The name &quot;default&quot; is not special.</li>
+<li>The first backend specified is the default, regardless of the name.</li>
+</ul>
+<pre class="literal-block">
+backend default {
+        .host = &quot;127.0.0.1&quot;;
+        .port = &quot;8080&quot;;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-recv">
+<h2>7.5&nbsp;&nbsp;&nbsp;VCL - vcl_recv</h2>
+<ul class="simple">
+<li>Executed right after the initial request is parsed.</li>
+<li>Normalizes client-data</li>
+<li>Decides caching-policy based on client data (ie: request method, URL, etc)</li>
+</ul>
+<p>Default:</p>
+<pre class="literal-block">
+sub vcl_recv {
+    if (req.request != &quot;GET&quot; &amp;&amp;
+      req.request != &quot;HEAD&quot; &amp;&amp;
+      req.request != &quot;PUT&quot; &amp;&amp;
+      req.request != &quot;POST&quot; &amp;&amp;
+      req.request != &quot;TRACE&quot; &amp;&amp;
+      req.request != &quot;OPTIONS&quot; &amp;&amp;
+      req.request != &quot;DELETE&quot;) {
+        /* Non-RFC2616 or CONNECT which is weird. */
+        pipe;
+    }
+    if (req.request != &quot;GET&quot; &amp;&amp; req.request != &quot;HEAD&quot;) {
+        /* We only deal with GET and HEAD by default */
+        pass;
+    }
+    if (req.http.Authorization || req.http.Cookie) {
+        /* Not cacheable by default */
+        pass;
+    }
+    lookup;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-recv-return-codes">
+<h2>7.6&nbsp;&nbsp;&nbsp;VCL - vcl_recv - return codes</h2>
+<ul class="simple">
+<li>error $code [reason]</li>
+<li>pass</li>
+<li>pipe</li>
+<li>lookup</li>
+</ul>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-hash">
+<h2>7.7&nbsp;&nbsp;&nbsp;VCL - vcl_hash</h2>
+<ul class="simple">
+<li>Defines what is unique about a request.</li>
+<li>Executed directly after vcl_recv, assuming &quot;lookup&quot; was requested</li>
+</ul>
+<pre class="literal-block">
+sub vcl_hash {
+    set req.hash += req.url;
+    if (req.http.host) {
+        set req.hash += req.http.host;
+    } else {
+        set req.hash += server.ip;
+    }
+    hash;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-hit">
+<h2>7.8&nbsp;&nbsp;&nbsp;VCL - vcl_hit</h2>
+<ul class="simple">
+<li>Right after an object has been found (hit) in the cache</li>
+<li>You can change the TTL, but nothing else.</li>
+<li>Often used to throw out an old object</li>
+</ul>
+<pre class="literal-block">
+sub vcl_hit {
+    if (!obj.cacheable) {
+        pass;
+    }
+    deliver;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-miss">
+<h2>7.9&nbsp;&nbsp;&nbsp;VCL - vcl_miss</h2>
+<ul class="simple">
+<li>Right after an object was looked up and not found in cache</li>
+<li>Typically only used to avoid sending &quot;PURGE&quot; requests to a backend</li>
+</ul>
+<pre class="literal-block">
+sub vcl_miss {
+    fetch;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-fetch">
+<h2>7.10&nbsp;&nbsp;&nbsp;VCL - vcl_fetch</h2>
+<ul class="simple">
+<li>Varnish just got the object from the web server</li>
+<li>Decide whether to cache or not and how long based on the data returned</li>
+</ul>
+<pre class="literal-block">
+if (!obj.cacheable) {
+    pass;
+}
+if (obj.http.Set-Cookie) {
+    pass;
+}
+set obj.prefetch =  -30s;
+deliver;
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-deliver">
+<h2>7.11&nbsp;&nbsp;&nbsp;VCL - vcl_deliver</h2>
+<ul class="simple">
+<li>Common last exit point for all (except vcl_pipe) code paths</li>
+<li>Often used to add and remove debug-headers</li>
+</ul>
+<pre class="literal-block">
+sub vcl_deliver {
+    deliver;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-vcl-error">
+<h2>7.12&nbsp;&nbsp;&nbsp;VCL - vcl_error</h2>
+<ul class="simple">
+<li>Used to generate content from within Varnish, without talking to a web
+server</li>
+<li>Error messages go here by default</li>
+<li>Other use cases: Redirecting users (301/302 Redirects)</li>
+</ul>
+<pre class="literal-block">
+sub vcl_error {
+    set obj.http.Content-Type = &quot;text/html; charset=utf-8&quot;;
+    synthetic {&quot;
+&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&amp;gt;
+&amp;lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot;
+ &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&amp;gt;
+&amp;lt;html&amp;gt;
+  &amp;lt;head&amp;gt;
+    &amp;lt;title&amp;gt;&quot;} obj.status &quot; &quot; obj.response {&quot;&amp;lt;/title&amp;gt;
+  &amp;lt;/head&amp;gt;
+  &amp;lt;body&amp;gt;
+    &amp;lt;h1&amp;gt;Error &quot;} obj.status &quot; &quot; obj.response {&quot;&amp;lt;/h1&amp;gt;
+    &amp;lt;p&amp;gt;&quot;} obj.response {&quot;&amp;lt;/p&amp;gt;
+    &amp;lt;h3&amp;gt;Guru Meditation:&amp;lt;/h3&amp;gt;
+    &amp;lt;p&amp;gt;XID: &quot;} req.xid {&quot;&amp;lt;/p&amp;gt;
+    &amp;lt;address&amp;gt;
+       &amp;lt;a href=&quot;http://www.varnish-cache.org/&quot;&amp;gt;Varnish&amp;lt;/a&amp;gt;
+    &amp;lt;/address&amp;gt;
+  &amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&quot;};
+    deliver;
+}
+</pre>
+</div>
+
+</div>
+<div class="slide" id="vcl-variables">
+<h2>7.13&nbsp;&nbsp;&nbsp;VCL - variables</h2>
+<ul class="simple">
+<li>req.* - request</li>
+<li>req.http.* - request HTTP headers</li>
+<li>req.backend - which backend to use</li>
+<li>obj.* - object</li>
+<li>obj.http.* - object HTTP headers</li>
+<li>obj.ttl - lifetime of the object</li>
+<li>obj.status - HTTP status code</li>
+<li>resp.* - response</li>
+<li>resp.http.* - response HTTP headers</li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

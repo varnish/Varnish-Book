@@ -1,0 +1,47 @@
+
+digraph v_center {
+center=1
+
+vcl_recv->vcl_pass [ label="pass" weight=1 color=red style=bold ]
+vcl_recv->vcl_hash [ label="lookup" weight=4 color=green style=bold ]
+vcl_recv->vcl_pipe [ label="pipe" weight=1 color=orange style=bold ]
+
+vcl_pipe->pipe [ weight=1 label="pipe" color=orange  style=bold ]
+vcl_hash->lookup [ label="hash" weight=4 color=green style=bold ]
+lookup->vcl_hit [ label="yes" weight=4 color=green style=bold ]
+lookup->vcl_miss [ label="no" weight=4 color=blue style=bold ]
+
+vcl_hit->vcl_deliver [ label="deliver" weight=2 color=green style=bold ]
+vcl_hit->vcl_pass [ label="pass" weight=1 color=red style=bold ]
+vcl_miss->fetch [ label="fetch" weight=3 color=blue style=bold ]
+vcl_miss->vcl_pass [ label="pass" weight=1 color=red style=bold ]
+vcl_pass->fetch [ label="fetch" weight=2 color=red style=bold ]
+fetch->vcl_fetch [ weight=4 style=bold ]
+
+vcl_fetch->cache [ label="deliver" color=green style=bold ]
+vcl_fetch->dont_cache [ label="pass" color=red style=bold ]
+cache->vcl_deliver [ weight=2 color=green style=bold ]
+dont_cache->vcl_deliver [ color=red style=bold ]
+
+
+pipe [ shape=diamond label="Pipe until close" ]
+dont_cache [
+	shape=diamond
+	label="Don't cache"
+]
+
+cache [
+	shape=diamond
+	label="Cache"
+]
+lookup [
+	shape=diamond
+	label="Is the object in cache?"
+]
+
+fetch [
+	shape=diamond
+	label="Fetch object from backend"
+]
+
+}

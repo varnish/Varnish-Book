@@ -1,0 +1,29 @@
+=version $Id: oppgaver-del2.pds,v 1.4 2005-12-19 13:08:10 lars Exp $
+=slide Exercise: Purge - remove all CSS files
+
+=include ../../template/template_oppgaver_en.html
+
+<ol>
+  <li>Write a purge expression removing all CSS files</li>
+</ol>
+
+=slide Solution: Purge - remove all CSS files
+
+=include ../../template/template_oppgaver_en.html
+
+<pre>purge req.url ~ "\.css"</pre>
+
+=slide Exercise: Purge - remove all objects with ttl > 3600s and URL under /foo
+
+=include ../../template/template_oppgaver_en.html
+
+<ol>
+  <li>Write a purge expression removing all objects with TTL over
+  3600s and URL starting with /foo</li>
+</ol>
+
+=slide Solution: Purge - remove based on multiple conditions
+
+=include ../../template/template_oppgaver_en.html
+
+<pre>purge req.url ~ "^/foo" && obj.ttl > 3600</pre>

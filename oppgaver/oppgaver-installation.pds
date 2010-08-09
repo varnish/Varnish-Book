@@ -1,0 +1,28 @@
+=version $Id: oppgaver-del2.pds,v 1.4 2005-12-19 13:08:10 lars Exp $
+=slide Exercise: Install backend
+
+<!-- denne viser "Nå gjør vi oppgaver" på slides -->
+=include ../../template/template_oppgaver_en.html
+
+<ol>
+  <li>Install <code>usemod-wiki</code> and <code>apache2</code></li>
+  <li>Verify they work by going to <code>http://localhost/</code> and <code>http://localhost/cgi-bin/wiki.pl</code></li>
+  <li>If it complains about <quote>Bad page version (or corrupt
+  page).</quote>, run <code>sudo rm -r /var/lib/usemod-wiki/page</code>
+  </li>
+</ol>
+
+=slide Exercise: Installation
+
+<ol>
+  <li>Install <code>libncurses5-dev</code></li>
+  <li>Download Varnish from http://sourceforge.net/projects/varnish</li>
+  <li>Unpack in your ~</li>
+  <li>Run <code>configure</code>, 
+  <code>make</code> and <code>sudo make install</code></li>
+</ol>
+<ul>
+  <li>Hint: If you are on Debian-based system, you will need the
+  "build-essential" package and you may want to run "apt-get build-dep
+  varnish"</li>
+</ul>
