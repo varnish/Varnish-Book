@@ -22,7 +22,7 @@ sup {font-size: smaller; line-height: 1px;}
 .slide img.leader {display: block; margin: 0 auto;}
 .slide tt {font-size: 90%;}
 
-div#header, div#footer {background: #437eb2; color: #FFF; font-family: sans-serif; }
+div#header, div#footer {background: #317abe; color: #FFF; font-family: sans-serif; }
 /* background: #005 url(bodybg.gif) -16px 0 no-repeat; */
 div#footer {font-size: 0.5em; font-weight: bold; padding: 0.1em 0;}
 #footer h1 {display: block; padding: 0 1em;}
@@ -31,7 +31,7 @@ div#footer {font-size: 0.5em; font-weight: bold; padding: 0.1em 0;}
 .slide {font-size: 0.8em;}
 .slide h1, .slide h2 {position: absolute; top: 0.45em; z-index: 1;
   margin: 0; padding-left: 0.7em; white-space: nowrap;
-  font: bold 100% sans-serif; color: #FFF; background: #437eb2;}
+  font: bold 100% sans-serif; color: #FFF; background: #317abe;}
 .slide h3 {font: bold 100% sans-serif; padding-top: 0.5em;}
 h1 abbr {font-variant: small-caps;}
 
