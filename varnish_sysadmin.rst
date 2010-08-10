@@ -116,14 +116,14 @@ Introduction to Varnish
 
 .. container:: handout
 
-   Varnish is a reverse proxy, sometimes referred to as a HTTP accelerator.
-   It is designed for modern hardware, modern operating systems and modern
-   work loads. This uncompromising philosophy has helped make Varnish a
-   very clean and fast piece of software, able to scale and evolve to
-   unexpected heights.
+   Varnish is a reverse proxy, sometimes referred to as a HTTP accelerator
+   or a web accelerator.  It is designed for modern hardware, modern
+   operating systems and modern work loads. This uncompromising philosophy
+   has helped make Varnish a very clean and fast piece of software, able to
+   scale and evolve to unexpected heights.
 
    At the same time, Varnish is flexible. The Varnish Configuration
-   Language is a lighting fast mechanism that allow the developers to
+   Language is a lighting fast mechanism that allows the developers to
    implement mechanisms which you as a user can turn into policy. Varnish
    has shown itself to work well both on large (and expensive) servers and
    tiny appliances.
@@ -151,11 +151,11 @@ Introduction to Varnish
 The history of Varnish
 ----------------------
 
-- Initiated by VG in 2006.
-- Redpill Linpro performed the development.
+- Initiated by VG, one of the largest newspapers in Norway, in 2006.
+- Redpill Linpro performed Varnish development.
 - Later development has been financed through service subscriptions
-- Varnish Software was established in 2010 to service the increasing
-  commercial interest.
+- Varnish Software was established in 2010 as an independent company to
+  service the increasing commercial interest in Varnish.
 
 .. container:: handout
 
@@ -260,7 +260,7 @@ Architecture
 - Design principles
 - Process architecture
 
-.. container::
+.. container:: handout
    
    The internal architecture of Varnish is of some interest, both because
    it is chiefly responsible for the performance you will be able to
