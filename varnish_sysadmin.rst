@@ -345,7 +345,7 @@ The multi-process architecture:
 
 .. image:: img/architecture.png
    :align: center
-   :width: 805px
+   :width: 1207px
 
 .. class:: handout
 
