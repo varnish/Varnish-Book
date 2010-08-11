@@ -345,7 +345,7 @@ The multi-process architecture:
 
 .. image:: img/architecture.png
    :align: center
-   :width: 1207px
+   :class: wideimage
 
 .. class:: handout
 
@@ -483,28 +483,57 @@ A 64 bit environment is recommended for production.
         set a real web-application as backend, due to the extra complications that
         are usually caused by cookies.
 
+        .. tip::
 
-Exercise: Install backend
+           If you are missing dependencies on Debian or Ubuntu when using
+           ``dpkg -i``, you can fetch them and finish the installation by
+           running ``apt-get install -f``
+
+
+Exercise: Installation
 -------------------------
+
+Install a backend:
 
 1. Install "usemod-wiki" and "apache2"
 2. Verify they work by going to "http://localhost/" and "http://localhost/cgi-bin/wiki.pl"
-3. If it complains about "Bad page version (or corrupt page).", run "sudo rm -r /var/lib/usemod-wiki/page"
+3. If it complains about "Bad page version (or corrupt page).", run ``sudo rm -r /var/lib/usemod-wiki/page``
 
-XXX: FIXME: More stuff and "solving" it.
+Install Varnish:
 
-Exercise: Installation
-----------------------
+- Either use ``apt-get install varnish`` for Ubuntu or Debian systems
+- or ``yum install varnish`` for Red Hat-based systems.
+- Ensure that you have at least Varnish 2.0.4 installed, if not, the
+  instructor can provide binary packages. Or you can do a source install.
 
-1. Install "libncurses5-dev"
-2. Download Varnish from http://sourceforge.net/projects/varnish
-3. Unpack in your ~
-4. Run "configure", 
-5. "make" and "sudo make install"
+.. container:: handout
 
-- Hint: If you are on Debian-based system, you will need the
-  "build-essential" package and you may want to run "apt-get build-dep
-  varnish"
+   For simplicity, we are using usemod-wiki and Apache for these exercises.
+   usemod-wiki is a very simple wiki that works with little or no
+   configuration on Ubuntu-systems.
+
+   Using the Varnish packages provided by your distribution is often just
+   as good as compiling from source. Alternatively, you can add the
+   repository provided by Varnish Software, with the base URL of
+   http://repo.varnish-software.com/.
+
+   You can also just fetch the packages from the repo above and use the
+   commands demonstrated in the previous section to install them.
+
+   To compile from source, you can follow these instructions:
+
+   1. Install Varnish for your distribution
+   1. Install "libncurses5-dev"
+   2. Download Varnish from http://sourceforge.net/projects/varnish
+   3. Unpack in your ~
+   4. Run ``configure``
+   5. ``make`` and ``sudo make install``
+
+   .. tip::
+     
+      If you are on Debian-based system, you will need the
+      `build-essential` package and you may want to run ``apt-get build-dep
+      varnish``
 
 
 Configuration
@@ -1361,11 +1390,14 @@ VCL - syntax
 VCL - request flow
 ------------------
 
-.. image:: img/vcl.png
-   :align: center
-   :height: 800px
+- `Simplified request flow <img/vcl.png>`_
+- `Complete request flow <img/request.png>`_
 
 .. class:: handout
+
+.. image:: img/vcl.png
+   :align: center
+   :height: 2400px
 
 .. raw:: pdf
 
@@ -1378,8 +1410,7 @@ Detailed request flow
 
 .. image:: img/request.png
    :align: center
-
-
+   :height: 2235px
 
 
 VCL - functions
