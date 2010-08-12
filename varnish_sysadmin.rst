@@ -5,9 +5,9 @@ Varnish System Administration
 :Author: Tollef Fog Heen, Kristian Lyngstøl
 :Copyright: Varnish Software AS 2010, Redpill Linpro AS 2008-2009
 
-.. image:: img/logo.png
+..
+  .. image:: img/logo.png
    :align: center
-   :width: 181px
 
 .. header::
 
@@ -1456,17 +1456,17 @@ Default::
               req.request != "OPTIONS" &&
               req.request != "DELETE") {
                 /* Non-RFC2616 or CONNECT which is weird. */
-                pipe;
+                return(pipe);
             }
             if (req.request != "GET" && req.request != "HEAD") {
                 /* We only deal with GET and HEAD by default */
-                pass;
+                return(pass);
             }
             if (req.http.Authorization || req.http.Cookie) {
                 /* Not cacheable by default */
-                pass;
+                return(pass);
             }
-            lookup;
+            return(lookup);
         }
 
 
@@ -1494,7 +1494,7 @@ VCL - vcl_hash
             } else {
                 set req.hash += server.ip;
             }
-            hash;
+            return(hash);
         }
 
 VCL - vcl_hit
@@ -1508,9 +1508,9 @@ VCL - vcl_hit
 
         sub vcl_hit {
             if (!obj.cacheable) {
-                pass;
+                return(pass);
             }
-            deliver;
+            return(deliver);
         }
 
 VCL - vcl_miss
@@ -1522,7 +1522,7 @@ VCL - vcl_miss
 ::
 
         sub vcl_miss {
-            fetch;
+            return(fetch);
         }
 
 VCL - vcl_fetch
@@ -1533,14 +1533,13 @@ VCL - vcl_fetch
 
 ::
 
-    if (!obj.cacheable) {
-        pass;
+    if (!beresp.cacheable) {
+        return(pass);
     }
-    if (obj.http.Set-Cookie) {
-        pass;
+    if (beresp.http.Set-Cookie) {
+        return(pass);
     }
-    set obj.prefetch =  -30s;
-    deliver;
+    return(deliver);
 
 VCL - vcl_deliver
 -----------------
@@ -1551,7 +1550,7 @@ VCL - vcl_deliver
 ::
 
         sub vcl_deliver {
-            deliver;
+            return(deliver);
         }
 
 VCL - vcl_error
@@ -1585,7 +1584,7 @@ VCL - vcl_error
           </body>
         </html>
         "};
-            deliver;
+            return(deliver);
         }
 
 
@@ -1600,6 +1599,7 @@ VCL - variables
 - obj.http.* - object HTTP headers
 - obj.ttl - lifetime of the object
 - obj.status - HTTP status code
+- beresp.* - backend response, before it's made into an object
 - resp.* - response
 - resp.http.* - response HTTP headers
 
@@ -1631,7 +1631,7 @@ Solution: VCL - backend
 ::
 
         sub vcl_fetch {
-            set obj.ttl = 10s;
+            set beresp.ttl = 10s;
         }
 
 Exercise: VCL - avoid caching a page
@@ -1645,7 +1645,7 @@ Solution: VCL - avoid caching a page
 ::
 
         sub vcl_fetch {
-            if (req.url ~ "wiki.pl") { pass; }
+            if (req.url ~ "wiki.pl") { return(pass); }
         }
 
 Exercise: VCL - respect no-cache from the client
