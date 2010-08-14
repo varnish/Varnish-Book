@@ -2,8 +2,8 @@
 Varnish System Administration
 =============================
 
-:Author: Tollef Fog Heen, Kristian Lyngstøl
-:Copyright: Varnish Software AS 2010, Redpill Linpro AS 2008-2009
+.. include:: build/version.rst
+
 
 ..
   .. image:: img/logo.png
@@ -29,6 +29,7 @@ Varnish System Administration
       |Page ###Page###|Section ###Section###|   |
       +---------------+---------------------+---+
  
+
 
 .. sectnum::
 
