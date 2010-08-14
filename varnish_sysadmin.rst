@@ -160,9 +160,9 @@ The history of Varnish
 .. container:: handout
 
         VG, a large Norwegian newspaper, initiated the Varnish-project in
-        co-operation with Linpro. The lead developer, Poul-Henning Kamp is an
-        experienced FreeBSD kernel-hacker and continues to bring his wisdom
-        to Varnish in most areas where it counts.
+        co-operation with Linpro. The lead developer, Poul-Henning Kamp is
+        an experienced FreeBSD kernel-hacker and continues to bring his
+        wisdom to Varnish in most areas where it counts.
 
         From 2006 throughout 2008, most of the development was sponsored by
         VG, API, Escenic and Aftenposten, with project-management,
@@ -1645,7 +1645,13 @@ Solution: VCL - avoid caching a page
 ::
 
         sub vcl_fetch {
-            if (req.url ~ "wiki.pl") { return(pass); }
+            if (req.url ~ "wiki\.pl") { return(pass); }
+        }
+
+Or::
+
+        sub vcl_recv {
+            if (req.url ~ "wiki\.pl") { return(pass); }
         }
 
 Exercise: VCL - respect no-cache from the client
@@ -1654,6 +1660,21 @@ Exercise: VCL - respect no-cache from the client
 - Write a VCL which refreshes the page from the backend if the
   request contains ``Cache-control: no-cache``
 
+.. container:: handout
+
+   While solving this task, keep in mind that not all client send
+   ``no-cache`` when they do refreshes or forced refreshes. Some will use
+   max-age=0 instead for example.
+
+   .. warning::
+
+      This is a feature that often seem like a very good idea, specially if
+      it is combined with limiting it to only a specific IP range, for
+      example the editorial staff.
+
+      The problem with this feature appears the moment you have more than
+      one Varnish server. Most likely, only one of many Varnish servers
+      will then be refreshed.
 
 Solution: VCL - respect no-cache from the client
 ------------------------------------------------
@@ -1668,10 +1689,7 @@ Solution: VCL - respect no-cache from the client
             }
         }
 
-Solution: VCL - respect no-cache from the client - 2
-----------------------------------------------------
-
-::
+Or::
 
         sub vcl_hit {
             if (req.restarts == 0 &&
@@ -1696,13 +1714,13 @@ Solution: VCL - remove all cookies
 
         sub vcl_recv {
             if (req.url ~ "\.(jpg|jpeg|css)$") {
-                unset req.http.cookie;
+                remove req.http.cookie;
             }
         }
 
         sub vcl_fetch {
             if (req.url ~ "\.(jpg|jpeg|css)$") {
-                unset obj.http.set-cookie;
+                remove beresp.http.set-cookie;
             }
         }
 
@@ -1712,6 +1730,19 @@ Exercise: VCL - add header showing hit/miss
 - Write a VCL which adds a header telling you if this is a hit or
   a miss, and the number of hits if it's a hit
 
+.. container:: handout
+
+   .. warning::
+
+      Many of the first implementations of a hit/miss header used the
+      vcl_hit and vcl_miss functions, as they seemed the obvious choices.
+      However, because multiple clients can get the same object at the same
+      time, it is not safe to modify the object in vcl_hit, save for
+      changing the TTL. It was possible in Varnish 2.0, but would cause
+      crashes during heavy load.
+
+      To solve this, the ``obj.hits`` variable is accessible in
+      vcl_deliver.
 
 Solution: VCL - respect no-cache from the client
 ------------------------------------------------
@@ -1733,10 +1764,120 @@ Purges
 ======
 
 - Purge on anything
+- Does not free up memory
 - ``purge req.url ~ "/foo"``
 - ``purge req.http.user-agent ~ "Firefox" &&
   obj.http.content-type ~ "text"``
+- VCL: ``purge("req.url == " req.url);``
 
+.. container:: handout
+
+   Purging in the context of Varnish refers to adding a ban to the
+   ban-list. It can be done both trough the command line interface, and
+   through VCL, and the syntax is almost the same.
+
+   The name "purge" is a bit misleading, as the objects that match the
+   entered purge are not immediately removed from the cache. As such,
+   purges are more and more often referred to as bans, and purging is
+   referred to as banning. In this chapter, there might be some overlap
+   between the two, but they mean the same.
+
+   Banning is the act of placing a ban on a ban list. A ban is one or more
+   statement in VCL-like syntax that will be tested against objects in the
+   cache when they are retrieved. A ban statement might be "the url starts
+   with /sport" or "the object has a Server-header matching lighttpd".
+
+   Each object in the cache always points to an entry on the ban-list. This
+   is the entry that they were last checked against. Whenever Varnish
+   retrieves something from the cache, it checks if the objects pointer to
+   the ban list is point to the top of the list. If it does not point to
+   the top of the list, it will test the object against all new entries on
+   the ban list and, if the object did not match any of them, update the
+   pointer of the ban list.
+
+   There are pros and cons to this approach. The most obvious con is that
+   no memory is freed: Objects are only tested once a client asks for them.
+   A second con is that the ban list can get fairly large if there are
+   objects in the cache that are rarely, if ever, accessed. To remedy this,
+   Varnish tries to remove duplicate purges by marking them as "gone"
+   (indicated by a G on the purge list). Gone purges are left on the list
+   because an object is pointing to them, but are never again tested
+   against, as there is a newer purge that superseeds it.
+
+   The biggest pro of the ban-list approach is that Varnish can add bans to
+   the ban-list in constant time. Even if you have three million objects in
+   your cache, adding a ban is instantaneous. The load is spread over time
+   as the objects are requested, and they will never need to be tested if
+   they expire first.
+
+   .. tip::
+
+      To keep the ban-list short, avoid very specific bans, or to periodic
+      bans that cover a wider name-space, thus letting Varnish remove the
+      specific bans.
+
+      If you need specific bans, the recommended method is to set the ttl
+      of the object to 0::
+
+          sub vcl_hit {
+              if (req.request == "PURGE") {
+                  set obj.ttl = 0s;
+                  error 200 "Purged";
+              }
+          }
+
+          sub vcl_miss {
+              if (req.request == "PURGE") {
+                  error 404 "Not in cache";
+              }
+          }
+
+VCL contexts when adding bans
+-----------------------------
+
+- The context is that of the client present when testing, not the client
+  that initiated the request that resulted in the fetch from the backend.
+- In VCL, there is also the context of the client adding the item to the
+  purge list. This is the context used when no quotation marks are present.
+
+``purge("req.url == " req.http.x-url);``
+
+- `req.url` from the future client that will trigger the test against the
+  object is used.
+- `req.http.x-url` is the x-url header of the client that puts the ban on
+  the ban list.
+
+.. container::
+
+   One of the typical examples of purging reads ``purge("req.url == "
+   req.url)``, which looks fairly strange. The important thing to remember
+   is that in VCL, you are essentially just creating one big string.
+
+   .. tip::
+
+      To avoid confusion in VCL, keep as much as possible within quotation
+      marks, then verify that it works the way you planned by reviewing the
+      purge list through the cli, using ``purge.list``.
+
+   .. tip::
+
+      Varnish now has a ban lurker thread, which will test old objects
+      against bans periodically, without a client. For it to work, your
+      bans can not refer to anything starting with `req`, as the ban lurker
+      doesn't have any request data structure.
+
+      If you wish to purge on url, it can be a good idea to store the URL
+      to the object, in vcl_fetch::
+      
+         set beresp.http.x-url = req.url;
+
+      Then use that instead of req.url in your purges, in vcl_recv::
+
+         purge("obj.http.x-url == " req.url);
+
+      The ban-lurker is not active by default and is a recent addition to
+      Varnish (2.1.0). It is activated with the `ban_lurker_sleep`
+      parameter.
 
 Exercise: Purge - remove all CSS files
 --------------------------------------
@@ -1770,8 +1911,43 @@ Load balancing
 
 - Direct support for several backends
 - Health checking
+
+Directors available:
+
 - round robin
-- random director
+- random
+- client
+- hash
+- DNS (as of 2.1.4/Custom RPMs/DEBs)
+
+.. container:: handout
+
+   With backend directors, Varnish can do load balancing. The two simplest
+   methods of letting Varnish load balance multiple web servers is using
+   either the random or the round robin director. The round robin director
+   simply takes several backends as arguments and will direct traffic to
+   them one after the other. The random director will pick one of the
+   backends provided at random, but allows weighting of backends. In other
+   words: the random director can direct a proportionally larger amount of
+   traffic to one backend over the other.
+
+   The client and hash directors are new as of Varnish 2.1. The client
+   director will use the client IP to direct traffic, ensuring that the
+   same client (assuming it has the same IP) always hits the same backend.
+   It is a cheap way of doing sticky clients, without using cookies.
+
+   The hash director directs traffic based on the cache hash. This means
+   that the same URL will be requested from the same web server. This is
+   handy when you have multiple Varnish servers in a multi-tier setup, as a
+   set of second tier caches can contain different data, maximizing their
+   cache efficiency.
+
+   The DNS director is to be included in Varnish 2.1.4. It uses the Host
+   header sent by a client to find a backend among a list of possibles.
+   This allows dynamic scaling and changing of web server pools without
+   modifying Varnish' configuration, but instead just waiting for Varnish
+   to pick up on the DNS changes.
+
 
 Example: Load balancing
 -----------------------
@@ -1808,6 +1984,35 @@ Example: Load balancing
 
         Note: The backends foo and bar need to be defined.
 
+.. class:: handout
+
+The DNS director
+................
+
+As the DNS director is both the newest addition and perhaps the most
+complex, some extra explanation might be useful. Consider the following
+example VCL::
+
+        director mydirector dns {
+                .list = {
+                        .port = "81";
+                        "192.168.0.0"/24;
+                }
+                .ttl = 5m;
+                .suffix = "internal.example.net";
+        }
+
+It defines 255 backends, all in the 192.168.0.0/24 range. The DNS director
+can also use the traditional (non-list) format of defining backends, and
+most options are supported in .list, as long as they are specified before
+the relevant backends.
+
+The TTL specified is for the DNS cache. In our example, the `mydirector`
+director will cache the DNS lookups for 5 minutes. When a client asks for
+``www.example.org``, Varnish will look up
+``www.example.org.internal.example.net``, and if it resolves to something,
+the DNS director will check if on of the backends in the 192.168.0.0./24
+range matches, then use that.
 
 
 Exercise: Load balancing
@@ -1825,6 +2030,7 @@ Exercise: Load balancing
 ESI
 ===
 
+- Edge Side Includes, similar to Apaches Server Side Includes
 - What is ESI?
 - Why not full ESI support?
 - <esi:include>
