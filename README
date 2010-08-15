@@ -1,0 +1,54 @@
+How to work with the training material for Varnish Software
+===========================================================
+
+The first thing you should do, is grab a copy of the various RST
+documentation out there. Sadly enough, you will need it for some of the
+finer points.
+
+There are TWO tools at work here:
+
+- rst2pdf
+- rst2s5
+
+rst2pdf generates the PDF, and needs a bit of help to get page numbering
+properly formated, that's where the oddeven stuff at the top comes in.
+The problem with that, is that it is not proper rst, so rst2s5 will
+complain about. That is why rst2s5 has been told to IGNORE errors. This
+means that the only errors you get are from rst2pdf. Live with it (for
+now?).
+
+rst2s5 creates presentations in the s5-language/format/thingamajing. It is
+not originally intended for documents of the size that we need, so by
+default it will break for a new slide only at top-level headings. That is
+fairly useless when we have this many slides, so a slight modification has
+been made. I (Kristian) have yet to publish this anywhere, but it's fairly
+trivial. I'll add the patch or a complete version here soon enough.
+
+To add handout-only content, there are two methods you can use. Either use
+a container with the handout class:
+
+   .. container:: handout
+
+      All of this is now handout-only material.
+
+      This too.
+
+Or you can use a .. role:: handout followed by a proper chapter, typically
+a third-level chapter:
+
+   .. role:: handout
+
+   Handoutonly chapter
+   ...................
+
+   This chapter is now handout-only, and everything until a new chapter is
+   defined is handout-only. Convenient for adding lengthy sections that are
+   either not suitable for everyone, or covered by examples and talk on a
+   bigger slide (ie: architecture).
+
+I have tried to use .. tip::, .. warning:: and .. note::, and no further
+"boxes".
+
+To change the looks of the slides, edit ui/vs/pretty.css (possibly other
+css files, but unlikely). To change the look of the PDF, change
+ui/pdf.style.
