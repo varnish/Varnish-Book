@@ -775,8 +775,6 @@ Best practices: Configuration
         is specifying the argument(s) directly. There are pros and cons
         with both, and usually a mix makes the most sense.
 
-        XXX: Add more examples
-
 
 Tunable parameters
 ==================
@@ -949,9 +947,6 @@ System
         As most of the parameters can be left unchanged, we will not go through
         all of them, but take a look at the list "param.show" gives you to get an
         impression of what they can do.
-
-XXX: Add stuff! A lot of stuff! (My great intellect shines through in that
-sentence, doesn't it? - K)
 
 
 Timers
