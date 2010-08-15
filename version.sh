@@ -10,5 +10,7 @@ echo -n ":Version: "
 TMP=`git log --format='%h %d' | grep HEAD | sed 's/origin\/[a-Z]*//g' | sed s/master// | sed s/,//g | sed 's/ *)/)/'| head -n2`
 if [ $(echo "$TMP" | wc -l) -ne 1 ]; then
 	echo -n "untagged/unreleased draft version "
+	echo $TMP
+else
+	echo $TMP | sed 's/.*(//' | sed 's/).*//' | sed 's/HEAD//' | sed 's/ version-//'
 fi
-echo $TMP
