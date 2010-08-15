@@ -28,7 +28,7 @@ Varnish System Administration
       |               |                     |   |
       |Page ###Page###|Section ###Section###|   |
       +---------------+---------------------+---+
- 
+
 
 
 .. sectnum::
@@ -36,7 +36,7 @@ Varnish System Administration
 .. raw:: pdf
 
     PageBreak
-    
+
 
 
 .. contents::
@@ -63,7 +63,7 @@ The course is essentially split in two:
 1. Architecture, command line tools, installation, parameters, etc
 2. The Varnish Configuration Language
 
-The course has roughly 50% exercises and 50% instruction. 
+The course has roughly 50% exercises and 50% instruction.
 
 .. container:: handout
 
@@ -262,7 +262,7 @@ Architecture
 - Process architecture
 
 .. container:: handout
-   
+
    The internal architecture of Varnish is of some interest, both because
    it is chiefly responsible for the performance you will be able to
    achieve with Varnish, and because it affects how you integrate Varnish
@@ -531,7 +531,7 @@ Install Varnish:
    5. ``make`` and ``sudo make install``
 
    .. tip::
-     
+
       If you are on Debian-based system, you will need the
       `build-essential` package and you may want to run ``apt-get build-dep
       varnish``
@@ -665,7 +665,7 @@ Exercise: Start Varnish - solution
 ----------------------------------
 
 ::
-        
+
         varnishd -b 127.0.0.1:80 -a :8000 -T :1234 -d
 
 .. container:: handout
@@ -705,7 +705,7 @@ Exercise: Controlling Varnish using telnet
 Exercise: Fetch data through Varnish
 ------------------------------------
 
-- Type ``start`` in the telnet or CLI interface 
+- Type ``start`` in the telnet or CLI interface
 - Install ``libwww-perl``
 - Do ``GET -Used http://localhost:8000/`` (on the command
   line)
@@ -1082,7 +1082,7 @@ varnishlog
       (c), backend (b) or "misc" (-). This can be used to filter the log.
       The misc-category will contain data related to thread-collection,
       object expiry and similar internal data.
-   
+
 varnishlog options
 ------------------
 -  -b -- only show traffic to backend
@@ -1207,7 +1207,7 @@ varnishstat
     0+00:44:50                                                   foobar
     Hitrate ratio:       10      100      175
     Hitrate avg:     0.9507   0.9530   0.9532
-    
+
           574660       241.00       213.63 Client connections accepted
          2525317       937.00       938.78 Client requests received
          2478794       931.00       921.48 Cache hits
@@ -1375,7 +1375,7 @@ VCL - syntax
    The functions of VCL are not true functions in the sense that they
    accept variables and return values. To send data inside of VCL, you will
    have to hide it inside of HTTP headers.
-   
+
    The "return" statement of VCL returns control from the VCL state engine
    to Varnish. If you define your own function and call it from one of the
    default functions, typing "return(foo)" will not return execution from
@@ -1613,7 +1613,7 @@ Solution: VCL - backend
 -----------------------
 
 ::
-        
+
         backend default {
                 .host = "localhost";
                 .port = "80";
@@ -1684,9 +1684,9 @@ Solution: VCL - respect no-cache from the client
 
         sub vcl_hit {
             if (req.restarts == 0 &&
-                req.http.cache-control ~ "no-cache") { 
+                req.http.cache-control ~ "no-cache") {
                set obj.ttl = 0s;
-               restart; 
+               restart;
             }
         }
 
@@ -1694,9 +1694,9 @@ Or::
 
         sub vcl_hit {
             if (req.restarts == 0 &&
-                req.http.cache-control ~ "no-cache") { 
+                req.http.cache-control ~ "no-cache") {
                purge("req.url == " req.url);
-               restart; 
+               restart;
             }
         }
 
@@ -1869,7 +1869,7 @@ VCL contexts when adding bans
 
       If you wish to purge on url, it can be a good idea to store the URL
       to the object, in vcl_fetch::
-      
+
          set beresp.http.x-url = req.url;
 
       Then use that instead of req.url in your purges, in vcl_recv::
