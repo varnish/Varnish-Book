@@ -5,6 +5,11 @@ The first thing you should do, is grab a copy of the various RST
 documentation out there. Sadly enough, you will need it for some of the
 finer points.
 
+The second thing you should do, is read NEWS, and make sure you always
+add significant content changes there, so the instructor(s) can keep track
+of what changes between version-1.5 and version-1.7 without reading commit
+logs which also contain edits to Makefile and whatnot.
+
 There are TWO tools at work here:
 
 - rst2pdf
