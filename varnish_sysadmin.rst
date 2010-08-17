@@ -986,6 +986,24 @@ Mangement:
         insufficient on production servers.
 
 
+Exercise: Tune first_byte_timeout
+---------------------------------
+  
+1. Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing::
+
+        #! /bin/sh
+        sleep 5
+        echo "Content-type: text/plain"
+        echo "Cache-control: max-age=0"
+        echo
+        echo "Hello world"
+
+2. Make it executable
+3. Test that it works outside of Varnish
+4. Start Varnish, test that it works through Varnish
+5. Set ``first_byte_timeout`` to 2s
+6. Check that it doesn't work.
+
 Programs
 ========
 
