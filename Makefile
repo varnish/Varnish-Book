@@ -48,4 +48,5 @@ dist: all
 	cp NEWS $$target;\
 	rm -r $${target}/html/img/staging/;\
 	rm -r $${target}/html/img/*.dot;\
+	rm -r $${target}/html/img/Makefile;\
 	tar -hC ${BDIR}/dist/ -cjf varnish_sysadmin-$$version.tar.bz2 varnish_sysadmin-$$version/
