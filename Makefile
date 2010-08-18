@@ -2,35 +2,44 @@
 RST2PDF=/usr/local/bin/rst2pdf
 BDIR=build
 
-all: ${BDIR} ${BDIR}/ui ${BDIR}/img images ${BDIR}/varnish_sysadmin.html ${BDIR}/varnish_sysadmin.pdf
+htmltarget=${BDIR}/varnish_sysadmin.html
+pdftarget=${BDIR}/varnish_sysadmin.pdf
+rstsrc=varnish_sysadmin.rst
+images = img/vcl.png
 
-build/version.rst: *
-	./version.sh > build/version.rst
+all: ${pdftarget} ${htmltarget}
 
-images:
-	@$(MAKE) -C img
+${BDIR}/version.rst: version.sh ${rstsrc}
+	mkdir -p ${BDIR}
+	./version.sh > ${BDIR}/version.rst
+
+img/%.png: img/%.dot
+	dot -Tpng < $< > $@
+
+img/%.svg: img/%.dot
+	dot -Tsvg < $< > $@
+	
 
 ${BDIR}/ui:
+	mkdir -p ${BDIR}
 	ln -s ${PWD}/ui ./${BDIR}/ui
 
 ${BDIR}/img:
+	mkdir -p ${BDIR}
 	ln -s ${PWD}/img ./${BDIR}/img
 
 ${BDIR}:
 	mkdir -p ${BDIR}
 
-${BDIR}/varnish_sysadmin.html: varnish_sysadmin.rst build ${BDIR}/version.rst
-	/usr/bin/rst2s5 varnish_sysadmin.rst -r 5 --current-slide --theme-url=ui/vs/ ${BDIR}/varnish_sysadmin.html
+${htmltarget}: ${rstsrc} ${BDIR}/version.rst ${BDIR}/img ${BDIR}/ui ${images}
+	/usr/bin/rst2s5 ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
 
-${BDIR}/varnish_sysadmin.pdf: varnish_sysadmin.rst ui/pdf.style ${BDIR}/version.rst
-	 ${RST2PDF} -s ui/pdf.style -b2 varnish_sysadmin.rst -o ${BDIR}/varnish_sysadmin.pdf
+${pdftarget}: ${rstsrc} ui/pdf.style ${BDIR}/version.rst ${images}
+	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
 
 clean:
 	@$(MAKE) -C img clean
 	-rm -r build/
-
-%.png: %.dot
-	dot -Tpng < $< > $@
 
 dist: all
 	version=`./version.sh | grep :Version: | sed 's/:Version: //' | tr -d '()[] '`;\
@@ -50,3 +59,5 @@ dist: all
 	rm -r $${target}/html/img/*.dot;\
 	rm -r $${target}/html/img/Makefile;\
 	tar -hC ${BDIR}/dist/ -cjf varnish_sysadmin-$$version.tar.bz2 varnish_sysadmin-$$version/
+
+.PHONY: all
