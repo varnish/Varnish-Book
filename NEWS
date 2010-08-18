@@ -1,6 +1,10 @@
 New in 1.2
 ----------
 
+- Change the PURGE exercise to use cache-control instead of the invalid
+  obj.ttl.
+- Add a note regarding a bug in 2.1.x on purges, where varnish tries to
+  escape "\.css" on purge, instead of letting it fall through to pcre.
 - (Re-)Added exercise for for timeouts
 - munin/ directory added (anonyminized from vgnett)
 - The CHANGES file

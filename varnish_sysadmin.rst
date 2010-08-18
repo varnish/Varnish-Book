@@ -1861,7 +1861,7 @@ VCL contexts when adding bans
 - `req.http.x-url` is the x-url header of the client that puts the ban on
   the ban list.
 
-.. container::
+.. container:: handout
 
    One of the typical examples of purging reads ``purge("req.url == "
    req.url)``, which looks fairly strange. The important thing to remember
@@ -1905,11 +1905,18 @@ Solution: Purge - remove all CSS files
 
         purge req.url ~ "\.css"
 
+.. container:: handout
+
+   .. note::
+
+      In Varnish 2.1, up to and including 2.1.3, you will have to write
+      "\\.css" instead of "\.css".
+
 Exercise: Purge - remove based on multiple conditions
 -----------------------------------------------------
 
-- Write a purge expression removing all objects with TTL over
-  3600s and URL starting with /foo
+- Write a purge expression removing all objects with a Cache-Control
+  header containing "max-age=3600" and URL starting with /foo
 
 
 Solution: Purge - remove based on multiple conditions
@@ -1917,7 +1924,7 @@ Solution: Purge - remove based on multiple conditions
 
 ::
 
-        purge req.url ~ "^/foo" && obj.ttl > 3600
+        purge req.url ~ "^/foo" && obj.http.cache-control ~ "max-age=3600"
 
 
 Load balancing

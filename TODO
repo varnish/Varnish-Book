@@ -5,6 +5,13 @@ Content
 - Add more visuals for the VCL chapters
 - Remove the "troubleshooting" chapter
 - Add architecture overview
+- Add reference documentation (RFC2616? man vcl and varnishd?)
+- Possibly spit the course in two/three:
+   
+   - Intro
+   - VCL
+   - Summary
+   - Appendix A/B/C/D/F
 
 Technical
 =========
