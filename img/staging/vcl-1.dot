@@ -1,0 +1,56 @@
+
+digraph v_center {
+center=1
+
+vcl_recv->vcl_pass [ label="pass" weight=1 color=red ]
+vcl_recv->vcl_hash [ label="lookup" weight=4 color=green style=bold ]
+
+vcl_hash->lookup [ label="hash" weight=4 color=green style=bold ]
+lookup->vcl_hit [ label="yes" weight=4 color=green style=bold ]
+lookup->vcl_miss [ label="no" weight=1 color=blue ]
+
+vcl_hit->vcl_deliver [ label="deliver" weight=3 color=green style=bold ]
+vcl_miss->fetch [ label="fetch" weight=3 color=blue ]
+vcl_pass->fetch [ label="fetch" weight=1 color=red ]
+fetch->vcl_fetch [ weight=2 ]
+
+vcl_fetch->cache [ label="deliver" ]
+vcl_fetch->dont_cache [ label="pass" color=red ]
+cache->vcl_deliver [ weight=1 ]
+dont_cache->vcl_deliver [ color=red ]
+
+client->vcl_recv [ weight=4 ]
+vcl_deliver->client
+
+fetch->backend
+backend->fetch
+
+dont_cache [
+	shape=diamond
+	label="Don't cache"
+]
+
+cache [
+	shape=diamond
+	label="Cache"
+]
+lookup [
+	shape=diamond
+	label="Is the object in cache?"
+]
+
+fetch [
+	shape=diamond
+	label="Fetch object from backend"
+]
+
+client [
+	shape=box
+	label="Client"
+]
+
+backend [
+	shape=box
+	label="Backend server"
+]
+}
