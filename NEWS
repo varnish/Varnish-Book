@@ -2,4 +2,5 @@ New in 1.2
 ----------
 
 - (Re-)Added exercise for for timeouts
+- munin/ directory added (anonyminized from vgnett)
 - The CHANGES file
