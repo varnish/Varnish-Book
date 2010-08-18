@@ -23,3 +23,5 @@ Technical
 - Fix the front page
 - Verify fonts
 - Add the rst2s5 patch somewhere sane. Sanitize it.
+- Add a "instructor" target that makes a html directory and a pdf with a
+  version in the name. (ie: varnish_susadmin-v1.2.pdf) and tars it all.
