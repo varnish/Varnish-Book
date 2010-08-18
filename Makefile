@@ -18,7 +18,6 @@ img/%.png: img/%.dot
 
 img/%.svg: img/%.dot
 	dot -Tsvg < $< > $@
-	
 
 ${BDIR}/ui:
 	mkdir -p ${BDIR}
@@ -31,14 +30,13 @@ ${BDIR}/img:
 ${BDIR}:
 	mkdir -p ${BDIR}
 
-${htmltarget}: ${rstsrc} ${BDIR}/version.rst ${BDIR}/img ${BDIR}/ui ${images}
+${htmltarget}: ${rstsrc} ${BDIR}/version.rst ${images} ${BDIR}/img ${BDIR}/ui
 	/usr/bin/rst2s5 ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
 
-${pdftarget}: ${rstsrc} ui/pdf.style ${BDIR}/version.rst ${images}
+${pdftarget}: ${rstsrc} ${BDIR}/version.rst ${images} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
 
 clean:
-	@$(MAKE) -C img clean
 	-rm -r build/
 
 dist: all
@@ -57,7 +55,6 @@ dist: all
 	cp NEWS $$target;\
 	rm -r $${target}/html/img/staging/;\
 	rm -r $${target}/html/img/*.dot;\
-	rm -r $${target}/html/img/Makefile;\
 	tar -hC ${BDIR}/dist/ -cjf varnish_sysadmin-$$version.tar.bz2 varnish_sysadmin-$$version/
 
 .PHONY: all
