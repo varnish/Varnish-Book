@@ -1648,6 +1648,24 @@ Solution: VCL - backend
             set beresp.ttl = 10s;
         }
 
+.. container::
+
+   There are multiple ways to verify if this works.
+
+   - Using GET, or a similar tool, monitor the Age: header as you reload
+     the same URL. It should reset to 0 seconds after it hits 10.
+   - Look for the TTL tag in varnishlog. It should read VCL .. 10 .. when
+     the object is fetched from the web server, indicating that it is
+     cached for 10 second, as per VCL.
+   - Monitor backend traffic, either using varnishlog or viewing logs on
+     the web server to see when Varnish asks for the same object.
+   - Count. Watch the X-Varnish header, and count how it takes between each
+     time it only has one number.
+   - Use varnishstat to see when the cache_miss counter increases (assuming
+     there is no other traffic than your test-traffic.)
+   - ?
+
+
 Exercise: VCL - avoid caching a page
 ------------------------------------
 
@@ -1667,6 +1685,19 @@ Or::
         sub vcl_recv {
             if (req.url ~ "wiki\.pl") { return(pass); }
         }
+
+.. container:: handout
+
+   The above examples are both valid.
+
+   It is usually most convenient to do as much as possible in `vcl_recv`,
+   and this is no exception. Even though using pass in `vcl_fetch` is
+   reasonable, it creates a hitpass object, which can create unnecessary
+   complexity. Whenever you do use pass in `vcl_fetch`, you should also
+   make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
+   accidentally adding a hitpass object that prevents caching for a long
+   time.
+
 
 Exercise: VCL - respect no-cache from the client
 ------------------------------------------------
@@ -1713,6 +1744,29 @@ Or::
             }
         }
 
+.. container:: handout
+
+   The purge() command has not yet been introduced, but is included as an
+   example that there are more than one way to solve the specific task.
+
+   .. warning::
+
+      Using purge() and restart as demonstrated above is sub-optimal. You
+      can safely do it in `vcl_recv` instead.
+
+   .. warning::
+
+      Setting ttl to 0 seconds is an efficient way of removing specific
+      objects. This is commonly done as a result of a script, for example a
+      script that issues a PURGE method. When that is the case, it is
+      important to remember that Varnish might have different variants of
+      the same objects stored.
+
+      The typical example is one or more variants that are compressed, and
+      one that is uncompressed. Setting the ttl to 0 seconds in vcl_hit
+      does not address that: The calling script will have to generate one
+      request for each possible variant.
+
 Exercise: VCL - remove all cookies
 ----------------------------------
 
@@ -1738,6 +1792,24 @@ Solution: VCL - remove all cookies
             }
         }
 
+.. container:: handout
+
+   When you deal with Cookies, there are two different aspects you have to
+   consider.
+
+   First is the Cookie that the client sends to Varnish. This will be
+   whatever the browser stored for that site. It can include google
+   analytics cookies, old cookies that are no longer needed and just about
+   anything else.
+
+   The second set of cookie-headers is those sent by the web server, using
+   the "Set-Cookie" header. These are instructions from the web-server to
+   the client to store a cookie.
+
+   Both has to be addressed one way or the other, and the above example
+   does that.
+
+
 Exercise: VCL - add header showing hit/miss
 -------------------------------------------
 
@@ -1758,8 +1830,8 @@ Exercise: VCL - add header showing hit/miss
       To solve this, the ``obj.hits`` variable is accessible in
       vcl_deliver.
 
-Solution: VCL - respect no-cache from the client
-------------------------------------------------
+Solution: VCL - add header showing hit/miss
+-------------------------------------------
 
 ::
 
@@ -1772,6 +1844,25 @@ Solution: VCL - respect no-cache from the client
                 }
         }
 
+.. container:: handout
+
+   vcl_deliver is the primary function to use to add and remove headers
+   sent to a client. If you wish to remove the Via or X-Varnish header,
+   this is the place to do it.
+
+   The solution above uses the ``obj.hits`` variable, which counts how many
+   times an object has been hit in the cache. Note that you should not
+   check if it is 0, and you should only add it to a header after checking
+   that the value is above 0. This is because an error message, for
+   example, will have a non-existent, or empty value. That is not the same
+   as 0. In other words, the value of obj.hits can be one of:
+
+   - A positive integer (1, 2, 3, 4...)
+   - Zero (0)
+   - Empty
+
+   Checking for "larger than 0" implies "non-zero". Checking for 0, does
+   not cover the scenario where it is empty.
 
 
 Purges
@@ -1910,7 +2001,9 @@ Solution: Purge - remove all CSS files
    .. note::
 
       In Varnish 2.1, up to and including 2.1.3, you will have to write
-      "\\.css" instead of "\.css".
+      ``"\\.css"`` instead of ``"\.css"`` due to a bug resulting in
+      conflicting escape mechanisms between Varnish internals and the pcre
+      library used for regular expressions.
 
 Exercise: Purge - remove based on multiple conditions
 -----------------------------------------------------
@@ -2120,12 +2213,8 @@ Troubleshooting - Common pitfalls
 
 - Ignoring syslog
 - Exaggerated tuning
-- Changing the object in vcl_hit
-- Not using session_linger
-- Running out of file descriptors
 - Using a 32bit system
 - Incorrect or insufficient ulimits
-- Setting lru_interval too high
 
 
 .. container:: handout

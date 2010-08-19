@@ -13,3 +13,9 @@ New in 1.3
 ----------
 
 - No content changes, only build system/release method
+
+New in 1.4
+----------
+
+- Add additional information and a few varnish to the VCL exercises
+- Remove obsolete warnings in Troubleshooting
