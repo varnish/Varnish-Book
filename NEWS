@@ -19,3 +19,4 @@ New in 1.4
 
 - Add additional information and a few varnish to the VCL exercises
 - Remove obsolete warnings in Troubleshooting
+- Explain ESI and warn about deflate

@@ -2160,6 +2160,35 @@ Enabling esi
                 esi;
         }
 
+.. container:: handout
+
+   With ESI, Varnish can be used not only to deliver objects, but to glue
+   them together. The most typical use case for ESI is a news article with
+   a "most recent news" box at the side. The article it self is most likely
+   written once and possibly never changed, and can be cached for a long
+   time. The box at the side with "most recent news", however, will change
+   frequently. With ESI, the article can include a "most recent news" box
+   with a different TTL.
+
+   Varnish would then first fetch the news article from a web server, then
+   parse it for ESI content, see the `<esi:include src="/top.html">` item,
+   then fetch `/top.html` as if it was a normal object, either finding it
+   already cached or getting it from a web server and inserting it into
+   cache. The TTL of `/top.html` can be 5 minutes while the article is
+   cached for two days. Varnish will know that it has to glue the page
+   together from two different objects when it sends it, and thus it will
+   update the parts independently and always use the most updated version.
+
+   .. warning::
+
+      Because Varnish has to understand the reply from the web server,
+      the content can not be compressed, as is the default of most web
+      servers. This is the biggest drawback of ESI in Varnish, and a
+      solution for this is scheduled for Varnish 3.0. 
+
+      To disable compressions with apache, you can typically type
+      ``a2dismod deflate``.
+
 Exercise: ESI
 -------------
 
@@ -2179,6 +2208,8 @@ Exercise: ESI
         <esi:include src="/cgi-bin/date.cgi"/>
 
 #. Look at the number of objects cached
+
+- You might have to disable deflate.
 
 Troubleshooting
 ===============
@@ -2238,7 +2269,7 @@ Troubleshooting - Common pitfalls
         stable for Varnish.
 
         If you do run into an assert error, the best place to look for help is
-        the bugtracker at http://varnish.projects.linpro.no. Most of the assert
+        the bugtracker at http://www.varnish-cache.org. Most of the assert
         errors that can be resolved with configuration are already explained in a
         ticket, so a quick search for the function-name will often yield the answer
         to your problem.
@@ -2248,8 +2279,8 @@ Monitoring varnish
 
 Munin
 
-- Monitoring tool created by Redpill Linpro
-- http://munin.projects.linpro.no/
+- Monitoring tool based on rrdtool
+- http://munin-monitoring.org/
 - Centralised data gathering and graphs
 - Distributed sensors and configuration
 - Free software - GPLed
