@@ -7,7 +7,7 @@ New in 1.2
   escape "\.css" on purge, instead of letting it fall through to pcre.
 - (Re-)Added exercise for for timeouts
 - munin/ directory added (anonyminized from vgnett)
-- The CHANGES file
+- The NEWS file
 
 New in 1.3
 ----------

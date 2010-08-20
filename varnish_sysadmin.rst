@@ -2316,6 +2316,8 @@ A few common problems
 Resources
 ---------
 
+- RFC 2616
+
 Community driven:
 
 - http://varnish-cache.org
