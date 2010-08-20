@@ -2211,41 +2211,80 @@ Exercise: ESI
 
 - You might have to disable deflate.
 
-Troubleshooting
+.. container:: handout
+
+        When using ESI, the `sess_workspace` parameter is very important.
+        The `sess_workspace` should be large enough to contain changes made
+        to anything else. That includes changes made in vcl_recv and
+        vcl_deliver.  ESI also uses session workspace, and there is
+        frequently a need to increase this drastically if recursive ESI is
+        used.
+
+        With heavy ESI, it might be necessary to set `sess_workspace` in
+        the range of megabytes. This means that with, for instance, 10 000
+        sessions running, you will use sess_workspace * 10 000 sessions
+        virtual memory. It is important to remember that since the actual
+        memory usage for each session is not going to be close to the
+        maximum, you will - for the most part - just be using virtual
+        memory, not physical memory.
+
+Finishing words
 ===============
 
-- The importance of workspaces
-- What to edit where
+Monitoring varnish
+------------------
+
+Munin
+
+- Monitoring tool based on rrdtool
+- http://munin-monitoring.org/
+- Centralised data gathering and graphs
+- Distributed sensors and configuration
+- Free software - GPLed
+- Integrates with Nagios for monitoring
+- Not SNMP (but can monitor SNMP items too)
 
 .. container:: handout
 
-        The obj_workspace should be large enough to able to contain changes you
-        make in vcl_fetch. Keeping obj_workspace small reduces the memory-overhead
-        for each object you store, and is reasonably safe.
+   You will want to monitor Varnish, and there are several ways of doing
+   it. Munin is perhaps the best established method, but certainly not the
+   only.
 
-        The sess_workspace should be large enough to contain changes made to
-        anything else. That includes changes made in vcl_recv and vcl_deliver.
-        ESI also uses session workspace, and there is frequently a need to increase
-        this drastically if recursive ESI is used.
+   Monitoring tools typically read and parse varnishstat-output, and there
+   are a few key counters that should be checked once in a while:
 
-        With heavy ESI, it might be necessary to set sess_workspace in the range of
-        megabytes. This means that with, for instance, 10 000 sessions running, you
-        will use obj_workspace * 10 000 sessions virtual memory. It is important to
-        remember that since the actual memory usage for each session is not going
-        to be close to the maximum, you will - for the most part - just be using
-        virtual memory, not physical memory.
+   - Hit rate (hit versus miss).
+   - Backend failures. You will see a few of these every once in a while,
+     depending on how robust your web servers are.
+   - Dropped work requests. Ideally, this should be 0 at all times, and a
+     positive value indicates that Varnish had to give up serving a request
+     due to heavy load. 
+   - Overflowed work requests. This constitutes how many requests were put
+     on the waiting list, or queue, due to a lack of threads. On a live
+     Varnish server, you typically see a few overflowed work requests on
+     startup, but after startup it should be fairly static.
+   - Number of threads and threads created. If you have more threads
+     created than number of threads, that means Varnish has had to use more
+     threads than the minimum you specified. If this happens repeatedly,
+     you should consider increasing the minimum number of threads.
+   - LRU nuked objects. When your cache is full, Varnish will remove - or
+     nuke - objects using the "Least Recently Used" method. If LRU nuked
+     objects increases rapidly, you would benefit from a larger cache (more
+     memory), or perhaps shorter duration on some of the less popular
+     content.
+   - Number of objects.
+   - Uptime. Use the varnishstat uptime, as that will reset if there is an
+     assert error.
 
-        To modify parameters, you will either use /etc/sysconfig/varnish
-        (Red Hat) or /etc/defaults/varnish (Debian/Ubuntu). These are used by the
-        init scripts provided for their respective distributions.
+   Keep in mind that you should also monitor the syslog, as that is where
+   Varnish logs the most grave errors it accounts.
 
-Troubleshooting - Common pitfalls
----------------------------------
+A few common problems
+---------------------
 
 - Ignoring syslog
 - Exaggerated tuning
 - Using a 32bit system
-- Incorrect or insufficient ulimits
 
 
 .. container:: handout
@@ -2274,23 +2313,21 @@ Troubleshooting - Common pitfalls
         ticket, so a quick search for the function-name will often yield the answer
         to your problem.
 
-Monitoring varnish
-==================
+Resources
+---------
 
-Munin
+Community driven:
 
-- Monitoring tool based on rrdtool
-- http://munin-monitoring.org/
-- Centralised data gathering and graphs
-- Distributed sensors and configuration
-- Free software - GPLed
-- Integrates with Nagios for monitoring
-- Not SNMP (but can monitor SNMP items too)
+- http://varnish-cache.org
+- http://varnish-cache.org/docs/
+- http://varnish-cache.org/wiki/VCLExamples
+- Public mailing lists: http://varnish-cache.org/wiki/MailingLists
+- Public IRC channel: #varnish at irc.linpro.no
 
-Summary and questions
-=====================
+Commercial:
 
-- Keep it simple
-- Watch your cookies
-
-Questions, comments, etc?
+- http://planet.varnish-cache.org/
+- http://www.varnish-software.com
+- http://repo.varnish-software.com (for service agreement customers)
+- support@varnish-software.com (for existing customers, with SLA)
+- sales@varnish-software.com
