@@ -523,11 +523,11 @@ Install Varnish:
 
    To compile from source, you can follow these instructions:
 
-   1. Install Varnish for your distribution
    1. Install "libncurses5-dev"
-   2. Download Varnish from http://sourceforge.net/projects/varnish
+   2. Download Varnish from http://sourceforge.net/projects/varnish, or
+      http://repo.varnish-software.com/ (for Varnish Software customers)
    3. Unpack in your ~
-   4. Run ``configure``
+   4. Run ``./configure``
    5. ``make`` and ``sudo make install``
 
    .. tip::
