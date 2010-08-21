@@ -536,9 +536,8 @@ Install Varnish:
       `build-essential` package and you may want to run ``apt-get build-dep
       varnish``
 
-
 Configuration
-=============
+-------------
 
 - Command line configuration
 - Tunable parameters
@@ -737,44 +736,53 @@ Exercise: Fetch data through Varnish
         not, so always double-check with GET or HEAD if you are in doubt if what
         you're seeing is coming from Varnish or is part of your browser cache.
 
-Best practices: Configuration
------------------------------
+Defining a backend in VCL
+-------------------------
 
-- Use the provided scripts
-- Only change what you've demonstrated that you need
-- Understand your choices
+/etc/varnish/default.vcl::
+
+        backend default {
+                .host = "localhost";
+                .port = "80";
+        }
 
 .. container:: handout
 
-        Now that you know how to start Varnish manually and how to interact
-        with it, let's take a look at how you want to manage your
-        configuration in a production setting.
+   You almost always want to use VCL: we might as well get started!
 
-        First of all, you should not underestimate the startup scripts
-        provided. They may seem straight forward to you, but they have some
-        important details that separate them from "home brew" scripts. The
-        most obvious of which is setting of ``ulimit``. On top of that is the
-        fact that it will save you a lot of time and effort when you
-        upgrade and if you ever need external support.
+   The above example defines a backend named `default`. The name "default"
+   is not special, and the real default backend that Varnish will use is
+   the first backend you specify.
 
-        Like many init scripts, Varnish' init-script is split in two: The
-        actual script and the configuration of it. The actual script is
-        typically located in /etc/init.d/varnish and should rarely if ever
-        be modified.
+   You can specify many backends at the same time.
 
-        On Debian-related systems, the configuration is stored in
-        /etc/defaults/varnish, while they are typically located in
-        /etc/sysconfig/varnish on Red Hat-related systems.
+Exercise: Define a backend with VCL
+-----------------------------------
 
-        These files are typically just a normal script which is read from
-        the init script. That means normal shell-escaping applies.
+1. Edit the startup script configuration for varnish:
+  
+  - On Red Hat or CentOS: /etc/sysconfig/varnish
+  - On Debian or Ubuntu: /etc/default/varnish
 
-        There are two basic approaches to managing the options. One is the
-        "dynamic" approach, where you specify each detail as a variable and
-        the script then puts it together into a program argument. The other
-        is specifying the argument(s) directly. There are pros and cons
-        with both, and usually a mix makes the most sense.
+2. Remove the ``-b localhost:80`` option.
+3. Make sure there is a ``-f /etc/varnish/default.vcl`` startup argument.
+4. Edit `/etc/varnish/default.vcl` to add your Apache server as the only
+   backend.
 
+.. container::
+
+   Most of the time, you use VCL to configure backends for Varnish, and
+   in this exercise, we set it up.
+
+   You can chose a different location than `/etc/varnish/default.vcl` if
+   you wish to.
+
+   .. warning::
+
+      The script-configuration (located in `/etc/sysconfig` or
+      `/etc/default`) is directly sourced as a shell script. Pay special
+      attention to any backslashes (\\) and quotation marks that might move
+      around as you edit the DAEMON_OPTS environmental variable.
 
 Tunable parameters
 ==================
@@ -783,7 +791,6 @@ Tunable parameters
 
         param.show -l
 
-- KISS is king.
 - Don't fall for the copy/paste tips
 
 .. container:: handout
@@ -1436,21 +1443,6 @@ VCL - functions
 - purge_url(regex)
 - purge(expression)
 - restart
-
-VCL - Backend declaration
--------------------------
-
-- A backend web server must be named, and it must be referenced.
-- The name "default" is not special.
-- The first backend specified is the default, regardless of the name.
-
-::
-
-        backend default {
-                .host = "127.0.0.1";
-                .port = "8080";
-        }
-
 
 VCL - vcl_recv
 --------------

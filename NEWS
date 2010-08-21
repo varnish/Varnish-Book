@@ -22,3 +22,9 @@ New in 1.4
 - Explain ESI and warn about deflate
 - Added Finishing Words, consisting of monitoring,
   troubleshooting(condensed) and resources/links
+
+New in 1.5
+----------
+
+- Combine the Configuration and Getting started chapter
+- Move backend declaration in VCL to the Getting started chapter
