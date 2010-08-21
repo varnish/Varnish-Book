@@ -739,12 +739,10 @@ Exercise: Fetch data through Varnish
 Defining a backend in VCL
 -------------------------
 
-/etc/varnish/default.vcl::
+/etc/varnish/default.vcl
 
-        backend default {
-                .host = "localhost";
-                .port = "80";
-        }
+.. code-block:: text
+   :include: vcl/backend.vcl
 
 .. container:: handout
 

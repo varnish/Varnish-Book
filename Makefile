@@ -6,6 +6,7 @@ htmltarget=${BDIR}/varnish_sysadmin.html
 pdftarget=${BDIR}/varnish_sysadmin.pdf
 rstsrc=varnish_sysadmin.rst
 images = img/vcl.png
+common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/*
 
 all: ${pdftarget} ${htmltarget}
 
@@ -30,10 +31,10 @@ ${BDIR}/img:
 ${BDIR}:
 	mkdir -p ${BDIR}
 
-${htmltarget}: ${rstsrc} ${BDIR}/version.rst ${images} ${BDIR}/img ${BDIR}/ui
+${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui
 	/usr/bin/rst2s5 ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
 
-${pdftarget}: ${rstsrc} ${BDIR}/version.rst ${images} ui/pdf.style
+${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
 
 clean:
