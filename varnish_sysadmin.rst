@@ -782,6 +782,16 @@ Exercise: Define a backend with VCL
       attention to any backslashes (\\) and quotation marks that might move
       around as you edit the DAEMON_OPTS environmental variable.
 
+   Example `/etc/default/varnish` snippet, comments removed::
+
+        NFILES=131072
+        MEMLOCK=82000
+        INSTANCE=$(uname -n)
+        DAEMON_OPTS="-a :6081 \
+                     -T localhost:6082 \
+                     -f /etc/varnish/default.vcl \
+                     -s file,/var/lib/varnish/$INSTANCE/varnish_storage.bin,1G"
+
 Tunable parameters
 ==================
 
