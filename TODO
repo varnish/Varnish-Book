@@ -7,14 +7,13 @@ Content
   - Consider a new exercise
   - Start with health checks
 
-- Accept-Encoding
 - ACL
 - Re-arrange the VCL chapters.
 - Add more visuals for the VCL chapters
 - Remove the "troubleshooting" chapter
 - Add architecture overview
 - Add reference documentation (RFC2616? man vcl and varnishd?)
-- Possibly spit the course in two/three:
+- Possibly split the course in two/three:
    
    - Intro
    - VCL
@@ -31,4 +30,3 @@ Technical
 - Fix the front page
 - Verify fonts
 - Add the rst2s5 patch somewhere sane. Sanitize it.
-- Announce-list ? For previous participants and course instructors?
