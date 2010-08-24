@@ -2,12 +2,18 @@
 Varnish System Administration
 =============================
 
+- by Varnish Software AS
+
+.. raw:: pdf
+
+   PageBreak
+
+.. raw:: pdf
+   
+   Spacer 0,600
+
 .. include:: build/version.rst
 
-
-..
-  .. image:: img/logo.png
-   :align: center
 
 .. header::
 
@@ -32,12 +38,6 @@ Varnish System Administration
 
 
 .. sectnum::
-
-.. raw:: pdf
-
-    PageBreak
-
-
 
 .. contents::
    :class: handout
@@ -1012,13 +1012,24 @@ Exercise: Tune first_byte_timeout
 Programs
 ========
 
+SHMLOG tools:
+
 - varnishlog
 - varnishncsa
 - varnishstat
 - varnishhist
 - varnishtop
 - varnishsizes
+
+Administration:
+
 - varnishadm
+
+Misc
+
+- varnishtest
+- varnishreplay
+
 
 .. container:: handout
 
@@ -1026,23 +1037,34 @@ Programs
    varnishadm tool is the only one that can affect a running instance of
    Varnish, as it is a convenience program to talk to the telnet interface.
 
-   All the other tools, however, operate exclusively on the shared memory
-   log, or shmlog as it's called in the context of Varnish. They all take
-   similar (but not necessarily identical) commands, and use the same
+   Varnishtest can be used to design specific feature-tests for Varnish,
+   and is used mainly for regression tests. It's included in the above list
+   for sake of completion and is mainly used during development.
+
+   All the other tools operate exclusively on the shared memory log, or
+   shmlog as it's called in the context of Varnish. They all take similar
+   (but not necessarily identical) command line arguments, and use the same
    underlying API to parse the log.
 
    Among the log-parsing tools, varnishstat is so far unique in that it
    only looks at counters. The counters are easily found in the shmlog, and
-   are typically polled at  reasonably frequent interval, to give the
-   impression of real-time updates.
+   are typically polled at reasonably frequent interval, to give the
+   impression of real-time updates. The are distinct from the other
+   log-data in that they are not directly mapped to a single request, but
+   represent how many times some specific action has occurred since Varnish
+   started.
 
-   The rest of the tools, however, work on the round robin part of the
-   shmlog, which deals with specific requests. Since the shmlog provides
-   large amounts of information, it is usually necessary to filter it. But
-   that does not just mean "show me everything that matches X". The most
-   basic log tool, varnishlog, will do precisely that. The rest of the
-   tools, however, can process the information further and display running
-   statistical information.
+   The rest of the tools work on the round robin part of the shmlog, which
+   deals with specific requests. Since the shmlog provides large amounts of
+   information, it is usually necessary to filter it. But that does not
+   just mean "show me everything that matches X". The most basic log tool,
+   varnishlog, will do precisely that. The rest of the tools, however, can
+   process the information further and display running statistical
+   information.
+
+   If varnishlog is used to dump data to disk, the varnishreplay tool can
+   be used to simulate the same load. It is not explained in detailed, as
+   it is very rarely used in normal operation.
 
 varnishlog
 ----------
@@ -1341,8 +1363,8 @@ Exercise: Try the tools
 - Run siege against localhost while looking at varnishhist
 
 
-VCL
-===
+VCL Introduction
+================
 
 - Syntax borrowed from C and Perl
 - Domain-specific
@@ -1376,8 +1398,8 @@ VCL
    programming Varnish, not configuring it.
 
 
-VCL - syntax
-------------
+Syntax
+------
 
 - # and /\* foo \*/ for comments
 - sub $name functions
@@ -1445,43 +1467,195 @@ VCL - functions
 VCL - vcl_recv
 --------------
 
-- Executed right after the initial request is parsed.
-- Normalizes client-data
-- Decides caching-policy based on client data (ie: request method, URL, etc)
+- Normalize client-input
+- Pick a web server
+- Re-write client-data for web applications
+- Decide caching policy based on client-input
 
-Default::
+.. container:: handout
 
-        sub vcl_recv {
-            if (req.request != "GET" &&
-              req.request != "HEAD" &&
-              req.request != "PUT" &&
-              req.request != "POST" &&
-              req.request != "TRACE" &&
-              req.request != "OPTIONS" &&
-              req.request != "DELETE") {
-                /* Non-RFC2616 or CONNECT which is weird. */
-                return(pipe);
-            }
-            if (req.request != "GET" && req.request != "HEAD") {
-                /* We only deal with GET and HEAD by default */
-                return(pass);
-            }
-            if (req.http.Authorization || req.http.Cookie) {
-                /* Not cacheable by default */
-                return(pass);
-            }
-            return(lookup);
-        }
+   vcl_recv is the first VCL function executed, right after Varnish has
+   decoded the request into its basic data structure. It has four main uses:
 
+   #. Modifying the client data to reduce cache diversity. IE: removing any
+      leading "www." in a URL.
+   #. Deciding caching policy based on client data. IE: Not caching POST
+      requests, only caching specific URLs, etc
+   #. Executing re-write rules needed for specific web applications.
+   #. Deciding which Web server to use.
 
-VCL - vcl_recv - return codes
------------------------------
+   In vcl_recv you can perform the following terminating statements:
+   
+   `pass` the cache, executing the rest of the Varnish processing as
+   normal, but not looking up the content in cache or storing it to cache.
 
-- error $code [reason]
-- pass
-- pipe
-- lookup
+   `pipe` the request, telling Varnish to shuffle byte between the selected
+   backend and the connected client without looking at the content. Because
+   Varnish no longer tries to map the content to a request, any subsequent
+   request sent over the same keep-alive connection will also be piped, and
+   not appear in any log.
 
+   `lookup` the request in cache, possibly entering the data in cache if it
+   is not already present.
+
+   `error` - Generate a synthetic response from Varnish. Typically an error
+   message, redirect message or response to a health check from a load
+   balancer.
+
+Default: vcl_recv
+-----------------
+
+.. code-block:: text
+   :include: vcl/default-vcl_recv.vcl
+
+.. container:: handout
+
+   The default VCL for vcl_recv is designed to ensure a safe caching policy
+   even with no modifications in VCL. It has two main uses:
+
+   #. Only handle recognized HTTP methods and cache GET and HEAD
+   #. Do not cache data that is likely to be user-specific.
+
+   It is executed right after any user-specified VCL, and is always
+   present. You can not remove it. However, if you terminate the vcl_recv
+   function using one of the terminating statements (pass, pipe, lookup,
+   error), the default VCL will not execute, as control is handed back from
+   the VRT (VCL Run-Time) to Varnish.
+
+   Most of the logic in the default VCL is needed for a well-behaving
+   Varnish server, and care should be taken when vcl_recv is terminated
+   before reaching the default VCL. Consider either replicating all the
+   logic in your own VCL, or letting Varnish fall through to the default
+   VCL.
+
+Example: Handeling Vary: Accept-Encoding
+----------------------------------------
+
+- Vary: is sent by a server and tells any caches (like Varnish) what
+  client-headers will result in different variants of a page. Varnish deals
+  with Vary implicitly.
+
+.. code-block:: text
+   :include: vcl/normalize_accept_encoding.vcl
+
+.. container:: handout
+
+   Whenever Varnish sees a Vary: header in the response from a web server,
+   it knows that the content it just got can look different based on a
+   client-specified header. 
+   
+   The most common client-header to vary on is the Accept-Encoding header:
+   Compressed data will be different from the same page uncompressed. Web
+   browsers support a multitude of different compression schemes, and
+   announce them in different ways. This can cause Varnish to cache tens of
+   different variants of the same page, even though the web server is
+   likely to only use one or two different compression schemes.
+
+   As caching multiple identical variants of the same page is unwanted, it
+   is wise to normalize the Accept-Encoding header, and any other header
+   that the Web server will vary on. The above example takes advantage of
+   the knowledge that only deflate and gzip are the really relevant
+   compression schemes supported. It ensures that at most three different
+   variants of a page can exist.
+
+   To see the result, compare ``varnishtop -i RxHeader -I Accept-Encoding``
+   with ``varnishtop -i TxHeader -I Accept-Encoding``.
+
+   .. warning::
+
+      The second most common header to Vary on is the User-Agent header.
+      This is generally considered a mistake, as normalizing the User-Agent
+      header is, at best, extremely difficult. If your web server reports
+      User-Agent in the Vary header, you should consider changing it, or
+      you are likely to get abysmal cache utilization.
+
+Exercise: Remove any leading "www."
+-----------------------------------
+
+- Store a copy of req.http.host as an other header, for example
+  req.http.x-host.
+- Use regsub() and req.http.host to change any occurence of
+  `www.example.com` to just `example.com`.
+- Use varnishlog to verify the result.
+
+.. container:: handout
+
+   The syntax for regsub() is regsub(string, regex, replacement). `string`
+   is the input string, in this case, req.http.host. `regex` is the regular
+   expression matching whatever content you need to change. "^www\."
+   matches a string that begins (^) with www followed by a litteral dot.
+   `replacement` is what you desire to change it with, "" can be used to
+   remove it.
+
+   To write a header, use ``set req.http.headername = "value";`` or ``set
+   req.http.headername = regsub(...);``.
+
+Solution: Remove any leading "www."
+-----------------------------------
+
+.. code-block:: text
+   :include: vcl/solution-vcl_recv-www_removal.vcl
+
+Verify:
+
+- varnishlog -i TxHeader,RxHeader -I Host
+- Or: varnishlog -o
+- GET -H "Host: www.example.com" http://localhost:8081/
+
+.. container:: handout
+
+   The above VCL is complete, with the exception of a missing backend
+   statement. After executing the above code, the VCL state engine
+   continues to execute the default VCL since no return() was specified.
+
+Exercise: Rewrite sport.example.com
+-----------------------------------
+
+- Assume that the hostname sport.example.com is really located under
+  example.com/sport
+- Use `req.http.host` and `req.url` combined with if () to
+  modify the URI accordingly.
+
+.. container::
+
+   You can use if () to perform a regular expression if-test, or a plain
+   string test. In the above exercise, both are valid. Ie::
+
+      if (req.http.host ~ "^sport\.example\.com$") {
+              (...)
+      }
+
+   is equivalent with::
+
+     if (req.htpt.host == "sport.example.com") {
+             (...)
+     }
+
+   It is slightly faster to use == to perform a string comparison instead
+   of a regular expression, but negligible.
+
+   .. tip::
+
+      You do not need to use regsub() on the host header for this exercise
+      unless you want it to apply for all instances of `sport.<some
+      domain>`. You will, however, need it to prepend `/sport` to the
+      req.url. Remember, you can match just the beginning of the line with
+      ``regsub(input,"^",replacement)``
+
+Solution: Rewrite sport.example.com
+-----------------------------------
+
+.. code-block:: text
+   :include: vcl/solution-vcl_recv-rewrite_sport.vcl
+
+Or:
+
+.. code-block:: text
+   :include: vcl/solution-vcl_recv-rewrite_sport_2.vcl
+
+..
+
+        XXX: Got here
 
 VCL - vcl_hash
 --------------
