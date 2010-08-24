@@ -31,7 +31,7 @@ ${BDIR}/img:
 ${BDIR}:
 	mkdir -p ${BDIR}
 
-${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui
+${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui ui/vs/*
 	/usr/bin/rst2s5 ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
 
 ${pdftarget}: ${common} ui/pdf.style
