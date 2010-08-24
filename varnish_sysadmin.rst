@@ -741,8 +741,8 @@ Defining a backend in VCL
 
 /etc/varnish/default.vcl
 
-.. code-block:: text
-   :include: vcl/backend.vcl
+.. include:: vcl/backend.vcl
+   :literal:
 
 .. container:: handout
 
@@ -767,7 +767,7 @@ Exercise: Define a backend with VCL
 4. Edit `/etc/varnish/default.vcl` to add your Apache server as the only
    backend.
 
-.. container::
+.. container:: handout
 
    Most of the time, you use VCL to configure backends for Varnish, and
    in this exercise, we set it up.
@@ -1473,6 +1473,45 @@ VCL - functions
 - purge_url(regex)
 - purge(expression)
 - restart
+- return()
+
+.. container:: handout
+
+   VCL offers a handful of simple functions that allow you to modify
+   strings, add purges, restart the VCL state engine and return control
+   from the VCL Run Time (VRT) environment to Varnish.
+
+   You will get to test all of these in detail, so the description is
+   brief.
+
+   regsub() and regsuball() has the same syntax and does the same thing:
+   They both take a string as input, search it with a regular expression
+   and replace it with an other string. The difference between regsub() and
+   regsuball() is that the latter changes all occurrences while the former
+   only affects the first match.
+
+   `purge_hash` and `purge_url` are the two original purge functions
+   provided, and are generally not used much. The purer and more flexible
+   `purge` function can perform the same task. ``purge_url(foo)`` is the
+   equivalent of ``purge("req.url ~ " foo)``: Add a URL, host name
+   excluded, to the purge list. The `purge_hash` function is only useful if
+   you need to purge by the actual hash, and was provided as a low-cost
+   method of purging by hostname and URL before the general-purpose `purge`
+   method was available. It is deprecated. We will go through purging in
+   detail in later chapters.
+
+   `restart` offers a way to re-run the VCL logic, starting at vcl_recv.
+   All changes made up until that point are kept and the `req.restarts`
+   variable is incremented. The `max_restarts` parameter defines the
+   maximum number of restarts that can be issued in VCL before an error is
+   triggered, thus avoiding infinite looping.
+
+   `return()` is used when execution of a VCL domain (for example vcl_recv)
+   is completed and control is returned to varnish with a single
+   instruction as to what should happen next. Return values are
+   `lookup`, `pass`, `pipe`, `fetch`, `deliver` and `hash`, but only a
+   limited number of them are available in each VCL domain.
+
 
 VCL - vcl_recv
 --------------
@@ -1515,8 +1554,8 @@ VCL - vcl_recv
 Default: vcl_recv
 -----------------
 
-.. code-block:: text
-   :include: vcl/default-vcl_recv.vcl
+.. include:: vcl/default-vcl_recv.vcl
+   :literal:
 
 .. container:: handout
 
@@ -1545,8 +1584,8 @@ Example: Handeling Vary: Accept-Encoding
   client-headers will result in different variants of a page. Varnish deals
   with Vary implicitly.
 
-.. code-block:: text
-   :include: vcl/normalize_accept_encoding.vcl
+.. include:: vcl/normalize_accept_encoding.vcl
+   :literal:
 
 .. container:: handout
 
@@ -1603,8 +1642,8 @@ Exercise: Remove any leading "www."
 Solution: Remove any leading "www."
 -----------------------------------
 
-.. code-block:: text
-   :include: vcl/solution-vcl_recv-www_removal.vcl
+.. include:: vcl/solution-vcl_recv-www_removal.vcl
+   :literal:
 
 Verify:
 
@@ -1626,7 +1665,7 @@ Exercise: Rewrite sport.example.com
 - Use `req.http.host` and `req.url` combined with if () to
   modify the URI accordingly.
 
-.. container::
+.. container:: handout
 
    You can use if () to perform a regular expression if-test, or a plain
    string test. In the above exercise, both are valid. Ie::
@@ -1655,13 +1694,70 @@ Exercise: Rewrite sport.example.com
 Solution: Rewrite sport.example.com
 -----------------------------------
 
-.. code-block:: text
-   :include: vcl/solution-vcl_recv-rewrite_sport.vcl
+.. include:: vcl/solution-vcl_recv-rewrite_sport.vcl
+   :literal:
 
 Or:
 
-.. code-block:: text
-   :include: vcl/solution-vcl_recv-rewrite_sport_2.vcl
+.. include:: vcl/solution-vcl_recv-rewrite_sport_2.vcl
+   :literal:
+
+
+VCL - vcl_fetch
+---------------
+
+- Sanitize server-response
+- Override cache duration
+
+.. container:: handout
+
+   The vcl_fetch function is the backend-counterpart to vcl_recv. In
+   vcl_recv you can use information provided by the client to decide on
+   caching policy, while you use information provided by the server to
+   further decide on a caching policy in vcl_fetch.
+
+   If you chose to `pass` the request in an earlier VCL function (ie:
+   vcl_recv), you will still execute the logic of vcl_fetch, but the object
+   will not enter the cache even if you supply a cache time.
+
+   You have multiple tools available in vcl_fetch. First and foremost you
+   have the `beresp.ttl` variable, which defines how long an object is
+   kept. 
+   
+   .. warning::
+
+           If the request was not passed *before* reaching vcl_fetch, the
+           beresp.ttl is still used even when you perform a pass in
+           vcl_fetch. This is an important detail that is important to
+           remember: When you perform a pass in vcl_fetch *you cache the
+           decision you made*. In other words: If beresp.ttl is 10 hours
+           and you issue a pass, an object will be entered into the cache
+           and remain there for 10 hours, telling Varnish not to cache. If
+           you decide not to cache a page that returns a "500 Internal
+           Server Error", for example, this is critically important, as a
+           temporary glitch on a page can cause it to not be cached for a
+           potentially long time.
+
+           Always set beresp.ttl when you issue a pass in vcl_fetch.
+
+   Returning `deliver` in vcl_fetch tells Varnish to cache, if possible.
+   Returning `pass` tells it not to cache, but does *not* run the vcl_pass
+   function of VCL.
+
+   Typical tasks performed in vcl_fetch include:
+
+   - Overriding cache time for certain URLs
+   - Stripping Set-Cookie headers that are not needed
+   - Stripping bugged Vary headers
+   - Adding helper-headers to the object for use in purging (more
+     information in later chapters)
+   - Applying other caching policies
+
+Default: vcl_fetch
+------------------
+
+.. include:: vcl/default-vcl_fetch.vcl
+   :literal:
 
 ..
 
