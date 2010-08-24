@@ -33,3 +33,4 @@ New in 1.5
 - Add new vcl_recv exercises and rework the VCL recv-part of VCL
 - Default VCL-slide for vcl_recv, vcl_fetch
 - Update default vcl (notably the X-Forwarded-For header).
+- Better front page
