@@ -1,12 +1,9 @@
-=============================
-Varnish System Administration
-=============================
 
-- by Varnish Software AS
+.. image:: img/dummy.png
 
 .. raw:: pdf
 
-   PageBreak
+   PageBreak introPages
 
 .. raw:: pdf
    
