@@ -51,7 +51,7 @@ div#controls form {position: absolute; bottom: 0; right: 0; width: 100%;
 #currentSlide {text-align: center; font-size: 0.5em; color: #FFF; bottom: 0;
   font-family: sans-serif; font-weight: bold;}
 
-#slide0 {padding-top: 1.5em}
+#slide0 {padding-top: 2.5em}
 #slide0 h1 {position: static; margin: 1em 0 0; padding: 0; color: #000;
   font: bold 2em sans-serif; white-space: normal; background: transparent;}
 #slide0 h2 {font: bold italic 1em sans-serif; margin: 0.25em;}

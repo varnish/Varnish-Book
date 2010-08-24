@@ -9,6 +9,10 @@
    
    Spacer 0,600
 
+.. container:: center
+
+        Varnish System Administration
+
 .. include:: build/version.rst
 
 
