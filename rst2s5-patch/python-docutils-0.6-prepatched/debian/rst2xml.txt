@@ -1,0 +1,12 @@
+=======
+rst2xml
+=======
+
+-----------------------------
+convert reST documents to XML
+-----------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

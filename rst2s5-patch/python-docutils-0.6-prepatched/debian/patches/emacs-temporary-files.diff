@@ -1,0 +1,102 @@
+Description: Fix insecure use of temporary files
+ in the Emacs major mode for reStructuredText (rst.el).
+Author: Jakub Wilk <ubanus@users.sf.net>
+Bug: http://sourceforge.net/tracker/?func=detail&aid=2912890&group_id=38414&atid=422030
+Bug-Debian: http://bugs.debian.org/560755
+Last-Update: 2009-12-15
+
+Index: python-docutils-0.6/tools/editors/emacs/rst.el
+===================================================================
+--- python-docutils-0.6.orig/tools/editors/emacs/rst.el	2009-05-21 11:02:22.000000000 +0200
++++ python-docutils-0.6/tools/editors/emacs/rst.el	2009-12-15 13:10:49.000000000 +0100
+@@ -3301,13 +3301,80 @@
+      (cadr (assq 'pseudoxml rst-compile-toolsets))
+      standard-output)))
+ 
++(defvar rst-temp-dir nil)
++(make-variable-buffer-local 'rst-temp-dir)
++
++;; make-temp-file is not available in XEmacs 21
++(if (fboundp 'make-temp-file)
++  (defun rst-make-temp-dir (prefix) (make-temp-file prefix t))
++  (defun rst-make-temp-dir (prefix)
++    (let ((umask (default-file-modes)) file)
++      (unwind-protect
++        (progn
++          (set-default-file-modes 448) ; o700
++          (while
++            (condition-case ()
++              (progn
++                (setq file
++                  (make-temp-name
++                    (if (zerop (length prefix))
++                      (file-name-as-directory (temp-directory))
++                      (expand-file-name prefix (temp-directory))
++                    )
++                  )
++                )
++                (make-directory file)
++                nil
++              )
++              (file-already-exists t)
++            )
++            nil
++          )
++          file
++        )
++        (set-default-file-modes umask)
++      )
++    )
++  )
++)
++
++(defun rst-get-temp-dir ()
++  (or rst-temp-dir
++    (setq rst-temp-dir
++      (file-name-as-directory (rst-make-temp-dir "rst-"))
++    )
++  )
++)
++
++;; dired-delete-file is not available in XEmacs 21
++(defun rst-delete-file (file)
++  (if (not (eq t (car (file-attributes file))))
++    (delete-file file)
++    (when
++      (setq files (directory-files file t "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*"))
++      (while files
++        (rst-delete-file (car files))
++        (setq files (cdr files))
++      )
++    )
++    (delete-directory file)
++  )
++)
++
++(defun rst-remove-temp-dir ()
++  (if rst-temp-dir (rst-delete-file rst-temp-dir))
++)
++
++(add-hook 'kill-buffer-hook 'rst-remove-temp-dir)
++(add-hook 'kill-emacs-hook 'rst-remove-temp-dir)
++
+ (defvar rst-pdf-program "xpdf"
+   "Program used to preview PDF files.")
+ 
+ (defun rst-compile-pdf-preview ()
+   "Convert the document to a PDF file and launch a preview program."
+   (interactive)
+-  (let* ((tmp-filename "/tmp/out.pdf")
++  (let* ((tmp-filename (concat (rst-get-temp-dir) "out.pdf"))
+ 	 (command (format "%s %s %s && %s %s"
+ 			  (cadr (assq 'pdf rst-compile-toolsets))
+ 			  buffer-file-name tmp-filename
+@@ -3323,7 +3390,7 @@
+ (defun rst-compile-slides-preview ()
+   "Convert the document to an S5 slide presentation and launch a preview program."
+   (interactive)
+-  (let* ((tmp-filename "/tmp/slides.html")
++  (let* ((tmp-filename (concat (rst-get-temp-dir) "slides.html"))
+ 	 (command (format "%s %s %s && %s %s"
+ 			  (cadr (assq 's5 rst-compile-toolsets))
+ 			  buffer-file-name tmp-filename

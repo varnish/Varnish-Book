@@ -1,0 +1,67 @@
+Source: python-docutils
+Section: python
+Priority: optional
+Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Uploaders: Jakub Wilk <ubanus@users.sf.net>,
+           martin f. krafft <madduck@debian.org>,
+           Simon McVittie <smcv@debian.org>,
+           Michael Schutte <michi@uiae.at>,
+           Ben Finney <ben+debian@benfinney.id.au>
+Build-Depends: debhelper (>= 5.0.37.1), python-setuptools (>= 0.6b3), python (>= 2.3)
+Build-Depends-Indep: xsltproc (>= 1.1.20),
+                     python-support (>= 0.6.4),
+                     docbook-to-man
+Standards-Version: 3.8.3
+XS-Python-Version: >= 2.3
+Vcs-Svn: svn://svn.debian.org/python-modules/packages/python-docutils/trunk/
+Vcs-Browser: http://svn.debian.org/viewsvn/python-modules/packages/python-docutils/trunk/
+Homepage: http://docutils.sourceforge.net/
+
+Package: python-docutils
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends},
+         python-roman,
+Recommends: python-imaging,
+            python-pygments,
+            libpaper-utils,
+            python-lxml,            
+            python (>= 2.5) | python-elementtree
+Suggests: texlive-latex-recommended, texlive-latex-base, texlive-lang-french
+Provides: docutils-writer-manpage,
+          python-odtwriter,
+          rst2odt,
+          docutils-writer-odt,
+          rst2man
+Conflicts: docutils-writer-manpage,
+           python-odtwriter,
+           docutils-writer-odt,
+           rst2man,
+           zope3 (= 3.4.0-1)
+Replaces: docutils-writer-manpage,
+          python-odtwriter,
+          docutils-writer-odt,
+          rst2man
+Breaks: python-epydoc (<< 3.0.1-4~)
+Description: utilities for the documentation of Python modules
+ The purpose of the Docutils project is to create a set of tools for
+ processing plaintext documentation into useful formats, such as HTML,
+ XML, and TeX.
+ .
+ The package includes the reStructuredText parser, the Python
+ Docstring Processing System project, and documentation in HTML and
+ (gzipped) reST formats.
+
+Package: python-roman
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: module for generating/analyzing Roman numerals
+ This module converts from and to Roman numerals. It can convert numbers
+ from 1 to 4999 and understands the common shortcuts (IX == 9), but not
+ illegal ones (MIM == 1999).
+ .
+ This module is part of "Dive Into Python", a free Python tutorial for
+ experienced programmers.  Visit http://diveintopython.org/ for the
+ latest version.
+ .
+ It is maintained in Debian as part of the python-docutils package.
+

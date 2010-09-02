@@ -1,0 +1,12 @@
+=============
+rst-buildhtml
+=============
+
+-----------------------------------
+convert many reST documents to HTML
+-----------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

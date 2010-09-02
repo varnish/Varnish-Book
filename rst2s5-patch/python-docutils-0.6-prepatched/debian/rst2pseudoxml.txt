@@ -1,0 +1,12 @@
+=============
+rst2pseudoxml
+=============
+
+------------------------------------
+convert reST documents to pseudo-XML
+------------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

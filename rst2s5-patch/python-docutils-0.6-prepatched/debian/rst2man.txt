@@ -1,0 +1,12 @@
+=======
+rst2man
+=======
+
+---------------------------------------------
+generate unix manpages from reStructured text
+---------------------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

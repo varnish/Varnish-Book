@@ -1,0 +1,28 @@
+python-docutils for Debian
+==========================
+
+Processing rst2newlatex output
+------------------------------
+
+To process rst2newlatex output you'll need to have this package's
+Suggests installed.
+
+Integration with Emacs
+----------------------
+
+Note that the 'correct' file extension for ReST documents is, at least
+in the opinion of the Upstream authors, 'none' or '.txt', not '.rst'.
+
+Thus, while appropriate Emacs files are installed, auto-switching to
+ReST mode is accomplished by a comment like
+
+	.. Hey emacs, switch to -*- rst-mode -*-
+
+and not by file extension. (You can enable that feature, if you want,
+in the file '/etc/emacs/site-start.d/50python-docutils.el'.)
+
+Relationship to S5
+------------------
+
+python-docutils contains a modified version of the S5 Javascript and CSS.
+The original S5 is packaged separately for Debian, in the s5 package.

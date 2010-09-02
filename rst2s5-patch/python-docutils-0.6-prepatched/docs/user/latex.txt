@@ -1,0 +1,1645 @@
+================================
+ Generating LaTeX with Docutils
+================================
+
+:Author: Engelbert Gruber, Guenter Milde
+:Contact: docutils-users@lists.sourceforge.net
+:Revision: $Revision: 6159 $
+:Date: $Date: 2009-10-09 09:17:59 +0200 (Fre, 09 Okt 2009) $
+:Copyright: This document has been placed in the public domain.
+
+.. contents::
+.. sectnum::
+
+Introduction
+============
+
+Producing LaTeX code from reST input can be done in at least two ways:
+
+1. treat LaTeX as a document format (like HTML):
+
+   Transform the internal markup into corresponding LaTeX markup.
+   For example, a section title would be written with the LaTeX section
+   command: ``\section{this section title}``.
+
+   This keeps the document structure and semantic markup produing a readable
+   LaTeX file, but may require hacking around bugs/features in LaTeX.
+
+   If you prefer this approach, try ``rst2latex.py``.
+
+2. treat LaTeX as a page description format (like Postscript):
+
+   Use LaTeX as a typesetting system to produce the desired output
+   without bothering with the usual LaTeX idioms for representing
+   document structure information.
+   This will work around Docutils-incompatible features and bugs in LaTeX
+   but it produces a hard to read LaTeX file.
+
+   ``rst2newlatex.py`` adds a lot of LaTeX macros and uses LaTeX as a
+   typesetter without caring about producing readable LaTeX files.
+
+This documents describes the `latex2e` writer called by the front end
+``rst2latex.py``.
+
+PDF generation
+==============
+
+In many cases, LaTeX code is not the desired end-format of the document.
+LaTeX offers (at least) four ways to generate PDF documents from the LaTeX
+source:
+
+pdflatex
+  Generates a PDF document directly from the LaTeX file.
+
+latex dvipdfm
+  Use ``latex`` to generate a DVI file and ``dvipdfm`` to produce a PDF
+  file. If you will take this approach, add ``dvipdfm`` to the
+  ``--documentoptions``.
+
+latex dvips ps2pdf
+  Produce a DVI file with ``latex``, postscript with ``dvips`` and PDF with
+  ``ps2pdf``.
+
+xetex
+  The `XeTeX`_ engine works with input files in UTF-8 encoding and system
+  fonts. It is currently not supported by Docutils.
+
+You might need to call latex (or pdflatex/xelatex) twice (or even thrice) to
+get internal references correct. The Rubber_ wrapper for LaTeX and friends
+can be used to automatically run all programs the required number of times
+and delete "spurious" files.
+
+.. _Rubber: http://iml.univ-mrs.fr/~beffara/soft/rubber/
+
+
+Specialities of the LaTeX writer
+================================
+
+Length units
+------------
+
+LaTeX knows about all the `length units`_ supported by Docutils plus the
+following less common units:
+
+:pt: typewriter's (or LaTeX) point (1 pt = 1/72.27 in)
+:dd: didôt (1 dd = 1238/1157 pt)
+:cc: cîcero (1 cc = 12 dd)
+:sp: scaled point (1sp = 1/65536pt)
+
+.. attention:: Different definitions of the unit "pt"!
+
+   * In Docutils (as well as CSS) the unit symbol "pt" denotes the
+     `Postscript point` or `DTP point`.
+
+   * LaTeX uses "pt" for the `LaTeX point`, which is unknown to Docutils and
+     0.3 % smaller.
+
+   * The `DTP point` is available in LaTeX as "bp" (big point):
+
+       1 pt = 1/72.25 in < 1 bp  = 1/72 in
+
+   Lengths specified in the document with unit "pt" will be written with
+   unit "bp" to the LaTeX source.
+
+   In `raw LaTeX`_ and `custom style sheets`_, the `DTP point` must be
+   specified as "bp", while "pt" is interpreted as `LaTeX point`.
+
+.. _length units: ../ref/rst/restructuredtext.html#length-units
+
+For more on lengths in LaTeX, see e.g. `Hypertext Help with LaTeX: Lengths`__
+
+__ http://www.giss.nasa.gov/tools/latex/ltx-86.html.
+
+default length unit
+```````````````````
+
+The default length unit (added to length specifications without unit) is the
+"DTP point" (1/72 inch, "bp" in LaTeX notification).
+
+size of a pixel (length unit ``px``)
+````````````````````````````````````
+
+The length unit ``px`` is a "relative length" whose value depends on the
+*resolution* of the output device (usually specified in *dots per inch*
+(DPI). However, when producing a PDF, the resolution of the output device
+(printer, screen (for PDF-viewer) is generally not known.
+
+With pdftex, the "resolution" is a configuration setting.
+
+Default:
+  72 DPI, i.e. 1 px = 1/72 in.
+
+Why are my images too big?
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTML-browsers use the actual screen resolution (usually around
+100 DPI).
+
+The CSS specification suggests:
+
+  It is recommended that the reference pixel be the visual angle of one
+  pixel on a device with a pixel density of 96 DPI and a distance from the
+  reader of an arm's length.
+
+  -- http://www.w3.org/TR/CSS2/syndata.html#length-units
+
+This is why pixmap images without size specification or objects with a size
+specified in ``px`` tend to come too large in the PDF.
+
+Solution:
+  Specify the image size in fixed units (``pt``, ``cm``, ``in``) or
+  configure the "resolution" in a style sheet.
+
+Example:
+  Set a resolution of 96 DPI::
+
+       \pdfpxdimen=1in % 1 DPI
+       \divide\pdfpxdimen by 96 % 96 DPI
+
+Images
+------
+
+Images__ are included in LaTeX with the help of the `graphicx` package. The
+supported file formats depend on the used driver (latex, pdftex, xetex) and
+output format (DVI, PS, PDF).
+For details see the grfguide_.
+
+__ ../ref/rst/directives.html#images
+.. _grfguide:
+   http://ctan.org/get/macros/latex/required/graphics/grfguide.pdf
+
+Docutils special LaTeX macros
+-----------------------------
+
+Some Docutils objects have no LaTeX counterpart, they will be typeset using
+a Docutils specific LaTeX *macro* (command, environment, or length) to allow
+layout changes from the `style sheet`_ or with `raw LaTeX`_. By convention,
+special macros use the prefix ``\DU``\ [#]_.
+
+The generated LaTeX documents should be kept processable by a standard LaTeX
+installation. Therefore fallback definitions are included after the custom
+style sheet, if the macro is needed in the document.
+
+* Custom `style sheets`_ can define alternative implementations with
+  ``\newcommand``, ``\newenvironment``, and ``\newlength`` plus
+  ``\setlength``.
+
+* Definitions with `raw LaTeX`_ are part of the document body. Use
+  ``\def``, ``\renewcommand`` or ``\renewenvironment``, and ``\setlength``.
+
+See the test output standalone_rst_latex.tex_ for an example of all fallback
+definitions and their use in the document.
+
+.. _standalone_rst_latex.tex:
+   ../../test/functional/output/standalone_rst_latex.tex
+
+.. [#] DU for Documentation Utilities = Docutils
+
+
+Configuration
+=============
+
+Configuration can be done via configuration options_ to the Docutils tool,
+`custom style sheets`_ and LaTeX packages, as well as `raw LaTeX`_ in the
+document. Advanced configuration is possible with custom templates_.
+
+Options
+-------
+
+The LaTeX code generation can be configured via options to the Docutils
+latex writer given as
+
+command-line options
+  to the conversion command (run ``rst2latex.py --help`` to get a list of
+  available options), or
+
+configuration settings
+  in a configuration file (see `Docutils Configuration`_ for details).
+
+.. _Docutils Configuration:
+   ../user/config.html
+
+
+.. _style sheet:
+.. _style sheets:
+
+Custom style sheets
+-------------------
+
+LaTeX style sheets can be used to configure the look of the printout/PDF by
+(re-)defining LaTeX-commands and settings.
+
+The option ::
+
+  --stylesheet=STYLESHEET
+
+references STYLESHEET using the command ``\usepackage`` if STYLESHEET has no
+extension or the extension ``.sty`` (the extension will be dropped). With
+any other extension, the LaTeX command ``\input`` is used.
+
+It is possible to specify multiple style sheets (see examples below).
+
+.. note::
+  There is no need to specify a path, if your style files are installed
+  in the `TeX input path`_.
+
+If the ``--embed-stylesheet`` option is set, the content of every STYLESHEET
+is inserted instead. Currently, this fails if the file is not available via
+the given path (i.e. without search in the `TeX input path`_).
+
+Examples:
+  ..
+
+* Times Roman fonts with `mathptmx` package::
+
+    --stylesheet==mathptmx
+
+  or ::
+
+    --stylesheet==mathptmx.sty
+
+* Input ``preamble.tex``::
+
+   --stylesheet==preamble.tex
+
+* Use three style sheets: `mathptmx` Times fonts,
+  `parskip`  separate paragraphs by vertical space,
+  `preamble.tex` home-made custom style sheet::
+
+    --stylesheet==mathptmx,parskip,preamble.tex
+
+Stylesheet Repository
+  There is a `repository of user-contributed style
+  sheets`_ in the Docutils Sandbox_.
+
+.. _TeX input path:
+   http://www.tex.ac.uk/cgi-bin/texfaq2html?label=what-TDS
+.. _repository of user-contributed style sheets:
+   ../../../sandbox/stylesheets/
+.. _sandbox: ../../../sandbox/
+
+
+Templates
+---------
+
+Some customizations require commands at places other than the insertion
+point of stylesheets or depend on the deletion/replacement of parts of the
+document. This can be done via a custom template. See the `publisher
+documentation`_ for a description of the document parts available in a
+template file.
+
+The ``--template`` option specifies the path to the template file. It is
+tried relative to the current working directory and to the latex writer's
+package sub-directory. The default value is 'default.tex'.
+
+In addition to the 'default.tex' template, the latex writer directory
+contains the alternative 'titlepage.tex'.
+
+Example:
+  Print a title page including docinfo, dedication, and abstract::
+
+    --template=titlepage.tex
+
+.. _publisher documentation: ../api/publisher.html
+
+
+Raw LaTeX
+---------
+
+By means of the `raw directive`_ one can give commands directly to LaTeX.
+
+This can be both, styling and printing commands, as LaTeX (unlike HTML/CSS)
+uses one common language for content and style.
+
+Examples:
+  ..
+
+* Amost all examples for the `style sheet`_ will also work as raw LaTeX
+  inside the document. An exception are commands that need to be given in
+  the document preamble (e.g. package loading with ``\usepackage``, which
+  can be achieved with the ``--style-sheet`` command line option instead).
+
+* Math formula::
+
+    .. raw:: latex
+
+       \[x^3 + 3x^2a + 3xa^2 + a^3,\]
+
+  (Drawback: the formula will be invisible in other output formats.)
+
+* Defining a macro for a `custom role`_.
+
+* Forcing `page breaks`_.
+
+
+.. _raw directive:
+   ../ref/rst/directives.html#raw
+
+
+How to configure the ...
+------------------------
+
+admonitions
+```````````
+
+Admonitions__ are specially marked "topics" that can appear anywhere an
+ordinary body element can.
+
+__ ../ref/rst/directives.html#admonitions
+
+Command:
+  ``\DUadmonition``
+
+Default:
+  Typeset in a frame (90 % of text width).
+
+Examples:
+  ..
+
+
+* A lighter layout without the frame::
+
+    \newcommand{\DUadmonition}[2][class-arg]{%
+      % try \DUadmonition#1{#2}:
+      \ifcsname DUadmonition#1\endcsname%
+        \csname DUadmonition#1\endcsname{#2}%
+      \else
+        \begin{quote}
+          #2
+        \end{quote}
+      \fi
+    }
+
+The first part of this definition acts as a "dispatcher". This way it is
+possible to define a special handling of `specific admonitions`_ or based on
+the optional "class" argument.
+
+.. _specific admonitions:
+   ../ref/rst/directives.html#specific-admonitions
+
+Example:
+  layout ``.. note::`` as a margin note::
+
+    \newcommand{\DUadmonitionnote}[1]{\marginpar{#1}}
+
+  Make sure you have enought space to hold the note.
+  See also the marginnote_ and pdfcomment_ packages.
+
+The admonition title is typeset with the ``\DUtitle`` command which also
+takes a class argument. See `topic title`_
+
+.. _marginnote:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/marginnote.html
+.. _pdfcomment:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/pdfcomment.html
+
+
+.. _custom role:
+
+custom interpreted text roles
+`````````````````````````````
+
+The rst `role directive`_ allows defining custom `text roles`_
+that mark parts of inline text (spans) with a class argument.
+
+* Role names and class arguments are are converted to conform to the regular
+  expression ``[a-z][-a-z0-9]*`` (see `class directive`_).
+
+* Class arguments may contain numbers and hyphens, which need special
+  treatment in LaTeX command names. (The special command ``\@namedef`` can
+  help with the definition of corresponding commands.)
+
+* Custom roles can have multiple class arguments
+
+  In contrast to HTML/CSS, the order of the class arguments might matter.
+
+Commands:
+  ``\DUrole``: dispatcher command
+
+  ``\DUroleCLASSARGUMENT``: optional styling command
+
+Default:
+  The definition of ``\DUrole{CLASSARGUMENT}{}`` calls the macro named
+  ``\DUroleCLASSARGUMENT{}``\ [#]_ if it is defined (but silently ignores
+  this class argument if a corresponding macro is not defined).
+
+.. [#] For backwards compatibility, the prefix ``\docutilsrole...`` in the
+   styling commands also recognized.
+
+Examples:
+  ..
+
+* Typeset text in small caps::
+
+    .. role:: smallcaps
+
+    :smallcaps:`Fourier` transformation
+
+  This is transformed to the LaTeX code::
+
+    \DUrole{smallcaps}{Fourier} transformation
+
+  The definition ::
+
+    \newcommand{\DUrolesmallcaps}{\textsc}
+
+  as `raw LaTeX`_ or in the custom `style sheet`_ will give the expected
+  result (if the chosen font supports small caps).
+
+* Subscript text in normal size and *italic* shape::
+
+  .. role:: sub(subscript)
+
+  As "sub" inherits from the standard "subscript" role, the LaTeX macro
+  only needs to set the size and shape::
+
+    \newcommand{\DUrolesub}{\normalsize\itshape}
+
+* A role with several classes and a converted class name::
+
+    .. role:: custom4
+       :class: argI argII arg_3
+
+  is translated to the nested commands::
+
+    \DUrole{argi}{\DUrole{argii}{\DUrole{arg-3}{<content>}}}
+
+  With the definitions::
+
+    \newcommand{\DUroleargi}[1]{\textsc}
+    \newcommand{\DUroleargii}[1]{{\large #1}}
+    \makeatletter
+    \@namedef{DUrolearg-3}{\textbf}
+    \makeatother
+
+  in a `style sheet`_\ [#]_ or as `raw LaTeX`_ in the document source,
+  text styled with ``:custom4:`large bold small-caps``` will be typeset
+  accordingly.
+
+.. [#] Leave out the ``\makeatletter`` - ``\makeatother`` pair if the style
+   sheet is a LaTeX package (``*.sty``).
+
+.. _role directive:
+   ../ref/rst/directives.html#role
+
+.. _text roles:
+   ../ref/rst/roles.html
+
+.. _class directive:
+   ../ref/rst/directives.html#class
+
+definition lists
+`````````````````
+
+ReStructuredText `definition lists`__ correspond to HTML ``<dl>`` list
+objects.
+
+Environment:
+  ``description``: LaTeX standard environment
+
+Command:
+  ``\descriptionlabel``: styling macro for the description term
+
+Default:
+  bold label text, hanging indent
+
+Example:
+  A non-bold label can be achieved with::
+
+    \renewcommand\descriptionlabel[1]{\hspace\labelsep \normalfont #1}
+
+__ ../ref/rst/restructuredtext.html#definition-lists
+
+
+document class
+``````````````
+
+There are hundreds of LaTeX document classes installed by modern
+LaTeX distributions, provided by publishers, or available at CTAN_.
+The `TeX Catalogue`_ lists most of them.
+
+* article, report, book: standard document classes
+* scrartcl, scrrprt, scrbook: KOMA-script_ classes
+* memoir_: highly configurable class for larger documents
+
+The LaTeX document class cannot be changed in a style sheet but must be
+specified via configuration options_.
+
+Option:
+  --documentclass=DOCUMENTCLASS
+                        Specify documentclass.  Default is "article".
+
+.. _CTAN: http://www.dante.de/ctan
+.. _TeX Catalogue: http://texcatalogue.sarovar.org/
+.. _KOMA-script:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/koma-script.html
+.. _memoir:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/memoir.html
+
+document info
+`````````````
+
+Content of the `bibliographic fields`__ at the top of a document.
+By default, docinfo items are typeset as a table.
+
+Options:
+  --use-latex-docinfo     Attach author and date to the document title
+  			  instead of the document info table.
+
+  --use-latex-abstract    Use LaTeX abstract environment for the documents
+                          abstract. Per default the abstract is a topic.
+
+Length:
+  ``\DUdocinfowidth``: the width for the `docinfo` table.
+
+Default:
+  90 % of text width: ``0.9\textwidth``
+
+Example:
+  set to 70 % of text width::
+
+    \newlength{\DUdocinfowidth}
+    \setlength{\DUdocinfowidth}{0.7\textwidth}
+
+__ ../ref/rst/restructuredtext.html#bibliographic-fields
+
+
+document title
+``````````````
+
+A lone top-level section title is (usually) transformed to the document title
+(see `section structure`_).
+
+The format of the document title is defined by the document class. The
+"article" document class uses an in-page title and the "report" and "book"
+classes write a separate title page. See the `TeX FAQ`_ on how to customize
+the `style of document titles`_.
+
+The default title page shows only title and subtitle, date and author
+are shown in the `document info`_ table.
+
+Options:
+  --use-latex-docinfo     Attach author and date to the document title
+  			  instead of the document info table.
+  --use-titlepage-env     Put docinfo and abstract into the title page.
+
+.. note:: with the ``--use-titlepage-env`` option, a separate title page is
+   	  used also with the "abstract" document class.
+
+.. _section structure: rst/quickref.html#section-structure
+.. _TeX FAQ: http://www.tex.ac.uk/faq
+.. _style of document titles:
+   http://www.tex.ac.uk/cgi-bin/texfaq2html?label=titlsty
+
+field lists
+```````````
+
+`Field lists`__ may be used as generic two-column table constructs in
+documents.
+
+Environment:
+   ``DUfieldlist``
+
+Default:
+   Indented description list.
+
+Example:
+   Use a description list customized with enumitem_::
+
+     \usepackage{enumitem}
+     \newenvironment{DUfieldlist}%
+       {\description[font=,style=sameline,leftmargin=8em]}
+       {\enddescription}
+     }
+
+   The `KOMA-script`_ classes provide a similar environment under the name
+   `labeling`.
+
+.. _enumitem:
+   http://ctan.org/get/macros/latex/contrib/enumitem/enumitem.pdf
+
+__ ../ref/rst/restructuredtext.html#field-lists
+
+
+figure and table captions
+`````````````````````````
+The caption_ package provides many ways to customise the captions in
+floating environments like figure and table.
+
+The chngcntr_ package helps to configure the numbering of figure and table
+caption numberings.
+
+Some document classes (e.g. KOMA-script_) provide additional configuration.
+Also see the related `LaTeX FAQ entry`__
+
+Example
+  ::
+
+    \usepackage{caption}
+    \captionsetup{justification=raggedleft,singlelinecheck=false}
+
+.. _caption:
+   http://texcatalogue.sarovar.org/entries/caption.html
+.. _chngcntr:
+   http://texcatalogue.sarovar.org/entries/chngcntr.html
+__ http://www.tex.ac.uk/cgi-bin/texfaq2html?label=running-nos
+
+
+figure placement
+````````````````
+
+Figure placement can be customized with the ``\floatplacement`` command from
+the `float`_ package. The placement setting is valid from the point of
+definition until the next ``\floatplacement`` command or the end of the
+document. See the `float package documentation`_ for details.
+
+Default:
+  ``\floatplacement{figure}{H}`` (here definitely). This corresponds most
+  closely to the source and HTML placement (principle of least surprise).
+
+Examples:
+  ..
+
+
+* Set the default back to the pre-0.6 value in a custom `style sheet`_::
+
+    \usepackage{float}
+    \floatplacement{figure}{htbp} % here, top, bottom, extra-page
+
+* To move all following figures to the top or bottom of the page write in
+  the document source::
+
+    .. raw:: latex
+
+        \floatplacement{figure}{tb}
+
+.. _float:
+   http://texcatalogue.sarovar.org/entries/float.html
+.. _float package documentation:
+   http://ctan.org/get/macros/latex/contrib/float/float.pdf
+
+font
+````
+
+The selected text font influences the *look*, the *feel*, and the
+*readability* of the document (see e.g.
+http://www.csarven.ca/web-typography).
+
+Unfortunately, LaTeX cannot use the fonts of the operating system directly
+[#]_ but needs specially installed fonts with additional supporting files.
+The `LaTeX Font Catalogue`_ provides information and examples for a wide
+range of fonts available for use with LaTeX.
+
+.. [#] XeTeX_ can, but is not (yet) supported by Docutils
+
+Default:
+  Computer Modern (CM)
+
+Alternative fonts can be selected by
+
+a) specifying the corresponding LaTeX package as arguments to the
+   ``--stylesheet`` option or in a custom `style sheet`_.
+
+   * Packages can be combined.
+   * Passing options to a package is only possible in the style sheet.
+
+b) changing the font-default macros ``\rmdefault``, ``sfdefault`` and/or
+   ``ttdefault``.
+
+
+Examples:
+  ..
+
+* Use `LaTeX Modern`, a Type 1 variant of CM.
+
+  LaTeX code::
+
+    \usepackage{lmodern}
+
+  Command line argument::
+
+    --stylesheet=lmodern
+
+* The ubiquitous "Times/Helvetica/Courier"
+  combination is achieved by the latex code::
+
+    \usepackage{mathptmx}            % Times for serif and math
+    \usepackage[scaled=.90]{helvet}  % downscaled Helvetica for sans serif
+    \usepackage{courier}             % Courier for teletype (mono-space)
+
+  or by the combination of the command line options::
+
+    --documentoptions="scaled=.90"
+    --stylesheet="mathptmx,helvet,courier"
+
+  .. hint::
+    When generating PDF-files from LaTeX, the files can become smaller if
+    this font combination is used as the fonts do not need to be embedded in
+    the document.
+
+* Use the teletype font from the txfonts_ package::
+
+    \renewcommand{\ttdefault}{txtt}
+
+The following table lists the font packages for standard Postscript fonts
+(see `Using common Postscript fonts with LaTeX`_ for details):
+
+
+============ ============ ============= ============= ============
+Package      Roman        Sans Serif    Typewriter    Math
+============ ============ ============= ============= ============
+(none)       CM Roman     CM Sans Serif CM Typewriter CM Math
+
+mathpazo     Palatino                                 Palatino
+
+mathptmx     Times                                    Times
+
+helvet                    Helvetica
+
+avant                     Avant Garde
+
+courier                                 Courier
+
+chancery     Zapf
+             Chancery
+
+bookman      Bookman      Avant Garde   Courier
+
+newcent      New Century  Avant Garde   Courier
+             Schoolbook
+
+charter      Charter
+
+utopia       Utopia
+============ ============ ============= ============= ============
+
+Extended versions of the standard Postscript fonts including accented chars,
+Greek and Cyrillic are available with the `TeX Gyre`_ bundle which is part
+of, e.g., `TeX Live`_.
+
+.. _XeTeX: http://scripts.sil.org/xetex
+.. _LaTeX Font Catalogue:
+   http://www.tug.dk/FontCatalogue/
+.. _TeX Gyre: http://www.gust.org.pl/projects/e-foundry/tex-gyre
+.. _Using common PostScript fonts with LaTeX:
+   http://ctan.org/get/macros/latex/required/psnfss/psnfss2e.pdf
+.. _TeX Live: http://tug.org/texlive/
+.. _txfonts:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/txfonts.html
+
+
+font encoding
+`````````````
+
+Option:
+
+--font-encoding=FONT_ENCODING
+                        LaTeX font encoding. Possible values are "", "T1",
+                        "OT1", "LGR,T1" or any other combination of options to
+                        the `fontenc`_ package.
+
+Default
+  "T1"
+
+Examples:
+  Support for characters in the Unicode blocks Latin, Latin-1 Supplement,
+  and Greek together with a T1-encoded "Type 1" (vector) font, for example
+  `Latin Modern`_::
+
+    --font-encoding=LGR,T1
+
+.. _fontenc:
+.. _LaTeX font encoding:
+   http://ctan.org/get/macros/latex/doc/encguide.pdf
+
+.. _Latin Modern:
+   http://texcatalogue.sarovar.org/entries/lm.html
+
+font size
+`````````
+
+Add font size in points to the document options, e.g.
+``--documentoptions=12``, use extsize_ or some other package for values
+other than [10,11,12].
+
+.. _extsize:
+   http://tug.ctan.org/cgi-bin/ctanPackageInformation.py?id=extsizes
+
+
+footnotes
+`````````
+
+With the ``--use-latex-footnotes`` option, footnotes are set with
+Docutils-specific variants of the standard ``\footnotemark`` and
+``\footnotetext`` commands. Thus you can configure the appearance and
+placement by alternative definitions of ``\DUfootnotemark`` and
+``\DUfootnotetext`` in a custom `style sheet`_.
+
+Example:
+  place the footnote text where it appears in the source document (instead
+  of at the page bottom). This can be used to get the effect of endnotes
+  (needs the hanging_ package)::
+
+     \usepackage{hanging}
+     \newcommand{\DUfootnotetext}[4]{%
+       \par\noindent\raisebox{1em}{\hypertarget{#1}{}}%
+       \hyperlink{#2}{#3}%
+       \hangpara{\parindent}{1}#4%
+     }
+
+.. _hanging:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/hanging.html
+
+
+hyphenation
+```````````
+
+The amount of hyphenation is influenced by ``\hyphenpenalty``, setting it to
+10000 almost prevents hyphenation. As this produces lines with more space
+between words one should increase Latex's ``\tolerance`` for this.
+
+Example:
+  ::
+
+    \hyphenpenalty=5000
+    \tolerance=1000
+
+
+hyperlinks
+``````````
+
+Hyperlinks are realized using the hyperref_ package.
+To reduce incompatibilities, this package is loaded last, *after* the
+style sheets.
+However, you can load hyperref with custom options (or before a package that
+requires its presence) in a custom `style sheet`_, e.g. ::
+
+  \usepackage[colorlinks=true,linkcolor=green,urlcolor=blue]{hyperref}
+
+and it will not be loaded again.
+
+See also `non-breaking hyperlinks`_.
+
+disable hyperlinks
+^^^^^^^^^^^^^^^^^^
+
+To suppress the hyper-linking completely (e.g. for printing or to avoid
+clashes with other packages), load the "nohyperref" package that comes with
+the "hyperref" bundle::
+
+  \usepackage{nohyperref}
+  %\usepackage{url} % uncomment if you need the \url command
+
+.. _hyperref:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/hyperref.html
+
+line blocks
+```````````
+
+In `line blocks`__, newlines and leading whitespace are respected.
+
+Environment:
+  ``DUlineblock``: special list environment for line blocks
+Length:
+  ``\DUlineblockindent``: indentation of indented lineblock parts.
+
+Default:
+   2.5 times the font hight: ``2.5em``
+
+Example:
+  set to the paragraph indentation::
+
+    \newlength{\DUlineblockindent}
+    \setlength{\DUlineblockindent}{\parindent}
+
+__ ../ref/rst/restructuredtext.html#line-blocks
+
+line spacing
+````````````
+
+Commands:
+  ``\linespread``: for small adjustments
+
+  ``\singlespacing``, ``\onehalfspacing``, and ``\doublespacing``: from
+  package `setspace`
+
+Examples:
+  ..
+
+
+* Get document wide double spacing::
+
+    \usepackage{setspace}
+    \doublespacing
+
+* Increase line spacing by five percent for better readability::
+
+    \linespread{1.05}
+
+
+literal blocks
+``````````````
+
+No markup processing is done within a `literal block`__. It is left as-is,
+and is typically rendered in a monospaced typeface
+
+Options:
+
+--literal-block-env=LITERAL_BLOCK_ENV
+                      When possibile\ [#]_, use the specified environment for
+                      literal-blocks. Default is quoting of whitespace and
+                      special chars.
+
+.. [#] A literal-block element, when processed by a Docutils writer might
+   have it's origin in a markup with "::" syntax or a ".. parsed-literal::"
+   directive.
+
+   A LaTeX verbatim environment is only usable if there is no other markup
+   contained in the literal-block.
+
+
+Example:
+
+  ``--literal-env=lstlisting``
+
+  The ``lstlisting`` environment is highly configurable (as documented in
+  listings.pdf_), for instance ::
+
+    \renewcommand{\ttdefault}{txtt}
+    \lstset{language=Python,
+            morekeywords=[1]{yield}
+    }
+    \lstloadlanguages{Python}
+    \lstset{
+      basicstyle=\ttfamily,
+      keywordstyle=\bfseries,
+      commentstyle=\rmfamily\itshape,
+      stringstyle=\slshape,
+    }
+    \lstset{showstringspaces=false}
+    \lstset{columns=fullflexible,
+         basewidth={0.5em,0.4em}}
+
+
+__ ../ref/rst/restructuredtext.html#literal-blocks
+
+.. _listings.pdf:
+    http://ctan.org/get/macros/latex/contrib/listings/listings.pdf
+
+list of figures/tables
+``````````````````````
+
+Docutils does not support lists of figures or tables.
+
+However, with LaTeX, they can be generated using `raw LaTeX`_ in the
+document source.
+
+Commands:
+  ``\listoffigures``: a list of figures
+
+  ``\listoftables``: a list of tables
+
+Example:
+  ::
+
+    .. raw:: latex
+
+       \listoffigures
+
+option list
+```````````
+
+`Option lists`__ are two-column lists of command-line options and
+descriptions, documenting a program's options.
+
+Environment:
+  ``DUoptionlist``: environment for option lists,
+
+Command:
+  ``\DUoptionlistlabel``: set appearance of the options
+
+Example:
+  set command options with a bold monospace font::
+
+    \newcommand{\DUoptionlistlabel}{\texttt{\textbf{#1}} \hfill}
+
+__ ../ref/rst/restructuredtext.html#option-lists
+
+page breaks
+```````````
+
+* Page breaks before top-level sections are the default with a
+  documentclass that provides "chapters", e.g.  "book", "memoir" or
+  "scrbook".
+
+* Redefining the \section or \section* command in a
+  style sheet is possible too.
+
+* `Raw latex`_ can be used::
+
+    .. raw:: latex
+
+      \newpage % hard pagebreak at exactly this position
+
+  or
+
+    .. raw:: latex
+
+      \pagebreak[2] % recommended page break after line end (precedence 1...4)
+
+* The transition element can be re-defined to produce a page break,
+  e.g.
+
+  in a style sheet::
+
+    \newcommand*{\DUtransition}{\pagebreak[4]}
+
+  or in the document::
+
+    .. raw:: latex
+
+      \renewcommand*{\DUtransition}{\pagebreak[4]}
+
+
+page layout
+```````````
+
+By default, paper size and margin settings are determined by the document
+class.
+
+The following packages help to configure the page layout:
+
+a) The `typearea`_ package (part of the `KOMA-script`_ bundle) calculates a
+   *good* page layout (based on rules and recommendations of typography
+   experts).
+
+   See the `KOMA-Script Guide`_ for details on what is a *good* layout and
+   how this is achieved.
+
+b) The `geometry`_ package is recommended if you have to follow guidelines
+   with fixed values for the margins.
+   For details see the `geometry manual`_.
+
+Examples:
+  ..
+
+
+* Let `typearea` determine the type area with ``DIV=calc`` in the
+  document options_::
+
+    --documentoptions='a4paper,DIV=calc'
+
+  The ``DIV`` option can also be specified, like ``DIV=10``. It defines how
+  "crowded" a page will be: larger values mean larger text area (at the
+  expense of readability).
+
+* Set margins in a stylesheet with the `geometry` package::
+
+    \usepackage{geometry}
+    \geometry{hmargin={3cm,0.8in},height=8in}
+    \geometry{height=10in}.
+
+.. _typearea:
+   http://texcatalogue.sarovar.org/entries/typearea.html
+.. _KOMA-Script Guide:
+   http://ctan.org/get/macros/latex/contrib/koma-script/scrguien.pdf
+.. _geometry:
+   http://texcatalogue.sarovar.org/entries/geometry.html
+.. _geometry manual:
+   http://ctan.org/get/macros/latex/contrib/geometry/geometry.pdf
+
+
+page numbering
+``````````````
+
+Example:
+  Number pages by chapter
+
+  This can be accomplished with the chappg_ package::
+
+    \usepackage{chappg}
+
+  See the `chappg documentation`_ for details.
+
+.. _chappg: http://texcatalogue.sarovar.org/entries/chappg.html
+.. _chappg documentation:
+   http://ctan.org/get/macros/latex/contrib/chappg/chappg.pdf
+
+
+paper size
+``````````
+
+Paper geometry can be changed using ``--documentoptions`` or with the
+package `geometry` and ``\geometry{OPTIONLIST}`` LaTeX commands in a style
+sheet.
+
+Default:
+  a4paper
+
+Some possibilities:
+
+* a4paper, b3paper, letterpaper, executivepaper, legalpaper
+* landscape, portrait, twoside.
+
+Examples:
+  ..
+
+
+* Choose A5 pager in landscape orientation with command line argument::
+
+    --documentoptions=a5paper,landscape
+
+* The same with LaTeX commands in the `style sheet`_::
+
+    \usepackage{geometry}
+    \geometry{a5paper,landscape}
+
+  For details see the `geometry manual`_.
+
+paragraph indent
+````````````````
+
+Default (in most document classes):
+  Indent the first line in a paragraph unless it is the first line of a
+  chapter, section, subsection, or subsubsection.
+
+Example:
+  To set paragraph indentation to zero but add a vertical space between
+  load the `parskip` package with the command line argument::
+
+    --stylesheet=parskip
+
+  or in your `style sheet`_ with::
+
+    \usepackage{parskip}
+
+
+rubric
+``````
+
+A rubric__ is like an informal heading that doesn't correspond to the
+document's structure.
+
+Command:
+  ``\DUrubric``
+
+Default:
+  subsubsection style, italic, centred
+
+Example:
+  set flushleft and red::
+
+    \newcommand*{\DUrubric}[2][class-arg]{%
+       \subsubsection*{{\color{red}#1}\hfill}}
+
+__ ../ref/rst/directives.html#rubric
+
+
+section numbering
+`````````````````
+
+Sections are numbered if there is a `sectnum directive`_ in the document.
+
+If the sectnum_xform_ option is True, section numbers are generated by
+LaTeX. In this case the "prefix" and "suffix" arguments of the `sectnum
+directive`_ are ignored. The section number style is determined by the
+`document class`_ and can be configured in a LaTeX `style sheet`_, e.g.::
+
+        \setcounter{secnumdepth}{5}
+
+.. note:: The LaTeX name is 'secnumdepth' (whithout 't').
+
+
+.. _sectnum directive: ../ref/rst/directives.html#sectnum
+.. _sectnum_xform: ../user/config.html#sectnum-xform
+
+sidebar element
+```````````````
+
+Sidebars__ are like miniature, parallel documents that occur inside other
+documents, providing related or reference material. They can be likened to
+super-footnotes; their content is outside of the flow of the document's main
+text.
+
+Command:
+  ``DUsidebar``
+
+Default:
+  Box with grey background.
+
+Examples:
+  ..
+
+
+* Less space before the title::
+
+    \providecommand{\DUsidebar}[2]{%
+        \begin{center}
+          \colorbox[gray]{0.90}{\parbox{0.9\textwidth}{%
+            \smallskip\textbf{#1}\smallskip
+            #2}}
+        \end{center}
+    }
+
+* Use margin notes::
+
+    \newcommand{\DUsidebar}[2]{\marginpar{\flushleft \textbf{#1} #2}}
+
+  * Make sure the margin is wide enough to hold the note.
+  * This fails with some constructs inside the `side bar` and where
+    \marginpar cannot be used, e.g., inside floats, footnotes, or in frames
+    made with the framed package (see marginnote_).
+
+__ http://docutils.sf.net/docutils/docs/ref/rst/directives.html#sidebar
+
+
+topic element
+`````````````
+
+A topic_ is like a block quote with a title, or a self-contained section with
+no subsections.
+
+Topics and rubrics can be used at places where a `section title`_ is not
+allowed (e.g. inside a directive).
+
+Command:
+  ``DUtopic``
+
+Default:
+  "quote" environment
+
+Examples:
+  ..
+
+* If you generally prefer a "normal" section over a block quote, define::
+
+    \newcommand{\DUtopic}[2][class-arg]{%
+      \ifcsname DUtopic#1\endcsname%
+        \csname DUtopic#1\endcsname{#2}%
+      \else
+        #2
+      \fi
+    }
+
+* If you want a "normal" section for topics with class argument "noquote",
+  define::
+
+    \newcommand{\DUtopicnoquote}[1]{#1}
+
+.. _topic: ../ref/rst/directives.html#topic
+.. _section title: ../ref/rst/restructuredtext.html#sections
+
+topic title
+```````````
+
+The title of admonition, sidebar, and topic elements is defined in the
+``\DUtitle`` command, that also takes a "class" argument.
+
+Examples:
+  ..
+
+* You can get a centered and somewhat larger title for topcis with ::
+
+     \newcommand*{\DUtitletopic}[1]{\subsection*{\centering #1}
+
+* Use a right-pointing hand as title for the "attention" directive::
+
+    \usepackage{pifont}
+    \newcommand{\DUtitleattention}[1]{\ding{43}}
+
+  The title argument is "swallowed" by the command.
+  To have both, hand and title use::
+
+    \usepackage{pifont}
+    \newcommand{\DUtitleattention}[1]{\ding{43} #1}
+
+
+table of contents
+`````````````````
+
+A `contents directive`_ is replaced by a table of contents (ToC).
+
+With the use-latex-toc_ configuration option True (default since release
+0.6):
+
+* The ToC is generated by LaTeX (via the ``\tableofcontents`` command).
+
+  The layout depends on the choosen document class and can be configured in
+  a custom `style sheet`_ (see e.g. the `KOMA-Script Guide`_ for the
+  `KOMA-script`_ classes).
+
+* The depth of the ToC and PDF-bookmarks can be configured
+
+  + with the "depth" argument of the `contents directive`_, or
+
+  + in a style sheet with e.g. ``\setcounter{tocdepth}{5}``.
+
+* Local ToCs are done with the minitoc_ package. See its documentation__ for
+  the numerous configuration options.
+
+.. note::
+   Minitoc supports local ToCs only at "part" and top section level
+   ("chapter" or "section"). Local `contents` directives at lower levels
+   are ignored (a warning is issued).
+
+   This is an intended feature of the minitoc_ package. If you really
+   require local ToCs at lower level, turn off the use-latex-toc_ option.
+
+.. _use-latex-toc: ../user/config.html#use-latex-toc
+.. _contents directive: ../ref/rst/directives.html#contents
+.. _minitoc: http://texcatalogue.sarovar.org/entries/minitoc.html
+__ http://ctan.org/get/macros/latex/contrib/minitoc/minitoc.pdf
+
+
+title reference role
+````````````````````
+
+`Title reference`_ is the default `default role`_ for `interpreted text`_.
+
+Command:
+  ``\DUroletitlereference``
+
+Default:
+  use slanted font (``\textsl``)
+
+Example:
+  set title references with a bold monospace font::
+
+    \newcommand{\DUroletitlereference}[1]{\texttt{\textbf{#1}}}
+
+.. _title reference:
+   ../ref/rst/roles.html#title-reference
+.. _default role:
+   ../ref/rst/directives.html#setting-the-default-interpreted-text-role
+.. _interpreted text:
+   ../ref/rst/restructuredtext.html#interpreted-text
+
+
+text encoding
+`````````````
+
+Default:
+  The generated LaTeX documents are in the input encoding.
+
+Example:
+  Use latin1 text encoding for the LaTeX source::
+
+    --output-encoding=latin1
+
+.. this is no longer true. TODO: describe the state of the art
+   If the source document is in utf-8 encoding (or
+   ``--output-encoding=utf-8`` is set), LaTeX needs Unicode support (the
+   `ucs` package). If this package is not available, specify a different
+   output-encoding, e.g. ``latin1``.
+
+   If LaTeX issues a Warning about unloaded/unknown characters adding ::
+
+    \PreloadUnicodePage{n}
+
+   (where *n* is the Unicode page-number) to the style sheet might help.
+
+   .. _LaTeX Unicode: http://www.unruh.de/DniQ/latex/unicode/
+
+* Unicode box drawing characters:
+
+  - generate LaTeX code with ``--output-encoding=utf-8:strict``.
+
+  - In the latex file, edit the preamble to load "ucs" with "postscript"
+    option and also load the pstricks package::
+
+      - \usepackage[utf8]{inputenc}
+      + \usepackage[postscript]{ucs}
+      + \usepackage{pstricks}
+      + \usepackage[utf8x]{inputenc}
+
+  - Convert to PDF with ``latex``, ``dvips``, and ``ps2pdf``.
+
+
+transition element
+``````````````````
+
+Transitions__ are commonly seen in novels and short fiction, as a gap
+spanning one or more lines, marking text divisions or signaling changes in
+subject, time, point of view, or emphasis.
+
+Command:
+  ``\DUtransition``
+
+Default:
+  A horizontal line, 1/3 of text width
+
+Examples:
+  ..
+
+* Use three stars::
+
+    \newcommand*{\DUtransition}[1][class-arg]{\centering{}*\quad*\quad*}
+
+  Alternatively use the more elaborated version in `transition-stars.sty`_.
+
+* If paragraphs are separated by indentation, you can simply use a vertical
+  space::
+
+    \newcommand*{\DUtransition}[1][class-arg]{\vspace{2ex}}
+
+__ http://docutils.sf.net/docutils/docs/ref/rst/restructuredtext.html#transitions
+
+.. _transition-stars.sty: ../../../sandbox/stylesheets/transition-stars.sty
+
+
+Changes
+=======
+
+* The Docutils HISTORY_ lists all changes during the history of docutils.
+
+* Changes since the last release (0.5) are summarized in the RELEASE-NOTES_
+  and explained in detail in docutils-05-compat_.
+
+* docutils-05-compat.sty_ is a `style sheet`_ that provides best possible
+  backwards compatibility.
+
+.. _HISTORY: ../../HISTORY.html
+.. _RELEASE-NOTES: ../../RELEASE-NOTES.html
+.. _docutils-05-compat: docutils-05-compat.sty.html
+.. _docutils-05-compat.sty:
+   ../../docutils/writers/latex2e/docutils-05-compat.sty
+
+
+Problems
+========
+
+Troubleshooting
+---------------
+
+non-breaking hyperlinks
+```````````````````````
+
+If you convert with ``latex`` (as opposed to ``pdflatex``), hyperlinks will
+not wrap and sometimes stick into the margin.
+
+Wrong:
+  ::
+     \usepackage[breaklinks=true]{hyperref}
+
+  "breaklinks" is an internal option that indicates whether the chosen
+  driver can handle broken links.
+
+Right:
+  Use one of the following:
+
+  a) compile with ``pdflatex``,
+
+  b) compile with ``latex`` followed by ``dvipdfm`` and call hyperref with
+     the option ``driver=dvipdf``, or
+
+  c) use the package breakurl_.
+
+  d) (for printout) `disable hyperlinks`_ using the package "nohyperref"
+
+See also the `Link text doesn’t break at end line`_ FAQ entry.
+
+.. _breakurl:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/breakurl.html
+
+.. _Link text doesn’t break at end line:
+   http://www.tex.ac.uk/cgi-bin/texfaq2html?label=breaklinks
+
+If you need long URLs in the running text, you can define a "url" rule that
+calls the ``\url`` command provided by hyperref_ (with typesetting done by
+url_)::
+
+  .. role:: url(literal)
+
+  .. raw:: latex
+
+    \newcommand*{\DUroleurl}{\url}
+
+.. attention::
+
+   The content of the role will not become a link in the HTML output!
+
+.. _url:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/url.html
+
+
+Error ``illegal unit px``
+`````````````````````````
+
+If you convert the LaTeX source with a legacy program, you might get this
+error.
+
+The unit "px" was introduced by the `pdfTeX` converter on 2005-02-04.
+`pdfTeX` is used also for conversion into DVI format in all modern LaTeX
+distributions (since ca. 2006).
+
+If updating LaTeX is not an option, just remove the "px" from the length
+specification. HTML/CSS will default to "px" while the `latexe2` writer
+will add the fallback unit "bp".
+
+image inclusion
+```````````````
+
+If PDF-image inclusion in PDF files fails, specifying
+``--graphicx-option=pdftex`` or ``--graphicx-option=auto`` might help.
+
+Bugs and open issues
+--------------------
+
+Open to be fixed or open to discussion.
+
+See also the entries in the `Docutils TODO list`_.
+
+.. and the discussion and proposals in the `latex-variants`_ sandbox
+   project.
+
+.. _Docutils TODO list: ../dev/todo.html#latex-writer
+.. _latex-variants: ../../../sandbox/latex-variants/README.html
+
+Footnotes and citations
+```````````````````````
+
+Initially both were implemented using figure floats, because hyperlinking
+back and forth seemed to be impossible. Later the `figure` directive was
+added that puts images into figure floats.
+
+This results in footnotes, citations, and figures possibly being mixed at
+page foot.
+
+Workaround:
+  Select footnote and citation handling with the ``use-latex-footnotes`` and
+  ``use-latex-citations`` options.
+
+  * Use LaTeX footnotes and citations for printing or more complex layout.
+
+If ``use-latex-citations`` is used, a bibliography is inserted right at
+the end of the document. *This should be customizable*.
+
+If ``use-latex-citations`` is used adjacent citation references (separated
+only by a single space or a newline) are combined to a single citation
+group, i.e. ``[cite1]_ [cite2]_`` results in ``\cite{cite1,cite2}``.
+The appearance in the output can be configured in a `style sheet`_.
+
+
+Tables
+``````
+
+:Tablewidth: reST-documents line length is assumed to be 80 characters. The
+             tablewidth is set relative to this value. If someone produces
+             documents with line length of 132 this will fail.
+
+             Table width is tried to fit in page even if it is wider than
+             the assumed linewidth, still assumed linewidth is a hook.
+
+* Table: multicol cells are always left aligned.
+
+* The contents of a rowspan cell do not influence table height.
+  (multirow "feature", use a phantom or strut?)
+
+* Multirow cells might mix up the following table rows.
+
+* Table cells with both multirow and multicolumn are currently not possible.
+
+* literal-blocks in table cells:
+
+  - If verbatim or flushleft is used one gets vertical space above and below.
+  - This is bad for the topmost paragraph in a cell, therefore the writer
+    uses raggedright.
+  - Ragged right fails on followup paragraphs as the vertical space would be
+    missing.
+
+* ``--table-style=booktabs``, ``..class:: booktab``: `booktabs` version
+  1.00 does not work with `longtable`. This is solved in newer versions
+  (current is 2005/04/14 v1.61803).
+
+
+Figures
+```````
+
+* Figures are always as wide as the containing text. The "figwidth" argument
+  is currently not supported. As a consequence, the "align" argument has no
+  effect.
+
+* Wrapping text around figures is currently not supported. (Requires the
+  `wrapfig`_ package.)
+
+.. _wrapfig:
+   http://www.ctan.org/tex-archive/help/Catalogue/entries/wrapfig.html
+
+
+Miscellaneous
+`````````````
+
+* Pdfbookmark level 4 (and greater) does not work (might be settable but
+  complicated).
+
+* Footnotes are not all on the same page (as in
+  docs/user/rst/demo.txt) and do not link back and forth.
+
+  Until this is fixed, keep footnote mark and footnote text close together!
+
+* Hyperlinks are not hyphenated; this leads to bad spacing. See
+  docs/user/rst/demo.txt 2.14 directives.
+
+* Pagestyle headings does not work, when sections are starred. Use LaTeX for
+  the section numbering with the options_ ``--no-section-numbers``
+  (command line) or ``sectnum_xform: False`` (config file).

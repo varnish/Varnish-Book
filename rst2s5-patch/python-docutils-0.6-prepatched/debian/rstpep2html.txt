@@ -1,0 +1,12 @@
+===========
+rstpep2html
+===========
+
+-------------------------------------------------
+convert reST Python Enhancement Proposals to HTML
+-------------------------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

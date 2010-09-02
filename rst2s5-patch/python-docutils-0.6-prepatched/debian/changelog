@@ -1,0 +1,511 @@
+python-docutils (0.6-3) unstable; urgency=low
+
+  * Update patch fixing insecure use of temporary files to be compatible with
+    XEmacs 21.
+  * Add ‘Depends: ${misc:Depends}’.
+  * Point to versioned symlink in /usr/share/common-licenses for the GPL
+    license.
+  * Fix the docutils.utils.decode_path() function so that it accepts None as
+    an argument (closes: #563087).
+  * Force upgrade of python-epydoc affected by bug #561793.
+  * Add preinst maintainer script to remove python-central leftovers
+    (closes: #563696).
+  * Upstream author of IE PNG Alpha Fix agreed that every version of his script 
+    can be distributed under the terms of the LGPL 2.1 or later version.
+    Update debian/*.copyright and copies of iepngfix.htc accordingly
+    (closes: #563704).
+  * Remove superfluous ‘Provides: ${python:Provides}’ and ‘XB-Python-Version’
+    from debian/control.
+  * Conflict with utterly broken version of zope3, which infringes
+    python-docutils namespace.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Sun, 10 Jan 2010 00:27:45 +0100
+
+python-docutils (0.6-2) unstable; urgency=high
+
+  * Unconditionally recommend python-lxml, as it is used by
+    /usr/bin/rst2odt_prepstyles (closes: #560330).
+  * Demote dependency on an ElementTree implementation to recommendation, as it
+    is only used by /usr/bin/rst2odt; remove python-lxml from alternatives, as
+    it is never used by the script (closes: #560328).
+  * Fix insecure use of temporary files in the Emacs major mode for
+    reStructuredText (closes: #560755). Thanks to Kumar Appaiah for helping to
+    deal with this bug.
+  * Register docutils documentation using doc-base.
+
+ -- Jakub Wilk <ubanus@users.sf.net>  Sun, 13 Dec 2009 19:54:12 +0100
+
+python-docutils (0.6-1) unstable; urgency=low
+
+  [ Jakub Wilk ]
+  * Drop superfluous dependency of python-dev.
+
+  [ Simon McVittie ]
+  * New upstream version
+    - --strict option works now like --halt=info (closes: #506315)
+    - allow UTF-8 in style sheets (closes: #374957)
+    - patches/17_speed_up_rst_el.dpatch: dropped, fixed upstream
+  * Stop using dpatch; instead, switch source format to 3.0 (quilt)
+  * Stop patching out #!/usr/bin/env python via the patch system; it'll get
+    patched out during installation anyway
+  * Split 14_distutils_setup.diff into two patches
+    - 13_install_roman.diff: install roman even if already installed
+      (in a less intrusive way)
+    - 14_use_setuptools.diff: use setuptools for egg support
+  * Update the other patches for the new version
+  * Conflict, provide and replace the standalone man page and ODT writers,
+    which have been integrated upstream; add their maintainers to this
+    package's Uploaders instead
+  * Import Michael Schutte's man page for rst2odt_prepstyles from the
+    odtwriter source package (thanks!)
+  * Use rst2man to make the other man pages
+  * patches/17_revert_buildhtml.diff: revert an upstream change to
+    buildhtml.py which broke the --local option
+  * Add Jakub Wilk to Uploaders, with thanks for previous uploads
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 07 Dec 2009 21:34:40 +0000
+
+python-docutils (0.5-5) unstable; urgency=low
+
+  [ Jakub Wilk ]
+  * Prepare for Python 2.6 transition (closes: #547841).
+  * Bump Standards-Version to 3.8.3 (no changes needed).
+
+ -- Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>  Tue, 22 Sep 2009 23:48:45 +0200
+
+python-docutils (0.5-4) unstable; urgency=medium
+
+  [ Jakub Wilk ]
+  * Don't require network access during a build (closes: #526357).
+
+  [ Piotr Ożarowski ]
+  * Updated Standards-Version to 3.8.2 (no changes)
+
+ -- Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>  Thu, 30 Jul 2009 20:49:23 +0200
+
+python-docutils (0.5-3) unstable; urgency=low
+
+  [ Sandro Tosi ]
+  * debian/control
+    - switch Vcs-Browser field to viewsvn
+
+  [ Piotr Ożarowski ]
+  * Switch to python-support
+    + clean debian/rules a little bit (no need to rename Egg anymore)
+    + docutils-writer-manpage and python-odtwriter added to Conflicts
+  * Add python-imaging to Recommends
+    (see writers/html4css1/__init__.py and parsers/rst/directives/images.py)
+  * XS-Dm-Upload-Allowed field removed (all Uploaders are DDs)
+  * Updated Standards-Version to 3.8.1 (no changes)
+
+ -- Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>  Sun, 22 Mar 2009 18:06:02 +0100
+
+python-docutils (0.5-2) unstable; urgency=low
+
+  * Upload docutils 0.5 to unstable
+  * Update rst.el to upstream Subversion r5596, which apparently fixes
+    all its performance problems (17_speed_up_rst_el.dpatch, closes: #474941)
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 24 Jul 2008 10:39:53 +0100
+
+python-docutils (0.5-1) experimental; urgency=low
+
+  * New upstream release (closes: #491344, #474939)
+    - rst2newlatex now emits admonition titles (closes: #484226)
+    - 01_upstream_04_branch_r4646.dpatch: no longer relevant, the
+      new upstream version includes these changes
+    - 16_emacs_jit_lock.dpatch: no longer relevant, the new upstream
+      version already uses jit-lock if available
+  * 12_more_usrbinenv.dpatch: added. Replace #! /usr/bin/env python
+    (with the space) with #!/usr/bin/python, too
+  * 12_remove_unnecessary_hashbang.dpatch: merged into
+    12_more_usrbinenv.dpatch
+  * 13_nodes_namespace.dpatch: removed, I have no idea what it was doing there
+    in the first place...
+  * 16_disable_picins.dpatch: avoid referencing a non-free LaTeX style
+    (which, as far as I can tell, served no purpose anyway)
+  * All other patches updated and re-diffed
+  * Mentioned s5 in README.Debian (closes: #490139)
+  * Added Suggests: on the necessary texlive packages to use rst2newlatex
+    output, and mentioned them in README.Debian
+  * Switched to my Debian email address in Uploaders
+  * Removed lintian override for false-positive GPL detection in -roman
+  * Added a README.source explaining where the patches come from
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 19 Jul 2008 01:44:00 +0100
+
+python-docutils (0.4-6) unstable; urgency=low
+
+  [ Sandro Tosi ]
+  * debian/control
+    - added Vcs-Browser
+
+  [ Simon McVittie ]
+  * Apply patch from Ubuntu to fix build with current python-central
+    (closes: #470697)
+  * Simplify and re-indent debian/rules for better clarity
+  * Stop working around #379709, because it was caused by #380360 which has
+    been closed
+  * Remove man page during clean
+  * Keep lintian happy: relax setuptools dependency from 0.6b3-1 to 0.6b3,
+    remove override for build-depends-without-arch-dep python-setuptools (bug
+    fixed in lintian), Standards-Version: 3.7.3 (no changes)
+  * Set XS-Dm-Upload-Allowed: yes so I can upload in future
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Thu, 20 Mar 2008 20:36:10 +0000
+
+python-docutils (0.4-5) unstable; urgency=low
+
+  [ Bernd Zeimetz ]
+  * debian/watch:
+    - Adding file
+  * debian/control:
+    - Rename XS-Vcs-* fields to Vcs-* (dpkg supports them now)
+
+  [ Simon McVittie ]
+  * debian/rules, debian/rsthelp2man.xsl, debian/control:
+    Generate better man pages from the tools' own --help output using rst2xml
+    and (new build dependency) xsltproc (Closes: #430947)
+  * debian/rst2html.1: Remove, the generated man page is better
+  * debian/rules, debian/unpep263.py: Mangle languages/*.py from UTF-8 into
+    equivalent ASCII with \uXXXX escapes, so we can install into
+    python2.x-minimal (which lacks the encodings machinery) (Closes: #379709)
+  * debian/patches/15_emacs_debian_paths.dpatch, debian/patches/00list:
+    In rst.el, expect executables to not have .py suffix (Closes: #438667)
+  * debian/patches/16_emacs_jit_lock.dpatch, debian/patches/00list:
+    Apply patch to rst.el from Justin Mazzola Paluska <jmp@MIT.EDU> to use
+    jit-lock instead of lazy-lock for Emacs 22 compatibility (Closes: #418446)
+  * debian/patches/00list: Actually apply 10_doc_debian_paths.dpatch, to
+    improve documentation
+  * debian/control: Set Homepage
+  * debian/control: Move python-central from Build-Depends to
+    Build-Depends-Indep to keep lintian happy; install a source override
+    to stop it complaining about python-setuptools in Build-Depends, because
+    we do need that package for the "clean" target
+  * debian/patches/99_old-diffs.dpatch: Remove obsolete patches entirely, we
+    can always retrieve them from svn if they turn out to be useful
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Fri, 16 Nov 2007 13:40:44 +0000
+
+python-docutils (0.4-4) unstable; urgency=low
+
+  [ Piotr Ozarowski ]
+  * Egg support added (closes: #382272)
+    - Added python-setuptools to Build-Depends
+    - Updated 14_distutils_setup patch (version fixed as well)
+  * Added XS-Vcs-Svn field
+  * Bumped required python-central version (dh_python call removed)
+
+  [ martin f. krafft ]
+  * Thanks to Piotr for his work.
+
+ -- martin f. krafft <madduck@debian.org>  Sat, 10 Feb 2007 15:37:35 +0000
+
+python-docutils (0.4-3) unstable; urgency=low
+
+  * Added build dependency on python-central (closes: #377580).
+
+ -- martin f. krafft <madduck@debian.org>  Mon, 10 Jul 2006 11:45:05 +0200
+
+python-docutils (0.4-2) unstable; urgency=low
+
+  * New maintainers Martin F. Krafft, Simon McVittie and the python-modules
+    team.
+    - Acknowledge Martin's NMU now he's a co-maintainer (closes: #315285).
+  * Switch to dpatch:
+    * Update from upstream Subversion repository, docutils-0.4 branch:
+      * Unquoted targets beginning with an underscore
+        (.. __target: URI) are no longer accepted
+      * tools/editors/emacs/rst.el changed license to GPL
+      * assorted documentation changes
+    * Remove patch bands consisting only of $Date$, $Revision$
+  * Migrate to new Python policy, and python-central (closes: #373529).
+  * Remove circular dependency during policy migration (closes: #362172).
+  * Install tools as e.g. /usr/bin/rst2html only - do not install any
+    executables with a .py extension, as pycentral thinks it should
+    byte-compile them. Also, Policy section 10.4.
+    - Install buildhtml as /usr/bin/rst-buildhtml to avoid namespace pollution.
+    - Don't install quicktest.py and the "dev" tools, which appear to be
+      intended for docutils developers only.
+  * Move some of the documentation from /usr/share/doc/python-docutils
+    to /u/s/d/p-d/docs, and compile all the documentation to HTML,
+    to avoid broken hyperlinks (closes: #312305).
+    - In debian/rules, tell buildhtml.py to give us the full Python
+      traceback when it fails, so FTBFSs can be diagnosed.
+  * Amend upstream documentation to reflect how this package installs things
+    (closes: #293504). debian/patches/10_doc_debian_paths.dpatch
+  * Replace all the man pages with a slightly more informative combined man
+    page which gets the names right (closes: #325300, #368601).
+  * Incorporate rst-mode again, hopefully. Thanks to Sylvain Ferriol for the
+    patch. (Closes: #353661)
+  * Move debhelper, used in debian/rules clean, from Build-Depends-Indep to
+    Build-Depends, per Policy section 7.6.
+  * Upgrade to debhelper compat level 5 and Policy 3.7.2.0.
+  * Lintian nitpicking: Remove spurious #! line from
+    docutils.readers.python.pynodes module.
+    debian/patches/12_remove_unnecessary_hashbang.dpatch
+  * Stop applying some optparse-related patches which appear to serve no
+    purpose. Preserved as debian/patches/99_old-diffs.dpatch in case they're
+    useful
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Thu,  6 Jul 2006 10:16:52 +0100
+
+python-docutils (0.4-1) unstable; urgency=low
+
+  * New upstream version
+    - including changes in the current maintainance branch
+  * Drop python2.1/python2.2 binary packages
+  * debian/NEWS.Debian: Removed
+  * Drop the compatibility rest2* binary names.
+  * Thanks to Matthias Klose <doko@debian.org>
+    for help with preparing this release (and prodding me).
+
+ -- Matthias Urlichs <smurf@debian.org>  Fri,  3 Feb 2006 10:22:56 +0100
+
+python-docutils (0.3.9-0.1) unstable; urgency=low
+
+  * Non-maintainer upload (received OK from maintainer).
+  * New upstream release (closes: #315285).
+
+ -- martin f. krafft <madduck@debian.org>  Sat, 27 Aug 2005 11:03:06 +0200
+
+python-docutils (0.3.7-2) unstable; urgency=low
+
+  * Fix dependency on Python 2.3 -- still the default. :-/
+    Closes:#288873.
+
+ -- Matthias Urlichs <smurf@debian.org>  Thu,  6 Jan 2005 07:50:31 +0100
+
+python-docutils (0.3.7-1) unstable; urgency=low
+
+  * Update to latest Upstream version.
+    Thanks for the release work!
+  * Fixed tool names.
+    - Closes:#284822
+  * Don't compress the shipped HTML documentation.
+    - Browsers don't display the files if they are compressed,
+      links don't work, ...
+  * Add copyright file for the 2.4 package (doko's fault ;-)
+    - fix typos in the other docutils copyright files
+  * Add extras subdir to PYTHONPATH, in debian/rules
+  * Simplify build-dependencies.
+
+ -- Matthias Urlichs <smurf@debian.org>  Tue,  4 Jan 2005 07:58:58 +0100
+
+python-docutils (0.3.5.20041217-0ubuntu1) hoary; urgency=low
+
+  * Snapshot taken from CVS.
+  * Support python2.4 as default python version.
+
+ -- Matthias Klose <m@klose.in-berlin.de>  Fri, 17 Dec 2004 11:05:40 +0100
+
+python-docutils (0.3.5-5) unstable; urgency=medium
+
+  * Add support for Python 2.4.
+
+ -- Matthias Urlichs <smurf@debian.org>  Sun, 12 Dec 2004 20:11:24 +0100
+
+python-docutils (0.3.5-4) unstable; urgency=medium
+
+  * Also use the official tool names.
+    - Patch by Jeff Breidenbach <jbreiden@parc.com>.
+    - Closes:#284822
+
+ -- Matthias Urlichs <smurf@debian.org>  Thu,  9 Dec 2004 11:35:23 +0100
+
+python-docutils (0.3.5-3) unstable; urgency=high
+
+  * Allow setting the namespace
+    necessary for building cerebrum's documentation
+    fix from Andreas Schuldei <andreas@schuldei.org>
+
+ -- Matthias Urlichs <smurf@debian.org>  Tue, 30 Nov 2004 13:32:32 +0100
+
+python-docutils (0.3.5-2) unstable; urgency=medium
+
+  * Fix bad symlinks. Closes: #280838
+  * Change #!env python => #!python. Closes: #281175
+
+ -- Matthias Urlichs <smurf@debian.org>  Tue, 16 Nov 2004 16:31:27 +0100
+
+python-docutils (0.3.5-1) unstable; urgency=low
+
+  * New Upstream release.
+    - Many additions and some bug fixes.
+    - The documentation was rearranged.
+
+ -- Matthias Urlichs <smurf@debian.org>  Fri,  5 Nov 2004 23:20:00 +0100
+
+python-docutils (0.3.3-1) unstable; urgency=low
+
+  * New Upstream release.
+    - Closes: #249246
+  * De-right-aligned the Closes: entries in the changelog.
+
+ -- Matthias Urlichs <smurf@debian.org>  Tue, 18 May 2004 08:36:50 +0200
+
+python-docutils (0.3+cvs20040328-1) unstable; urgency=low
+
+  * New Upstream snapshot:
+    - The parsed document tree gained some arrtibutes to facilitate writing
+	  external translators. See HISTORY.txt for details.
+    - various not-so-important changes
+
+ -- Matthias Urlichs <smurf@debian.org>  Sun, 28 Mar 2004 20:47:14 +0200
+
+python-docutils (0.3+cvs20040209-1) unstable; urgency=low
+
+  * Updated Maintainer email address.
+  * New Upstream snapshot:
+    - Added FilterMessages transform
+    - Updated language mappings: eo es it.
+      (That's Esperanto, Spanish, and Italian.)
+  * removed cruft (patch applied twice) from debian/rules.
+  * Install the documentation.
+    - Closes: #228167
+  * forgot to close: #226607 in September. :-/
+
+ -- Matthias Urlichs <smurf@debian.org>  Mon,  9 Feb 2004 16:32:33 +0100
+
+python-docutils (0.3+cvs20040114-1) unstable; urgency=low
+
+  * New Upstream snapshot.
+
+ -- Matthias Urlichs <smurf@debian.org>  Thu, 15 Jan 2004 15:03:26 +0100
+
+python-docutils (0.3+cvs20031107-2) unstable; urgency=low
+
+  * Install Emacs files where Emacs can find them
+    - autoload 'rst-mode'
+    - Closes: #223315
+
+ -- Matthias Urlichs <smurf@debian.org>  Mon,  8 Dec 2003 14:37:45 +0100
+
+python-docutils (0.3+cvs20031107-1) unstable; urgency=low
+
+  * New upstream snapshot.
+    - Some LaTeX fixes.
+    - Fix: having too wide tables in sidebars.
+    - Propogate align attribute of a non-inline image
+      to the surrounding <p> tag
+
+ -- Matthias Urlichs <smurf@debian.org>  Thu,  2 Oct 2003 15:15:41 +0200
+
+python-docutils (0.3+cvs20030928-1) unstable; urgency=low
+
+  * New upstream snapshot.
+    - Path(s) to configuration file(s) can be specified 
+      with the DOCUTILSCONFIG environment variable.
+    - The LaTeX stylesheet now defaults to "no stylesheet".
+
+ -- Matthias Urlichs <smurf@debian.org>  Thu,  2 Oct 2003 15:15:41 +0200
+
+python-docutils (0.3+cvs20030901-2) unstable; urgency=low
+
+  * Fix a bad symlink.
+    - Finally closes: #204352
+
+ -- Matthias Urlichs <smurf@debian.org>  Sat, 13 Sep 2003 00:45:20 +0200
+
+python-docutils (0.3+cvs20030901-1) unstable; urgency=low
+
+  * Acknowledge NMU.
+  * New upstream snapshot.
+    - The configuration file format has changed.
+  * New maintainer's email address. ;-)
+  * Explicitly depend on Python and debhelper >= 4.1.67.
+    4.1.60 might be possible, but the work to find out exactly
+    is better spent elsewhere.
+
+ -- Matthias Urlichs <smurf@debian.org>  Thu, 11 Sep 2003 11:32:56 +0200
+
+python-docutils (0.3+cvs20030803-1.1) unstable; urgency=low
+
+  * NMU
+  * Use python2.3 as the default python version.
+    - Closes: #205739
+  * Rename python-diffutils to python2.1-diffutils, rename python-textwrap to
+    python2.1-textwrap and python2.2-textwrap.
+  * Change section to python.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 27 Aug 2003 08:31:10 +0200
+
+python-docutils (0.3+cvs20030803-1) unstable; urgency=low
+
+  * The "SourceForge needed more CVS servers" release.  :-/
+  * Update to current CVS snapshot (finally).
+  * Package python-textwrap, required for python << 2.3
+    (included upstream).
+  * Cleaned up the setup*.py scripts.
+  * Removed "extras" from setup.py;
+    the extra modules have their own setup scripts.
+  * Added a Lintian override for python-roman.copyright,
+    which mentions the GPL but isn't.
+  * Completed the transition to debhelper v4,
+    some files were stuck in debian/tmp.
+    - Closes: #204352
+  * Explicitly use Python 2.3 for installation.
+    - Closes: #198302
+  * Updated maintainer email address.
+  * Updated Standards-Version to 3.6.0 (no changes).
+
+ -- Matthias Urlichs <smurf@smurf.noris.de>  Mon,  4 Aug 2003 01:44:12 +0200
+
+python-docutils (0.2.8+cvs20030324-6) unstable; urgency=low
+
+  * difflib.py, roman.py:
+    Include a copy of the Python license
+
+ -- Matthias Urlichs <smurf@noris.de>  02 May 2003 09:01:31 +0200
+
+python-docutils (0.2.8+cvs20030324-5) unstable; urgency=low
+
+  * Fixed requirements:
+    Require optik >= 1.4
+    Require xmlbase
+    Build-Require python-dev
+
+ -- Matthias Urlichs <smurf@noris.de>  07 Apr 2003 08:36:46 +0200
+
+python-docutils (0.2.8+cvs20030324-4) unstable; urgency=low
+
+  * Ready for upload.
+    - Closes: #186658
+  * Added /usr/bin symlinks where appropriate.
+
+ -- Matthias Urlichs <smurf@noris.de>  06 Apr 2003 13:03:01 +0200
+
+python-docutils (0.2.8+cvs20030324-3) unstable; urgency=low
+
+  * debian/rules:
+    Set path to python
+    use dh_movefiles
+    skip SCCS directories when installing documentation
+
+ -- Matthias Urlichs <smurf@noris.de>  30 Mar 2003 17:56:53 +0200
+
+python-docutils (0.2.8+cvs20030324-2) unstable; urgency=low
+
+  * Use a simple text in "copyright";
+    install the original notice in "COPYING.orig.txt"
+  * debian/control:
+    depend on debhelper 4
+    update descriptions
+
+ -- Matthias Urlichs <smurf@noris.de>  30 Mar 2003 17:51:19 +0200
+
+python-docutils (0.2.8+cvs20030324-1) unstable; urgency=low
+
+  * Cleanup
+  * Split into three binary packages
+  * Prefer "optparse" to "optik"
+  * Deleted example files from debian/
+  * Changed maintainer
+
+ -- Matthias Urlichs <smurf@noris.de>  29 Mar 2003 13:07:49 +0200
+
+python-docutils (0.2cvs021013-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 12 Oct 2002 15:05:38 +0200

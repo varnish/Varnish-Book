@@ -1,0 +1,12 @@
+========
+rst2html
+========
+
+-------------------------------
+convert reST documents to XHTML
+-------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

@@ -1,0 +1,19 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Sun, 6 Dec 2009 23:42:27 +0000
+Subject: [PATCH] tools/editors/emacs/tests/Makefile: fix a non-functional #! line
+
+---
+ tools/editors/emacs/tests/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/tools/editors/emacs/tests/Makefile b/tools/editors/emacs/tests/Makefile
+index bf088b1..ed69bda 100644
+--- a/tools/editors/emacs/tests/Makefile
++++ b/tools/editors/emacs/tests/Makefile
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env make
++#!/usr/bin/make -f
+ 
+ EMACS=/usr/bin/emacs
+ 
+-- 

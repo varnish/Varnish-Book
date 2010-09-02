@@ -1,0 +1,12 @@
+=======
+rst2odt
+=======
+
+-------------------------------------------------
+convert reST documents to OpenDocument text (ODT)
+-------------------------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

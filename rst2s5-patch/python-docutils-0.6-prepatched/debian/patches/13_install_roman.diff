@@ -1,0 +1,33 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Sun, 6 Dec 2009 23:44:04 +0000
+Subject: [PATCH] Force roman.py to be installed even if it's already installed
+
+Upstream treats this copy of roman.py as a convenience copy, but Debian
+doesn't ship roman.py any other way, so we treat this as the canonical
+way to get it.
+
+Creating Debian packages should be deterministic, and we don't want to
+have to build-conflict on ourselves.
+
+Forwarded: not-needed
+---
+ setup.py |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index 14f98af..d2ba0d5 100755
+--- a/setup.py
++++ b/setup.py
+@@ -180,6 +180,11 @@ extra_modules = [('roman', '1.4', ['toRoman', 'fromRoman',
+ List of (module name, minimum __version__ string, [attribute names])."""
+ 
+ def get_extras():
++    # In Debian, this source package is treated as the canonical source of
++    # roman.py, not just as a convenience copy (we don't have a separate
++    # source package for roman.py), so we must always install it.
++    return ['roman']
++
+     extras = []
+     for module_name, version, attributes in extra_modules:
+         try:
+-- 

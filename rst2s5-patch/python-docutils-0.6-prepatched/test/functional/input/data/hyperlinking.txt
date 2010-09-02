@@ -1,0 +1,23 @@
+Hyperlinks and -targets
+-----------------------
+
+In LaTeX, we must set an explicit anchor (``\phantomsection``) for a 
+_`hypertarget in plain text` but not in a table or figure caption:
+
+.. table:: Table with _`hypertarget in table title`.
+
+   =====  ===== =====
+   False  True  None
+   =====  ===== =====
+
+.. figure:: ../../../docs/user/rst/images/biohazard.png
+
+   Figure with _`hypertarget in figure caption`.
+   
+   Legend with _`hypertarget in figure legend`.
+   
+See `hypertarget in plain text`_,
+`hypertarget in table title`_,
+`hypertarget in figure caption`_, and
+`hypertarget in figure legend`_,
+

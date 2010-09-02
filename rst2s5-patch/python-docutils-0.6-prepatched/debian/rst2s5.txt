@@ -1,0 +1,12 @@
+======
+rst2s5
+======
+
+-----------------------------------
+convert reST documents to S5 slides
+-----------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

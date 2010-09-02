@@ -1,0 +1,12 @@
+=========
+rst2latex
+=========
+
+-------------------------------
+convert reST documents to LaTeX
+-------------------------------
+
+:Manual section: 1
+:Manual group: text processing
+
+

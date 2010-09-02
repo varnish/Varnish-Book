@@ -1,0 +1,15 @@
+python-docutils (0.6-1) unstable; urgency=low
+
+  The experimental 'newlatex2e' writer used by the rst2newlatex script is
+  no longer maintained, and will probably be removed in a future release.
+  
+  Please use the stable 'latex2e' writer instead, via the rst2latex script.
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 07 Dec 2009 02:41:34 +0000
+
+python-docutils (0.5-1) experimental; urgency=low
+
+  docutils configuration files (as used by the --config option) are now
+  assumed and required to be encoded in UTF-8.
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 19 Jul 2008 01:39:20 +0100

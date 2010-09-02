@@ -1,0 +1,292 @@
+========================
+ Docutils Release Notes
+========================
+
+:Author: Lea Wiemann
+:Contact: LeWiemann@gmail.com
+:Date: $Date: 2009-10-11 13:15:54 +0200 (Son, 11 Okt 2009) $
+:Revision: $Revision: 6165 $
+:Web site: http://docutils.sourceforge.net/
+:Copyright: This document has been placed in the public domain.
+
+
+This document summarizes the major changes in recent releases.  For a
+more detailed list of changes, please see the `Docutils History`_.
+
+.. _Docutils History: HISTORY.html
+
+.. contents::
+
+
+Release 0.6 (2009-10-11)
+========================
+
+.. Note::
+
+   Docutils 0.5 is the last version supporting Python 2.2.
+
+   Docutils 0.6 is compatible with Python versions from 2.3 up to 2.6
+   and convertible to 3.1 code.
+
+.. note::
+
+   The "newlatex" writer is orphaned.
+
+   The recommended way to generate PDF output is to use either the
+   LaTeX2e writer or one of the alternatives listed at
+   http://docutils.sourceforge.net/docs/user/links.html#pdf.
+
+* reStructuredText:
+
+  - Allow length units for all length specifications.
+  - Allow percent sign in "scale" argument of "figure" and "image" directives.
+  - Bugfix: The "figalign" argument of a figure now works as intended
+    (aligning the figure not its contents).
+  - Align images with class "align-[right|center|left]"
+    (allows setting the alignment of an image in a figure).
+  - Hard tabs in literal inclusions are replaced by spaces. This is
+    configurable via the new "tab-width" option of the "include" directive
+    (a negative tab-width prevents tab expansion).
+
+* HTML writer:
+
+  - ``--stylesheet`` and ``--stylesheet-path`` options now support a comma
+    separated list of stylesheets.
+
+* LaTeX2e writer:
+
+  - New defaults:
+    - font-encoding: "T1" (formerly implicitely set by 'ae').
+    - use-latex-toc: true (ToC with page numbers).
+    - use-latex-footnotes: true (no mixup with figures).
+    - Float placement defaults to "here definitely" (configurable).
+    - Align of image in a figure defaults to 'center'.
+    - Use class defaults for page margins ('typearea' now optional).
+  - Support LaTeX packages as ``--stylesheet`` arguments.
+  - Use ``bp`` for lengths without unit or unit ``pt``,
+    do not convert ``px`` to ``pt``.
+  - Do not use 'ae' and 'aeguill' packages if font-encoding is set to ''.
+  - Set sub- and superscript role argument as text not math.
+  - Support custom roles based on standard roles.
+  - Load packages and define macros only if required in the document.
+  - All Docutils specific LaTeX macros are prefixed with ``DU``.
+  - Better conformance to Docutils specifications with "use_latex_toc".
+  - If 'sectnum_xform' is False, the 'sectnum' directive triggers
+    section numbering by LaTeX.
+  - Use default font in admonitions and sidebar.
+  - Typeset generic topic as "quote with title".
+  - Use template (file and configuration option).
+  - Render doctest blocks as literal blocks (indented).
+
+* ODT writer:
+
+  - moved from sandbox to Doctutils core.
+
+* manpage writer:
+
+  - moved from sandbox to Doctutils core.
+
+
+Release 0.5 (2008-06-25)
+========================
+
+Components:
+
+* HTML writer.
+
+  - Dropped all ``name`` attributes of ``a`` elements (``id`` is
+    universally supported now).
+
+* LaTeX2e writer:
+
+  - Better bibTeX citation support.
+  - Add ``--literal-block-env``
+
+* PEP writer:
+
+  - Changed to support new python.org website structure and
+    pep2pyramid.py.
+
+reStructuredText:
+
+* Changed the directive API to a new object-oriented system.
+  (Compatibility for the old, functional-style directive interface is
+  retained.)  See the updated `Creating reStructuredText Directives`__
+  how-to.
+
+  __ docs/howto/rst-directives.html
+
+* Allow ``+`` and ``:`` in reference names requested for citations.
+
+Documentation:
+
+* Added `Deploying Docutils Securely`__
+
+  __ docs/howto/security.txt
+
+Internationalization:
+
+* Added hebrew mappings.
+
+General:
+
+* Configuration files are now assumed and required to be
+  UTF-8-encoded.
+
+* Added docutils/writers/html4css1/template.txt.
+
+* Enhance emacs support.
+
+Release 0.4 (2006-01-09)
+========================
+
+.. Note::
+
+   Docutils 0.4.x is the last version that will support Python 2.1.
+   Docutils 0.5 will *not* be compatible with Python 2.1; Python 2.2
+   or later will be required.
+
+   Docutils 0.4.x is the last version that will make compromises in
+   its HTML output for Netscape Navigator 4.  Docutils 0.5 will
+   require more up-to-date browsers (the exact definition is to be
+   determined).
+
+Components:
+
+* Added an `S5/HTML writer`__ and the rst2s5.py__ front end:
+  multi-platform, multi-browser HTML slide shows.
+
+  __ docs/user/slide-shows.html
+  __ docs/user/tools.html#rst2s5-py
+
+* The newlatex2e writer is nearing completion.
+
+* Added a DocTree reader, ``publish_doctree`` and
+  ``publish_from_doctree`` convenience functions, for document tree
+  extraction and reprocessing.
+
+reStructuredText:
+
+* Added directives: "container__" (generic block-level container),
+  "default-role__" (role used for \`backtick\` syntax), "title__"
+  (document title metadata), and "date__" (generate the current local
+  date, for substitution definitions).
+
+  __ docs/ref/rst/directives.html#container
+  __ docs/ref/rst/directives.html#default-role
+  __ docs/ref/rst/directives.html#title
+  __ docs/ref/rst/directives.html#date
+
+* Length units are now supported for image__ sizes.
+
+  __ docs/ref/rst/directives.html#image
+
+* Added `standard definition files`__ for special characters etc.
+
+  __ docs/ref/rst/definitions.html
+
+Internationalization:
+
+* Added Japanese and Simplified Chinese language mappings, and support
+  for double-width CJK-characters in tables and section titles.
+
+Documentation:
+
+* Added a `guide for distributors`__ (package maintainers) and a
+  `guide for developers`__.
+
+  __ docs/dev/distributing.html
+  __ docs/dev/hacking.html
+
+General:
+
+* Added significant `Emacs support for reST`__.
+
+  __ docs/user/emacs.html
+
+* Added a `--strip-comments`__ option.
+
+  __ docs/user/config.html#strip-comments
+
+* `--embed-stylesheet`__ is now the default for the HTML writer
+  (rather than --link-stylesheet).
+
+  __ docs/user/config.html#embed-stylesheet
+
+
+Release 0.3.9 (2005-05-26)
+==========================
+
+* Added "file_insertion_enabled__" and "raw_enabled__" settings.
+
+  __ docs/user/config.html#file-insertion-enabled
+  __ docs/user/config.html#raw-enabled
+
+* Added `auto-enumerated lists`__.
+
+  __ docs/ref/rst/restructuredtext.html#enumerated-lists
+
+* Added `"header" and "footer"`__ directives.
+
+  __ docs/ref/rst/directives.html#document-header-footer
+
+* Added "list-table__" directive.
+
+  __ docs/ref/rst/directives.html#list-table
+
+* Added support for `section subtitles`__.
+
+  __ docs/user/config.html#sectsubtitle-xform
+
+* Added "field_name_limit__" and "option_limit__" settings to HTML writer.
+
+  __ docs/user/config.html#field-name-limit
+  __ docs/user/config.html#option-limit
+
+* Added "cloak_email_addresses__" setting to HTML writer.
+
+  __ docs/user/config.html#cloak-email-addresses
+
+* UTF-8 BOMs are now removed from the input stream.
+
+
+Release 0.3.7 (2004-12-24)
+==========================
+
+* A special "`line block`__" syntax has been added.  (Also see the
+  `quick reference`__.)
+
+  __ docs/ref/rst/restructuredtext.html#line-blocks
+  __ docs/user/rst/quickref.html#line-blocks
+
+* Empty sections are now allowed.
+
+* A "raw__" role has been added.
+
+  __ docs/ref/rst/roles.html#raw
+
+* The LaTeX writer now escapes consecutive dashes (like "--" or "---")
+  so that they are no longer transformed by LaTeX to en or em dashes.
+  (Please see the FAQ__ for how to represent such dashes.)
+
+  __ FAQ.html#how-can-i-represent-esoteric-characters-e-g-character-entities-in-a-document
+
+* A `dependency recorder`__ has been added.
+
+  __ docs/user/config.html#record-dependencies
+
+* A directive has been added for `compound paragraphs`__.
+
+  __ docs/ref/rst/directives.html#compound-paragraph
+
+
+Release 0.3.5 (2004-07-29)
+==========================
+
+* Improved, extended and reorganized the documentation__.
+
+  __ docs/index.html
+
+* Added "csv-table__" directive.
+
+  __ docs/ref/rst/directives.html#csv-table
