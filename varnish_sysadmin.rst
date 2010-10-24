@@ -1760,9 +1760,102 @@ Default: vcl_fetch
 .. include:: vcl/default-vcl_fetch.vcl
    :literal:
 
-..
+.. container:: handout
 
-        XXX: Got here
+   The default VCL for vcl_fetch is designed to avoid caching anything with
+   a set-cookie header. There are very few situations where caching content
+   with a set-cookie header is desirable.
+
+
+Example: Enforce caching of .jpg urls for 60 seconds
+----------------------------------------------------
+
+.. include:: vcl/cache_jpg.vcl
+   :literal:
+        
+.. container:: handout
+
+   The above example is typical for a site migrating to Varnish. Setting
+   beresp.cacheable to true ensures that it is cached (even if it's an
+   error message) and the beresp.ttl defines the period.
+
+   Keep in mind that the default VCL will still be executed, which means
+   that an image with a Set-Cookie header will not be cached.
+
+Example: Cache .jpg for 60 only if s-maxage isn't present
+---------------------------------------------------------
+
+.. include:: vcl/cache_jpg_smaxage.vcl
+   :literal:
+
+.. container:: handout
+
+        The Cache-Control header can contain a number of headers. Varnish evaluates
+        it and looks for s-maxage and max-age. It will set the TTL to the value of
+        s-maxage if found. If s-maxage isn't found, it will use max-age. If neither
+        exist, it will use the Expires header to set the ttl. If none of those
+        headers exist, it will use the default TTL.
+
+        This is done before vcl_fetch is executed and the process can be
+        seen by looking at the TTL tag of varnishlog.
+
+        The purpose of the above example is to allow a gradual migration to
+        using a backend-controlled caching policy. If the backend supplies
+        s-maxage, it will be used, but if it is missing, a forced TTL is
+        set.
+
+
+Exercise: VCL - avoid caching a page
+------------------------------------
+
+- Write a VCL which avoids caching wiki.pl at all.
+
+Solution: VCL - avoid caching a page
+------------------------------------
+
+::
+
+        sub vcl_fetch {
+            if (req.url ~ "wiki\.pl") { return(pass); }
+        }
+
+Or::
+
+        sub vcl_recv {
+            if (req.url ~ "wiki\.pl") { return(pass); }
+        }
+
+.. container:: handout
+
+   The above examples are both valid.
+
+   It is usually most convenient to do as much as possible in `vcl_recv`,
+   and this is no exception. Even though using pass in `vcl_fetch` is
+   reasonable, it creates a hitpass object, which can create unnecessary
+   complexity. Whenever you do use pass in `vcl_fetch`, you should also
+   make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
+   accidentally adding a hitpass object that prevents caching for a long
+   time.
+
+
+
+VCL Part two
+============
+
+- vcl_hash, vcl_pipe, vcl_miss, vcl_pass, vcl_hit, vcl_error
+- Often used to add "features"
+
+.. container:: handout
+
+   The following chapter will cover the parts of VCL where you typically
+   venture to customize the behavior of Varnish and not define caching
+   policy.
+
+   These functions can be used to add custom headers, change the appearance
+   of the Varnish error message, add HTTP redirect features in Varnish,
+   purge content and define what parts of a cached object is unique.
+
+
 
 VCL - vcl_hash
 --------------
@@ -1770,17 +1863,29 @@ VCL - vcl_hash
 - Defines what is unique about a request.
 - Executed directly after vcl_recv, assuming "lookup" was requested
 
-::
+.. container:: handout
 
-        sub vcl_hash {
-            set req.hash += req.url;
-            if (req.http.host) {
-                set req.hash += req.http.host;
-            } else {
-                set req.hash += server.ip;
-            }
-            return(hash);
-        }
+   vcl_hash defines the hash key to be used for a cached object. Or in
+   other words: What separates one cached object from the next.
+
+   One usage of vcl_hash could be to add a user-name in the cache hash to
+   cache user-specific data. However, be warned that caching user-data
+   should only be done cautiously.
+
+Default: vcl_hash
+-----------------
+
+.. include:: vcl/default-vcl_hash.vcl
+   :literal:
+
+.. container:: handout
+
+   The default VCL for vcl_hash simply adds the hostname (or IP) and the
+   URL to the cache hash.
+
+   .. note::
+
+      The Vary: process is separate from the cache hash.
 
 VCL - vcl_hit
 -------------
@@ -1789,14 +1894,8 @@ VCL - vcl_hit
 - You can change the TTL, but nothing else.
 - Often used to throw out an old object
 
-::
-
-        sub vcl_hit {
-            if (!obj.cacheable) {
-                return(pass);
-            }
-            return(deliver);
-        }
+.. include:: vcl/default-vcl_hit.vcl
+   :literal:
 
 VCL - vcl_miss
 --------------
@@ -1804,27 +1903,12 @@ VCL - vcl_miss
 - Right after an object was looked up and not found in cache
 - Typically only used to avoid sending "PURGE" requests to a backend
 
-::
+.. include:: vcl/default-vcl_miss.vcl
+   :literal:
 
-        sub vcl_miss {
-            return(fetch);
-        }
+..
 
-VCL - vcl_fetch
----------------
-
-- Varnish just got the object from the web server
-- Decide whether to cache or not and how long based on the data returned
-
-::
-
-    if (!beresp.cacheable) {
-        return(pass);
-    }
-    if (beresp.http.Set-Cookie) {
-        return(pass);
-    }
-    return(deliver);
+        XXX: Got here
 
 VCL - vcl_deliver
 -----------------
@@ -1936,38 +2020,6 @@ Solution: VCL - backend
      there is no other traffic than your test-traffic.)
    - ?
 
-
-Exercise: VCL - avoid caching a page
-------------------------------------
-
-- Write a VCL which avoids caching wiki.pl at all.
-
-Solution: VCL - avoid caching a page
-------------------------------------
-
-::
-
-        sub vcl_fetch {
-            if (req.url ~ "wiki\.pl") { return(pass); }
-        }
-
-Or::
-
-        sub vcl_recv {
-            if (req.url ~ "wiki\.pl") { return(pass); }
-        }
-
-.. container:: handout
-
-   The above examples are both valid.
-
-   It is usually most convenient to do as much as possible in `vcl_recv`,
-   and this is no exception. Even though using pass in `vcl_fetch` is
-   reasonable, it creates a hitpass object, which can create unnecessary
-   complexity. Whenever you do use pass in `vcl_fetch`, you should also
-   make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
-   accidentally adding a hitpass object that prevents caching for a long
-   time.
 
 
 Exercise: VCL - respect no-cache from the client
