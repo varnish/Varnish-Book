@@ -1,5 +1,6 @@
 
-RST2PDF=/usr/local/bin/rst2pdf
+RST2PDF=/usr/bin/rst2pdf
+RST2S5=/usr/local/bin/rst2s5.py
 BDIR=build
 
 htmltarget=${BDIR}/varnish_sysadmin.html
@@ -32,7 +33,7 @@ ${BDIR}:
 	mkdir -p ${BDIR}
 
 ${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui ui/vs/*
-	/usr/bin/rst2s5 ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
+	${RST2S5} ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
 
 ${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
