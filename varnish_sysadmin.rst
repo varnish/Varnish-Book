@@ -114,7 +114,7 @@ Introduction to Varnish
 - What is Varnish?
 - Open Source / Free Software
 - History
-- Design Principles
+- Varnish Governance Board (VGB)
 
 .. container:: handout
 
@@ -168,7 +168,9 @@ The history of Varnish
 
         From 2006 throughout 2008, most of the development was sponsored by
         VG, API, Escenic and Aftenposten, with project-management,
-        infrastructure and extra man-power provided by Redpill Linpro.
+        infrastructure and extra man-power provided by Redpill Linpro. At
+        the time, Redpill Linpro had roughly 140 employees mostly centered
+        around consultancy.
 
         Today Varnish Software is able to fund the core development with
         income from service agreements, in addition to offering development
@@ -298,9 +300,10 @@ Design principles
         you have available. Though CPU-power is rarely a problem.
 
         If you choose to run Varnish on a 32-bit system, you are limited to 3GB
-        of virtual memory, which puts a limit on the number of threads you can run
-        and the size of your cache. This is a trade-off to gain a simpler design
-        and reduce the amount of work Varnish needs to do.
+        of virtual memory address space, which puts a limit on the number
+        of threads you can run and the size of your cache. This is a
+        trade-off to gain a simpler design and reduce the amount of work
+        Varnish needs to do.
 
         Varnish does not keep track of whether your cache is on disk or in
         memory. Instead, Varnish will request a large chump of memory and
@@ -517,7 +520,7 @@ Install Varnish:
    Using the Varnish packages provided by your distribution is often just
    as good as compiling from source. Alternatively, you can add the
    repository provided by Varnish Software, with the base URL of
-   http://repo.varnish-software.com/.
+   http://repo.varnish-cache.org/
 
    You can also just fetch the packages from the repo above and use the
    commands demonstrated in the previous section to install them.
@@ -525,8 +528,7 @@ Install Varnish:
    To compile from source, you can follow these instructions:
 
    1. Install "libncurses5-dev"
-   2. Download Varnish from http://sourceforge.net/projects/varnish, or
-      http://repo.varnish-software.com/ (for Varnish Software customers)
+   2. Download Varnish from http://www.varnish-cache.org/
    3. Unpack in your ~
    4. Run ``./configure``
    5. ``make`` and ``sudo make install``
@@ -536,6 +538,16 @@ Install Varnish:
       If you are on Debian-based system, you will need the
       `build-essential` package and you may want to run ``apt-get build-dep
       varnish``
+
+   .. note::
+
+      While Varnish 2.1 and 2.0 have significant differences, they are
+      mostly internal and not that relevant to performing the exercises in
+      this course. Varnish 2.1 uses "beresp" instead of "obj" in the
+      "vcl_fetch" subroutine, has several bug-fixes, experimental
+      support for persistent storage and a few new backend directors. While
+      a 2.1-version is preferred, you can also use Varnish 2.0.4 or newer
+      during this course.
 
 Configuration
 -------------
@@ -565,14 +577,14 @@ Configuration
 Command line configuration
 --------------------------
 
-- "-a hostname:port" - listen address
-- "-b hostname:port" - backend address
-- "-f filename.vcl" - VCL
-- "-p parameter=value" - set tunable parameters
-- "-d" - debug
-- "-d -d" - debug harder
-- "-T hostname:port" - Telnet interface
-- "-s storagetype,options" - where and how to store objects
+- ``-a hostname:port`` - listen address
+- ``-b hostname:port`` - backend address
+- ``-f filename.vcl`` - VCL
+- ``-p parameter=value`` - set tunable parameters
+- ``-S secretfile`` - authentication secret for management
+- ``-d`` - debug
+- ``-T hostname:port`` - Telnet interface
+- ``-s storagetype,options`` - where and how to store objects
 
 .. container:: handout
 
@@ -604,6 +616,23 @@ Command line configuration
         want, then store it in a configuration file that will pass it to varnish
         with -p next time you start it up. We will look at these files later
         on.
+
+        The -S option specifies a file which contains a secret to be used
+        for authentication. This can be used to authenticate with
+        varnishadm -S as long as varnishadm can read the same secret file -
+        or rather the same content: The content of the file can be copied
+        to an other machine to allow varnishadm to access the management
+        interface remotely.
+
+        .. note::
+
+           The ``-S secretfile`` option was silently introduced with
+           Varnish 2.0 and is currently used by default in most Varnish
+           packages. In Varnish 2.0, the varnishadm tool is not
+           interactive, while it is interactive with Varnish 2.1: In
+           Varnish 2.1 you can use ``varnishadm -T localhost:6082 -S
+           /etc/varnish/secret/`` without further arguments to conenct to
+           an authenticated mangement console as if you used telnet.
 
 Storage backends
 ----------------
@@ -670,12 +699,11 @@ Exercise: Start Varnish - solution
 
 .. container:: handout
 
-        Did you remember the colon?
+        Did you remember the colon? The underlying POSIX-based libraries
+        used by Varnish does not limit IP-specifications to "dot-notation",
+        so "1234" is a valid specification of an IP in decimal notation -
+        thus Varnish will not warn you if you omit the colon.
 
-        To see the difference between "-d" and "-d -d", try starting Varnish
-        with -d, then hitting "Ctrl-d". This should drop you back to your shell.
-        Now run "ps aux | grep varnish" to see if Varnish is running, then try it
-        again with "-d -d". Did you see the difference?
 
 Exercise: Controlling Varnish using telnet
 ------------------------------------------
@@ -942,9 +970,8 @@ System
 ------
 
 - sess_workspace - incoming HTTP header workspace (from client)
-- Common values range from 16kB to 10MB
+- Common values range from 65kB (Default) to 10MB
 - ESI typically requires exponential growth
-- Pre 2.1: obj_workspace.
 - Remember: It's all virtual - not physical memory.
 
 
@@ -963,6 +990,15 @@ System
         As most of the parameters can be left unchanged, we will not go through
         all of them, but take a look at the list "param.show" gives you to get an
         impression of what they can do.
+
+        .. note:::
+           
+           Varnish 2.0 had a "obj_workspace" which you may see references
+           to in older documentation. This was the workspace for
+           manipulating an object. Manipulation of an object is now done on
+           the session workspace in vcl_fetch, then a precise amount of
+           memory is allocated for the object, thus removing the need for a
+           tunable obj_workspace.
 
 
 Timers
@@ -1001,6 +1037,13 @@ Mangement:
         10s in Varnish 2.0.4, there have been no reports that indicates that it's
         insufficient on production servers.
 
+        .. note::
+
+           The connect_timeout is 0.4s by default. This is more than enough
+           time for the typical setup where Varnish talks to a backend in
+           the same server room - but it may be too short if Varnish is
+           using a remote backend which may have up to or more than 400ms
+           of latency.
 
 Exercise: Tune first_byte_timeout
 ---------------------------------
@@ -1050,7 +1093,7 @@ Misc
 
    Varnishtest can be used to design specific feature-tests for Varnish,
    and is used mainly for regression tests. It's included in the above list
-   for sake of completion and is mainly used during development.
+   for sake of completeness and is mainly used during development.
 
    All the other tools operate exclusively on the shared memory log, or
    shmlog as it's called in the context of Varnish. They all take similar
@@ -1060,7 +1103,7 @@ Misc
    Among the log-parsing tools, varnishstat is so far unique in that it
    only looks at counters. The counters are easily found in the shmlog, and
    are typically polled at reasonably frequent interval, to give the
-   impression of real-time updates. The are distinct from the other
+   impression of real-time updates. They are distinct from the other
    log-data in that they are not directly mapped to a single request, but
    represent how many times some specific action has occurred since Varnish
    started.
@@ -1076,6 +1119,15 @@ Misc
    If varnishlog is used to dump data to disk, the varnishreplay tool can
    be used to simulate the same load. It is not explained in detailed, as
    it is very rarely used in normal operation.
+
+   .. note::
+
+      There is always a delay in the log process, though usually it is not
+      noticeable. The shmlog is 80MB large by default, which gives some
+      potential history, but that is not guaranteed and it depends heavily
+      on when the last roll-around of the shmlog occurred.
+
+
 
 varnishlog
 ----------
@@ -1246,8 +1298,8 @@ http://www.example.com/images/foo.png HTTP/1.1" 200 5330 \
    If you already have tools in place to analyze Apache-like logs (NCSA
    logs), varnishncsa can be used to print the shmlog as ncsa-styled log.
 
-   Filtering works similar to varnishlog. Unfortunately, you can not
-   customize the output of varnishncsa as of Varnish 2.1.3.
+   Filtering works similar to varnishlog. Output formatting of varnishncsa
+   was added in Varnish 2.1.5.
 
 
 varnishstat
@@ -1880,8 +1932,8 @@ Default: vcl_hash
 
 .. container:: handout
 
-   The default VCL for vcl_hash simply adds the hostname (or IP) and the
-   URL to the cache hash.
+   The default VCL for vcl_hash adds the hostname (or IP) and the URL to
+   the cache hash.
 
    .. note::
 
@@ -1906,6 +1958,17 @@ VCL - vcl_miss
 .. include:: vcl/default-vcl_miss.vcl
    :literal:
 
+
+.. container:: handout
+
+   The subroutines vcl_hit and vcl_miss are closely related. It's rare that
+   you can use them, and when you do, it's typically related to internal
+   Varnish tricks - not debug-feedback or backend modification.
+
+   One example is to set the ttl to 0 seconds - essentially expiring an
+   object. This can be done in vcl_hit - but should be checked for in
+   vcl_miss so a request intended to reset the ttl doesn't end up at a
+   backend
 ..
 
         XXX: Got here

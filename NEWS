@@ -26,6 +26,8 @@ New in 1.4
 New in 1.5
 ----------
 
+Major re-work. Advice skimming through the doc prior to presenting it.
+
 - Combine the Configuration and Getting started chapter
 - Move backend declaration in VCL to the Getting started chapter
 - Note the existence of varnishtest and varnishreplay (no details)
@@ -35,3 +37,13 @@ New in 1.5
 - Update default vcl (notably the X-Forwarded-For header).
 - Major rewrite of VCL in general. Now split in two sections.
 - Better front page
+- Use repo.varnish-cache.org and www.varnish-cache.org instead of
+  repo.varnish-software.com and sourceforge for installtion-urls.
+- Elaborate on why 2.0.4 and later can be used during the course (see
+  Install Varnish)
+- Secret-file mentioned several-places and explained.
+- "debug harder" dropped: it's a 2.0-thing.
+- Mention connect_timeout with regards to remote backend servers with high
+  latency.
+- Mention shmlog size and how it's somewhat delayed.
+- Varnish 2.1.5 varnishncsa can do output formating

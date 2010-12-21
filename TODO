@@ -1,6 +1,10 @@
 Content
 =======
 
+- "Start varnish" exercise is too simple.
+- Default timers (?)
+- Go over tools (specially sizes/hist/adm?)
+
 - Loadbalancing
 
   - More examples
@@ -10,7 +14,6 @@ Content
 - ACL
 - Re-arrange the VCL chapters.
 - Add more visuals for the VCL chapters
-- Remove the "troubleshooting" chapter
 - Add architecture overview
 - Add reference documentation (RFC2616? man vcl and varnishd?)
 - Possibly split the course in two/three:
@@ -28,3 +31,5 @@ Technical
 - Automatically fetch default VCL from Varnish
 - Verify fonts
 - Add the rst2s5 patch somewhere sane. Sanitize it.
+- Fetch defaults from source code ? Or at least split them out to allow
+  scripted updates/tests.
