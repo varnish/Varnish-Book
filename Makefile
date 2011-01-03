@@ -5,11 +5,12 @@ BDIR=build
 
 htmltarget=${BDIR}/varnish_sysadmin.html
 pdftarget=${BDIR}/varnish_sysadmin.pdf
+pdftargetteach=${BDIR}/varnish_sysadmin_teacher.pdf
 rstsrc=varnish_sysadmin.rst
 images = img/vcl.png
 common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/*
 
-all: ${pdftarget} ${htmltarget}
+all: ${pdftarget} ${htmltarget} ${pdftargetteach}
 
 ${BDIR}/version.rst: version.sh ${rstsrc}
 	mkdir -p ${BDIR}
@@ -35,8 +36,12 @@ ${BDIR}:
 ${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui ui/vs/*
 	${RST2S5} ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
 
+
 ${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
+
+${pdftargetteach}: ${common} ui/pdf.style
+	 awk '$$0 == ".." { print ".. note:: Instructor comment"; $$0=""; } { print $0 }' ${rstsrc}  |  ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetteach}
 
 clean:
 	-rm -r build/

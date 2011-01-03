@@ -1969,8 +1969,8 @@ VCL - vcl_miss
    object. This can be done in vcl_hit - but should be checked for in
    vcl_miss so a request intended to reset the ttl doesn't end up at a
    backend
-..
 
+..
         XXX: Got here
 
 VCL - vcl_deliver
