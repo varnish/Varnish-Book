@@ -57,3 +57,8 @@ I have tried to use .. tip::, .. warning:: and .. note::, and no further
 To change the looks of the slides, edit ui/vs/pretty.css (possibly other
 css files, but unlikely). To change the look of the PDF, change
 ui/pdf.style.
+
+Instructor comments are simple rst comments: .. on a line by itself (NO
+trailing white-space), followed immediately by the comment. They are
+currently a bit of a hack in the Makefile, so avoid multi-line comments or
+other rst-trickery - it wont work.
