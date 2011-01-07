@@ -1425,6 +1425,145 @@ Exercise: Try the tools
 - Install ``siege``
 - Run siege against localhost while looking at varnishhist
 
+Testing your Varnish setup
+==========================
+
+Knowing how something work and knowing that it works are different things.
+
+This chapter focuses briefly on making sure that what you do work as
+expected.
+
+The common tools
+----------------
+
+- All about header-data
+- lwp-request (libwww-perl) provides GET/HEAD/POST aliases
+- curl
+- nc and telnet
+- wc / gunzip
+
+.. container:: handout
+
+   While you can get browser extensions - like FireBug for Firefox - that
+   shows you HTTP headers, it is usually more practical in the long run to
+   get used to using terminal tools.
+
+   GET and HEAD can be used to generate fairly specific HTTP requests and
+   analyse the returned data - both content and HTTP headers. You can also
+   generate other requests. For example to send a PURGE request with
+   different variants:
+
+       lwp-request -USsed -m PURGE -f http://example.com/image.jpg
+       lwp-request -USsed -m PURGE -H "Accept-Encoding: gzip" http:/example.com/image.jpg
+       lwp-request -USsed -m PURGE -H "Accept-Encoding: deflate" http:/example.com/image.jpg
+
+   The parameters to lwp-request, GET and HEAD are all the same. In fact,
+   HEAD is just a different way of saying lwp-request -m HEAD.
+
+   ``-d``
+       Don't show any content data (ie: HTML, image-data, etc).
+
+   ``-m METHOD``
+       Use the METHOD instead of GET
+
+   ``-f``
+       Use the method specified with -m even if it's not a known HTTP
+       method (for example PURGE).
+
+   ``-U``
+       Print request headers too.
+
+   ``-S``
+       Print forward-chain. Useful to detect if lwp-request is following
+       any 301/302 redirects.
+
+   ``-s``
+       Print response status code (ie: "200 OK").
+
+   ``-e``
+      Print response headers
+
+   ``-H <HEADER>``
+      Send an additional header. -H can be specified multiple times.
+   
+   curl can do many of the same things - you don't need to know both curl
+   and lwp-request.
+
+   At times, even lwp-request can be too magic - then it's useful to
+   remember that you can still use nc (netcat) or telnet to talk directly
+   to Varnish manually - though that is rarely necessary.
+
+   The wc and gunzip tools are mentioned because you can combine them with
+   lwp-request. For example if you think the Content-Length header is
+   incorrect, you can use GET ... | wc to see how much data was returned.
+   You can also verify compressed data with GET -H "Accept-Encoding: gzip"
+   http://example.com/ | gunzip
+
+   Essentially it's all about getting to know the HTTP protocol in the
+   Context of Varnish. Once you're used to using GET or HEAD, you might
+   even find some new sources of entertainment.
+
+   .. tip::
+
+      Take a look at the headers of www.vg.no, www.slashdot.com,
+      www.wordpress.com and isc.sans.org.
+
+Using the varnish tools
+-----------------------
+
+varnishstat, varnishlog and varnishtop are the most commonly used tools
+
+Noticeable things to look for:
+ - Check the Vary header of your server both before and after Varnish has
+   had a say
+ - Watch the ReqEnd header to look out for abnormally slow requests
+ - Watch out for backend failures, lru nukes and dropped work requests in
+   varnishstat - and watch the hit rate.
+ - Filter varnishlog when you need it!
+ - varnishtop -i TxStatus for general health.
+ - varnishtop -i TxUrl for uncached urls.
+
+.. container:: handout
+
+   Just knowing the tools wont help you unless you know what to look out
+   for. The best way to improve your ability to debug Varnish is to use the
+   debugging tricks that you know of even when Varnish is healthy. If you
+   only evaluate the situation when something is wrong, you wont have any
+   reference point and you wont know what to look for.
+
+   With varnish, you typically have three different types of issues:
+
+   - Consistent problems with a url, host, server, client or some other
+     pattern that you can work with.
+   - Bad performance - usually caused by lack of caching, improper
+     measurements (ie: the test tools are wrong, not Varnish), sick
+     backends or misunderstood use of VCL or parameters.
+   - Intermittent "strangeness" or performance hits which are nearly
+     impossible to reproduce.
+
+   Hopefully, you'll only run into the latter type of problem once you've
+   completed this course. Or rather: You'll be able to solve or avoid the
+   other two types of issues without too much work.
+
+Test environments
+-----------------
+
+- Keep it as close to production as possible
+- Use /etc/hosts (or dns) instead of rewriting "192.168.1.2" to
+  "example.com" in VCL.
+- Test with both command line tools AND a browser.
+
+.. container::
+
+   Before you bring Varnish live, you'll want to test it. The most
+   efficient way to do that is to point the real hostname of the site to
+   the Varnish server - for either a local machine or with an internal DNS
+   server.
+
+   On UNIX-like systems, you'll have /etc/hosts
+
+   Ideally, brining a Varnish server live should just mean changing the
+   external DNS.
 
 VCL Introduction
 ================
@@ -1865,17 +2004,8 @@ Exercise: VCL - avoid caching a page
 Solution: VCL - avoid caching a page
 ------------------------------------
 
-::
-
-        sub vcl_fetch {
-            if (req.url ~ "wiki\.pl") { return(pass); }
-        }
-
-Or::
-
-        sub vcl_recv {
-            if (req.url ~ "wiki\.pl") { return(pass); }
-        }
+.. include:: vcl/avoid_caching_page.vcl
+   :literal:
 
 .. container:: handout
 
@@ -1889,13 +2019,115 @@ Or::
    accidentally adding a hitpass object that prevents caching for a long
    time.
 
+Exercise: Honor various cache-control headers
+---------------------------------------------
+
+Write a VCL that makes Varnish honor the following headers:
+
+::
+
+        Cache-Control: no-cache
+        Cache-Control: private
+        Pragma: no-cache
+
+.. container:: handout
+
+        Varnish only obeys the first header it finds of "s-maxage" in
+        Cache-Control, "max-age" in Cache-Control or the Expire header.
+        However, it is often necessary to check the values of other
+        headers too - vcl_fetch is the place to do that.
+
+Solution: Honor various cache-control headers
+---------------------------------------------
+
+.. include:: vcl/honor_more_cache_headers.vcl
+   :literal:
+
+Exercise: Either use s-maxage or set ttl by file type
+-----------------------------------------------------
+
+Write a VCL that:
+
+- Uses ``Cache-Control: s-maxage`` where present
+- Caches ``.jpg`` for 30 seconds if s-maxage isn't present
+- Caches ``.html`` for 10 seconds if s-maxage isn't present
+- Removes the Set-Cookie header if s-maxage OR the above rules indicates
+  that varnish should cache.
+
+.. container:: handout
+
+   .. tip::
+
+      Try solving each part of the exercise by itself first. Most somewhat
+      complex VCL tasks are easily solved when you divide the tasks into
+      smaller bits and solve them individually.
+
+   .. note::
+
+      Varnish automatically reads s-maxage for you, so you only need to
+      check if it is there or not - if it's present, varnish has already
+      used it to set `beresp.ttl`.
 
 
-VCL Part two
-============
+Solution: Either use s-maxage or set ttl by file type
+-----------------------------------------------------
 
-- vcl_hash, vcl_pipe, vcl_miss, vcl_pass, vcl_hit, vcl_error
-- Often used to add "features"
+.. include:: vcl/s-maxage_cookies_filetypes.vcl
+   :literal:
+
+.. container:: handout
+
+        There are many ways to solve this exercise, and this solution is
+        only one of them. The first part checks that s-maxage is /not/
+        present, then handles .jpg and .html files - including cookie
+        removal. The second part checks if s-maxage caused Varnish to set a
+        positive ttl and consider it cacheable.
+
+Summary of VCL - Part 1
+-----------------------
+
+- VCL provides a state machine for controlling Varnish.
+- Each request is handled independently.
+- Building a VCL file is done one line at a time.
+
+.. container:: handout
+
+        VCL is all about policy. By providing a state machine which you can
+        hook into, VCL allows you to affect the handling of any single
+        request almost anywhere in the execution chain.
+
+        This provides both the pros and cons of any other programming
+        language. There isn't going to be any complete reference guide to
+        how you can deal with every possible scenario in VCL, but on the
+        other hand, if you master the basics of VCL you can solve complex
+        problems that nobody has thought about before. And you can usually
+        do it without requiring too many different sources of
+        documentation.
+
+        Whenever you are working on VCL, you should think of what that
+        exact line you are writing has to do. The best VCL is built by
+        having many independent sections that don't interfere with each
+        other more than they have to.
+
+        This is made easier by the fact that VCL also has a default - which
+        is always present. If you just need to modify one little thing in
+        `vcl_recv`, you can do just that. You don't have to copy the
+        default VCL, because it will be executed after your own - assuming
+        you don't have any `return` statements.
+
+..
+        The point of this slide is to zoom out a bit and give the
+        participants a chance to look at the bigger picture. Focus on how
+        mastering the details like if-then-else and a few simple regular
+        expressions can be enough to build even complex VCL files.
+
+VCL functions
+=============
+
+- Start off with a cheat-sheet for variables
+- Go through the remaining vcl functions: hash, pipe, miss, pass, hit,
+  error and deliver.
+- Add some "features" with VCL.
 
 .. container:: handout
 
@@ -1907,13 +2139,62 @@ VCL Part two
    of the Varnish error message, add HTTP redirect features in Varnish,
    purge content and define what parts of a cached object is unique.
 
+   After this chapter, you should know what all the VCL functions can be
+   used for, and you'll be ready to dive into more advanced features of
+   Varnish and VCL.
 
+Variable availability in VCL
+----------------------------
+
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| Variable | recv | fetch | pass | miss | hit | error | deliver | pipe | hash |
++==========+======+=======+======+======+=====+=======+=========+======+======+
+| req.*    | R/W  | R/W   | R/W  | R/W  | R/W | R/W   | R/W     | R/W  | R/W  |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| bereq.*  |      | R/W   | R/W  | R/W  |     |       |         | R/W  |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| obj.hits |      |       |      |      | R   |       | R       |      |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| obj.ttl  |      |       |      |      | R/W | R/W   |         |      |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| obj.grace|      |       |      |      | R/W |       |         |      |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| obj.*    |      |       |      |      | R   | R/W   |         |      |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| beresp.* |      | R/W   |      |      |     |       |         |      |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+| resp.*   |      |       |      |      |     | R/W   | R/W     |      |      |
++----------+------+-------+------+------+-----+-------+---------+------+------+
+
+.. container:: handout
+
+   The above is a map of the most important variables and where you can
+   read (R) from them and write (W) to them.
+
+   Some variables are left out: client.* and server.* are by and large
+   accessible everywhere, as is the `now` variable.
+
+   Remember that changes made to `beresp` are stored in `obj` afterwards.
+   And the resp.* variables are copies of what's about to be returned -
+   possibly of obj. A change to beresp will, in other words, change both
+   obj.* and resp.*. Similar semantics apply to req and bereq. Bereq is the
+   "backend request" as created from the original request. It may differ
+   slightly - Varnish can convert HEAD requests to GET for example.
+
+   .. note::
+
+      Many of these variables will be self-explaining during while you're
+      working through these exercises, but we'll explain all of them
+      towards the end of the chapter to make sure there's no confusion.
 
 VCL - vcl_hash
 --------------
 
 - Defines what is unique about a request.
 - Executed directly after vcl_recv, assuming "lookup" was requested
+
+.. include:: vcl/default-vcl_hash.vcl
+   :literal:
 
 .. container:: handout
 
@@ -1923,14 +2204,6 @@ VCL - vcl_hash
    One usage of vcl_hash could be to add a user-name in the cache hash to
    cache user-specific data. However, be warned that caching user-data
    should only be done cautiously.
-
-Default: vcl_hash
------------------
-
-.. include:: vcl/default-vcl_hash.vcl
-   :literal:
-
-.. container:: handout
 
    The default VCL for vcl_hash adds the hostname (or IP) and the URL to
    the cache hash.
@@ -1948,6 +2221,10 @@ VCL - vcl_hit
 
 .. include:: vcl/default-vcl_hit.vcl
    :literal:
+
+..
+        Note that the next slide (vcl_miss) also talks about vcl_hit in
+        more detail.
 
 VCL - vcl_miss
 --------------
@@ -1970,8 +2247,52 @@ VCL - vcl_miss
    vcl_miss so a request intended to reset the ttl doesn't end up at a
    backend
 
-..
-        XXX: Got here
+
+VCl - vcl_pass
+--------------
+
+- Run after a pass in vcl_recv OR after a lookup that returned a hitpass
+- Not run after vcl_fetch.
+
+.. include:: vcl/default-vcl_pass.vcl
+   :literal:
+
+.. container:: handout
+        
+        The vcl_pass function belongs in the same group as vcl_hit and
+        vcl_miss. It is run right after either a cache lookup or vcl_recv
+        determined that this isn't a cached item and it's not going to be
+        cached.
+
+        The usefulness of vcl_pass is limited, but it typically serves as
+        an important catch-all for features you've implemented in vcl_hit
+        and vcl_miss. The prime example is the PURGE method.
+
+Example: PURGE
+--------------
+
+.. include:: vcl/PURGE.vcl
+   :literal:
+
+.. container:: handout
+
+   The PURGE example above is fairly complete and deals with a non-standard
+   method. By setting the ttl to 0, the object is removed immediately. This
+   conserves memory and means the page will be refreshed the next time
+   someone asks for it.
+
+   Note that both vcl_miss and vcl_pass are defined to avoid sending a
+   PURGE request to a web server.
+
+   Also keep in mind that this technique will only remove a single variant
+   of the object. If you only Vary on accept-encoding and you normalize
+   accept-encoding to a set of known variants, then you can still use this
+   technique by requesting the same URL once for each known variant.
+
+   .. note::
+
+      ACLs have not been explained yet, but will be explained in detail in
+      later chapters.
 
 VCL - vcl_deliver
 -----------------
@@ -1979,11 +2300,35 @@ VCL - vcl_deliver
 - Common last exit point for all (except vcl_pipe) code paths
 - Often used to add and remove debug-headers
 
-::
+.. include:: vcl/default-vcl_deliver.vcl
+   :literal:
 
-        sub vcl_deliver {
-            return(deliver);
-        }
+.. container:: handout
+
+   While the vcl_deliver function is simple, it is also very useful for
+   modifying the output of Varnish. If you need to remove or add a header
+   that isn't supposed to be stored in the cache, vcl_deliver is the place
+   to do it.
+
+   The main building blocks of vcl_deliver are:
+
+   ``resp.http.*``
+        Headers that will be sent to the client. They can be set and unset.
+
+   ``resp.status``
+       The status code (200, 404, 503, etc).
+
+   ``resp.response``
+       The response message ("OK", "File not found", "Service
+       Unavailable").
+
+   ``obj.hits``
+        The number of hits a cached object has made. This can be evaluated
+        and sued as a string to easily reveal if a request was a cache hit
+        or miss.
+
+   ``req.restarts``
+        The number of restarts issued in VCL - 0 if none were made.
 
 VCL - vcl_error
 ---------------
@@ -1993,263 +2338,181 @@ VCL - vcl_error
 - Error messages go here by default
 - Other use cases: Redirecting users (301/302 Redirects)
 
-::
+.. include:: vcl/default-vcl_error.vcl
+   :literal:
 
-        sub vcl_error {
-            set obj.http.Content-Type = "text/html; charset=utf-8";
-            synthetic {"
-        <?xml version="1.0" encoding="utf-8"?>
-        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        <html>
-          <head>
-            <title>"} obj.status " " obj.response {"</title>
-          </head>
-          <body>
-            <h1>Error "} obj.status " " obj.response {"</h1>
-            <p>"} obj.response {"</p>
-            <h3>Guru Meditation:</h3>
-            <p>XID: "} req.xid {"</p>
-            <address>
-               <a href="http://www.varnish-cache.org/">Varnish</a>
-            </address>
-          </body>
-        </html>
-        "};
-            return(deliver);
-        }
+.. container:: handout
 
+   .. note::
 
+      Note how you can use {" and "} to make multi-line strings. This is
+      not limited to synthetic, but can be used anywhere.
 
-VCL - variables
----------------
+Example: Redirecting users with vcl_error
+-----------------------------------------
 
-- req.* - request
-- req.http.* - request HTTP headers
-- req.backend - which backend to use
-- obj.* - object
-- obj.http.* - object HTTP headers
-- obj.ttl - lifetime of the object
-- obj.status - HTTP status code
-- beresp.* - backend response, before it's made into an object
-- resp.* - response
-- resp.http.* - response HTTP headers
+.. include:: vcl/redirect.vcl
+   :literal:
 
-Exercise: VCL - backend
------------------------
+.. container:: handout
 
-- Write a VCL containing just a backend.  Test that it works.
+   Redirecting with VCL is fairly easy - and fast. If you know a pattern,
+   it's even easier.
 
-Solution: VCL - backend
------------------------
+   Basic redirects in HTTP work by having the server return either 301
+   "Permanently moved" or 302 "Found", with a Location header telling the
+   web browser where to look. The 301 can affect how browser prioritize
+   history and how search engines treat the content. 302 are more temporary
+   and will not affect search engines as greatly.
 
-::
+   The above example illustrates how you can use Varnish to generate
+   meta-content.
 
-        backend default {
-                .host = "localhost";
-                .port = "80";
-        }
+Exercise: Modify the error message and headers
+----------------------------------------------
 
-Exercise: VCL - set ttl
------------------------
+- Make the default error message more friendly.
+- Add a header saying either HIT or MISS
+- "Rename" the Age header to X-Age.
 
-- Write a VCL setting the TTL of all objects to 10s.  Check that
-  it works.
+Bonus: Only show HIT/MISS for certain IP addresses.
 
+Solution: Modify the error message and headers
+----------------------------------------------
 
-Solution: VCL - backend
------------------------
+.. include:: vcl/error_and_headers.vcl
+   :literal:
 
-::
+.. container:: handout
 
-        sub vcl_fetch {
-            set beresp.ttl = 10s;
-        }
+   The solution doesn't use the "long-string" syntax that the default uses,
+   but regular strings. This is all up to you.
+
+   .. note::
+
+      It's safer to make sure a variable has a sensible value before using
+      it to make a string. That's why it's better to always check that
+      obj.hits > 0 (and not just != 0) before you try using it.  While
+      there are no known bugs with obj.hits at the moment,
+      string-conversion has been an area where there have been some bugs in
+      the past when the variable to be converted had an unexpected value
+      (for example if you tried using obj.hits after a pass in vcl_recv).
+
+      This applies to all variables - and all languages for that matter
+
+Advanced VCL details
+====================
+
+- ACL
+- restart
+- Backend properties
+- Health probes
+- Grace
+- Saint mode
 
 .. container::
 
-   There are multiple ways to verify if this works.
+   We've covered most of the basics of VCL - now it's time for an
+   in-depth look at some aspects of Varnish.
 
-   - Using GET, or a similar tool, monitor the Age: header as you reload
-     the same URL. It should reset to 0 seconds after it hits 10.
-   - Look for the TTL tag in varnishlog. It should read VCL .. 10 .. when
-     the object is fetched from the web server, indicating that it is
-     cached for 10 second, as per VCL.
-   - Monitor backend traffic, either using varnishlog or viewing logs on
-     the web server to see when Varnish asks for the same object.
-   - Count. Watch the X-Varnish header, and count how it takes between each
-     time it only has one number.
-   - Use varnishstat to see when the cache_miss counter increases (assuming
-     there is no other traffic than your test-traffic.)
-   - ?
+Access Control Lists
+--------------------
 
+- An ACL is a list of IPs or IP ranges.
+- Compare with client.ip or server.ip
 
-
-Exercise: VCL - respect no-cache from the client
-------------------------------------------------
-
-- Write a VCL which refreshes the page from the backend if the
-  request contains ``Cache-control: no-cache``
+.. include:: vcl/acl.vcl
+   :literal:
 
 .. container:: handout
 
-   While solving this task, keep in mind that not all client send
-   ``no-cache`` when they do refreshes or forced refreshes. Some will use
-   max-age=0 instead for example.
+   ACLs are fairly simple. A single IP is listed as "192.168.1.2", and to
+   turn it into an IP-range, add the /24 *outside* of the quotation marks
+   ("192.168.1.0"/24). To exclude an IP or range from an ACL, precede it
+   with an exclamation mark - that way you can include all the IPs in a
+   range except the gateway, for example.
 
-   .. warning::
+   ACLs can be used for anything. Some people have even used ACLs to
+   differantiate how their Varnish servers behaves (ie: A single VCL for
+   different Varnish servers - but it evaluates server.ip to see where it
+   really is).
 
-      This is a feature that often seem like a very good idea, specially if
-      it is combined with limiting it to only a specific IP range, for
-      example the editorial staff.
+   Typical use cases are for PURGE requests, bans or avoiding the cache
+   entirely.
 
-      The problem with this feature appears the moment you have more than
-      one Varnish server. Most likely, only one of many Varnish servers
-      will then be refreshed.
+Restart in VCL
+--------------
 
-Solution: VCL - respect no-cache from the client
-------------------------------------------------
+- Start the VCL processing again from the top of vcl_recv.
+- Any changes made are kept.
+- Parameter max_restarts safe guards against infinite loops
+- req.restarts
 
-::
-
-        sub vcl_hit {
-            if (req.restarts == 0 &&
-                req.http.cache-control ~ "no-cache") {
-               set obj.ttl = 0s;
-               restart;
-            }
-        }
-
-Or::
-
-        sub vcl_hit {
-            if (req.restarts == 0 &&
-                req.http.cache-control ~ "no-cache") {
-               purge("req.url == " req.url);
-               restart;
-            }
-        }
+.. include:: vcl/restart.vcl
+   :literal:
 
 .. container:: handout
 
-   The purge() command has not yet been introduced, but is included as an
-   example that there are more than one way to solve the specific task.
+   Restarts in VCL can be used almost everywhere as of Varnish 2.1.5 (which
+   introduced restart in vcl_deliver).
 
-   .. warning::
+   They allow you to re-run the VCL state engine with different variables.
+   The above example simply executes a redirect without going through the
+   client. An other example is using it in combination with PURGE and
+   rewriting so the script that issues PURGE will also refresh the content.
 
-      Using purge() and restart as demonstrated above is sub-optimal. You
-      can safely do it in `vcl_recv` instead.
+   Yet an other example is to combine it with saint mode, which we will
+   discuss later.
 
-   .. warning::
+Exercise: Combine PURGE and restart
+-----------------------------------
 
-      Setting ttl to 0 seconds is an efficient way of removing specific
-      objects. This is commonly done as a result of a script, for example a
-      script that issues a PURGE method. When that is the case, it is
-      important to remember that Varnish might have different variants of
-      the same objects stored.
+- Re-write the PURGE example to also issue a restart
+- The result should be that a PURGE both removes the content and fetches a
+  new copy from the backend.
 
-      The typical example is one or more variants that are compressed, and
-      one that is uncompressed. Setting the ttl to 0 seconds in vcl_hit
-      does not address that: The calling script will have to generate one
-      request for each possible variant.
+Solution: Combine PURGE and restart
+-----------------------------------
 
-Exercise: VCL - remove all cookies
-----------------------------------
-
-- Write a VCL which removes all cookies from the request as well as
-  any set-cookie headers from the backend, but this only for jpeg and
-  CSS files.
-
-
-Solution: VCL - remove all cookies
-----------------------------------
-
-::
-
-        sub vcl_recv {
-            if (req.url ~ "\.(jpg|jpeg|css)$") {
-                remove req.http.cookie;
-            }
-        }
-
-        sub vcl_fetch {
-            if (req.url ~ "\.(jpg|jpeg|css)$") {
-                remove beresp.http.set-cookie;
-            }
-        }
+.. include:: vcl/PURGE-and-restart.vcl
+   :literal:
 
 .. container:: handout
 
-   When you deal with Cookies, there are two different aspects you have to
-   consider.
+   .. note::
 
-   First is the Cookie that the client sends to Varnish. This will be
-   whatever the browser stored for that site. It can include google
-   analytics cookies, old cookies that are no longer needed and just about
-   anything else.
+      Whenever you are using req.http to store an "internal" variable, you
+      should get used to unsetting it in vcl_recv on the first run.
+      Otherwise a client could supply it directly. In this situation, the
+      outcome wouldn't be harmful, but it's a good habit to establish.
 
-   The second set of cookie-headers is those sent by the web server, using
-   the "Set-Cookie" header. These are instructions from the web-server to
-   the client to store a cookie.
+Backend properties
+------------------
 
-   Both has to be addressed one way or the other, and the above example
-   does that.
+- Most properties are optional
 
-
-Exercise: VCL - add header showing hit/miss
--------------------------------------------
-
-- Write a VCL which adds a header telling you if this is a hit or
-  a miss, and the number of hits if it's a hit
+.. include:: vcl/backend_properties.vcl
+   :literal:
 
 .. container:: handout
 
-   .. warning::
+   All the backend-specific timers that are available as parameters can
+   also be overridden in the VCL on a backend-specific level.
 
-      Many of the first implementations of a hit/miss header used the
-      vcl_hit and vcl_miss functions, as they seemed the obvious choices.
-      However, because multiple clients can get the same object at the same
-      time, it is not safe to modify the object in vcl_hit, save for
-      changing the TTL. It was possible in Varnish 2.0, but would cause
-      crashes during heavy load.
+   While the timeouts have already been discussed, there are some other
+   notable parameters.
 
-      To solve this, the ``obj.hits`` variable is accessible in
-      vcl_deliver.
+   The saintmode threshold defines how many items can be "blacklisted" by
+   saint mode before the entire backend is considered sick. Saint mode will
+   be discussed in more detail.
 
-Solution: VCL - add header showing hit/miss
--------------------------------------------
+   If your backend is struggling, it might be advantageous to set
+   "max_connections" so only a set number of simultaneous connections will
+   be issued to a specific backend.
 
-::
 
-        sub vcl_deliver {
-                if (obj.hits > 0) {
-                        set resp.http.X-Cache = "HIT";
-                        set resp.http.X-Cache-Hits = obj.hits;
-                } else {
-                        set resp.http.X-Cache = "MISS";
-                }
-        }
-
-.. container:: handout
-
-   vcl_deliver is the primary function to use to add and remove headers
-   sent to a client. If you wish to remove the Via or X-Varnish header,
-   this is the place to do it.
-
-   The solution above uses the ``obj.hits`` variable, which counts how many
-   times an object has been hit in the cache. Note that you should not
-   check if it is 0, and you should only add it to a header after checking
-   that the value is above 0. This is because an error message, for
-   example, will have a non-existent, or empty value. That is not the same
-   as 0. In other words, the value of obj.hits can be one of:
-
-   - A positive integer (1, 2, 3, 4...)
-   - Zero (0)
-   - Empty
-
-   Checking for "larger than 0" implies "non-zero". Checking for 0, does
-   not cover the scenario where it is empty.
-
+..
+        XXX: Got here. - Health probes - Grace - Saint mode
 
 Purges
 ======
