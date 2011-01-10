@@ -58,6 +58,7 @@ dist: all
 	cp -rL ${BDIR}/ui $$target/html/;\
 	cp -rL ${BDIR}/img $$target/html/;\
 	cp -r ${BDIR}/varnish_sysadmin.pdf $$target/pdf/varnish_sysadmin-v$$version.pdf;\
+	cp -r ${BDIR}/varnish_sysadmin_teacher.pdf $$target/pdf/varnish_sysadmin_teacher-v$$version.pdf;\
 	cp -r munin/ $$target;\
 	cp NEWS $$target;\
 	rm -r $${target}/html/img/staging/;\
