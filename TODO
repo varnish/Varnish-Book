@@ -8,24 +8,19 @@ Content
 - Loadbalancing
 
   - More examples
-  - Consider a new exercise
-  - Start with health checks
+  - Need a new exercise.
 
-- ACL
-- Re-arrange the VCL chapters.
 - Add more visuals for the VCL chapters
 - Add architecture overview
 - Add reference documentation (RFC2616? man vcl and varnishd?)
-- Possibly split the course in two/three:
-   
-   - Intro
-   - VCL
-   - Summary
-   - Appendix A/B/C/D/F
+- Purges and ESI needs to be re-worked to match the rest of the course.
+- Finishing words need love.
+
 
 Technical
 =========
 
+- Fix tag-versioning
 - Automate dot->svg->png (or better: dot->png with a proper size)
 - Add nightly builds
 - Automatically fetch default VCL from Varnish

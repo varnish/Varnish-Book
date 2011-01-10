@@ -26,9 +26,9 @@ New in 1.4
 New in 1.5
 ----------
 
-Major re-work. Advice skimming through the doc prior to presenting it.
+Major re-work. It's strongly advised to skim through the doc prior to
+presenting it. At least from the VCL chapters.
 
-- Better front page
 - "debug harder" dropped: it's a 2.0-thing.
 - Mention connect_timeout with regards to remote backend servers with high
   latency.
@@ -52,4 +52,5 @@ Major re-work. Advice skimming through the doc prior to presenting it.
 - Table for variable-accessibility
 - PURGE example
 - ACL, restarts and backend properties mentioned
+- Health checks and directors are separate
 

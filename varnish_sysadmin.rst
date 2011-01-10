@@ -2406,6 +2406,7 @@ Advanced VCL details
 - ACL
 - restart
 - Backend properties
+- Directors
 - Health probes
 - Grace
 - Saint mode
@@ -2510,9 +2511,180 @@ Backend properties
    "max_connections" so only a set number of simultaneous connections will
    be issued to a specific backend.
 
+Directors
+---------
+
+- Contains 1 or more backends
+- All backends must be known
+- Multiple selection methods
+- random, round-robin, hash, client and dns
+
+.. include:: vcl/director_example.vcl
+   :literal:
+
+.. container:: handout
+
+        Backend directors, usually just called directors, provide logical
+        groupings of similar web servers. There are several different
+        directors available, but they all share the same basic properties.
+
+        First of all, anywhere in VCL where you can refer to a backend, you
+        can also refer to a director.
+
+        .. include: vcl/director_references.vcl
+           :literal:
+
+        All directors also allow you to re-use previously defined backends,
+        or define "anonymous" backends within the director definition. If a
+        backend is defined explicitly and referred to both directly and
+        from a director, Varnish will correctly record data such as number
+        of connections (ie: max connections limiting) and saintmode
+        thresholds. Defining an anonymous backend within a director will
+        still give you all the normal properties of a backend.
+
+        And a director must have a name.
+
+        The simplest directors available are the round-robin director and
+        the random director. The round-robin director only takes no
+        additional arguments - only the backends. It will pick the first
+        backend for the first request, then the second backend for the
+        second request, and so on, and start again from the top. If a
+        health probe has marked a backend as sick, the round-robin director
+        will skip it.
+
+        The random director picks a backend randomly. It has one
+        per-backend parameter called `weight`, which provides a mechanism
+        for balancing the traffic to the backends. It also provides a
+        director-wide parameter called `retries` - it will try this
+        many times to find a healthy backend.
+
+        .. include: vcl/random_example.vcl
+           :literal:
+
+        The above example will result in twice as much traffic to
+        localhost.
+
+.. class:: handout
+
+Client and hash directors
+.........................
+
+The client and hash directors were both added with Varnish 2.1.0 as special
+variants of the random directors. The client director uses either the
+client.ip or (as of Varnish 2.1.4) the client.identity - which is settable
+from VCL - instead of a random number. This means that the same client will
+be directed to the same backend, assuming that the client.identity is the
+same for all requests.
+
+Similarly, the hash director uses the req.hash, which means that the same
+URL will go to the same web server every time. This is most relevant for
+multi-tiered caches.
+
+For both the client and the hash director, the director will pick the next
+backend available if the preferred one is unhealthy.
+
+
+.. class:: handout
+
+The DNS director
+................
+
+The DNS director is to be included in Varnish 2.1.4. It uses the Host
+header sent by a client to find a backend among a list of possibles.
+This allows dynamic scaling and changing of web server pools without
+modifying Varnish' configuration, but instead just waiting for Varnish
+to pick up on the DNS changes.
+
+As the DNS director is both the newest addition and perhaps the most
+complex, some extra explanation might be useful. Consider the following
+example VCL.
+
+.. include:: vcl/dns_director.vcl
+   :literal:
+
+It defines 255 backends, all in the 192.168.0.0/24 range. The DNS director
+can also use the traditional (non-list) format of defining backends, and
+most options are supported in .list, as long as they are specified before
+the relevant backends.
+
+The TTL specified is for the DNS cache. In our example, the `mydirector`
+director will cache the DNS lookups for 5 minutes. When a client asks for
+``www.example.org``, Varnish will look up
+``www.example.org.internal.example.net``, and if it resolves to something,
+the DNS director will check if on of the backends in the 192.168.0.0./24
+range matches, then use that.
+
+Health checks
+-------------
+
+- Poke your web server every N seconds
+- Affects backend selection
+- req.backend.healthy
+- Varnish needs at least `threshold` amount of good probes within a set of
+  the last `window` probes. Where `threshold` and `window` are parameters.
+- Set using `.probe`
+- varnishlog: Backend_health
+- varnishadm: debug.health
+
+.. container:: handout
+
+   You can define a health check for each backend, which will cause Varnish
+   to probe a URL every few seconds. Normally, it will take more than one
+   failed request before Varnish stops using a specific backend server.
+
+
+   .. include:: vcl/health.vcl
+      :literal:
+
+   The above example will cause Varnish to send a request to
+   http://example.com/healthtest every 3 seconds. When deciding whether to
+   use a server or not, it will look at the last 5 probes it has sent and
+   require that at least 3 of them were good.
+
+   You also have an important variable called `.initial`, which defaults to
+   the same value as `.threshold`. It defines how many probes Varnish
+   should pretend are good when it first starts up. Before `.initial` was
+   added, Varnish needed enough time to probe the Web server and gather
+   good probes before it was able to start functioning after boot.
+
+   ::
+
+        debug.health
+        200 545     
+        Backend foo is Healthy
+        Current states  good:  8 threshold:  5 window:  8
+        Average responsetime of good probes: 0.355237
+        Oldest                                                    Newest
+        ================================================================
+        ------------------------------------------------------4444444444 Good IPv4
+        ------------------------------------------------------XXXXXXXXXX Good Xmit
+        ------------------------------------------------------RRRRRRRRRR Good Recv
+        -------------------------------------------------HHHHHHHHHHHHHHH Happy
+
+   The above shows the output of debug.health - the same data is also
+   available in the more concise `Debug_health` tag of varnishlog.
+
+   Good IPv4 indicates that the IP was available for routing, Good Xmit
+   indicates that Varnish was able to transmit data - thus also connect.
+   Good Recv indicates that Varnish got a valid reply. While Happy
+   indicates that the reply was a 200 OK.
+
+   .. note::
+
+      Varnish does NOT send a Host header with health checks. If you
+      need that, you can define the entire request using `.request` instead
+      of `.url`.
+
+      .. include:: vcl/health_request.vcl
+         :literal:
 
 ..
-        XXX: Got here. - Health probes - Grace - Saint mode
+  Please device an exercise at this point - the old one involved installing
+  lighttpd next to Apache, but you may be better off with just using two
+  random web servers on the web + firewall. Sorry for the inconvenience.
+
+..
+        XXX: Got here. - Grace - Saint mode
 
 Purges
 ======
@@ -2668,127 +2840,6 @@ Solution: Purge - remove based on multiple conditions
 
         purge req.url ~ "^/foo" && obj.http.cache-control ~ "max-age=3600"
 
-
-Load balancing
-==============
-
-- Direct support for several backends
-- Health checking
-
-Directors available:
-
-- round robin
-- random
-- client
-- hash
-- DNS (as of 2.1.4/Custom RPMs/DEBs)
-
-.. container:: handout
-
-   With backend directors, Varnish can do load balancing. The two simplest
-   methods of letting Varnish load balance multiple web servers is using
-   either the random or the round robin director. The round robin director
-   simply takes several backends as arguments and will direct traffic to
-   them one after the other. The random director will pick one of the
-   backends provided at random, but allows weighting of backends. In other
-   words: the random director can direct a proportionally larger amount of
-   traffic to one backend over the other.
-
-   The client and hash directors are new as of Varnish 2.1. The client
-   director will use the client IP to direct traffic, ensuring that the
-   same client (assuming it has the same IP) always hits the same backend.
-   It is a cheap way of doing sticky clients, without using cookies.
-
-   The hash director directs traffic based on the cache hash. This means
-   that the same URL will be requested from the same web server. This is
-   handy when you have multiple Varnish servers in a multi-tier setup, as a
-   set of second tier caches can contain different data, maximizing their
-   cache efficiency.
-
-   The DNS director is to be included in Varnish 2.1.4. It uses the Host
-   header sent by a client to find a backend among a list of possibles.
-   This allows dynamic scaling and changing of web server pools without
-   modifying Varnish' configuration, but instead just waiting for Varnish
-   to pick up on the DNS changes.
-
-
-Example: Load balancing
------------------------
-
-::
-
-        backend foo {
-          .host = "backend1.example.com";
-          .probe = {
-                        .url = "/";
-          }
-        }
-
-        backend bar {
-          .host = "backend2.example.com";
-          .probe = {
-                        .url = "/";
-          }
-        }
-
-        director wwwdirector random {
-                {
-                        .backend = foo;
-                        .weight = 100;
-                }
-                {
-                         .backend = bar;
-                         .weight = 200;
-                }
-        }
-
-
-.. container:: handout
-
-        Note: The backends foo and bar need to be defined.
-
-.. class:: handout
-
-The DNS director
-................
-
-As the DNS director is both the newest addition and perhaps the most
-complex, some extra explanation might be useful. Consider the following
-example VCL::
-
-        director mydirector dns {
-                .list = {
-                        .port = "81";
-                        "192.168.0.0"/24;
-                }
-                .ttl = 5m;
-                .suffix = "internal.example.net";
-        }
-
-It defines 255 backends, all in the 192.168.0.0/24 range. The DNS director
-can also use the traditional (non-list) format of defining backends, and
-most options are supported in .list, as long as they are specified before
-the relevant backends.
-
-The TTL specified is for the DNS cache. In our example, the `mydirector`
-director will cache the DNS lookups for 5 minutes. When a client asks for
-``www.example.org``, Varnish will look up
-``www.example.org.internal.example.net``, and if it resolves to something,
-the DNS director will check if on of the backends in the 192.168.0.0./24
-range matches, then use that.
-
-
-Exercise: Load balancing
-------------------------
-
-- Install ``lighttpd``
-- Make varnish use both ``apache`` and
-  ``lighttpd`` as the backends.
-- Look at the varnishlog output for backend health checking
-- Take down one of the backends
-- See that varnish notices it
-- Start it back up
-- See that varnish notices it
 
 ESI
 ===
@@ -2971,6 +3022,7 @@ Community driven:
 
 - http://varnish-cache.org
 - http://varnish-cache.org/docs/
+- http://repo.varnish-cache.org/
 - http://varnish-cache.org/wiki/VCLExamples
 - Public mailing lists: http://varnish-cache.org/wiki/MailingLists
 - Public IRC channel: #varnish at irc.linpro.no
