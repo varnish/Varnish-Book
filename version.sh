@@ -9,7 +9,7 @@ echo ":Copyright: Varnish Software AS 2010, Redpill Linpro AS 2008-2009"
 
 VER=`git tag -l --contains | sed s/version-//`
 if [ -z $VER ]; then
-	VER="untagged draft version $(git log --format '%h' | head -n1)"
+	VER="untagged draft version $(git log --format='%h' | head -n1)"
 fi
 
 echo ":Version: $VER"
