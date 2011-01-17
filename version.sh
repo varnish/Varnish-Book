@@ -1,15 +1,17 @@
 #!/bin/sh
 # Author: Kristian Lyngstol <kristian@varnish-software.com>
 #
-# Generates RST for setting author, copyright and version. The bigger part
-# is the version. Soon: Date tag!
+# Generates RST for setting author, copyright, version.
 
 echo ":Author: Tollef Fog Heen, Kristian Lyngstøl"
-echo ":Copyright: Varnish Software AS 2010, Redpill Linpro AS 2008-2009"
+echo ":Copyright: Varnish Software AS 2010-2011, Redpill Linpro AS 2008-2009"
 
 VER=`git tag -l --contains | sed s/version-//`
+
+# Not a tagged commit. Should probably trigger big red letters.
 if [ -z $VER ]; then
-	VER="untagged draft version $(git log --format='%h' | head -n1)"
+	VER2="$(git tag -l | tail -n1)"
+	VER="untagged draft version $(git log --format='%h' | head -n1), following ${VER2}"
 fi
 
 echo ":Version: $VER"
