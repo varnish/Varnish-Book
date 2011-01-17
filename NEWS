@@ -1,5 +1,9 @@
+Version 1.0, released: Thu Aug 12 2010
+Version 1.1, released: Mon Aug 16 2010
+
 New in 1.2
 ----------
+Released: Wed Aug 18 2010
 
 - Change the PURGE exercise to use cache-control instead of the invalid
   obj.ttl.
@@ -11,11 +15,13 @@ New in 1.2
 
 New in 1.3
 ----------
+Released: Thu Aug 19 2010
 
 - No content changes, only build system/release method
 
 New in 1.4
 ----------
+Never released.
 
 - Add additional information and a few varnish to the VCL exercises
 - Remove obsolete warnings in Troubleshooting
@@ -25,6 +31,7 @@ New in 1.4
 
 New in 1.5
 ----------
+Released: Mon Jan 10 2011
 
 Major re-work. It's strongly advised to skim through the doc prior to
 presenting it. At least from the VCL chapters.
