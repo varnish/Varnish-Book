@@ -1276,7 +1276,7 @@ varnishtop
         - ``varnishtop -i RxUrl`` displays what URLs are most frequently
           requested from a client.
         - ``varnishtop -i RxHeader -I 'User-Agent:.*Linux.*'`` lists
-          User-Agent headers with "Linux" in it (ie: most used Linux web
+          User-Agent headers with "Linux" in it (e.g: most used Linux web
           browsers, that report them self as Linux).
         - ``varnishtop -i RxStatus`` will list status codes received from a
           web server.
@@ -1461,7 +1461,7 @@ The common tools
    HEAD is just a different way of saying lwp-request -m HEAD.
 
    ``-d``
-       Don't show any content data (ie: HTML, image-data, etc).
+       Don't show any content data (e.g.: HTML, image-data, etc).
 
    ``-m METHOD``
        Use the METHOD instead of GET
@@ -1478,7 +1478,7 @@ The common tools
        any 301/302 redirects.
 
    ``-s``
-       Print response status code (ie: "200 OK").
+       Print response status code (e.g.: "200 OK").
 
    ``-e``
       Print response headers
@@ -1536,7 +1536,7 @@ Noticeable things to look for:
    - Consistent problems with a url, host, server, client or some other
      pattern that you can work with.
    - Bad performance - usually caused by lack of caching, improper
-     measurements (ie: the test tools are wrong, not Varnish), sick
+     measurements (e.g.: the test tools are wrong, not Varnish), sick
      backends or misunderstood use of VCL or parameters.
    - Intermittent "strangeness" or performance hits which are nearly
      impossible to reproduce.
@@ -1718,9 +1718,9 @@ VCL - vcl_recv
    vcl_recv is the first VCL function executed, right after Varnish has
    decoded the request into its basic data structure. It has four main uses:
 
-   #. Modifying the client data to reduce cache diversity. IE: removing any
+   #. Modifying the client data to reduce cache diversity. E.g., removing any
       leading "www." in a URL.
-   #. Deciding caching policy based on client data. IE: Not caching POST
+   #. Deciding caching policy based on client data. E.g., Not caching POST
       requests, only caching specific URLs, etc
    #. Executing re-write rules needed for specific web applications.
    #. Deciding which Web server to use.
@@ -1860,7 +1860,7 @@ Exercise: Rewrite sport.example.com
 .. container:: handout
 
    You can use if () to perform a regular expression if-test, or a plain
-   string test. In the above exercise, both are valid. Ie::
+   string test. In the above exercise, both are valid. E.g.::
 
       if (req.http.host ~ "^sport\.example\.com$") {
               (...)
@@ -1908,7 +1908,7 @@ VCL - vcl_fetch
    caching policy, while you use information provided by the server to
    further decide on a caching policy in vcl_fetch.
 
-   If you chose to `pass` the request in an earlier VCL function (ie:
+   If you chose to `pass` the request in an earlier VCL function (e.g.:
    vcl_recv), you will still execute the logic of vcl_fetch, but the object
    will not enter the cache even if you supply a cache time.
 
@@ -2434,7 +2434,7 @@ Access Control Lists
    range except the gateway, for example.
 
    ACLs can be used for anything. Some people have even used ACLs to
-   differantiate how their Varnish servers behaves (ie: A single VCL for
+   differantiate how their Varnish servers behaves (e.g.: A single VCL for
    different Varnish servers - but it evaluates server.ip to see where it
    really is).
 
@@ -2538,7 +2538,7 @@ Directors
         or define "anonymous" backends within the director definition. If a
         backend is defined explicitly and referred to both directly and
         from a director, Varnish will correctly record data such as number
-        of connections (ie: max connections limiting) and saintmode
+        of connections (i.e.: max connections limiting) and saintmode
         thresholds. Defining an anonymous backend within a director will
         still give you all the normal properties of a backend.
 
