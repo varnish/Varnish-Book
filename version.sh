@@ -32,7 +32,7 @@ if [ $? == 0 -a -d .git ]; then
 
         # Are there uncommitted changes?
         git update-index --refresh --unmerged > /dev/null
-        if git diff-index --name-only HEAD >/dev/null; then
+        if git diff-index --name-only HEAD | read dummy; then
             v="$v"-dirty
         fi
     fi
