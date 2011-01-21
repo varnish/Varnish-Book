@@ -18,8 +18,6 @@
 #
 # Note 3: I now have more comments than code here. Yai....
 
-echo ":Author: Tollef Fog Heen, Kristian Lyngstøl"
-echo ":Copyright: Varnish Software AS 2010-2011, Redpill Linpro AS 2008-2009"
 v="0.0"
 
 # Borrowed from btrfs version.sh (GPL2)
@@ -38,5 +36,10 @@ if [ $? == 0 -a -d .git ]; then
     fi
 fi
 
-echo ":Version: ${v}"
-echo ":Date: " $(date +%Y-%m-%d)
+cat <<__EOF__
+:Authors: Tollef Fog Heen, Kristian Lyngstøl
+:Copyright: Varnish Software AS 2010-2011, Redpill Linpro AS 2008-2009
+:Version: ${v}
+:Date: $(date +%Y-%m-%d)
+__EOF__
+
