@@ -6,7 +6,7 @@
 echo ":Author: Tollef Fog Heen, Kristian Lyngstøl"
 echo ":Copyright: Varnish Software AS 2010-2011, Redpill Linpro AS 2008-2009"
 
-VER=`git tag -l --contains | sed s/version-//`
+VER=`git tag -l --contains | sed s/version-// | head -n1`
 
 # Not a tagged commit. Should probably trigger big red letters.
 if [ -z $VER ]; then
