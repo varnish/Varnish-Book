@@ -41,8 +41,8 @@ ${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui ui/vs/*
 ${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
 
-${pdftargetslide}: ${common} ui/pdf.style
-	 ./strip-class.gawk ${rstsrc} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetslide}
+${pdftargetslide}: ${common} ui/pdf_slide.style
+	 ./strip-class.gawk ${rstsrc} | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
 
 ${pdftargetteach}: ${common} ui/pdf.style
 	 awk '$$0 == ".." { print ".. note:: Instructor comment"; $$0=""; } { print $0 }' ${rstsrc}  |  ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetteach}

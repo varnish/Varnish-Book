@@ -5,16 +5,14 @@
 
    PageBreak introPages
 
-.. raw:: pdf
-   
-   Spacer 0,600
-
 .. container:: center
 
         Varnish System Administration
 
 .. include:: build/version.rst
 
+
+.. container:: handout
 
 .. header::
 
@@ -350,6 +348,7 @@ The multi-process architecture:
 
 .. image:: img/architecture.png
    :align: center
+   :height: 1235px
    :class: wideimage
 
 .. class:: handout
@@ -1127,8 +1126,6 @@ Misc
       potential history, but that is not guaranteed and it depends heavily
       on when the last roll-around of the shmlog occurred.
 
-
-
 varnishlog
 ----------
 
@@ -1141,7 +1138,6 @@ varnishlog
    97 RxHeader     c User-Agent: Mozilla/5.0 (Windows; U; Windows NT \
         6.0; nb-NO; rv:1.9.1b1) Gecko/20081007 Firefox/3.1b1
    97 RxHeader     c Accept: text/css,*/*;q=0.1
-   97 RxHeader     c Accept-Charset: ISO-8859-1,*,utf-8
    97 RxHeader     c Accept-Encoding: gzip,deflate,bzip2
    97 RxHeader     c Host: www.example.com
    97 RxHeader     c Connection: Keep-Alive
@@ -1282,16 +1278,14 @@ varnishtop
           web server.
         - ``varnishtop -i VCL_call`` shows what VCL functions are used.
 
-
-
-
 varnishncsa
 -----------
 
+::
 
-10.10.0.1 - - [24/Aug/2008:03:46:48 +0100] "GET \
-http://www.example.com/images/foo.png HTTP/1.1" 200 5330 \
-"http://www.example.com/" "Mozilla/5.0"
+        10.10.0.1 - - [24/Aug/2008:03:46:48 +0100] "GET \
+        http://www.example.com/images/foo.png HTTP/1.1" 200 5330 \
+        "http://www.example.com/" "Mozilla/5.0"
 
 .. container:: handout
 
@@ -1300,7 +1294,6 @@ http://www.example.com/images/foo.png HTTP/1.1" 200 5330 \
 
    Filtering works similar to varnishlog. Output formatting of varnishncsa
    was added in Varnish 2.1.5.
-
 
 varnishstat
 -----------
@@ -1391,7 +1384,6 @@ varnishstat
 
       You may have to specify an ``-n`` option to read the stats for the
       correct Varnish instance if you have multiple instances.
-
 
 varnishhist
 -----------

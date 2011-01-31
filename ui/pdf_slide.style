@@ -1,0 +1,35 @@
+{
+  "pageSetup" : {
+    "firstTemplate": "coverPage",
+    "size": "",
+    "width": "28cm",
+    "height": "17.5cm",
+    "margin-top": "0.5cm",
+    "margin-bottom": "0.5cm",
+    "margin-left": "2cm",
+    "margin-right": "2cm",
+    "spacing-header": "5mm",
+    "spacing-footer": "5mm",
+    "margin-gutter": "0cm"
+
+  },
+  "pageTemplates" : {
+    "coverPage": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "img/frontpage.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "introPages": {
+	    "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "showHeader" : false,
+        "showFooter" : false
+    }
+  }
+}
+

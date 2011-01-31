@@ -18,16 +18,13 @@ sub vcl_hit {
 		error 200 "Purged";
 	}
 }
-
 sub vcl_miss {
 	if (req.request == "PURGE") { 
 		error 404 "Not in cache";
 	}
 }
-
 sub vcl_pass {
 	if (req.request == "PURGE") {
 		error 502 "PURGE on a passed object";
 	}
 }
-
