@@ -756,9 +756,9 @@ Exercise: Fetch data through Varnish
         supply extra headers with -H "Header: value", which can be used multiple
         times.
 
-        You may also be familiar with firebug, an add-on for Firfox used for web
-        development and related affairs. This too can show you the response
-        headers.
+        You may also be familiar with firebug, an add-on for Firefox
+        used for web development and related affairs. This too can
+        show you the response headers.
 
         One thing you will discover soon is that web browsers tend to have their
         own cache which you may not immediately be able to tell if you're using or
