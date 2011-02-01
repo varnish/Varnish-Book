@@ -1,5 +1,7 @@
 
 .. image:: img/dummy.png
+   :width: 1px
+   :height: 1px
 
 .. raw:: pdf
 
@@ -11,8 +13,12 @@
 
 .. include:: build/version.rst
 
+.. sectnum::
 
 .. container:: handout
+
+        ..
+                contentblock?
 
 .. header::
 
@@ -33,10 +39,6 @@
       |               |                     |   |
       |Page ###Page###|Section ###Section###|   |
       +---------------+---------------------+---+
-
-
-
-.. sectnum::
 
 .. contents::
    :class: handout
