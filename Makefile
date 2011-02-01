@@ -13,9 +13,9 @@ common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/*
 
 all: ${pdftarget} ${htmltarget} ${pdftargetteach} ${pdftargetslide}
 
-${BDIR}/version.rst: version.sh ${rstsrc}
+${BDIR}/version.rst: util/version.sh ${rstsrc}
 	mkdir -p ${BDIR}
-	./version.sh > ${BDIR}/version.rst
+	./util/version.sh > ${BDIR}/version.rst
 
 img/%.png: img/%.dot
 	dot -Tpng < $< > $@
@@ -42,7 +42,7 @@ ${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
 
 ${pdftargetslide}: ${common} ui/pdf_slide.style
-	 ./strip-class.gawk ${rstsrc} | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
+	 ./util/strip-class.gawk ${rstsrc} | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
 
 ${pdftargetteach}: ${common} ui/pdf.style
 	 awk '$$0 == ".." { print ".. note:: Instructor comment"; $$0=""; } { print $0 }' ${rstsrc}  |  ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetteach}
@@ -51,7 +51,7 @@ clean:
 	-rm -r build/
 
 dist: all
-	version=`./version.sh | grep :Version: | sed 's/:Version: //' | tr -d '()[] '`;\
+	version=`./util/version.sh | grep :Version: | sed 's/:Version: //' | tr -d '()[] '`;\
 	echo $$version; \
 	target=${BDIR}/dist/varnish_sysadmin-$$version/; \
 	echo $$target ;\

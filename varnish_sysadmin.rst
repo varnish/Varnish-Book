@@ -1,47 +1,15 @@
-
-.. image:: img/dummy.png
-   :width: 1px
-   :height: 1px
-
-.. raw:: pdf
-
-   PageBreak introPages
-
-.. container:: center
-
-        Varnish System Administration
+.. include:: util/frontpage.rst
 
 .. include:: build/version.rst
 
-.. sectnum::
+.. container:: onlyPdf
 
-
-.. header::
-
-   .. oddeven::
-
-      .. class:: headertable
-
-      +---+---------------------+----------------+
-      |   |.. class:: centered  |.. class:: right|
-      |   |                     |                |
-      |   |Section ###Section###|Page ###Page### |
-      +---+---------------------+----------------+
-
-      .. class:: headertable
-
-      +---------------+---------------------+---+
-      |               |.. class:: centered  |   |
-      |               |                     |   |
-      |Page ###Page###|Section ###Section###|   |
-      +---------------+---------------------+---+
+   .. include:: util/printheaders.rst
 
 .. contents::
    :class: handout
 
-.. raw:: pdf
-
-   PageBreak oneColumn
+.. include:: util/control.rst
 
 Introduction
 ============
