@@ -15,10 +15,6 @@
 
 .. sectnum::
 
-.. container:: handout
-
-        ..
-                contentblock?
 
 .. header::
 

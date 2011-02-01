@@ -29,6 +29,10 @@
           ],
         "showHeader" : false,
         "showFooter" : false
+    },
+    "oneColumn": {
+	    "showHeader": false,
+	    "showFooter": false
     }
   }
 }
