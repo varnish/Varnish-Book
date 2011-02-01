@@ -2,9 +2,7 @@
 
 .. include:: build/version.rst
 
-.. container:: onlyPdf
-
-   .. include:: util/printheaders.rst
+.. include:: util/printheaders.rst
 
 .. contents::
    :class: handout
@@ -314,8 +312,7 @@ The multi-process architecture:
 
 .. image:: img/architecture.png
    :align: center
-   :height: 1235px
-   :class: wideimage
+   :width: 80%
 
 .. class:: handout
 

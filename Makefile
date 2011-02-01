@@ -9,9 +9,11 @@ pdftargetslide=${BDIR}/varnish_sysadmin_slide.pdf
 pdftargetteach=${BDIR}/varnish_sysadmin_teacher.pdf
 rstsrc=varnish_sysadmin.rst
 images = img/vcl.png
-common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/*
+common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/*
 
 all: ${pdftarget} ${htmltarget} ${pdftargetteach} ${pdftargetslide}
+
+mrproper: clean all
 
 ${BDIR}/version.rst: util/version.sh ${rstsrc}
 	mkdir -p ${BDIR}
@@ -35,8 +37,7 @@ ${BDIR}:
 	mkdir -p ${BDIR}
 
 ${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui ui/vs/*
-	${RST2S5} ${rstsrc} -r 5 --current-slide --theme-url=ui/vs/ ${htmltarget}
-
+	${RST2S5} ${rstsrc} -r 5 --strip-elements-with-class=onlypdf --current-slide --theme-url=ui/vs/ ${htmltarget}
 
 ${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
@@ -45,7 +46,7 @@ ${pdftargetslide}: ${common} ui/pdf_slide.style
 	 ./util/strip-class.gawk ${rstsrc} | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
 
 ${pdftargetteach}: ${common} ui/pdf.style
-	 awk '$$0 == ".." { print ".. note:: Instructor comment"; $$0=""; } { print $0 }' ${rstsrc}  |  ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetteach}
+	 awk '$$0 == ".." { print ".. admonition:: Instructor comment"; $$0=""; } { print }' ${rstsrc}  |  ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetteach}
 
 clean:
 	-rm -r build/
@@ -72,4 +73,4 @@ dist: all
 check:
 	$(MAKE) -C vcl/
 
-.PHONY: all
+.PHONY: all mrproper clean
