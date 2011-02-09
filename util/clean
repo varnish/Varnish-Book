@@ -1,0 +1,84 @@
+#!/bin/bash 
+
+# Run as root on training-laptop.
+# Requires DHCP! Highly experimental.
+# DELETES ALL CONTENT ON ALL VMS!
+#  - Kristian
+
+
+set -e
+set -x
+
+for a in `seq 1 12`; do
+	virsh destroy training$a;
+	sleep 0.1;
+done
+
+service libvirt-bin stop || echo "already stopped?"
+pidof kvm
+read tmp
+lvremove -f /dev/training-laptop/training-snap1
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap2
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap3
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap4
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap5
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap6
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap7
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap8
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap9
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap10
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap11
+sleep 0.5
+lvremove -f /dev/training-laptop/training-snap12
+sleep 0.5
+
+sleep 2
+lvcreate --size 4G  --snapshot --name training-snap1 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap2 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap3 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap4 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap5 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap6 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap7 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap8 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap9 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap10 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap11 /dev/training-laptop/training1 
+sleep 0.5
+lvcreate --size 4G  --snapshot --name training-snap12 /dev/training-laptop/training1 
+sleep 0.5
+
+service libvirt-bin start
+
+sleep 5
+
+for a in `seq 2 12`; do
+	sleep 5
+	virsh start training$a
+	sleep 25
+	ssh root@training1.local sed -i "s/training1/training$a/g" /etc/hosts /etc/motd  /etc/hostname 
+	ssh root@training1.local reboot
+done
+#virsh start training1
+#pw=squiddo
+#( echo ${pw}1; sleep 2; echo ${pw}1; sleep 2; ) | passwd training
