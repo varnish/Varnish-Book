@@ -18,7 +18,7 @@
         "frames": [
             ["0cm", "0cm", "100%", "100%"]
           ],
-        "background" : "img/frontpage.pdf",
+        "background" : "ui/img/frontpage.pdf",
         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0

@@ -8,7 +8,7 @@ pdftarget=${BDIR}/varnish_sysadmin.pdf
 pdftargetslide=${BDIR}/varnish_sysadmin_slide.pdf
 pdftargetteach=${BDIR}/varnish_sysadmin_teacher.pdf
 rstsrc=varnish_sysadmin.rst
-images = img/vcl.png
+images = ui/img/vcl.png
 common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/*
 
 all: ${pdftarget} ${htmltarget} ${pdftargetteach} ${pdftargetslide}
@@ -19,10 +19,10 @@ ${BDIR}/version.rst: util/version.sh ${rstsrc}
 	mkdir -p ${BDIR}
 	./util/version.sh > ${BDIR}/version.rst
 
-img/%.png: img/%.dot
+ui/img/%.png: ui/img/%.dot
 	dot -Tpng < $< > $@
 
-img/%.svg: img/%.dot
+ui/img/%.svg: ui/img/%.dot
 	dot -Tsvg < $< > $@
 
 ${BDIR}/ui:
@@ -31,7 +31,7 @@ ${BDIR}/ui:
 
 ${BDIR}/img:
 	mkdir -p ${BDIR}
-	ln -s ${PWD}/img ./${BDIR}/img
+	ln -s ${PWD}/ui/img ./${BDIR}/img
 
 ${BDIR}:
 	mkdir -p ${BDIR}

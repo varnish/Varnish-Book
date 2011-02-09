@@ -310,7 +310,7 @@ Process Architecture
 
 The multi-process architecture:
 
-.. image:: img/architecture.png
+.. image:: ui/img/architecture.png
    :align: center
    :width: 80%
 
@@ -1593,7 +1593,7 @@ VCL - request flow
 
 .. class:: handout
 
-.. image:: img/vcl.png
+.. image:: ui/img/vcl.png
    :align: center
    :height: 2400px
 
@@ -1606,7 +1606,7 @@ VCL - request flow
 Detailed request flow
 .....................
 
-.. image:: img/request.png
+.. image:: ui/img/request.png
    :align: center
    :height: 2235px
 

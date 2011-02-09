@@ -1,4 +1,4 @@
-.. image:: img/dummy.png
+.. image:: ui/img/dummy.png
    :width: 1px
    :height: 1px
 

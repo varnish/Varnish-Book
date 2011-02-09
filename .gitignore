@@ -1,4 +1,4 @@
 build/
-rst2s5-patch/python-docutils-0.6-prepatched/dist/
-rst2s5-patch/python-docutils-0.6-prepatched/extras/docutils.egg-info/
+misc/rst2s5-patch/python-docutils-0.6-prepatched/dist/
+misc/rst2s5-patch/python-docutils-0.6-prepatched/extras/docutils.egg-info/
 
