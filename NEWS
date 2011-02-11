@@ -61,3 +61,8 @@ presenting it. At least from the VCL chapters.
 - ACL, restarts and backend properties mentioned
 - Health checks and directors are separate
 
+New in 1.6
+----------
+Released: Mon Feb 11 2011
+
+- No new content, just build-fixes and typo-cleanups.

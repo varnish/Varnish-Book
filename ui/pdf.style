@@ -18,7 +18,11 @@
           ],
         "showHeader" : false,
         "showFooter" : false
+    },
+    "oneColumn": {
+        "showFooter" : false
     }
+
   },
   "styles" : [
     ["title", {
