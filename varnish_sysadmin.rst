@@ -16,7 +16,7 @@ Introduction
 - Goals and prerequisites
 - Introduction to Varnish
 - History
-- Varnish 2.0 and Varnish 2.1
+- Varnish 2.1
 
 About the course
 ----------------
@@ -144,40 +144,10 @@ The history of Varnish
         sites in Norway indicates that about 75% or more of the web traffic
         that originates in Norway is served through Varnish.
 
-Varnish 2.0
------------
-
-- Released in October 2008.
-- Edge Side Includes (ESI)
-- Load balancing
-- Backend health checks
-- Grace - Controlled delivery of expired objects until a fresh copy is
-  available
-
-.. container:: handout
-
-        Varnish implements a subset of the ESI Language 1.0 defined by W3C.
-        This is based on what was deemed to be necessary at the time.
-
-        Backend health checks, load balancing and grace all interact with
-        each other in Varnish 2.0.5 allowing you to reduce the number of
-        exposed error messages to almost zero even when your web servers
-        are struggling heavily.
-
-        The load balancing of Varnish allow you to define a number of web
-        servers that Varnish should balance the traffic between, based on
-        an algorithm you can specify. When health checks are enabled,
-        Varnish will only direct traffic to web servers it knows is working
-        correctly, and you can even tell Varnish to use otherwise expired
-        content instead of giving an error message when all your web
-        servers are marked as unhealthy.
-
-
 Varnish 2.1
 -----------
 
 - Version 2.1 was released early in 2010.
-
 - Persistent storage
 - Improved purging mechanisms
 - Saint mode
