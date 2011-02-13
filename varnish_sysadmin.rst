@@ -510,14 +510,15 @@ Configuration
 Command line configuration
 --------------------------
 
-- ``-a hostname:port`` - listen address
-- ``-b hostname:port`` - backend address
-- ``-f filename.vcl`` - VCL
-- ``-p parameter=value`` - set tunable parameters
-- ``-S secretfile`` - authentication secret for management
-- ``-d`` - debug
-- ``-T hostname:port`` - Telnet interface
-- ``-s storagetype,options`` - where and how to store objects
+-a <[hostname]:port>      listen address
+-b <hostname:port>        backend address
+-f <filename>             VCL
+-p <parameter=value>      set tunable parameters
+-S <secretfile>           authentication secret for management
+-d                        debug
+-T <hostname:port>        Telnet interface
+-s <storagetype,options>  where and how to store objects
+
 
 .. container:: handout
 
@@ -1118,37 +1119,26 @@ varnishlog
 
 varnishlog options
 ------------------
--  -b -- only show traffic to backend
--  -c -- only show traffic to client
--  -o -- group by request
+-b      only show traffic to backend
+-c      only show traffic to client
+-o      group by request
 
 .. container:: handout
 
    Some options of note are:
 
-   ``-n <name>``
-        The name of the varnish instance, or path to the shmlog. Useful for
-        running multiple instances of Varnish.
+   -n <name>         The name of the varnish instance, or path to the shmlog.
+                     Useful for running multiple instances of Varnish.
 
-   ``-o``
-        Group data from the same request together.
+   -o                Group data from the same request together.
+   -b                Only show traffic related to a backend
+   -c                Only show traffic related to a client
+   -i <tag>          Only show one tag.
+   -I <regex>        Filter the tag provided by -i, using the regular expression for -I.
 
-   ``-b``
-        Only show traffic related to a backend
-
-   ``-c``
-        Only show traffic related to a client
-
-   ``-i <tag>``
-        Only show one tag.
-
-   ``-I <regex>``
-        Filter the tag provided by -i, using the regular expression for -I.
-
-   ``[<tag> <filter>]``
-        Show *requests* where the <tag> matches <filter>. Example:
-        ``varnishlog -c -o TxStatus 500`` to show requests returned to a
-        client with status code 500.
+   [<tag> <filter>]  Show *requests* where the <tag> matches <filter>. Example:
+                     ``varnishlog -c -o TxStatus 500`` to show requests
+                     returned to a client with status code 500.
 
    .. warning::
 
@@ -1362,7 +1352,6 @@ expected.
 The common tools
 ----------------
 
-- All about header-data
 - lwp-request (libwww-perl) provides GET/HEAD/POST aliases
 - curl
 - nc and telnet
@@ -1370,54 +1359,38 @@ The common tools
 
 .. container:: handout
 
-   While you can get browser extensions - like FireBug for Firefox - that
-   shows you HTTP headers, it is usually more practical in the long run to
-   get used to using terminal tools.
+   While you can get browser extensions — like FireBug for Firefox — that
+   shows you HTTP headers, terminal-based tools are often more practical
+   when working with Varnish.
 
    GET and HEAD can be used to generate fairly specific HTTP requests and
-   analyse the returned data - both content and HTTP headers. You can also
+   analyse the returned data — both content and HTTP headers. You can also
    generate other requests. For example to send a PURGE request with
    different variants:
 
        lwp-request -USsed -m PURGE -f http://example.com/image.jpg
-       lwp-request -USsed -m PURGE -H "Accept-Encoding: gzip" http:/example.com/image.jpg
-       lwp-request -USsed -m PURGE -H "Accept-Encoding: deflate" http:/example.com/image.jpg
+       lwp-request -USsedf -m PURGE -H "Accept-Encoding: gzip" http:/example.com/image.jpg
+       lwp-request -USsedf -m PURGE -H "Accept-Encoding: deflate" http:/example.com/image.jpg
 
    The parameters to lwp-request, GET and HEAD are all the same. In fact,
    HEAD is just a different way of saying lwp-request -m HEAD.
 
-   ``-d``
-       Don't show any content data (e.g.: HTML, image-data, etc).
+   -d            Don't show any content data (e.g.: HTML, image-data, etc).
+   -m <METHOD>   Use the METHOD instead of GET
+   -f            Use the method specified with -m even if it's not a known
+                 HTTP method (for example PURGE).
+   -U            Print request headers too.
+   -S            Print forward-chain. Useful to detect if lwp-request is
+                 following any 301/302 redirects.
+   -s            Print response status code (e.g.: "200 OK").
+   -e            Print response headers
+   -H <HEADER>   Send an additional header. -H can be specified multiple times.
 
-   ``-m METHOD``
-       Use the METHOD instead of GET
-
-   ``-f``
-       Use the method specified with -m even if it's not a known HTTP
-       method (for example PURGE).
-
-   ``-U``
-       Print request headers too.
-
-   ``-S``
-       Print forward-chain. Useful to detect if lwp-request is following
-       any 301/302 redirects.
-
-   ``-s``
-       Print response status code (e.g.: "200 OK").
-
-   ``-e``
-      Print response headers
-
-   ``-H <HEADER>``
-      Send an additional header. -H can be specified multiple times.
-   
    curl can do many of the same things - you don't need to know both curl
    and lwp-request.
 
-   At times, even lwp-request can be too magic - then it's useful to
-   remember that you can still use nc (netcat) or telnet to talk directly
-   to Varnish manually - though that is rarely necessary.
+   If lwp-request/curl are doing too much behind the scenes, you can still
+   use nc or telnet directly. However, that is rarely necessary.
 
    The wc and gunzip tools are mentioned because you can combine them with
    lwp-request. For example if you think the Content-Length header is
@@ -1425,9 +1398,9 @@ The common tools
    You can also verify compressed data with GET -H "Accept-Encoding: gzip"
    http://example.com/ | gunzip
 
-   Essentially it's all about getting to know the HTTP protocol in the
-   Context of Varnish. Once you're used to using GET or HEAD, you might
-   even find some new sources of entertainment.
+   It is all about getting to know the HTTP protocol in the context of
+   Varnish. Once you're used to using GET or HEAD, you might even find some
+   new sources of entertainment.
 
    .. tip::
 
