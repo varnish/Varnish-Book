@@ -21,7 +21,7 @@ Introduction
 About the course
 ----------------
 
-The course is essentially split in two:
+The course is split in two:
 
 1. Architecture, command line tools, installation, parameters, etc
 2. The Varnish Configuration Language
@@ -48,7 +48,8 @@ Goals and Prerequisites
 
 Prerequisites:
 
-- Some GNU/Linux/UNIX skills are expected
+- Comfortable working in a shell on a Linux/UNIX machine, including editing
+  text files and starting daemons.
 - Basic understanding of HTTP and related internet protocols
 
 Goals:
@@ -80,25 +81,25 @@ Introduction to Varnish
 
 .. container:: handout
 
-   Varnish is a reverse proxy, sometimes referred to as a HTTP accelerator
-   or a web accelerator.  It is designed for modern hardware, modern
-   operating systems and modern work loads. This uncompromising philosophy
-   has helped make Varnish a very clean and fast piece of software, able to
-   scale and evolve to unexpected heights.
+   Varnish is a reverse HTTP proxy, sometimes referred to as a HTTP
+   accelerator or a web accelerator.  It is designed for modern hardware,
+   modern operating systems and modern work loads. This uncompromising
+   philosophy has helped make Varnish a very clean and fast piece of
+   software, able to scale and evolve to unexpected heights.
 
    At the same time, Varnish is flexible. The Varnish Configuration
-   Language is a lighting fast mechanism that allows the developers to
-   implement mechanisms which you as a user can turn into policy. Varnish
-   has shown itself to work well both on large (and expensive) servers and
-   tiny appliances.
+   Language is lighting fast and allows the administrator to express their
+   wanted policy rather than being constrained by what the Varnish
+   developers want to cater for or could think of. Varnish has shown itself
+   to work well both on large (and expensive) servers and tiny appliances.
 
-   Varnish is also an open source project, or free software. The development
-   process is public and everyone can submit patches, or just take a peak at
-   the code if there is some unclarity as to how Varnish works. There is
-   a community of volunteers who help each other and newcomers. The BSD
-   license used by Varnish is the most restraint-free license among the
-   free licenses, which conceptually makes it possible to use Varnish on
-   non-free platforms, for example Solaris.
+   Varnish is also an open source project, or free software. The
+   development process is public and everyone can submit patches, or just
+   take a peek at the code if there is some uncertainty as to how Varnish
+   works. There is a community of volunteers who help each other and
+   newcomers. The BSD license used by Varnish is the most restraint-free
+   license among the free licenses, which conceptually makes it easier to
+   use Varnish in combination with non-free environments.
 
    Varnish is developed and tested on GNU/Linux and FreeBSD. The code-base
    is kept as self-contained as possible to avoid introducing out-side bugs
@@ -107,15 +108,15 @@ Introduction to Varnish
    Varnish development is governed by the Varnish Governance Board (VGB),
    which thus far has not needed to intervene. The VGB consists of an
    architect, a community representative and a representative from Varnish
-   Software. As of August 2010, the positions are filled by Poul-Henning
+   Software. As of February 2011, the positions are filled by Poul-Henning
    Kamp (Architect), Artur Bergman (Community) and Kristian Lyngstøl
-   (Varnish Software). On a day-to-day basis, there is little use to
+   (Varnish Software). On a day-to-day basis, there is little need to
    interfere with the general flow of development.
 
 The history of Varnish
 ----------------------
 
-- Initiated by VG, one of the largest newspapers in Norway, in 2006.
+- Initiated by VG, the largest newspaper in Norway, in 2006.
 - Redpill Linpro performed Varnish development.
 - Later development has been financed through service subscriptions
 - Varnish Software was established in 2010 as an independent company to
@@ -124,15 +125,15 @@ The history of Varnish
 .. container:: handout
 
         VG, a large Norwegian newspaper, initiated the Varnish-project in
-        co-operation with Linpro. The lead developer, Poul-Henning Kamp is
-        an experienced FreeBSD kernel-hacker and continues to bring his
+        cooperation with Linpro. The lead developer, Poul-Henning Kamp is
+        an experienced FreeBSD kernel hacker and continues to bring his
         wisdom to Varnish in most areas where it counts.
 
         From 2006 throughout 2008, most of the development was sponsored by
-        VG, API, Escenic and Aftenposten, with project-management,
+        VG, API, Escenic and Aftenposten, with project management,
         infrastructure and extra man-power provided by Redpill Linpro. At
         the time, Redpill Linpro had roughly 140 employees mostly centered
-        around consultancy.
+        around consulting services.
 
         Today Varnish Software is able to fund the core development with
         income from service agreements, in addition to offering development
@@ -183,9 +184,9 @@ Varnish 2.1
 
 .. container:: handout
 
-        Where Varnish 2.0 brought Varnish out of it's childhood, Varnish
-        2.1 will make Varnish truly mature. Persistent storage will allow
-        Varnish to keep it's cache - or most of it - when it's restarted.
+        Where Varnish 2.0 brought Varnish out of its childhood, Varnish
+        2.1 made Varnish truly mature. Persistent storage will allow
+        Varnish to keep its cache — or most of it — when it's restarted.
         This will reduce the warm-up time in case of a system upgrade or
         crash.
 
@@ -207,7 +208,7 @@ Varnish 2.1
 
         Most of the performance tweaks that have been made are based on
         experiences either from the Varnish community or from customers of
-        Varnish Software, and not on guess-work. The close co-operation
+        Varnish Software, and not on guess-work. The close cooperation
         between developers, users and customers ensures that the
         development is driven by the needs of those who use Varnish instead
         of having the developers try to guess what you as a user want.
@@ -345,7 +346,7 @@ them, because the perceived downtime is so short.
    requests for assistance in performance tuning Varnish that turn out to
    be crash-issues. Because the Varnish management thread starts the child
    up so fast, the users don't even notice the down time, only the extra
-   loading time as Varnish is constantly emptying it's cache.
+   loading time as Varnish is constantly emptying its cache.
 
    This is easily avoidable by paying attention to syslog.
 
@@ -993,7 +994,7 @@ Mangement:
         increase the session timeout without taking this into consideration.
 
         The "cli_timeout" is how long the management thread waits for the worker
-        thread to reply before it assumes it's dead, kills it and starts it back
+        thread to reply before it assumes it is dead, kills it and starts it back
         up. For real loads, the default is very good, but if you manage to starve
         Varnish on CPU, it might be a bit low. After the default was increased to
         10s in Varnish 2.0.4, there have been no reports that indicates that it's
