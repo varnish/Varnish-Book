@@ -23,9 +23,10 @@ Technical
 =========
 
 - Automate dot->svg->png (or better: dot->png with a proper size)
-- Add nightly builds
-- Automatically fetch default VCL from Varnish
+- Make distdist == scp and formulate Announce-mail.
+- Automate fetch default VCL from Varnish
 - Verify fonts
 - Add the rst2s5 patch somewhere sane. Sanitize it.
 - Fetch default params from source code ? Or at least split them out to
   allow scripted updates/tests.
+

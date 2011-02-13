@@ -1,33 +1,13 @@
-Version 1.0, released: Thu Aug 12 2010
-Version 1.1, released: Mon Aug 16 2010
-
-New in 1.2
+New in 1.7
 ----------
-Released: Wed Aug 18 2010
 
-- Change the PURGE exercise to use cache-control instead of the invalid
-  obj.ttl.
-- Add a note regarding a bug in 2.1.x on purges, where varnish tries to
-  escape "\.css" on purge, instead of letting it fall through to pcre.
-- (Re-)Added exercise for for timeouts
-- munin/ directory added (anonyminized from vgnett)
-- The NEWS file
+- Language fixes.
 
-New in 1.3
+New in 1.6
 ----------
-Released: Thu Aug 19 2010
+Released: Mon Feb 11 2011
 
-- No content changes, only build system/release method
-
-New in 1.4
-----------
-Never released.
-
-- Add additional information and a few varnish to the VCL exercises
-- Remove obsolete warnings in Troubleshooting
-- Explain ESI and warn about deflate
-- Added Finishing Words, consisting of monitoring,
-  troubleshooting(condensed) and resources/links
+- No new content, just build-fixes and typo-cleanups.
 
 New in 1.5
 ----------
@@ -61,8 +41,34 @@ presenting it. At least from the VCL chapters.
 - ACL, restarts and backend properties mentioned
 - Health checks and directors are separate
 
-New in 1.6
+New in 1.4
 ----------
-Released: Mon Feb 11 2011
+Never released.
 
-- No new content, just build-fixes and typo-cleanups.
+- Add additional information and a few varnish to the VCL exercises
+- Remove obsolete warnings in Troubleshooting
+- Explain ESI and warn about deflate
+- Added Finishing Words, consisting of monitoring,
+  troubleshooting(condensed) and resources/links
+
+New in 1.3
+----------
+Released: Thu Aug 19 2010
+
+- No content changes, only build system/release method
+
+New in 1.2
+----------
+Released: Wed Aug 18 2010
+
+- Change the PURGE exercise to use cache-control instead of the invalid
+  obj.ttl.
+- Add a note regarding a bug in 2.1.x on purges, where varnish tries to
+  escape "\.css" on purge, instead of letting it fall through to pcre.
+- (Re-)Added exercise for for timeouts
+- munin/ directory added (anonyminized from vgnett)
+- The NEWS file
+
+
+Version 1.1, released: Mon Aug 16 2010
+Version 1.0, released: Thu Aug 12 2010
