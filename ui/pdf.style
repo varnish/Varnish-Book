@@ -20,11 +20,15 @@
         "showFooter" : false
     },
     "oneColumn": {
-        "showFooter" : false
+        "showFooter" : true
     }
 
   },
   "styles" : [
+    ["bodytext", {
+	    "borderPadding": 0
+	}
+	],
     ["title", {
         "fontName": "White Rabbit",
         "fontSize": 48
@@ -34,8 +38,7 @@
     "parent" : "bodytext",
     "width" : "65%",
     "alignment": "TA_JUSTIFY",
-    "hyphenation": true,
-    "language": "es_ES"
+    "hyphenation": true
     }
     ],
     ["right", {
@@ -50,6 +53,10 @@
     "parent" : "table",
     "colWidths": ["20%","60%","20%"],
     "commands": []
+    }
+    ],
+    ["footer" , {
+	    "textColor": "red"
     }
     ]
    ]
