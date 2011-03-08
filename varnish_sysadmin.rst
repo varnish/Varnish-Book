@@ -1668,7 +1668,7 @@ Default: vcl_recv
    logic in your own VCL, or letting Varnish fall through to the default
    VCL.
 
-Example: Handeling Vary: Accept-Encoding
+Example: Handling Vary: Accept-Encoding
 ----------------------------------------
 
 - Vary: is sent by a server and tells any caches (like Varnish) what
