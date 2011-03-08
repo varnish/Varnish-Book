@@ -1461,7 +1461,7 @@ Test environments
 
    On UNIX-like systems, you'll have /etc/hosts
 
-   Ideally, brining a Varnish server live should just mean changing the
+   Ideally, bringing a Varnish server live should just mean changing the
    external DNS.
 
 VCL Introduction
