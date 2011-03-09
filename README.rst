@@ -62,29 +62,7 @@ fairly useless when we have this many slides, so a slight modification has
 been made. I (Kristian) have yet to publish this anywhere, but it's fairly
 trivial. I'll add the patch or a complete version here soon enough.
 
-To add handout-only content, there are two methods you can use. Either use
-a container with the handout class:
-
-   .. container:: handout
-
-      All of this is now handout-only material.
-
-      This too.
-
-Or you can use a .. role:: handout followed by a proper chapter, typically
-a third-level chapter:
-
-   .. role:: handout
-
-   Handoutonly chapter
-   ...................
-
-   This chapter is now handout-only, and everything until a new chapter is
-   defined is handout-only. Convenient for adding lengthy sections that are
-   either not suitable for everyone, or covered by examples and talk on a
-   bigger slide (ie: architecture).
-
-I have tried to use .. tip::, .. warning:: and .. note::, and no further
+I have tried to use `tip`, `warning` and `note`, and no further
 "boxes".
 
 To change the looks of the slides, edit ui/vs/pretty.css (possibly other
