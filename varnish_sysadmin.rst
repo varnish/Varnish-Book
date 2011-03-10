@@ -1767,7 +1767,7 @@ Exercise: Rewrite sport.example.com
 
    is equivalent with::
 
-     if (req.htpt.host == "sport.example.com") {
+     if (req.http.host == "sport.example.com") {
              (...)
      }
 
