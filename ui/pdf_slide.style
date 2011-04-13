@@ -1,17 +1,16 @@
 {
   "pageSetup" : {
     "firstTemplate": "coverPage",
-    "size": "",
-    "width": "28cm",
-    "height": "17.5cm",
-    "margin-top": "0.5cm",
-    "margin-bottom": "0.5cm",
-    "margin-left": "2cm",
-    "margin-right": "2cm",
-    "spacing-header": "5mm",
-    "spacing-footer": "5mm",
-    "margin-gutter": "0cm"
-
+    "size": null,
+	"width": "218mm",
+	"height": "125mm",
+	"margin-top": "1mm",
+       "margin-bottom": "1mm",
+       "margin-left": "2mm",
+       "margin-right": "2mm",
+       "spacing-header": "5mm",
+       "spacing-footer": "5mm",
+       "margin-gutter": "0cm"
   },
   "pageTemplates" : {
     "coverPage": {
