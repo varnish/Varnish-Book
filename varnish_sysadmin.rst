@@ -913,7 +913,7 @@ System
 
         Workspaces are some of the things you can change with parameters. The
         session workspace is how much memory is allocated to each HTTP session for
-        things like string manipulation of incoming headers. It is also
+        tasks like string manipulation of incoming headers. It is also
         used to modify the object returned from a web server before the
         precise size is allocated and the object is stored read-only.
 
@@ -1560,16 +1560,16 @@ VCL - functions
 
 - regsub(str, regex, sub)
 - regsuball(str, regex, sub)
-- purge_hash(regex)
-- purge_url(regex)
-- purge(expression)
-- restart
+- ban_url(regex)
+- ban(expression)
+- purge;
+- return(restart)
 - return()
 
 .. container:: handout
 
    VCL offers a handful of simple functions that allow you to modify
-   strings, add purges, restart the VCL state engine and return control
+   strings, add bans, restart the VCL state engine and return control
    from the VCL Run Time (VRT) environment to Varnish.
 
    You will get to test all of these in detail, so the description is
@@ -1581,24 +1581,20 @@ VCL - functions
    regsuball() is that the latter changes all occurrences while the former
    only affects the first match.
 
-   `purge_hash` and `purge_url` are the two original purge functions
-   provided, and are generally not used much. The purer and more flexible
-   `purge` function can perform the same task. ``purge_url(foo)`` is the
-   equivalent of ``purge("req.url ~ " foo)``: Add a URL, host name
-   excluded, to the purge list. The `purge_hash` function is only useful if
-   you need to purge by the actual hash, and was provided as a low-cost
-   method of purging by hostname and URL before the general-purpose `purge`
-   method was available. It is deprecated. We will go through purging in
-   detail in later chapters.
+   ``ban_url` is one of the original ban functions provided, and are
+   generally not used much. The more flexible `ban()` function can perform
+   the same task. ``ban_url(foo)`` is the equivalent of ``ban("req.url ~ "
+   foo)``: Add a URL, host name excluded, to the ban list. We will go
+   through purging in detail in later chapters.
 
-   `restart` offers a way to re-run the VCL logic, starting at vcl_recv.
-   All changes made up until that point are kept and the `req.restarts`
-   variable is incremented. The `max_restarts` parameter defines the
-   maximum number of restarts that can be issued in VCL before an error is
-   triggered, thus avoiding infinite looping.
+   `return(restart)` offers a way to re-run the VCL logic, starting at
+   vcl_recv.  All changes made up until that point are kept and the
+   `req.restarts` variable is incremented. The `max_restarts` parameter
+   defines the maximum number of restarts that can be issued in VCL before
+   an error is triggered, thus avoiding infinite looping.
 
    `return()` is used when execution of a VCL domain (for example vcl_recv)
-   is completed and control is returned to varnish with a single
+   i s completed and control is returned to varnish with a single
    instruction as to what should happen next. Return values are
    `lookup`, `pass`, `pipe`, `fetch`, `deliver` and `hash`, but only a
    limited number of them are available in each VCL domain.
@@ -1866,11 +1862,11 @@ Example: Enforce caching of .jpg urls for 60 seconds
 .. container:: handout
 
    The above example is typical for a site migrating to Varnish. Setting
-   beresp.cacheable to true ensures that it is cached (even if it's an
-   error message) and the beresp.ttl defines the period.
+   beresp.ttl ensures it's cached.
 
    Keep in mind that the default VCL will still be executed, which means
    that an image with a Set-Cookie header will not be cached.
+
 
 Example: Cache .jpg for 60 only if s-maxage isn't present
 ---------------------------------------------------------
@@ -2585,32 +2581,37 @@ Health checks
 ..
         XXX: Got here. - Grace - Saint mode
 
-Purges
-======
+Bans
+====
 
-- Purge on anything
+- Ban on anything
 - Does not free up memory
-- ``purge req.url ~ "/foo"``
-- ``purge req.http.user-agent ~ "Firefox" &&
+- ``ban req.url ~ "/foo"``
+- ``ban req.http.user-agent ~ "Firefox" &&
   obj.http.content-type ~ "text"``
-- VCL: ``purge("req.url == " req.url);``
+- VCL: ``ban("req.url == " req.url);``
 
 .. container:: handout
 
-   Purging in the context of Varnish refers to adding a ban to the
+   Banning in the context of Varnish refers to adding a ban to the
    ban-list. It can be done both trough the command line interface, and
    through VCL, and the syntax is almost the same.
 
-   The name "purge" is a bit misleading, as the objects that match the
-   entered purge are not immediately removed from the cache. As such,
-   purges are more and more often referred to as bans, and purging is
-   referred to as banning. In this chapter, there might be some overlap
-   between the two, but they mean the same.
-
-   Banning is the act of placing a ban on a ban list. A ban is one or more
-   statement in VCL-like syntax that will be tested against objects in the
-   cache when they are retrieved. A ban statement might be "the url starts
-   with /sport" or "the object has a Server-header matching lighttpd".
+   .. warning::
+           
+           The name "ban()" is new in Varnish 3.0, and you may find
+           references to "purge()" in text that was written for Varnish
+           2.1. The "purge;" that is available in Varnish 3.0 is *not* the
+           same as "purge();" in Varnish 2.1.  However, "purge();" in
+           Varnish 2.1 is the same as "ban();" in Varnish 3.0. The thing to
+           look for are the parentheses: "purge;" in Varnish 3.0 does not
+           have parentheses, so if parentheses are present, it's most
+           likely referring to "purge()" from Varnish 2.
+    
+   A ban is one or more statement in VCL-like syntax that will be tested
+   against objects in the cache when they are retrieved. A ban statement
+   might be "the url starts with /sport" or "the object has a Server-header
+   matching lighttpd".
 
    Each object in the cache always points to an entry on the ban-list. This
    is the entry that they were last checked against. Whenever Varnish
@@ -2624,10 +2625,10 @@ Purges
    no memory is freed: Objects are only tested once a client asks for them.
    A second con is that the ban list can get fairly large if there are
    objects in the cache that are rarely, if ever, accessed. To remedy this,
-   Varnish tries to remove duplicate purges by marking them as "gone"
-   (indicated by a G on the purge list). Gone purges are left on the list
+   Varnish tries to remove duplicate bans by marking them as "gone"
+   (indicated by a G on the ban list). Gone bans are left on the list
    because an object is pointing to them, but are never again tested
-   against, as there is a newer purge that superseeds it.
+   against, as there is a newer bans that superseeds it.
 
    The biggest pro of the ban-list approach is that Varnish can add bans to
    the ban-list in constant time. Even if you have three million objects in
@@ -2663,9 +2664,9 @@ VCL contexts when adding bans
 - The context is that of the client present when testing, not the client
   that initiated the request that resulted in the fetch from the backend.
 - In VCL, there is also the context of the client adding the item to the
-  purge list. This is the context used when no quotation marks are present.
+  ban list. This is the context used when no quotation marks are present.
 
-``purge("req.url == " req.http.x-url);``
+``ban("req.url == " req.http.x-url);``
 
 - `req.url` from the future client that will trigger the test against the
   object is used.
@@ -2674,7 +2675,7 @@ VCL contexts when adding bans
 
 .. container:: handout
 
-   One of the typical examples of purging reads ``purge("req.url == "
+   One of the typical examples of purging reads ``ban("req.url == "
    req.url)``, which looks fairly strange. The important thing to remember
    is that in VCL, you are essentially just creating one big string.
 
@@ -2682,7 +2683,7 @@ VCL contexts when adding bans
 
       To avoid confusion in VCL, keep as much as possible within quotation
       marks, then verify that it works the way you planned by reviewing the
-      purge list through the cli, using ``purge.list``.
+      ban list through the cli, using ``ban.list``.
 
    .. tip::
 
@@ -2691,53 +2692,44 @@ VCL contexts when adding bans
       bans can not refer to anything starting with `req`, as the ban lurker
       doesn't have any request data structure.
 
-      If you wish to purge on url, it can be a good idea to store the URL
+      If you wish to ban on url, it can be a good idea to store the URL
       to the object, in vcl_fetch::
 
          set beresp.http.x-url = req.url;
 
       Then use that instead of req.url in your purges, in vcl_recv::
 
-         purge("obj.http.x-url == " req.url);
+         ban("obj.http.x-url == " req.url);
 
       The ban-lurker is not active by default and is a recent addition to
       Varnish (2.1.0). It is activated with the `ban_lurker_sleep`
       parameter.
 
-Exercise: Purge - remove all CSS files
---------------------------------------
+Exercise: Ban - remove all CSS files
+------------------------------------
 
-- Write a purge expression removing all CSS files
+- Write a ban expression removing all CSS files
 
-Solution: Purge - remove all CSS files
---------------------------------------
+Solution: Ban - remove all CSS files
+------------------------------------
 
 ::
 
-        purge req.url ~ "\.css"
+        ban req.url ~ "\.css"
 
-.. container:: handout
+Exercise: Ban - remove based on multiple conditions
+---------------------------------------------------
 
-   .. note::
-
-      In Varnish 2.1, up to and including 2.1.3, you will have to write
-      ``"\\.css"`` instead of ``"\.css"`` due to a bug resulting in
-      conflicting escape mechanisms between Varnish internals and the pcre
-      library used for regular expressions.
-
-Exercise: Purge - remove based on multiple conditions
------------------------------------------------------
-
-- Write a purge expression removing all objects with a Cache-Control
+- Write a ban expression removing all objects with a Cache-Control
   header containing "max-age=3600" and URL starting with /foo
 
 
-Solution: Purge - remove based on multiple conditions
------------------------------------------------------
+Solution: Ban - remove based on multiple conditions
+---------------------------------------------------
 
 ::
 
-        purge req.url ~ "^/foo" && obj.http.cache-control ~ "max-age=3600"
+        ban req.url ~ "^/foo" && obj.http.cache-control ~ "max-age=3600"
 
 
 ESI
@@ -2778,15 +2770,18 @@ Enabling esi
    together from two different objects when it sends it, and thus it will
    update the parts independently and always use the most updated version.
 
-   .. warning::
+   .. note::
 
-      Because Varnish has to understand the reply from the web server,
-      the content can not be compressed, as is the default of most web
-      servers. This is the biggest drawback of ESI in Varnish, and a
-      solution for this is scheduled for Varnish 3.0. 
-
-      To disable compressions with apache, you can typically type
-      ``a2dismod deflate``.
+      Prior to Varnish 3.0, Varnish did not handle gzipped content. As long
+      as ESI was not used, this was not a problem, since the web server
+      would compress the content before Varnish got it. With ESI, Varnish
+      has to be able to parse the uncompressed content - with Varnish 2,
+      this meant the content had to be delivered (and served) uncompressed.
+      With Varnish 3, Varnish will parse the content even if it is gzipped,
+      and even gzip it for storage, and uncompress it if a client does not
+      support gzip. This does not require any action from your side, it's
+      done automatically. Unless, of course, you disable gzip support
+      through the http_gzip_support parameter.
 
 Exercise: ESI
 -------------
@@ -2808,8 +2803,6 @@ Exercise: ESI
 
 #. Look at the number of objects cached
 
-- You might have to disable deflate.
-
 .. container:: handout
 
         When using ESI, the `sess_workspace` parameter is very important.
@@ -2830,87 +2823,46 @@ Exercise: ESI
 Finishing words
 ===============
 
-Monitoring varnish
+Varnish 2.1 to 3.0
 ------------------
 
-Munin
+Varnish 3.0, in addition to new features, also changed several aspects of
+VCL and parameters.
 
-- Monitoring tool based on rrdtool
-- http://munin-monitoring.org/
-- Centralised data gathering and graphs
-- Distributed sensors and configuration
-- Free software - GPLed
-- Integrates with Nagios for monitoring
-- Not SNMP (but can monitor SNMP items too)
+See your documentation for a list.
 
 .. container:: handout
 
-   You will want to monitor Varnish, and there are several ways of doing
-   it. Munin is perhaps the best established method, but certainly not the
-   only.
-
-   Monitoring tools typically read and parse varnishstat-output, and there
-   are a few key counters that should be checked once in a while:
-
-   - Hit rate (hit versus miss).
-   - Backend failures. You will see a few of these every once in a while,
-     depending on how robust your web servers are.
-   - Dropped work requests. Ideally, this should be 0 at all times, and a
-     positive value indicates that Varnish had to give up serving a request
-     due to heavy load. 
-   - Overflowed work requests. This constitutes how many requests were put
-     on the waiting list, or queue, due to a lack of threads. On a live
-     Varnish server, you typically see a few overflowed work requests on
-     startup, but after startup it should be fairly static.
-   - Number of threads and threads created. If you have more threads
-     created than number of threads, that means Varnish has had to use more
-     threads than the minimum you specified. If this happens repeatedly,
-     you should consider increasing the minimum number of threads.
-   - LRU nuked objects. When your cache is full, Varnish will remove - or
-     nuke - objects using the "Least Recently Used" method. If LRU nuked
-     objects increases rapidly, you would benefit from a larger cache (more
-     memory), or perhaps shorter duration on some of the less popular
-     content.
-   - Number of objects.
-   - Uptime. Use the varnishstat uptime, as that will reset if there is an
-     assert error.
-
-   Keep in mind that you should also monitor the syslog, as that is where
-   Varnish logs the most grave errors it accounts.
-
-A few common problems
----------------------
-
-- Ignoring syslog
-- Exaggerated tuning
-- Using a 32bit system
-
-
-.. container:: handout
-
-        Varnish does extensive sanity checks on run-time, and will throw an error
-        at the first indication that something isn't as it should be. All these
-        errors are logged to syslog, either in /var/log/messages (redhat) or
-        /var/log/syslog (debian). After an error has been thrown, the management
-        thread will restart the caching threads immediately, which will leave
-        uptime almost unaffected.
-
-        There are essentially three types of issues that are very common. Trying to
-        tune Varnish too much can often lead to misunderstood tuning options, a
-        good example is that many people set lru_interval to 3600, which can be
-        harmful. The second issue is running out of session workspace. Lastly, is
-        using a non-standard system.
-
-        If you can, you should use the provided startup scripts, run Varnish on
-        either Red Hat Enterprise Linux, Debian, Ubuntu or Freebsd, based on a
-        64bit architecture. These are well tested setups which are known to be
-        stable for Varnish.
-
-        If you do run into an assert error, the best place to look for help is
-        the bugtracker at http://www.varnish-cache.org. Most of the assert
-        errors that can be resolved with configuration are already explained in a
-        ticket, so a quick search for the function-name will often yield the answer
-        to your problem.
+        +------------------------------------+----------------------------------------+
+        | Varnish 2.1                        |  Varnish 3.0                           |
+        +====================================+========================================+
+        | vcl_fetch: ``return (pass);``      |  vcl_fetch: ``return (hit_for_pass);`` |
+        +------------------------------------+----------------------------------------+
+        | vcl_recv: ``return (pass);``       |  vcl_recv: ``return (pass);``          |
+        +------------------------------------+----------------------------------------+
+        | ``purge(....);``                   |  ``ban(.....);``                       |
+        +------------------------------------+----------------------------------------+
+        | ``C{ VRT_Nuke(...); }C``           |  ``purge;``                            |
+        +------------------------------------+----------------------------------------+
+        | ``set req.url = "/test" req.url;`` |  ``set req.url = "/test" + req.url;``  |
+        +------------------------------------+----------------------------------------+
+        | ``log "something";``               |  ``import std;``                       |
+        |                                    |  ``std.log("something");``             |
+        +------------------------------------+----------------------------------------+
+        | ``"%2520"`` is literal `%20`       |  ``"%20"`` - no more %-escapes         |
+        +------------------------------------+----------------------------------------+
+        | ``set req.hash += req.url``        |  ``hash_data(req.url);``               |
+        +------------------------------------+----------------------------------------+
+        | ``esi;``                           |  ``set beresp.do_esi = true;``         |
+        +------------------------------------+----------------------------------------+
+        | `thread_pool_max` does not depend  | Both `thread_pool_max` and             |
+        | on `thread_pools`, but             | `thread_pool_min` are per thread       |
+        | `thread_pool_min` does.            | pool                                   |
+        +------------------------------------+----------------------------------------+
+        | thread_pool_max=200 and            | thread_pool_max=200 and                |
+        | thread_pools=8 means max 200       | thread_pools=8 means max 1600          |
+        | total threads.                     | total threads                          |
+        +------------------------------------+----------------------------------------+
 
 Resources
 ---------

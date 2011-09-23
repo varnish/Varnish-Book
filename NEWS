@@ -2,6 +2,10 @@ New in x.x
 ----------
 
 - Update all VCL for Varnish 3.0 (Tested for 3.0.2)
+- Attempt to convert everything to 3.0 (I might have missed some parts)
+- Remove the "Monitoring Varnish" and "Common problems" sub-chapters during
+  the wrap-up.
+- Add a table of Varnish 2.1->3.0 changes during the wrap-up chapter.
 
 New in 1.7
 ----------
