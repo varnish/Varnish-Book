@@ -1,6 +1,6 @@
 sub vcl_recv {
 	if (req.http.host == "www.example.com") {
-		set req.http.Location = "http://example.com" req.url;
+		set req.http.Location = "http://example.com" + req.url;
 		error 750 "Permanently moved";
 	}
 }

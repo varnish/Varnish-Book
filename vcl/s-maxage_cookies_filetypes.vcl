@@ -9,7 +9,7 @@ sub vcl_fetch {
 			unset beresp.http.Set-Cookie;
 		}
 	} else {
-		if (beresp.ttl > 0s && beresp.cacheable) {
+		if (beresp.ttl > 0s) {
 			unset beresp.http.Set-Cookie;
 		}
 	}

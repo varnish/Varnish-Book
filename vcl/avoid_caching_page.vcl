@@ -1,5 +1,5 @@
 sub vcl_fetch {
-    if (req.url ~ "wiki\.pl") { return(pass); }
+    if (req.url ~ "wiki\.pl") { return(hit_for_pass); }
 }
 
 # Or::
