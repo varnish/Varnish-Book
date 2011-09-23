@@ -16,7 +16,7 @@ Introduction
 - Goals and prerequisites
 - Introduction to Varnish
 - History
-- Varnish 2.1
+- Varnish 3.0
 
 About the course
 ----------------
@@ -144,44 +144,39 @@ The history of Varnish
         sites in Norway indicates that about 75% or more of the web traffic
         that originates in Norway is served through Varnish.
 
-Varnish 2.1
+Varnish 3.0
 -----------
 
-- Version 2.1 was released early in 2010.
-- Persistent storage
-- Improved purging mechanisms
-- Saint mode
+- Version 3.0 was released in the spring of 2011.
+- Varnish Modules
+- GZip compression
+- Several VCL changes
 
 .. container:: handout
 
-        Where Varnish 2.0 brought Varnish out of its childhood, Varnish
-        2.1 made Varnish truly mature. Persistent storage will allow
-        Varnish to keep its cache — or most of it — when it's restarted.
-        This will reduce the warm-up time in case of a system upgrade or
-        crash.
+        Varnish 3.0 is a release which added a lot of powerful
+        functionality which would not be obvious right away. The gzip
+        support will make Edge Side Includes (ESI) much more attractive,
+        and allow many people to remove an extra layer of complexity. The
+        implementation behind the scene is probably one of the most complex
+        out there, while you as a user don't have to do anything to get the
+        full benefit.
 
-        Most of the performance tweaks and the improved purging is already
-        included in Varnish 2.0.5. With the new mechanism of purging, it is
-        now possible to purge - or invalidate - objects based on any data
-        that can be recognized in VCL. The smarter purging allows for more
-        dynamic and application-oriented purging, instead of having to
-        adapt your web application to Varnish.
+        Varnish Modules were also introduced with Varnish 3.0. A Varnish
+        module, or vmod, is a piece of code that you load and use from VCL.
+        Most of what a vmod can do are things you could already do in
+        Varnish 2, but you would have to use in-line C. The big benefit of
+        vmods is that you can reuse them, combine them and still keep your
+        VCL simple. A typical vmod might be used to look up GeoIP queries,
+        compute a SHA256 hash of some input-header, perform a REST call to
+        an authenticate service or anything in between.
 
-        Saint Mode is a way of telling varnish to use an old object instead
-        of the new version of the object. This allow you to check in VCL if
-        you think what the web server just gave you is correct. For
-        instance by checking if it is a "500 Internal Server Error", you
-        can tell Varnish to not try to get this object again from this
-        backend, then try again. If none of your backends are able to give
-        you the desired result, Varnish can then use the old copy instead
-        of serving an error message.
-
-        Most of the performance tweaks that have been made are based on
-        experiences either from the Varnish community or from customers of
-        Varnish Software, and not on guess-work. The close cooperation
-        between developers, users and customers ensures that the
-        development is driven by the needs of those who use Varnish instead
-        of having the developers try to guess what you as a user want.
+        A goal with Varnish is to not get stuck in the past. To be able to
+        live up to that, incompatible changes are sometimes made. Varnish
+        3.0 had several of those that affected VCL (see the final chapter
+        for a list). If you are new to Varnish, the good news is that the
+        changes make VCL less ambiguous. If you've used Varnish 2, you'll
+        want to refer to the list in the final chapter.
 
         During the development cycle of Varnish, Varnish Software performs
         nightly builds and stress tests on the most current development
@@ -410,7 +405,7 @@ A 64 bit environment is recommended for production.
         but today you can choose for yourself.
 
         If the computer you will be using throughout this course has Varnish
-        2.0.3 or more recent available through the package system, you are
+        3.0.0 or more recent available through the package system, you are
         encouraged to use that package if you do not feel you need the exercise
         in installing from source.
 
@@ -441,8 +436,6 @@ Install Varnish:
 
 - Either use ``apt-get install varnish`` for Ubuntu or Debian systems
 - or ``yum install varnish`` for Red Hat-based systems.
-- Ensure that you have at least Varnish 2.0.4 installed, if not, the
-  instructor can provide binary packages. Or you can do a source install.
 
 .. container:: handout
 
@@ -474,13 +467,11 @@ Install Varnish:
 
    .. note::
 
-      While Varnish 2.1 and 2.0 have significant differences, they are
-      mostly internal and not that relevant to performing the exercises in
-      this course. Varnish 2.1 uses "beresp" instead of "obj" in the
-      "vcl_fetch" subroutine, has several bug-fixes, experimental
-      support for persistent storage and a few new backend directors. While
-      a 2.1-version is preferred, you can also use Varnish 2.0.4 or newer
-      during this course.
+      This course is based on Varnish 3.0, and it is strongly advised that
+      you use that version. However, if you are running 2.1.5 in
+      production, that will also work for this course, though you may want
+      to keep the list of changes (as presented in the last chapter) next
+      to you during the course.
 
 Configuration
 -------------
@@ -557,16 +548,6 @@ Command line configuration
         or rather the same content: The content of the file can be copied
         to an other machine to allow varnishadm to access the management
         interface remotely.
-
-        .. note::
-
-           The ``-S secretfile`` option was silently introduced with
-           Varnish 2.0 and is currently used by default in most Varnish
-           packages. In Varnish 2.0, the varnishadm tool is not
-           interactive, while it is interactive with Varnish 2.1: In
-           Varnish 2.1 you can use ``varnishadm -T localhost:6082 -S
-           /etc/varnish/secret/`` without further arguments to conenct to
-           an authenticated mangement console as if you used telnet.
 
 Storage backends
 ----------------
@@ -966,10 +947,7 @@ Mangement:
 
         The "cli_timeout" is how long the management thread waits for the worker
         thread to reply before it assumes it is dead, kills it and starts it back
-        up. For real loads, the default is very good, but if you manage to starve
-        Varnish on CPU, it might be a bit low. After the default was increased to
-        10s in Varnish 2.0.4, there have been no reports that indicates that it's
-        insufficient on production servers.
+        up. The default value seems to do the trick for most users today.
 
         .. note::
 
@@ -1216,8 +1194,7 @@ varnishncsa
    If you already have tools in place to analyze Apache-like logs (NCSA
    logs), varnishncsa can be used to print the shmlog as ncsa-styled log.
 
-   Filtering works similar to varnishlog. Output formatting of varnishncsa
-   was added in Varnish 2.1.5.
+   Filtering works similar to varnishlog.
 
 varnishstat
 -----------
@@ -1259,9 +1236,9 @@ varnishstat
    Varnish, including cache hit rate, uptime, number of failed backend
    connections and many other statistics.
 
-   As of Varnish 2.1.3, there are close to a hundred different counters
-   available. To increase the usefulness of varnishstat, only counters with
-   a value different from 0 is shown by default.
+   There are close to a hundred different counters available. To increase
+   the usefulness of varnishstat, only counters with a value different from
+   0 is shown by default.
 
    Varnishstat can be executed either as a one-shot tool which simply
    prints the current values of all the counters, using the '-1' option, or
@@ -2700,10 +2677,6 @@ VCL contexts when adding bans
       Then use that instead of req.url in your purges, in vcl_recv::
 
          ban("obj.http.x-url == " req.url);
-
-      The ban-lurker is not active by default and is a recent addition to
-      Varnish (2.1.0). It is activated with the `ban_lurker_sleep`
-      parameter.
 
 Exercise: Ban - remove all CSS files
 ------------------------------------

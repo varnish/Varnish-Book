@@ -6,6 +6,9 @@ New in x.x
 - Remove the "Monitoring Varnish" and "Common problems" sub-chapters during
   the wrap-up.
 - Add a table of Varnish 2.1->3.0 changes during the wrap-up chapter.
+- Change the intro-chapter "2.1" to "3.0" (and change the text, of course)
+- Remove several references to specific 2.x-versions and up the
+  recommendation for course-version to 3.0.0 or newer.
 
 New in 1.7
 ----------
