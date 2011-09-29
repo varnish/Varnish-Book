@@ -1,4 +1,4 @@
-New in x.x
+New in 2.0
 ----------
 
 - Update all VCL for Varnish 3.0 (Tested for 3.0.2)
@@ -9,6 +9,8 @@ New in x.x
 - Change the intro-chapter "2.1" to "3.0" (and change the text, of course)
 - Remove several references to specific 2.x-versions and up the
   recommendation for course-version to 3.0.0 or newer.
+
+All 2.0 is the first Varnish 3.0 course.
 
 New in 1.7
 ----------
