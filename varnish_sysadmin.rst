@@ -467,11 +467,9 @@ Install Varnish:
 
    .. note::
 
-      This course is based on Varnish 3.0, and it is strongly advised that
-      you use that version. However, if you are running 2.1.5 in
-      production, that will also work for this course, though you may want
-      to keep the list of changes (as presented in the last chapter) next
-      to you during the course.
+      This course is based on Varnish 3.0 and it's strongly advised that
+      you use Varnish 3.0. There is a list of VCL and configuration-related
+      changes between Varnish 2.1 and 3.0 in the final chapter.
 
 Configuration
 -------------
@@ -869,7 +867,7 @@ for normal operation. However, during initial startup, when Varnish may
 have to start a thousand threads, waiting 20ms (per pool) between each new
 thread is a long time to wait.
 
-Today, there is little risk involved in reducing the thread_pook_add_delay
+Today, there is little risk involved in reducing the thread_pool_add_delay
 to 1ms. It will, however, reduce the startup time of 1000 threads over 2
 pools from 10 seconds to half a second.
 
@@ -978,7 +976,7 @@ Exercise: Tune first_byte_timeout
 Programs
 ========
 
-SHMLOG tools:
+SHMLOG tools
 
 - varnishlog
 - varnishncsa
@@ -987,7 +985,7 @@ SHMLOG tools:
 - varnishtop
 - varnishsizes
 
-Administration:
+Administration
 
 - varnishadm
 
@@ -996,29 +994,22 @@ Misc
 - varnishtest
 - varnishreplay
 
-
 .. container:: handout
 
-   Varnish provides several tools to help monitor and control Varnish. The
-   varnishadm tool is the only one that can affect a running instance of
-   Varnish, as it is a convenience program to talk to the telnet interface.
+   Varnish provides several tools to help monitor and control Varnish.
+   Varnishadm, used to access the management interface, is the only one
+   that can affect a running instance of Varnish.
 
-   Varnishtest can be used to design specific feature-tests for Varnish,
-   and is used mainly for regression tests. It's included in the above list
-   for sake of completeness and is mainly used during development.
-
-   All the other tools operate exclusively on the shared memory log, or
-   shmlog as it's called in the context of Varnish. They all take similar
-   (but not necessarily identical) command line arguments, and use the same
-   underlying API to parse the log.
+   All the other tools operate exclusively on the shared memory log, often
+   called shmlog in the context of Varnish. They take similar (but not
+   identical) command line arguments, and use the same underlying API.
 
    Among the log-parsing tools, varnishstat is so far unique in that it
    only looks at counters. The counters are easily found in the shmlog, and
-   are typically polled at reasonably frequent interval, to give the
-   impression of real-time updates. They are distinct from the other
-   log-data in that they are not directly mapped to a single request, but
-   represent how many times some specific action has occurred since Varnish
-   started.
+   are typically polled at reasonable interval to give the impression of
+   real-time updates. Counters, unlike the rest of the log, are not
+   directly mapped to a single request, but represent how many times some
+   specific action has occurred since Varnish started.
 
    The rest of the tools work on the round robin part of the shmlog, which
    deals with specific requests. Since the shmlog provides large amounts of
@@ -1028,13 +1019,14 @@ Misc
    process the information further and display running statistical
    information.
 
-   If varnishlog is used to dump data to disk, the varnishreplay tool can
-   be used to simulate the same load. It is not explained in detailed, as
-   it is very rarely used in normal operation.
+   If varnishlog is used to dump data to disk, varnishreplay can simulate a
+   similar load. Varnishtest is used for regression tests, mainly during
+   development. Both are outside the scope of this course.
+
 
    .. note::
 
-      There is always a delay in the log process, though usually it is not
+      There is a delay in the log process, though usually it is not
       noticeable. The shmlog is 80MB large by default, which gives some
       potential history, but that is not guaranteed and it depends heavily
       on when the last roll-around of the shmlog occurred.
@@ -2461,11 +2453,10 @@ backend available if the preferred one is unhealthy.
 The DNS director
 ................
 
-The DNS director is to be included in Varnish 2.1.4. It uses the Host
-header sent by a client to find a backend among a list of possibles.
-This allows dynamic scaling and changing of web server pools without
-modifying Varnish' configuration, but instead just waiting for Varnish
-to pick up on the DNS changes.
+The DNS director uses the Host header sent by a client to find a backend
+among a list of possibles.  This allows dynamic scaling and changing of web
+server pools without modifying Varnish' configuration, but instead just
+waiting for Varnish to pick up on the DNS changes.
 
 As the DNS director is both the newest addition and perhaps the most
 complex, some extra explanation might be useful. Consider the following
@@ -2718,11 +2709,8 @@ ESI
 
 Enabling esi
 
-::
-
-        sub vcl_fetch {
-                esi;
-        }
+.. include:: vcl/esi_basic.vcl
+         :literal:
 
 .. container:: handout
 
