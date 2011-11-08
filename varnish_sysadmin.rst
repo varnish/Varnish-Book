@@ -1091,7 +1091,7 @@ varnishlog options
 ------------------
 -b      only show traffic to backend
 -c      only show traffic to client
--o      group by request
+-O      do not group by request
 
 .. container:: handout
 
@@ -1100,22 +1100,22 @@ varnishlog options
    -n <name>         The name of the varnish instance, or path to the shmlog.
                      Useful for running multiple instances of Varnish.
 
-   -o                Group data from the same request together.
+   -O                Do not group data from the same request together.
    -b                Only show traffic related to a backend
    -c                Only show traffic related to a client
    -i <tag>          Only show one tag.
    -I <regex>        Filter the tag provided by -i, using the regular expression for -I.
 
-   [<tag> <filter>]  Show *requests* where the <tag> matches <filter>. Example:
-                     ``varnishlog -c -o TxStatus 500`` to show requests
+   -m <tag:filter>   Show *requests* where the <tag> matches <filter>. Example:
+                     ``varnishlog -m TxStatus:500`` to show requests
                      returned to a client with status code 500.
 
    .. warning::
 
       varnishlog sometimes accept arguments that are technically
       incorrect, which can have surprising results on filtering. Make sure
-      you double-check the filter logic, and always use -o. You most likely
-      want to specify -b or -c too.
+      you double-check the filter logic. You most likely want to specify -b
+      or -c too.
 
    .. tip::
 
@@ -1704,7 +1704,7 @@ Solution: Remove any leading "www."
 Verify:
 
 - varnishlog -i TxHeader,RxHeader -I Host
-- Or: varnishlog -o
+- Or: varnishlog
 - GET -H "Host: www.example.com" http://localhost:8081/
 
 .. container:: handout
