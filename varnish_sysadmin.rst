@@ -144,66 +144,6 @@ The history of Varnish
         sites in Norway indicates that about 75% or more of the web traffic
         that originates in Norway is served through Varnish.
 
-Varnish 3.0
------------
-
-- Version 3.0 was released in the spring of 2011.
-- Varnish Modules
-- GZip compression
-- Several VCL changes
-
-.. container:: handout
-
-        Varnish 3.0 is a release which added a lot of powerful
-        functionality which would not be obvious right away. The gzip
-        support will make Edge Side Includes (ESI) much more attractive,
-        and allow many people to remove an extra layer of complexity. The
-        implementation behind the scene is probably one of the most complex
-        out there, while you as a user don't have to do anything to get the
-        full benefit.
-
-        Varnish Modules were also introduced with Varnish 3.0. A Varnish
-        module, or vmod, is a piece of code that you load and use from VCL.
-        Most of what a vmod can do are things you could already do in
-        Varnish 2, but you would have to use in-line C. The big benefit of
-        vmods is that you can reuse them, combine them and still keep your
-        VCL simple. A typical vmod might be used to look up GeoIP queries,
-        compute a SHA256 hash of some input-header, perform a REST call to
-        an authenticate service or anything in between.
-
-        A goal with Varnish is to not get stuck in the past. To be able to
-        live up to that, incompatible changes are sometimes made. Varnish
-        3.0 had several of those that affected VCL (see the final chapter
-        for a list). If you are new to Varnish, the good news is that the
-        changes make VCL less ambiguous. If you've used Varnish 2, you'll
-        want to refer to the list in the final chapter.
-
-        During the development cycle of Varnish, Varnish Software performs
-        nightly builds and stress tests on the most current development
-        version on Varnish to ensure that the performance and stability
-        doesn't decline. In addition to this, the open development model
-        allows anyone who's interested to grab the latest development
-        version and try it out.
-
-
-Architecture
-============
-
-- Design principles
-- Process architecture
-
-.. container:: handout
-
-   The internal architecture of Varnish is of some interest, both because
-   it is chiefly responsible for the performance you will be able to
-   achieve with Varnish, and because it affects how you integrate Varnish
-   in your own architecture.
-
-   There are several aspects of the design that was unique to Varnish when
-   it was originally implemented. Truly good solutions is the aim of
-   Varnish, regardless of whether that means reusing ancient ideas or
-   coming up with something radically different.
-
 Design principles
 -----------------
 
@@ -271,126 +211,9 @@ Design principles
         sacrifice performance or simplicity for the sake of niche use-cases
         that can easily be solved by other means - like using a 64-bit OS.
 
-Process Architecture
---------------------
-
-The multi-process architecture:
-
-.. image:: ui/img/architecture.png
-   :align: center
-   :width: 80%
-
-.. class:: handout
-
-The management process
-......................
-
-Varnish has two main process: the management process and the child process.
-The management process apply configuration changes (VCL and parameters),
-compile VCL, monitor Varnish, initialize Varnish and provides a command
-line interface, accessible either directly on the terminal or through a
-telnet interface.
-
-By default, the management process polls the child process every few
-seconds to see if it's still there. If it doesn't get a reply within a
-reasonable time, the management process will kill the child and start it
-back up again. The same happens if the child unexpectedly exits, for
-example from a segmentation fault or assert error.
-
-This ensures that even if Varnish does contain a critical bug, it will
-start back up again fast. Usually within a few seconds, depending on the
-conditions.
-
-All of this is logged to syslog. This makes it crucially important to
-monitor the syslog, otherwise you may never even know unless you look for
-them, because the perceived downtime is so short.
-
-.. note::
-
-   Varnish Software and the Varnish community at large occasionally get
-   requests for assistance in performance tuning Varnish that turn out to
-   be crash-issues. Because the Varnish management thread starts the child
-   up so fast, the users don't even notice the down time, only the extra
-   loading time as Varnish is constantly emptying its cache.
-
-   This is easily avoidable by paying attention to syslog.
-
-.. raw:: pdf
-
-   PageBreak
-
-.. class:: handout
-
-The child process
-.................
-
-The child process is where the real magic goes on. The child process
-consist of several different types of threads, including, but not limited
-to:
-
-- Acceptor thread to accept new connections and delegate them
-- Worker threads - one per session. It's common to use hundreds of worker
-  threads.
-- Expiry thread, to evict old content from the cache
-
-Varnish uses workspaces to reduce the contention between each thread when
-they need to acquire or modify some part of the memory. There are multiple
-work spaces, but the most important one is the session workspace, which is
-used to manipulate session data. An example is changing "www.example.com"
-to "example.com" before it is entered into the cache, to reduce the number
-of duplicates.
-
-It is important to remember that even if you have 5MB of session workspace
-and are using 1000 threads, the actual memory usage is not 5GB. The virtual
-memory usage will indeed be 5GB, but unless you actually use the memory,
-this is not a problem. Your memory controller and operating system will
-keep track of what you actually use.
-
-To communicate with the rest of the system, the child process uses a shared
-memory log accessible from the file system. This means that if a thread
-needs to log something, all it has to do is grab a lock, write to a memory
-area and then free the lock. In addition to that, each worker thread has a
-cache for log data to avoid overly frequent locking.
-
-The log file is usually about 90MB, and split in two. The first part is
-counters, the second part is request data. To view the actual data, a
-number of tools exist that parses the shared memory log. Because the
-log-data is not meant to be written to disk in its raw form, Varnish can
-afford to be very verbose. You then use one of the log-parsing tools to
-extract the piece of information you want - either to store it permanently
-or to monitor Varnish in real-time.
-
-.. class:: handout
-
-VCL compilation
-...............
-
-Configuring the caching policies of Varnish is done in the Varnish
-Configuration Language (VCL). Your VCL is then interpreted by the
-management process into to C and then compiled by a normal C compiler -
-typically gcc. Lastly, it is linked into the running Varnish instance.
-
-As a result of this, changing configuration while Varnish is running is
-very cheap. Varnish may want to keep the old configuration around for a bit
-in case it still has references to it, but the policies of the new VCL
-takes effect immediately.
-
-Because the compilation is done outside of the child process, there is
-virtually no risk of affecting the running Varnish by accidentally loading
-an ill-formated VCL.
 
 Getting started
 ===============
-
-::
-
-    rpm -i libvarnish*.rpm
-    rpm -i varnish*.rpm
-
-::
-
-    dpkg -i libvarnish*.deb
-    dpkg -i varnish*.deb
 
 A 64 bit environment is recommended for production.
 
@@ -430,7 +253,8 @@ Install a backend:
 
 1. Install "usemod-wiki" and "apache2"
 2. Verify they work by going to "http://localhost/" and "http://localhost/cgi-bin/wiki.pl"
-3. If it complains about "Bad page version (or corrupt page).", run ``sudo rm -r /var/lib/usemod-wiki/page``
+
+.. 3. If it complains about "Bad page version (or corrupt page).", run ``sudo rm -r /var/lib/usemod-wiki/page``
 
 Install Varnish:
 
@@ -547,54 +371,6 @@ Command line configuration
         to an other machine to allow varnishadm to access the management
         interface remotely.
 
-Storage backends
-----------------
-
-- file
-- malloc
-- persistent (experimental)
-
-.. container:: handout
-
-        Varnish supports different methods of allocating space for the
-        cache, and you choose which one you want with the '-s' argument.
-
-        They approach the same basic problem from two different angles. With the
-        "malloc"-method, Varnish will request the entire size of the cache with a
-        malloc() (memory allocation) system call. The operating system will then
-        divide the cache between memory and disk by swapping out what it
-        can't fit in memory.
-
-        The alternative is to use the "file" storage backend, which instead
-        creates a file on a filesystem to contain the entire cache, then tell the
-        operating system through the mmap() (memory map) system call to map the
-        entire file into memory if possible.
-
-        *The file storage method does not retain data when you stop or restart
-        Varnish!* This is what persistent storage is for. While it might
-        seem like that's what it would do, remember that Varnish does not
-        know which parts of the cache is actually written to the file and
-        which are just kept in memory. In fact, the content written to disk
-        is likely going to be the least accessed content you have. Varnish
-        will not try to read the content, though.
-
-        While malloc will use swap to store data to disk, file will use
-        memory to cache the data instead. Varnish allow you to choose
-        between the two because the performance of the two approaches have
-        varied historically.
-
-        The persistent storage backend is similar to file, but only
-        released in an experimental state. It does not yet gracefully
-        handle situations where you run out of space. We only recommend
-        using persistent if you have a large amount of data that you must
-        cache and are prepared to work with us to track down bugs.
-
-        When choosing storage backend, the rule of thumb is to use malloc if
-        your cache will be contained entirely or mostly in memory, while the file
-        storage backend performs far better when you need a large cache that
-        exceeds the physical memory available. This might vary based on the kernel
-        you use, but seems to be the case for 2.6.18 and later Linux kernel, in
-        addition to FreeBSD.
 
 
 Exercise: Start Varnish
@@ -734,14 +510,301 @@ Exercise: Define a backend with VCL
                      -f /etc/varnish/default.vcl \
                      -s file,/var/lib/varnish/$INSTANCE/varnish_storage.bin,1G"
 
+Tuning
+======
+
+- Architecture
+- Best practices
+- Parameters
+
+.. container:: handout
+
+   Tuning Varnish is two-fold. Perhaps the most important aspect of it is
+   is getting your VCL straight. For now, though, we will focus on tuning
+   Varnish for your hardware, operating system and network.
+
+   To be able to do that, knowledge of the process- and thread-architecture
+   is helpful.
+
+   The internal architecture of Varnish is of some interest, both because
+   it is chiefly responsible for the performance you will be able to
+   achieve with Varnish, and because it affects how you integrate Varnish
+   in your own architecture.
+
+   There are several aspects of the design that was unique to Varnish when
+   it was originally implemented. Truly good solutions is the aim of
+   Varnish, regardless of whether that means reusing ancient ideas or
+   coming up with something radically different.
+
+Process Architecture
+--------------------
+
+The multi-process architecture:
+
+.. image:: ui/img/architecture.png
+   :align: center
+   :width: 80%
+
+.. class:: handout
+
+The management process
+......................
+
+Varnish has two main process: the management process and the child process.
+The management process apply configuration changes (VCL and parameters),
+compile VCL, monitor Varnish, initialize Varnish and provides a command
+line interface, accessible either directly on the terminal or through a
+telnet interface.
+
+By default, the management process polls the child process every few
+seconds to see if it's still there. If it doesn't get a reply within a
+reasonable time, the management process will kill the child and start it
+back up again. The same happens if the child unexpectedly exits, for
+example from a segmentation fault or assert error.
+
+This ensures that even if Varnish does contain a critical bug, it will
+start back up again fast. Usually within a few seconds, depending on the
+conditions.
+
+All of this is logged to syslog. This makes it crucially important to
+monitor the syslog, otherwise you may never even know unless you look for
+them, because the perceived downtime is so short.
+
+.. note::
+
+   Varnish Software and the Varnish community at large occasionally get
+   requests for assistance in performance tuning Varnish that turn out to
+   be crash-issues. Because the Varnish management thread starts the child
+   up so fast, the users don't even notice the down time, only the extra
+   loading time as Varnish is constantly emptying its cache.
+
+   This is easily avoidable by paying attention to syslog.
+
+.. raw:: pdf
+
+   PageBreak
+
+.. class:: handout
+
+The child process
+.................
+
+The child process is where the real magic goes on. The child process
+consist of several different types of threads, including, but not limited
+to:
+
+- Acceptor thread to accept new connections and delegate them
+- Worker threads - one per session. It's common to use hundreds of worker
+  threads.
+- Expiry thread, to evict old content from the cache
+
+Varnish uses workspaces to reduce the contention between each thread when
+they need to acquire or modify some part of the memory. There are multiple
+work spaces, but the most important one is the session workspace, which is
+used to manipulate session data. An example is changing "www.example.com"
+to "example.com" before it is entered into the cache, to reduce the number
+of duplicates.
+
+It is important to remember that even if you have 5MB of session workspace
+and are using 1000 threads, the actual memory usage is not 5GB. The virtual
+memory usage will indeed be 5GB, but unless you actually use the memory,
+this is not a problem. Your memory controller and operating system will
+keep track of what you actually use.
+
+To communicate with the rest of the system, the child process uses a shared
+memory log accessible from the file system. This means that if a thread
+needs to log something, all it has to do is grab a lock, write to a memory
+area and then free the lock. In addition to that, each worker thread has a
+cache for log data to avoid overly frequent locking.
+
+The log file is usually about 90MB, and split in two. The first part is
+counters, the second part is request data. To view the actual data, a
+number of tools exist that parses the shared memory log. Because the
+log-data is not meant to be written to disk in its raw form, Varnish can
+afford to be very verbose. You then use one of the log-parsing tools to
+extract the piece of information you want - either to store it permanently
+or to monitor Varnish in real-time.
+
+.. class:: handout
+
+VCL compilation
+...............
+
+Configuring the caching policies of Varnish is done in the Varnish
+Configuration Language (VCL). Your VCL is then interpreted by the
+management process into to C and then compiled by a normal C compiler -
+typically gcc. Lastly, it is linked into the running Varnish instance.
+
+As a result of this, changing configuration while Varnish is running is
+very cheap. Varnish may want to keep the old configuration around for a bit
+in case it still has references to it, but the policies of the new VCL
+takes effect immediately.
+
+Because the compilation is done outside of the child process, there is
+virtually no risk of affecting the running Varnish by accidentally loading
+an ill-formated VCL.
+
+Storage backends
+----------------
+
+- Different ways for Varnish to store cache
+- Rule of thumb: malloc if it fits in memory, file if it doesn't
+- Expect around 1kB of overhead per object cached
+
+- file
+- malloc
+- persistent (experimental)
+
+.. container:: handout
+
+        Varnish supports different methods of allocating space for the
+        cache, and you choose which one you want with the '-s' argument.
+
+        They approach the same basic problem from two different angles. With the
+        "malloc"-method, Varnish will request the entire size of the cache with a
+        malloc() (memory allocation) system call. The operating system will then
+        divide the cache between memory and disk by swapping out what it
+        can't fit in memory.
+
+        The alternative is to use the "file" storage backend, which instead
+        creates a file on a filesystem to contain the entire cache, then tell the
+        operating system through the mmap() (memory map) system call to map the
+        entire file into memory if possible.
+
+        *The file storage method does not retain data when you stop or restart
+        Varnish!* This is what persistent storage is for. While it might
+        seem like that's what it would do, remember that Varnish does not
+        know which parts of the cache is actually written to the file and
+        which are just kept in memory. In fact, the content written to disk
+        is likely going to be the least accessed content you have. Varnish
+        will not try to read the content, though.
+
+        While malloc will use swap to store data to disk, file will use
+        memory to cache the data instead. Varnish allow you to choose
+        between the two because the performance of the two approaches have
+        varied historically.
+
+        The persistent storage backend is similar to file, but only
+        released in an experimental state. It does not yet gracefully
+        handle situations where you run out of space. We only recommend
+        using persistent if you have a large amount of data that you must
+        cache and are prepared to work with us to track down bugs.
+
+        When choosing storage backend, the rule of thumb is to use malloc if
+        your cache will be contained entirely or mostly in memory, while the file
+        storage backend performs far better when you need a large cache that
+        exceeds the physical memory available. This might vary based on the kernel
+        you use, but seems to be the case for 2.6.18 and later Linux kernel, in
+        addition to FreeBSD.
+
+        It is important to keep in mind that the size you specify with the
+        '-s' argument is the size for the actual cache. Varnish has an
+        overhead on top of this for keeping track of the cache, so the
+        actual memory footprint of Varnish will exceed what the '-s'
+        argument specifies if the cache is full. The current estimate
+        (subject to change on individual Varnish-versions) is that about
+        1kB of overhead needed for each object. For 1 million objects, that
+        means 1GB extra memory usage.
+
+The shm-log
+-----------
+
+- Round-robin log for Varnish
+- Put it on tmpfs to avoid I/O
+
+.. container:: handout
+
+   The shared memory log, or shm-log, is Varnish' log. It is not
+   persistent, so do not expect it to contain any real history. We'll
+   discuss how to use it in detail in later chapters.
+
+   Since the shm-log is a round-robin log and writes a lot of verbose log
+   information, keeping it in memory is key. It will do this by default,
+   but due to the way shared memory mapped to files work it might cause
+   unnecessary I/O. To solve this, put it on a tmpfs.
+
+   This is typically done in '/etc/fstab', and the shmlog is normally kept
+   in '/var/lib/varnish' or equivalent locations. All the content in that
+   directory is safe to delete.
+
+   .. warning::
+
+      Some packages will use '-s file' by default with a path that puts the
+      storage file in the same directory as the shmlog. You want to avoid
+      this.
+
+Threading model
+---------------
+
+- The child process runs multiple threads
+- Worker threads are the bread and butter of the Varnish architecture
+- Utility-threads
+- Balance
+
+.. container:: handout
+
+   The child process of Varnish is where the magic takes place. It consists
+   of several distinct threads performing different tasks. The following
+   table lists some interesting threads, to give you an idea of what goes
+   on. The table is not complete.
+
+   +---------------+---------------------------+------------------------+
+   | Thread        | # instances               | Task                   |
+   +===============+===========================+========================+
+   | cache-worker  | One per active connection | Handle requests        |
+   +---------------+---------------------------+------------------------+
+   | cache-main    | One                       | Startup                |
+   +---------------+---------------------------+------------------------+
+   | ban lurker    | One                       | Clean bans             |
+   +---------------+---------------------------+------------------------+
+   | acceptor      | One                       | Accept new connections |
+   +---------------+---------------------------+------------------------+
+   | epoll/kqueue  | Configurable, default: 2  | Manage thread pools    |
+   +---------------+---------------------------+------------------------+
+   | expire        | One                       | Remove old content     |
+   +---------------+---------------------------+------------------------+
+   | backend poll  | One per backend poll      | Health checks          |
+   +---------------+---------------------------+------------------------+
+
+   We mostly work with the worker threads. The rest are rarely relevant for
+   tuning.
+
+   .. note::
+
+      The acceptor-thread will have multiple instances in Varnish 3.1, this
+      will allow Varnish to accept connections faster and is sometimes
+      called "turbo acceptors". Still, Varnish 3.0 isn't slow: On modern
+      hardware it can easily accept several tens of thousands of
+      connections per second, and requests are handled separate of that,
+      since the acceptor thread just accepts the connection and delegates
+      the rest to a worker thread.
+      
+      Varnish developers like speed.
+
+   For tuning Varnish, you need to think about your expected traffic. The
+   thread model allows you to use multiple thread pools, but time and
+   experience has shown that as long as you have 2 thread pools, adding
+   more will not increase performance.
+
+   .. note::
+
+      Old tuning advice would often suggest to have one thread pool for
+      each CPU core. You'll often see setups using that, and even recent
+      advise copying that rationale, but it will not help you. It will not
+      reduce performance either, though.
+
+   The most important thread factor is the number of worker threads. We
+   will discuss the specific of thread tuning shortly.
+
 Tunable parameters
-==================
+------------------
 
 - In the CLI::
 
         param.show -l
 
 - Don't fall for the copy/paste tips
+- Test the parameters in CLI, then store them in the configuration file
 
 .. container:: handout
 
@@ -760,14 +823,14 @@ Tunable parameters
         boost to performance, it's generally better to use safe defaults if you
         don't have a very specific need.
 
-Threads
--------
+Threading parameters
+--------------------
 
 - Threads
 - Thread pools can safely be ignored
-- Maximum: Roughly 5000
+- Maximum: Roughly 5000 (total)
 - Start them sooner rather than later
-- The maximum and minimum number of threads are on different scales!
+- Maximum and minimum values are per thread pool
 
 .. class:: handout
 
@@ -879,8 +942,8 @@ threads than the minimum, and is rarely changed.
 An other is the thread_pool_fail_delay, which defines how long to wait
 after the operating system denied us a new thread before we try again.
 
-System
-------
+System parameters
+-----------------
 
 - sess_workspace - incoming HTTP header workspace (from client)
 - Common values range from 65kB (Default) to 10MB
@@ -905,14 +968,13 @@ System
         impression of what they can do.
 
         .. note:::
-           
+
            Varnish 2.0 had a "obj_workspace" which you may see references
            to in older documentation. This was the workspace for
            manipulating an object. Manipulation of an object is now done on
            the session workspace in vcl_fetch, then a precise amount of
            memory is allocated for the object, thus removing the need for a
            tunable obj_workspace.
-
 
 Timers
 ------
@@ -949,11 +1011,12 @@ Mangement:
 
         .. note::
 
-           The connect_timeout is 0.4s by default. This is more than enough
+           The connect_timeout is 0.7s by default. This is more than enough
            time for the typical setup where Varnish talks to a backend in
            the same server room - but it may be too short if Varnish is
-           using a remote backend which may have up to or more than 400ms
-           of latency.
+           using a remote backend which may have up to or more than 700ms
+           of latency. If this is set too high, it will not let Varnish
+           handle errors gracefully.
 
 Exercise: Tune first_byte_timeout
 ---------------------------------

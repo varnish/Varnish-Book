@@ -1,3 +1,24 @@
+New in 3.0
+----------
+
+Much reorganizing, but the content itself is mostly the same as 2.1, just
+moved around. Some specific changes:
+
+- Remove the 3.0 subchapter in the intro
+- Move design philosophy to the introduction chapter (downplay)
+- Merge Tunable parameters and Architecture into one chapter
+- Storage backends are now discussed in the Tuning-chapter
+
+In "Tuning"(new chapter):
+
+- More general discussion of threads before parameters are introduced
+  - Worker threads, the existence of special-purpose threads
+- The balancing of worker threads is NOT part of the general
+  thread-subchapter, but left for the old thread-param-discussion for
+  practical reasons.
+- Added a shmlog-chapter, just saying "put it in tmpfs" and explaining the
+  I/O-issue. The tools are discussed later as usual.
+
 New in 2.1
 ----------
 
