@@ -1,13 +1,26 @@
 New in 3.0
 ----------
 
-Much reorganizing, but the content itself is mostly the same as 2.1, just
-moved around. Some specific changes:
+Big reorganization effort. Much of the content is the same, but moved
+around between different chapters. Reading the TOC is a must. Skimming the
+chapters with new names is strongly recommended. The gist of the changes is
+that it is more task-oriented than feature-oriented.
 
-- Remove the 3.0 subchapter in the intro
+Some specific changes(unlikely to be complete):
+
+- Remove the "Testing your Varnish Setup" chapter (never quite what I had
+  hoped)
+- Split 'Programs' in two: Varnishlog+varnishstat goes in 'Getting started'
+  while the rest goes in the second to last chapter (For now).
+- Remove the 3.0 sub-chapter in the intro
 - Move design philosophy to the introduction chapter (downplay)
 - Merge Tunable parameters and Architecture into one chapter
 - Storage backends are now discussed in the Tuning-chapter
+- VCL: Renamed from intro to basics
+- VCL: A state engine sub-chapter
+- VCL functions: The PURGE-example is stolen by the new cache
+  invalidation-chapter.
+- Merge the chapter on bans and advanced VCL into "Saving the request"
 
 In "Tuning"(new chapter):
 
@@ -18,6 +31,21 @@ In "Tuning"(new chapter):
   practical reasons.
 - Added a shmlog-chapter, just saying "put it in tmpfs" and explaining the
   I/O-issue. The tools are discussed later as usual.
+
+In "Cache Invalidation":
+
+- Discusses banning as before
+- Discusses purge;, and points out that obj.ttl=0s is obsolete
+- req.hash_always_miss
+- Smart bans is a sub-chapter not just a tip.
+
+In "Saving the request":
+
+- The "Advanced VCL" chapter and Bans merged
+- More focus on the core of Grace, including an exercise
+- There's a slide for a demo, prepare!
+- This might still need some work, particular with regards to timing and
+  exercises.
 
 New in 2.1
 ----------

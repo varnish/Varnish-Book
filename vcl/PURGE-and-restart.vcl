@@ -17,7 +17,7 @@ sub vcl_recv {
 
 sub vcl_hit {
 	if (req.request == "PURGE") {
-		set obj.ttl = 0s;
+		purge;
 		set req.request = "GET";
 		set req.http.X-purger = "Purged";
 		return (restart);
@@ -26,7 +26,10 @@ sub vcl_hit {
 
 sub vcl_miss {
 	if (req.request == "PURGE") { 
-		error 404 "Not in cache";
+		purge;
+		set req.request = "GET";
+		set req.http.X-purger = "Purged-possibly";
+		return (restart);
 	}
 }
 

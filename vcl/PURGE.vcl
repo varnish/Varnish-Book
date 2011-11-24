@@ -14,12 +14,13 @@ sub vcl_recv {
 
 sub vcl_hit {
 	if (req.request == "PURGE") {
-		set obj.ttl = 0s;
+		purge;
 		error 200 "Purged";
 	}
 }
 sub vcl_miss {
 	if (req.request == "PURGE") { 
+		purge;
 		error 404 "Not in cache";
 	}
 }
