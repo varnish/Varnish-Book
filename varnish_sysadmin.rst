@@ -9,6 +9,8 @@
 
 .. include:: util/control.rst
 
+.. include:: util/param.rst
+
 Introduction
 ============
 
@@ -1013,9 +1015,9 @@ Tunable parameters
 
         Varnish has many different parameters which can be adjusted to make
         Varnish act better under specific workloads or with specific software and
-        hardware setups. They can all be viewed with "param.show" in the management
-        interface and set with the "-p" option passed to varnish - or directly in
-        the management interface.
+        hardware setups. They can all be viewed with ``param.show`` in the
+        management interface and set with the ``-p`` option passed to
+        Varnish - or directly in the management interface.
 
         Remember that changes made in the management interface are not stored
         anywhere, so unless you store your changes in a startup script, they will
@@ -1047,18 +1049,22 @@ Since Varnish will use one thread for each session, the number of
 threads you let Varnish use is directly proportional to how many
 requests Varnish can serve concurrently.
 
-The available parameters directly related to threads are::
+The available parameters directly related to threads are:
 
-        thread_pool_add_delay      20 [milliseconds]
-        thread_pool_add_threshold  2 [requests]
-        thread_pool_fail_delay     200 [milliseconds]
-        thread_pool_max            500 [threads]
-        thread_pool_min            5 [threads]
-        thread_pool_purge_delay    1000 [milliseconds]
-        thread_pool_stack          unlimited [bytes]
-        thread_pool_timeout        300 [seconds]
-        thread_pools               2 [pools]
-        thread_stats_rate          10 [requests]
+=========================  ====================================
+Parameter                  Default
+=========================  ====================================
+thread_pool_add_delay      |default_thread_pool_add_delay|
+thread_pool_add_threshold  |default_thread_pool_add_threshold|
+thread_pool_fail_delay     |default_thread_pool_fail_delay|
+thread_pool_max            |default_thread_pool_max|
+thread_pool_min            |default_thread_pool_min|
+thread_pool_purge_delay    |default_thread_pool_purge_delay|
+thread_pool_stack          |default_thread_pool_stack|
+thread_pool_timeout        |default_thread_pool_timeout|
+thread_pools               |default_thread_pools|
+thread_stats_rate          |default_thread_stats_rate|
+=========================  ====================================
 
 Out of all of these, the two most important are thread_pool_min and
 thread_pool_max. The thread_pools parameter is also of some importance, but
@@ -1074,7 +1080,7 @@ and eight thread pools on a eight-core machine. This holds true even under
 heavy load.
 
 So for the sake of keeping things simple, the current best practice is to
-leave thread_pools at the default (2).
+leave thread_pools at the default |default_thread_pools|.
 
 .. class:: handout
 
@@ -1095,11 +1101,14 @@ The ``thread_pool_min`` parameter defines how many threads will be running
 for each thread pool even when there is no load. ``thread_pool_max``
 defines the maximum amount of threads that will be used per thread pool.
 
-The defaults of a minimum of 5 threads and maximum 500 threads per thread
-pool and 2 thread pools will result in:
+The defaults of a minimum of |default_thread_pool_min| and maximum
+|default_thread_pool_max| threads per thread pool and
+|default_thread_pools| will result in:
 
-- At any given time, at least 10 worker threads will be running
-- No more than 1000 threads will run.
+- At any given time, at least |default_thread_pool_min| *
+  |default_thread_pools| worker threads will be running
+- No more than |default_thread_pool_max| * |default_thread_pools| threads
+  will run.
 
 In the past, there was a natural limit to how many threads Varnish could
 use, but this has been removed. Still, we rarely recommend running with
@@ -1127,7 +1136,8 @@ have to start a thousand threads, waiting 20ms (per pool) between each new
 thread is a long time to wait.
 
 Today, there is little risk involved in reducing the
-``thread_pool_add_delay`` and the default value is 2ms. In earlier versions
+``thread_pool_add_delay`` and the default value is
+|default_thread_pool_add_delay|. In earlier versions
 it was 20ms. The difference from 20ms to 2ms reduces the startup time of
 1000 threads over 2 pools from 10 seconds to half a second.
 
@@ -1143,7 +1153,7 @@ System parameters
 -----------------
 
 - ``sess_workspace`` - incoming HTTP header workspace (from client)
-- Common values range from 65kB (Default) to 10MB
+- Common values range from the default of |default_sess_workspace| to 10MB
 - ESI typically requires exponential growth
 - Remember: It's all virtual - not physical memory.
 
@@ -1161,12 +1171,12 @@ System parameters
         to troubleshooting.
 
         As most of the parameters can be left unchanged, we will not go through
-        all of them, but take a look at the list "param.show" gives you to get an
-        impression of what they can do.
+        all of them, but take a look at the list ``param.show`` gives you
+        to get an impression of what they can do.
 
         .. note:::
 
-           Varnish 2.0 had a "obj_workspace" which you may see references
+           Varnish 2.0 had a ``obj_workspace`` which you may see references
            to in older documentation. This was the workspace for
            manipulating an object. Manipulation of an object is now done on
            the session workspace in ``vcl_fetch``, then a precise amount of
@@ -1178,18 +1188,30 @@ Timers
 
 Backend:
 
-- connect_timeout - OS/network latency
-- first_byte_timeout - Page generation?
-- between_bytes_timeout - Hiccoughs?
+===================== =============================== ========================
+Parameter             Default                         Description
+===================== =============================== ========================
+connect_timeout       |default_connect_timeout|       OS/network latency
+first_byte_timeout    |default_first_byte_timeout|    Page generation?
+between_bytes_timeout |default_between_bytes_timeout| Hiccoughs?
+===================== =============================== ========================
 
 Client:
 
-- send_timeout - Client-in-tunnel
-- sess_timeout - keep-alive timeout
+===================== =============================== ========================
+Parameter             Default                         Description
+===================== =============================== ========================
+send_timeout          |default_send_timeout|          Client-in-tunnel
+sess_timeout          |default_sess_timeout|          keep-alive timeout
+===================== =============================== ========================
 
 Mangement:
 
-- cli_timeout - Management thread->child
+===================== =============================== ========================
+Parameter             Default                         Description
+===================== =============================== ========================
+cli_timeout           |default_cli_timeout|           Management thread->child
+===================== =============================== ========================
 
 .. container:: handout
 
@@ -1202,17 +1224,17 @@ Mangement:
         around, which in turn affects file descriptors left open. It is not wise to
         increase the session timeout without taking this into consideration.
 
-        The "cli_timeout" is how long the management thread waits for the worker
+        The ``cli_timeout`` is how long the management thread waits for the worker
         thread to reply before it assumes it is dead, kills it and starts it back
         up. The default value seems to do the trick for most users today.
 
         .. note::
 
-           The connect_timeout is 0.7s by default. This is more than enough
-           time for the typical setup where Varnish talks to a backend in
-           the same server room - but it may be too short if Varnish is
-           using a remote backend which may have up to or more than 700ms
-           of latency. If this is set too high, it will not let Varnish
+           The connect_timeout is |default_connect_timeout| by default.
+           This is more than enough time for the typical setup where
+           Varnish talks to a backend in the same server room - but it may
+           be too short if Varnish is using a remote backend which may have
+           more latency. If this is set too high, it will not let Varnish
            handle errors gracefully.
 
 Exercise: Tune first_byte_timeout
@@ -2764,9 +2786,10 @@ Saint mode
    available, or try to use a graced object, or finally deliver an error
    message.
 
-   If you have more than 10 (default) objects black listed for a specific
-   backend, the entire backend is considered sick. The rationale is that if
-   10 URLs already failed, there's probably no reason to try an 11th.
+   If you have more than |default_saintmode_threshold| (default) objects
+   black listed for a specific backend, the entire backend is considered
+   sick. The rationale is that if 10 URLs already failed, there's probably
+   no reason to try an 11th.
 
    There is no need to worry about recovering. The object will only be on
    the ban list for as long as you specify, regardless of whether the
