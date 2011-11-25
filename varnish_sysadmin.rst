@@ -1169,7 +1169,7 @@ System parameters
            Varnish 2.0 had a "obj_workspace" which you may see references
            to in older documentation. This was the workspace for
            manipulating an object. Manipulation of an object is now done on
-           the session workspace in vcl_fetch, then a precise amount of
+           the session workspace in ``vcl_fetch``, then a precise amount of
            memory is allocated for the object, thus removing the need for a
            tunable obj_workspace.
 
@@ -1389,21 +1389,21 @@ VCL - functions
    foo)``: Add a URL, host name excluded, to the ban list. We will go
    through purging in detail in later chapters.
 
-   `return(restart)` offers a way to re-run the VCL logic, starting at
-   vcl_recv.  All changes made up until that point are kept and the
-   `req.restarts` variable is incremented. The `max_restarts` parameter
+   ``return(restart)`` offers a way to re-run the VCL logic, starting at
+   ``vcl_recv``.  All changes made up until that point are kept and the
+   ``req.restarts`` variable is incremented. The `max_restarts` parameter
    defines the maximum number of restarts that can be issued in VCL before
    an error is triggered, thus avoiding infinite looping.
 
-   `return()` is used when execution of a VCL domain (for example vcl_recv)
-   i s completed and control is returned to varnish with a single
-   instruction as to what should happen next. Return values are
-   `lookup`, `pass`, `pipe`, `fetch`, `deliver` and `hash`, but only a
-   limited number of them are available in each VCL domain.
+   ``return()`` is used when execution of a VCL domain (for example
+   ``vcl_recv``) is completed and control is returned to varnish with a
+   single instruction as to what should happen next. Return values are
+   `lookup`, `pass`, `pipe`, `hit_for_pass`, `fetch`, `deliver` and `hash`,
+   but only a limited number of them are available in each VCL domain.
 
 
-VCL - vcl_recv
---------------
+VCL - ``vcl_recv``
+------------------
 
 - Normalize client-input
 - Pick a web server
@@ -1412,7 +1412,7 @@ VCL - vcl_recv
 
 .. container:: handout
 
-   vcl_recv is the first VCL function executed, right after Varnish has
+   ``vcl_recv`` is the first VCL function executed, right after Varnish has
    decoded the request into its basic data structure. It has four main uses:
 
    #. Modifying the client data to reduce cache diversity. E.g., removing any
@@ -1422,7 +1422,7 @@ VCL - vcl_recv
    #. Executing re-write rules needed for specific web applications.
    #. Deciding which Web server to use.
 
-   In vcl_recv you can perform the following terminating statements:
+   In ``vcl_recv`` you can perform the following terminating statements:
    
    `pass` the cache, executing the rest of the Varnish processing as
    normal, but not looking up the content in cache or storing it to cache.
@@ -1440,28 +1440,28 @@ VCL - vcl_recv
    message, redirect message or response to a health check from a load
    balancer.
 
-Default: vcl_recv
------------------
+Default: ``vcl_recv``
+---------------------
 
 .. include:: vcl/default-vcl_recv.vcl
    :literal:
 
 .. container:: handout
 
-   The default VCL for vcl_recv is designed to ensure a safe caching policy
-   even with no modifications in VCL. It has two main uses:
+   The default VCL for ``vcl_recv`` is designed to ensure a safe caching
+   policy even with no modifications in VCL. It has two main uses:
 
    #. Only handle recognized HTTP methods and cache GET and HEAD
    #. Do not cache data that is likely to be user-specific.
 
    It is executed right after any user-specified VCL, and is always
-   present. You can not remove it. However, if you terminate the vcl_recv
-   function using one of the terminating statements (pass, pipe, lookup,
-   error), the default VCL will not execute, as control is handed back from
-   the VRT (VCL Run-Time) to Varnish.
+   present. You can not remove it. However, if you terminate the
+   ``vcl_recv`` function using one of the terminating statements (pass,
+   pipe, lookup, error), the default VCL will not execute, as control is
+   handed back from the VRT (VCL Run-Time) to Varnish.
 
    Most of the logic in the default VCL is needed for a well-behaving
-   Varnish server, and care should be taken when vcl_recv is terminated
+   Varnish server, and care should be taken when ``vcl_recv`` is terminated
    before reaching the default VCL. Consider either replicating all the
    logic in your own VCL, or letting Varnish fall through to the default
    VCL.
@@ -1510,20 +1510,20 @@ Example: Handling Vary: Accept-Encoding
 Exercise: Remove any leading "www."
 -----------------------------------
 
-- Store a copy of req.http.host as an other header, for example
-  req.http.x-host.
-- Use regsub() and req.http.host to change any occurence of
+- Store a copy of ``req.http.host`` as an other header, for example
+  ``req.http.x-host``.
+- Use ``regsub()`` and ``req.http.host`` to change any occurrence of
   `www.example.com` to just `example.com`.
 - Use varnishlog to verify the result.
 
 .. container:: handout
 
-   The syntax for regsub() is regsub(string, regex, replacement). `string`
-   is the input string, in this case, req.http.host. `regex` is the regular
-   expression matching whatever content you need to change. "^www\."
-   matches a string that begins (^) with www followed by a litteral dot.
-   `replacement` is what you desire to change it with, "" can be used to
-   remove it.
+   The syntax for ``regsub()`` is `regsub(string, regex, replacement)`.
+   `string` is the input string, in this case, ``req.http.host``. `regex`
+   is the regular expression matching whatever content you need to change.
+   "^www\." matches a string that begins (^) with www followed by a
+   literal dot.  `replacement` is what you desire to change it with, ""
+   can be used to remove it.
 
    To write a header, use ``set req.http.headername = "value";`` or ``set
    req.http.headername = regsub(...);``.
@@ -1551,7 +1551,7 @@ Exercise: Rewrite sport.example.com
 
 - Assume that the hostname sport.example.com is really located under
   example.com/sport
-- Use `req.http.host` and `req.url` combined with if () to
+- Use ``req.http.host`` and ``req.url`` combined with if () to
   modify the URI accordingly.
 
 .. container:: handout
@@ -1577,8 +1577,8 @@ Exercise: Rewrite sport.example.com
       You do not need to use regsub() on the host header for this exercise
       unless you want it to apply for all instances of `sport.<some
       domain>`. You will, however, need it to prepend `/sport` to the
-      req.url. Remember, you can match just the beginning of the line with
-      ``regsub(input,"^",replacement)``
+      ``req.url``. Remember, you can match just the beginning of the line
+      with ``regsub(input,"^",replacement)``
 
 Solution: Rewrite sport.example.com
 -----------------------------------
@@ -1592,67 +1592,69 @@ Or:
    :literal:
 
 
-VCL - vcl_fetch
----------------
+VCL - ``vcl_fetch``
+-------------------
 
 - Sanitize server-response
 - Override cache duration
 
 .. container:: handout
 
-   The vcl_fetch function is the backend-counterpart to vcl_recv. In
-   vcl_recv you can use information provided by the client to decide on
-   caching policy, while you use information provided by the server to
-   further decide on a caching policy in vcl_fetch.
+   The ``vcl_fetch`` function is the backend-counterpart to ``vcl_recv``.
+   In ``vcl_recv`` you can use information provided by the client to decide
+   on caching policy, while you use information provided by the server to
+   further decide on a caching policy in ``vcl_fetch``.
 
    If you chose to `pass` the request in an earlier VCL function (e.g.:
-   vcl_recv), you will still execute the logic of vcl_fetch, but the object
-   will not enter the cache even if you supply a cache time.
+   ``vcl_recv``), you will still execute the logic of ``vcl_fetch``, but
+   the object will not enter the cache even if you supply a cache time.
 
-   You have multiple tools available in vcl_fetch. First and foremost you
-   have the `beresp.ttl` variable, which defines how long an object is
-   kept. 
+   You have multiple tools available in ``vcl_fetch``. First and foremost
+   you have the ``beresp.ttl`` variable, which defines how long an object
+   is kept.
    
    .. warning::
 
-           If the request was not passed *before* reaching vcl_fetch, the
-           beresp.ttl is still used even when you perform a pass in
-           vcl_fetch. This is an important detail that is important to
-           remember: When you perform a pass in vcl_fetch *you cache the
-           decision you made*. In other words: If beresp.ttl is 10 hours
-           and you issue a pass, an object will be entered into the cache
-           and remain there for 10 hours, telling Varnish not to cache. If
-           you decide not to cache a page that returns a "500 Internal
-           Server Error", for example, this is critically important, as a
-           temporary glitch on a page can cause it to not be cached for a
-           potentially long time.
+           If the request was not passed *before* reaching ``vcl_fetch``, the
+           ``beresp.ttl`` is still used even when you perform a
+           ``hit_for_pass`` in ``vcl_fetch``. This is an important detail
+           that is important to remember: When you perform a pass in
+           ``vcl_fetch`` *you cache the decision you made*. In other words:
+           If ``beresp.ttl`` is 10 hours and you issue a pass, an object
+           will be entered into the cache and remain there for 10 hours,
+           telling Varnish not to cache. If you decide not to cache a page
+           that returns a "500 Internal Server Error", for example, this is
+           critically important, as a temporary glitch on a page can cause
+           it to not be cached for a potentially long time.
 
-           Always set beresp.ttl when you issue a pass in vcl_fetch.
+           Always set ``beresp.ttl`` when you issue a pass in ``vcl_fetch``.
 
-   Returning `deliver` in vcl_fetch tells Varnish to cache, if possible.
-   Returning `pass` tells it not to cache, but does *not* run the vcl_pass
-   function of VCL.
+   Returning ``deliver`` in ``vcl_fetch`` tells Varnish to cache, if
+   possible.  Returning ``hit_for_pass`` tells it not to cache, but does
+   *not* run the ``vcl_pass`` function of VCL for this specific client. The
+   next client asking for the same resource will hit the `hitpass`-object
+   and go through ``vcl_pass``.
 
-   Typical tasks performed in vcl_fetch include:
+   Typical tasks performed in ``vcl_fetch`` include:
 
    - Overriding cache time for certain URLs
    - Stripping Set-Cookie headers that are not needed
    - Stripping bugged Vary headers
-   - Adding helper-headers to the object for use in purging (more
+   - Adding helper-headers to the object for use in banning (more
      information in later chapters)
    - Applying other caching policies
 
-Default: vcl_fetch
-------------------
+Default: ``vcl_fetch``
+----------------------
 
 .. include:: vcl/default-vcl_fetch.vcl
    :literal:
 
 .. container:: handout
 
-   The default VCL for vcl_fetch is designed to avoid caching anything with
-   a set-cookie header. There are very few situations where caching content
-   with a set-cookie header is desirable.
+   The default VCL for ``vcl_fetch`` is designed to avoid caching anything
+   with a set-cookie header. There are very few situations where caching
+   content with a set-cookie header is desirable.
 
 
 Example: Enforce caching of .jpg urls for 60 seconds
@@ -1664,7 +1666,7 @@ Example: Enforce caching of .jpg urls for 60 seconds
 .. container:: handout
 
    The above example is typical for a site migrating to Varnish. Setting
-   beresp.ttl ensures it's cached.
+   ``beresp.ttl`` ensures it's cached.
 
    Keep in mind that the default VCL will still be executed, which means
    that an image with a Set-Cookie header will not be cached.
@@ -1684,8 +1686,8 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
         exist, it will use the Expires header to set the ttl. If none of those
         headers exist, it will use the default TTL.
 
-        This is done before vcl_fetch is executed and the process can be
-        seen by looking at the TTL tag of varnishlog.
+        This is done before ``vcl_fetch`` is executed and the process can
+        be seen by looking at the TTL tag of varnishlog.
 
         The purpose of the above example is to allow a gradual migration to
         using a backend-controlled caching policy. If the backend supplies
@@ -1708,10 +1710,10 @@ Solution: VCL - avoid caching a page
 
    The above examples are both valid.
 
-   It is usually most convenient to do as much as possible in `vcl_recv`,
-   and this is no exception. Even though using pass in `vcl_fetch` is
+   It is usually most convenient to do as much as possible in ``vcl_recv``,
+   and this is no exception. Even though using pass in ``vcl_fetch`` is
    reasonable, it creates a hitpass object, which can create unnecessary
-   complexity. Whenever you do use pass in `vcl_fetch`, you should also
+   complexity. Whenever you do use pass in ``vcl_fetch``, you should also
    make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
    accidentally adding a hitpass object that prevents caching for a long
    time.
@@ -1732,7 +1734,7 @@ Write a VCL that makes Varnish honor the following headers:
         Varnish only obeys the first header it finds of "s-maxage" in
         Cache-Control, "max-age" in Cache-Control or the Expire header.
         However, it is often necessary to check the values of other
-        headers too - vcl_fetch is the place to do that.
+        headers too - ``vcl_fetch`` is the place to do that.
 
 Solution: Honor various cache-control headers
 ---------------------------------------------
@@ -1763,7 +1765,7 @@ Write a VCL that:
 
       Varnish automatically reads s-maxage for you, so you only need to
       check if it is there or not - if it's present, varnish has already
-      used it to set `beresp.ttl`.
+      used it to set ``beresp.ttl``.
 
 
 Solution: Either use s-maxage or set ttl by file type
@@ -1808,7 +1810,7 @@ Summary of VCL - Part 1
 
         This is made easier by the fact that VCL also has a default - which
         is always present. If you just need to modify one little thing in
-        `vcl_recv`, you can do just that. You don't have to copy the
+        ``vcl_recv``, you can do just that. You don't have to copy the
         default VCL, because it will be executed after your own - assuming
         you don't have any `return` statements.
 
@@ -1868,13 +1870,14 @@ Variable availability in VCL
    The above is a map of the most important variables and where you can
    read (R) from them and write (W) to them.
 
-   Some variables are left out: client.* and server.* are by and large
-   accessible everywhere, as is the `now` variable.
+   Some variables are left out: ``client.*`` and ``server.*`` are by and
+   large accessible everywhere, as is the ``now`` variable.
 
-   Remember that changes made to `beresp` are stored in `obj` afterwards.
-   And the resp.* variables are copies of what's about to be returned -
-   possibly of obj. A change to beresp will, in other words, change both
-   obj.* and resp.*. Similar semantics apply to req and bereq. Bereq is the
+   Remember that changes made to ``beresp`` are stored in ``obj``
+   afterwards. And the ``resp.*`` variables are copies of what's about to
+   be returned - possibly of ``obj``. A change to ``beresp`` will, in other
+   words, affect future ``obj.*`` and ``resp.*`` variables. Similar
+   semantics apply to ``req.*`` and ``bereq.*``. ``bereq.*`` is the
    "backend request" as created from the original request. It may differ
    slightly - Varnish can convert HEAD requests to GET for example.
 
@@ -1884,36 +1887,36 @@ Variable availability in VCL
       working through these exercises, but we'll explain all of them
       towards the end of the chapter to make sure there's no confusion.
 
-VCL - vcl_hash
---------------
+VCL - ``vcl_hash``
+------------------
 
 - Defines what is unique about a request.
-- Executed directly after vcl_recv, assuming "lookup" was requested
+- Executed directly after ``vcl_recv``, assuming "lookup" was requested
 
 .. include:: vcl/default-vcl_hash.vcl
    :literal:
 
 .. container:: handout
 
-   vcl_hash defines the hash key to be used for a cached object. Or in
+   ``vcl_hash`` defines the hash key to be used for a cached object. Or in
    other words: What separates one cached object from the next.
 
-   One usage of vcl_hash could be to add a user-name in the cache hash to
-   cache user-specific data. However, be warned that caching user-data
+   One usage of ``vcl_hash`` could be to add a user-name in the cache hash
+   to cache user-specific data. However, be warned that caching user-data
    should only be done cautiously.
 
-   The default VCL for vcl_hash adds the hostname (or IP) and the URL to
-   the cache hash.
+   The default VCL for ``vcl_hash`` adds the hostname (or IP) and the URL
+   to the cache hash.
 
    .. note::
 
       The Vary: process is separate from the cache hash.
 
-VCL - vcl_hit
--------------
+VCL - ``vcl_hit``
+-----------------
 
 - Right after an object has been found (hit) in the cache
-- You can change the TTL, but nothing else.
+- You can change the TTL or issue ``purge;``
 - Often used to throw out an old object
 
 .. include:: vcl/default-vcl_hit.vcl
@@ -1923,11 +1926,11 @@ VCL - vcl_hit
         Note that the next slide (vcl_miss) also talks about vcl_hit in
         more detail.
 
-VCL - vcl_miss
---------------
+VCL - ``vcl_miss``
+------------------
 
 - Right after an object was looked up and not found in cache
-- Typically only used to avoid sending "PURGE" requests to a backend
+- Mostly used to issue ``purge;``
 
 .. include:: vcl/default-vcl_miss.vcl
    :literal:
@@ -1935,41 +1938,42 @@ VCL - vcl_miss
 
 .. container:: handout
 
-   The subroutines vcl_hit and vcl_miss are closely related. It's rare that
-   you can use them, and when you do, it's typically related to internal
-   Varnish tricks - not debug-feedback or backend modification.
+   The subroutines ``vcl_hit`` and ``vcl_miss`` are closely related. It's
+   rare that you can use them, and when you do, it's typically related to
+   internal Varnish tricks - not debug-feedback or backend modification.
 
-   One example is to set the ttl to 0 seconds - essentially expiring an
-   object. This can be done in vcl_hit - but should be checked for in
-   vcl_miss so a request intended to reset the ttl doesn't end up at a
-   backend
+   One example is using ``purge;`` to invalidate an object (more on this
+   later), an other is to rewrite a backend request when you want the ESI
+   fragments to get the unmodified data.
 
 
-VCl - vcl_pass
---------------
+VCl - ``vcl_pass``
+------------------
 
-- Run after a pass in vcl_recv OR after a lookup that returned a hitpass
-- Not run after vcl_fetch.
+- Run after a pass in ``vcl_recv`` OR after a lookup that returned a hitpass
+- Not run after ``vcl_fetch``.
 
 .. include:: vcl/default-vcl_pass.vcl
    :literal:
 
 .. container:: handout
         
-        The vcl_pass function belongs in the same group as vcl_hit and
-        vcl_miss. It is run right after either a cache lookup or vcl_recv
-        determined that this isn't a cached item and it's not going to be
-        cached.
+        The ``vcl_pass`` function belongs in the same group as ``vcl_hit``
+        and ``vcl_miss``. It is run right after either a cache lookup or
+        ``vcl_recv`` determined that this isn't a cached item and it's not
+        going to be cached.
 
-        The usefulness of vcl_pass is limited, but it typically serves as
-        an important catch-all for features you've implemented in vcl_hit
-        and vcl_miss. The prime example is the PURGE method.
+        The usefulness of ``vcl_pass`` is limited, but it typically serves as
+        an important catch-all for features you've implemented in
+        ``vcl_hit`` and ``vcl_miss``. The prime example is the PURGE
+        method, where you want to avoid sending a PURGE request to a
+        backend.
 
 
-VCL - vcl_deliver
------------------
+VCL - ``vcl_deliver``
+---------------------
 
-- Common last exit point for all (except vcl_pipe) code paths
+- Common last exit point for all (except ``vcl_pipe``) code paths
 - Often used to add and remove debug-headers
 
 .. include:: vcl/default-vcl_deliver.vcl
@@ -1977,12 +1981,12 @@ VCL - vcl_deliver
 
 .. container:: handout
 
-   While the vcl_deliver function is simple, it is also very useful for
+   While the ``vcl_deliver`` function is simple, it is also very useful for
    modifying the output of Varnish. If you need to remove or add a header
-   that isn't supposed to be stored in the cache, vcl_deliver is the place
-   to do it.
+   that isn't supposed to be stored in the cache, ``vcl_deliver`` is the
+   place to do it.
 
-   The main building blocks of vcl_deliver are:
+   The main building blocks of ``vcl_deliver`` are:
 
    ``resp.http.*``
         Headers that will be sent to the client. They can be set and unset.
@@ -2002,8 +2006,8 @@ VCL - vcl_deliver
    ``req.restarts``
         The number of restarts issued in VCL - 0 if none were made.
 
-VCL - vcl_error
----------------
+VCL - ``vcl_error``
+-------------------
 
 - Used to generate content from within Varnish, without talking to a web
   server
@@ -2020,8 +2024,8 @@ VCL - vcl_error
       Note how you can use {" and "} to make multi-line strings. This is
       not limited to synthetic, but can be used anywhere.
 
-Example: Redirecting users with vcl_error
------------------------------------------
+Example: Redirecting users with ``vcl_error``
+---------------------------------------------
 
 .. include:: vcl/redirect.vcl
    :literal:
@@ -2064,11 +2068,12 @@ Solution: Modify the error message and headers
 
       It's safer to make sure a variable has a sensible value before using
       it to make a string. That's why it's better to always check that
-      obj.hits > 0 (and not just != 0) before you try using it.  While
-      there are no known bugs with obj.hits at the moment,
+      ``obj.hits > 0`` (and not just != 0) before you try using it.  While
+      there are no known bugs with ``obj.hits`` at the moment,
       string-conversion has been an area where there have been some bugs in
       the past when the variable to be converted had an unexpected value
-      (for example if you tried using obj.hits after a pass in vcl_recv).
+      (for example if you tried using ``obj.hits`` after a pass in
+      ``vcl_recv``).
 
       This applies to all variables - and all languages for that matter
 
@@ -2283,9 +2288,9 @@ VCL contexts when adding bans
 
 ``ban("req.url == " req.http.x-url);``
 
-- `req.url` from the future client that will trigger the test against the
+- ``req.url`` from the future client that will trigger the test against the
   object is used.
-- `req.http.x-url` is the x-url header of the client that puts the ban on
+- ``req.http.x-url`` is the x-url header of the client that puts the ban on
   the ban list.
 
 .. container:: handout
@@ -2304,12 +2309,12 @@ VCL contexts when adding bans
 Smart bans
 ----------
 
-- When varnish tests bans, any `req.*`-reference has to come from whatever
+- When varnish tests bans, any ``req.*``-reference has to come from whatever
   client triggered the test.
 - A "ban lurker" thread runs in the background to test bans on less
   accessed objects
-- The ban lurker has no `req.*`-structure. It has no URL or Hostname.
-- Smart bans are bans that only references `obj.*`
+- The ban lurker has no ``req.*``-structure. It has no URL or Hostname.
+- Smart bans are bans that only references ``obj.*``
 - Store the URL and Hostname on the object
 - ``set beresp.http.x-url = req.url;``
 - ``set beresp.http.x-host = req.http.host;``
@@ -2323,11 +2328,11 @@ Smart bans
       doesn't have any request data structure.
 
       If you wish to ban on url, it can be a good idea to store the URL
-      to the object, in vcl_fetch::
+      to the object, in ``vcl_fetch``::
 
          set beresp.http.x-url = req.url;
 
-      Then use that instead of req.url in your purges, in vcl_recv::
+      Then use that instead of ``req.url`` in your purges, in ``vcl_recv``::
 
          ban("obj.http.x-url == " req.url);
 
@@ -2429,7 +2434,7 @@ Core grace mechanisms
 
 .. container:: handout
 
-   Grace mode is a mode in which Varnish uses an object that has already
+   When Varnish is in grace mode, it uses an object that has already
    expired as far as the TTL is concerned. There are several reasons this
    might happen, one of them being if a backend is marked as bad by a
    health probe.
@@ -2442,10 +2447,24 @@ Core grace mechanisms
    - The VCL has to allow Varnish to use an object as overdue as the one
      kept around. This is affected by ``req.grace`` in ``vcl_recv``.
 
+   When setting up grace, you will need to modify both ``vcl_recv`` and
+   ``vcl_fetch`` to use grace effectively. The typical way to use grace is
+   to store an object for several hours past its TTL, but only use it a few
+   seconds after the TTL, except if the backend is sick. We will look more
+   at health checks in a moment, but for now, the following VCL can
+   illustrate a normal setup:
+
+   .. include:: vcl/grace.vcl
+      :literal:
+
 ``req.grace`` and ``beresp.grace``
 ----------------------------------
 
-With: beresp.ttl=1m; req.grace = 30s; beresp.grace = 1h;
+::
+
+        set beresp.ttl=1m;
+        set req.grace = 30s;
+        set beresp.grace = 1h;
 
 - 50s: Normal delivery
 - 62s: Normal cache miss, but grace mode possible
@@ -2454,6 +2473,12 @@ With: beresp.ttl=1m; req.grace = 30s; beresp.grace = 1h;
 - 3660s: (1h+1m) Object is removed from cache
 
 .. container:: handout
+
+   In this time-line example, everything except the first normal delivery
+   is assuming the object is never refreshed. If a cache miss happens at
+   62s and the object is refreshed, then 18 seconds later (80s) a request
+   for the same resource would of course just hit the new 18 second old
+   object.
 
    The flip-side to this time line is if you set ``req.grace`` to 1h but
    leave ``beresp.grace`` to 30s instead. Even if grace is allowed for up
@@ -2659,13 +2684,13 @@ Client and hash directors
 .........................
 
 The client and hash directors were both added with Varnish 2.1.0 as special
-variants of the random directors. The client director uses either the
-client.ip or (as of Varnish 2.1.4) the client.identity - which is settable
-from VCL - instead of a random number. This means that the same client will
-be directed to the same backend, assuming that the client.identity is the
-same for all requests.
+variants of the random directors. Instead of a random number, the client
+director uses the ``client.identity``. The ``client.identity`` variable
+defaults to the client IP, but can be changed in VCL. The same client will
+be directed to the same backend, assuming that the ``client.identity`` is
+the same for all requests.
 
-Similarly, the hash director uses the req.hash, which means that the same
+Similarly, the hash director uses the hash data, which means that the same
 URL will go to the same web server every time. This is most relevant for
 multi-tiered caches.
 
@@ -2758,10 +2783,10 @@ Saint mode
 Restart in VCL
 --------------
 
-- Start the VCL processing again from the top of vcl_recv.
+- Start the VCL processing again from the top of ``vcl_recv``.
 - Any changes made are kept.
-- Parameter max_restarts safe guards against infinite loops
-- req.restarts
+- Parameter ``max_restarts`` safe guards against infinite loops
+- ``req.restarts`` counts the number of restarts
 
 .. include:: vcl/restart.vcl
    :literal:
@@ -2769,7 +2794,7 @@ Restart in VCL
 .. container:: handout
 
    Restarts in VCL can be used almost everywhere as of Varnish 2.1.5 (which
-   introduced restart in vcl_deliver).
+   introduced restart in ``vcl_deliver``).
 
    They allow you to re-run the VCL state engine with different variables.
    The above example simply executes a redirect without going through the
@@ -2818,7 +2843,7 @@ Access Control Lists
 --------------------
 
 - An ACL is a list of IPs or IP ranges.
-- Compare with client.ip or server.ip
+- Compare with ``client.ip`` or ``server.ip``
 
 .. include:: vcl/acl.vcl
    :literal:
@@ -2857,8 +2882,8 @@ Solution: Combine PURGE and restart
 
    .. note::
 
-      Whenever you are using req.http to store an "internal" variable, you
-      should get used to unsetting it in vcl_recv on the first run.
+      Whenever you are using ``req.http`` to store an "internal" variable, you
+      should get used to unsetting it in ``vcl_recv`` on the first run.
       Otherwise a client could supply it directly. In this situation, the
       outcome wouldn't be harmful, but it's a good habit to establish.
 
@@ -2928,16 +2953,16 @@ Exercise: ESI
 
 .. container:: handout
 
-        When using ESI, the `sess_workspace` parameter is very important.
-        The `sess_workspace` should be large enough to contain changes made
-        to anything else. That includes changes made in vcl_recv and
-        vcl_deliver.  ESI also uses session workspace, and there is
+        When using ESI, the ``sess_workspace`` parameter is very important.
+        The ``sess_workspace`` should be large enough to contain changes
+        made to anything else. That includes changes made in ``vcl_recv``
+        and ``vcl_deliver``. ESI also uses session workspace, and there is
         frequently a need to increase this drastically if recursive ESI is
         used.
 
-        With heavy ESI, it might be necessary to set `sess_workspace` in
+        With heavy ESI, it might be necessary to set ``sess_workspace`` in
         the range of megabytes. This means that with, for instance, 10 000
-        sessions running, you will use sess_workspace * 10 000 sessions
+        sessions running, you will use ``sess_workspace`` * 10 000 sessions
         virtual memory. It is important to remember that since the actual
         memory usage for each session is not going to be close to the
         maximum, you will - for the most part - just be using virtual

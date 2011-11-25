@@ -5,7 +5,7 @@ vcls = *.vcl
 check: $(vcls)
 	@for a in $(vcls); do \
 		echo -n Testing $$a... ;\
-		if grep -q backend $$a; then \
+		if egrep -q '^(backend|director)' $$a; then \
 			foo=`varnishd -n $$PWD/../build/ -C -f $$a 2>&1 > /dev/null` ;\
 			if [ -z "$$foo" ]; then \
 				echo "OK"; \

@@ -2,7 +2,6 @@
 =========
 
 - Update flow charts
-- purge; example?
 - In the VCL exercises, verify if -b is needed when varnishlog is suggested
   as a way of testing if it works.
 - In the 'define a backend'-exercise: Reword it so it doesn't make too many
@@ -21,23 +20,11 @@ Content
   - Need a new exercise.
 
 - Add more visuals for the VCL chapters
-- Add architecture overview
-- Add reference documentation (RFC2616? man vcl and varnishd?)
-- Grace, saintmode, etc.
-- Purges and ESI needs to be re-worked to match the rest of the course.
+- ESI needs to be re-worked to match the rest of the course.
 - Finishing words need love. (Roadmap?)
 
 Nitpicks
 ========
-
-- Formalize the typograhpic details. E.g:
-
-  - '-s' or `-s` or ``-s``? 
-  - ..warning/tip/hint/note?
-  - Frequency of ..hint/note/tip/warning
-
-- Go through the material with that in mind.
-
 
 Technical
 =========
