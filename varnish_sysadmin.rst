@@ -234,68 +234,7 @@ A 64 bit environment is recommended for production.
         encouraged to use that package if you do not feel you need the exercise
         in installing from source.
 
-        We will be using usemod-wiki and apache2 throughout the course (among
-        other things) as a backend. Usemod-wiki is a simple yet dynamic web
-        application that is well-suited for testing. While you are welcome to
-        choose something else, you should wait until the second day of training to
-        set a real web-application as backend, due to the extra complications that
-        are usually caused by cookies.
-
-        .. tip::
-
-           If you are missing dependencies on Debian or Ubuntu when using
-           ``dpkg -i``, you can fetch them and finish the installation by
-           running ``apt-get install -f``
-
-
-Exercise: Installation
--------------------------
-
-Install a backend:
-
-1. Install "usemod-wiki" and "apache2"
-2. Verify they work by going to "http://localhost/" and "http://localhost/cgi-bin/wiki.pl"
-
-.. 3. If it complains about "Bad page version (or corrupt page).", run ``sudo rm -r /var/lib/usemod-wiki/page``
-
-Install Varnish:
-
-- Either use ``apt-get install varnish`` for Ubuntu or Debian systems
-- or ``yum install varnish`` for Red Hat-based systems.
-
-.. container:: handout
-
-   For simplicity, we are using usemod-wiki and Apache for these exercises.
-   usemod-wiki is a very simple wiki that works with little or no
-   configuration on Ubuntu-systems.
-
-   Using the Varnish packages provided by your distribution is often just
-   as good as compiling from source. Alternatively, you can add the
-   repository provided by Varnish Software, with the base URL of
-   http://repo.varnish-cache.org/
-
-   You can also just fetch the packages from the repo above and use the
-   commands demonstrated in the previous section to install them.
-
-   To compile from source, you can follow these instructions:
-
-   1. Install "libncurses5-dev"
-   2. Download Varnish from http://www.varnish-cache.org/
-   3. Unpack in your ~
-   4. Run ``./configure``
-   5. ``make`` and ``sudo make install``
-
-   .. tip::
-
-      If you are on Debian-based system, you will need the
-      `build-essential` package and you may want to run ``apt-get build-dep
-      varnish``
-
-   .. note::
-
-      This course is based on Varnish 3.0 and it's strongly advised that
-      you use Varnish 3.0. There is a list of VCL and configuration-related
-      changes between Varnish 2.1 and 3.0 in the final chapter.
+        We will be using Apache as a web server.
 
 Configuration
 -------------
@@ -303,6 +242,7 @@ Configuration
 - Command line configuration
 - Tunable parameters
 - VCL
+- The management interface: ``varnishadm -T localhost:port``
 
 .. container:: handout
 
@@ -375,61 +315,70 @@ Command line configuration
 
 
 
-Exercise: Start Varnish
+Exercise: Installation
 -----------------------
 
-1. Start Varnish, in debug mode, with the telnet interface on port 1234,
-   HTTP listening on ``:8000``, with ``127.0.0.1:80`` as the backend
+#. Install "apache2" and verify it works by going to `http://localhost/`
+#. Install Varnish:
 
-Exercise: Start Varnish - solution
-----------------------------------
+   - Either use ``apt-get install varnish`` for Ubuntu or Debian systems
+   - or ``yum install varnish`` for Red Hat-based systems.
 
-::
-
-        varnishd -b 127.0.0.1:80 -a :8000 -T :1234 -d
-
-.. container:: handout
-
-        Did you remember the colon? The underlying POSIX-based libraries
-        used by Varnish does not limit IP-specifications to "dot-notation",
-        so "1234" is a valid specification of an IP in decimal notation -
-        thus Varnish will not warn you if you omit the colon.
-
-
-Exercise: Controlling Varnish using telnet
-------------------------------------------
-
-- Telnet to ``localhost`` port ``1234``
-- Type ``help``
-- Find out what the parameter ``default_ttl`` is set to.
+#. Start Varnish "by hand", listening on port `8080`, management interface
+   listening on port `1234` and with `127.0.0.1:80` as the backend.
+#. Use ``varnishadm`` to connect to the management interface of Varnish and
+   find out what the ``default_ttl`` parameter is set to.
 
 .. container:: handout
 
-   The telnet interface - or management interface - is a powerful tool for
-   administrating Varnish. Through it you can change most aspect of
-   Varnish.
+   For simplicity, we are Apache for these exercises.
 
-   One important concern that regards the telnet interface is security.
-   Because the telnet interface is not encrypted, does not have
-   authenticate and still allows almost total control over Varnish, it is
+   Using the Varnish packages provided by your distribution is often just
+   as good as compiling from source. Alternatively, you can add the
+   repository provided by Varnish Software, with the base URL of
+   http://repo.varnish-cache.org/
+
+   .. note::
+
+      This course is based on Varnish 3.0 and it's strongly advised that
+      you use Varnish 3.0. There is a list of VCL and configuration-related
+      changes between Varnish 2.1 and 3.0 in the final chapter.
+
+   After you ave started Varnish, you can connect to the management
+   interface using ``varnishadm`` with the same ``-T`` argument as you gave
+   to Varnish. The management interface is some times referred to as the
+   CLI or even the telenet interface.
+
+   When working in the management interface it is important to keep two
+   things in mind:
+
+   1. Any changes you make are done immediately on the running Varnish
+      instance
+   2. Changes are not persistent across restarts of Varnish. If you change
+      a parameter and you want the change to apply if you restart Varnish,
+      you need to also store it in the regular configuration for the boot
+      script.
+
+   One important concern that regards the management interface is security.
+   Because the management interface is not encrypted, only has limited
+   authentication and still allows almost total control over Varnish, it is
    important to protect it. The easiest way of doing that is by having it
    only listen to localhost (127.0.0.1). An other possibility is firewall
    rules to only allow specific (local) users to connect.
 
-   It is also possible to protect the telnet interface through a shared
-   secret, but this makes it impossible to use it without also using
-   varnishadm. At the time being, it is reserved for certain scripts. It
-   may become a default in the future.
+   It is also possible to protect the management interface through a shared
+   secret, and this has become normal in later Varnish versions. The shared
+   secret is typically a file stored in `/etc/varnish/secret` and specified
+   with the ``-S`` option to both Varnish and ``varnishadm``. As long as a
+   user can read that file (or more specifically: read the content of it),
+   the user can access the management interface.
 
 Exercise: Fetch data through Varnish
 ------------------------------------
 
-- Type ``start`` in the telnet or CLI interface
-- Install ``libwww-perl``
-- Do ``GET -Used http://localhost:8000/`` (on the command
-  line)
-- Wait about five seconds
-- Repeat the ``GET`` above and compare the results
+#. Install ``libwww-perl``
+#. Execute ``GET -Used http://localhost:8000/`` (on the command line)
+#. Compare the results from multiple executions.
 
 .. container:: handout
 
@@ -447,14 +396,14 @@ Exercise: Fetch data through Varnish
         supply extra headers with -H "Header: value", which can be used multiple
         times.
 
-        You may also be familiar with firebug, an add-on for Firefox
-        used for web development and related affairs. This too can
-        show you the response headers.
+        You may also be familiar with firebug, an add-on for Firefox used
+        for web development and related affairs. This too can show you the
+        response headers.
 
-        One thing you will discover soon is that web browsers tend to have their
-        own cache which you may not immediately be able to tell if you're using or
-        not, so always double-check with GET or HEAD if you are in doubt if what
-        you're seeing is coming from Varnish or is part of your browser cache.
+        Web browsers have their own cache which you may not immediately be
+        able to tell if you're using or not. It's often helpful to
+        double-check with GET or HEAD if you are in doubt if what you're
+        seeing is coming from Varnish or is part of your browser cache.
 
 Defining a backend in VCL
 -------------------------
@@ -680,20 +629,36 @@ varnishstat
 Exercise: Define a backend with VCL
 -----------------------------------
 
-1. Edit the startup script configuration for varnish:
-  
-  - On Red Hat or CentOS: /etc/sysconfig/varnish
-  - On Debian or Ubuntu: /etc/default/varnish
+#. Open the startup script configuration for varnish:
 
-2. Remove the ``-b localhost:80`` option.
-3. Make sure there is a ``-f /etc/varnish/default.vcl`` startup argument.
-4. Edit `/etc/varnish/default.vcl` to add your Apache server as the only
+   - On Red Hat or CentOS: /etc/sysconfig/varnish
+   - On Debian or Ubuntu: /etc/default/varnish
+
+#. With comments removed, it should look similar to::
+
+        NFILES=131072
+        MEMLOCK=82000
+        INSTANCE=$(uname -n)
+        DAEMON_OPTS="-a :6081 \
+                     -T localhost:6082 \
+                     -f /etc/varnish/default.vcl \
+                     -s file,/var/lib/varnish/$INSTANCE/varnish_storage.bin,1G"
+
+#. Edit `/etc/varnish/default.vcl` to add your Apache server as the only
    backend.
+#. Stop any running Varnish instance you have started manually and restart
+   Varnish the way your distribution would do it.
+#. Run a few requests through Varnish to see that it still works.
+#. See how this is reflected in ``varnishstat`` and ``varnishlog``. Try
+   using both ``varnishlog -c`` and ``varnishlog -b`` to compare.
 
 .. container:: handout
 
    Most of the time, you use VCL to configure backends for Varnish, and
-   in this exercise, we set it up.
+   in this exercise, we set it up. The first step is to verify that it is
+   used by Varnish. The snippet above represents a typical configuration
+   file for the Varnish init script. Your copy might use variables or
+   malloc instead, but it should be otherwise similar.
 
    You can chose a different location than `/etc/varnish/default.vcl` if
    you wish to.
@@ -705,15 +670,15 @@ Exercise: Define a backend with VCL
       attention to any backslashes (\\) and quotation marks that might move
       around as you edit the DAEMON_OPTS environmental variable.
 
-   Example `/etc/default/varnish` snippet, comments removed::
+   As you are finishing up this exercise, you hopefully begin to see the
+   usefulness of the various Varnish tools. ``varnishstat`` and
+   ``varnishlog`` are the two most used tools, and are usually what you
+   need for sites that are not in production yet.
 
-        NFILES=131072
-        MEMLOCK=82000
-        INSTANCE=$(uname -n)
-        DAEMON_OPTS="-a :6081 \
-                     -T localhost:6082 \
-                     -f /etc/varnish/default.vcl \
-                     -s file,/var/lib/varnish/$INSTANCE/varnish_storage.bin,1G"
+   The various arguments for ``varnishlog`` are mostly designed to help you
+   find exactly what you want, and filter out the noise. On production
+   traffic, the amount of log data that Varnish produces is staggering, and
+   filtering is a requirement for using ``varnishlog`` effectively.
 
 Tuning
 ======
@@ -1558,7 +1523,7 @@ Solution: Remove any leading "www."
 
 Verify:
 
-- varnishlog -i TxHeader,RxHeader -I Host
+- varnishlog -O -i TxHeader,RxHeader -I Host
 - Or: varnishlog
 - GET -H "Host: www.example.com" http://localhost:8081/
 
@@ -1720,7 +1685,19 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
 Exercise: VCL - avoid caching a page
 ------------------------------------
 
-- Write a VCL which avoids caching wiki.pl at all.
+- Write a VCL which avoids caching the index page at all.
+- It should cover both accessing `/` and `/index.html`
+
+.. container:: handout
+
+   When trying this out, remember that Varnish keeps the `Host`-header in
+   ``req.http.host`` and the part after the hostname in ``req.url``.
+
+   For `http://www.example.com/index.html`, the `http://` part is not seen
+   by Varnish at all, but ``req.http.host`` will have the value of
+   `www.example.com` and ``req.url`` the value of `/index.html`. Note how
+   the leading `/` is included in ``req.url``.
+
 
 Solution: VCL - avoid caching a page
 ------------------------------------

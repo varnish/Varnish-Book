@@ -14,6 +14,8 @@ Some specific changes(unlikely to be complete):
   while the rest goes in the second to last chapter (For now).
 - Remove the 3.0 sub-chapter in the intro
 - Move design philosophy to the introduction chapter (downplay)
+- No more usemod-wiki! (It's been a while since it was actually used)
+- Getting started has become bigger and the exercises are less fragmented
 - Merge Tunable parameters and Architecture into one chapter
 - Storage backends are now discussed in the Tuning-chapter
 - VCL: Renamed from intro to basics
