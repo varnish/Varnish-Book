@@ -20,9 +20,11 @@ Some specific changes(unlikely to be complete):
 - Storage backends are now discussed in the Tuning-chapter
 - VCL: Renamed from intro to basics
 - VCL: A state engine sub-chapter
+- VCL: Merge some of the simpler exercises together
 - VCL functions: The PURGE-example is stolen by the new cache
   invalidation-chapter.
 - Merge the chapter on bans and advanced VCL into "Saving the request"
+- Stick streaming and gzip in 'finishing words'
 
 In "Tuning"(new chapter):
 

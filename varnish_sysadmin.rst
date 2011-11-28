@@ -28,7 +28,11 @@ The course is split in two:
 1. Architecture, command line tools, installation, parameters, etc
 2. The Varnish Configuration Language
 
-The course has roughly 50% exercises and 50% instruction.
+The course has roughly 50% exercises and 50% instruction, and you will find
+all the information on the slides in the supplied training material.
+
+The supplied training material also has additional information for most
+chapters.
 
 .. container:: handout
 
@@ -649,7 +653,7 @@ Exercise: Define a backend with VCL
 #. Stop any running Varnish instance you have started manually and restart
    Varnish the way your distribution would do it.
 #. Run a few requests through Varnish to see that it still works.
-#. See how this is reflected in ``varnishstat`` and ``varnishlog``. Try
+#. Observe how this is reflected in ``varnishstat`` and ``varnishlog``. Try
    using both ``varnishlog -c`` and ``varnishlog -b`` to compare.
 
 .. container:: handout
@@ -1204,8 +1208,8 @@ cli_timeout           |default_cli_timeout|           Management thread->child
 
 Exercise: Tune first_byte_timeout
 ---------------------------------
-  
-1. Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing::
+
+#. Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing::
 
         #! /bin/sh
         sleep 5
@@ -1214,11 +1218,40 @@ Exercise: Tune first_byte_timeout
         echo
         echo "Hello world"
 
-2. Make it executable
-3. Test that it works outside of Varnish
-4. Start Varnish, test that it works through Varnish
-5. Set ``first_byte_timeout`` to 2s
-6. Check that it doesn't work.
+#. Make it executable
+#. Test that it works outside of Varnish
+#. Start Varnish, test that it works through Varnish
+#. Set ``first_byte_timeout`` to 2s
+#. Check that it doesn't work.
+
+Exercise: Configure threading
+-----------------------------
+
+While performing this exercise, watch the `threads` counter in
+``varnishstat`` to determine the number of threads that are running.
+
+#. Start Varnish as normal
+#. Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get
+   100 threads running at any given time, but never more than 400.
+#. Make the changes work across restarts of Varnish
+
+Extra: Experiment with ``thread_pools``, ``thread_pool_add_delay`` and
+``thread_pool_timeout`` while watching ``varnishstat`` to see how thread
+creation and destruction is affected. Does ``thread_pool_timeout`` affect
+already running threads?
+
+.. container:: handout
+
+   You can also try changing the ``thread_pool_stack`` variable to a low
+   value. This will only affect new threads, but try to find out how low
+   you can set it, and what happens if it's too low.
+
+   .. note::
+
+      It's not common to modify ``thread_pool_stack``,
+      ``thread_pool_add_delay`` or ``thread_pool_timeout``. These extra
+      assignments are for educational purposes, and not intended as an
+      encouragement to change the values.
 
 VCL Basics
 ==========
@@ -1494,18 +1527,29 @@ Example: Handling Vary: Accept-Encoding
       User-Agent in the Vary header, you should consider changing it, or
       you are likely to get abysmal cache utilization.
 
-Exercise: Remove any leading "www."
------------------------------------
+Exercise: Rewrite URLs and host headers
+---------------------------------------
 
-- Store a copy of ``req.http.host`` as an other header, for example
-  ``req.http.x-host``.
-- Use ``regsub()`` and ``req.http.host`` to change any occurrence of
-  `www.example.com` to just `example.com`.
-- Use varnishlog to verify the result.
+#. Copy the original `Host`-header and URL to a request header you can see
+   ``varnishlog``. E.g: ``req.http.x-host`` and ``req.http.x-url``.
+#. Ensure that `www.example.com` and `example.com` are cached as one, using
+   ``regsub()``.
+#. Rewrite all URLs under `http://sport.example.com` to
+   `http://example.com/sport/`. For example:
+   `http://sport.example.com/article1.html` to
+   `http://example.com/sport/article1.html`.
+#. Use varnishlog to verify the result.
+
+Extra: Make sure `/` and `/index.html` is cached as one object. How can you
+verify that it is, without changing the content?
+
+Extra 2: Make the redirection work for any domain with `sport.` at the
+front. E.g: `sport.example.com`, `sport.foobar.example.net`,
+`sport.blatti`, etc.
 
 .. container:: handout
 
-   The syntax for ``regsub()`` is `regsub(string, regex, replacement)`.
+   The syntax for ``regsub()`` is ``regsub(<string>, <regex>, <replacement>);``.
    `string` is the input string, in this case, ``req.http.host``. `regex`
    is the regular expression matching whatever content you need to change.
    "^www\." matches a string that begins (^) with www followed by a
@@ -1515,46 +1559,19 @@ Exercise: Remove any leading "www."
    To write a header, use ``set req.http.headername = "value";`` or ``set
    req.http.headername = regsub(...);``.
 
-Solution: Remove any leading "www."
------------------------------------
+   To verify the result, you can use ``varnishlog``, or lwp-request.
+   Example command::
 
-.. include:: vcl/solution-vcl_recv-www_removal.vcl
-   :literal:
-
-Verify:
-
-- varnishlog -O -i TxHeader,RxHeader -I Host
-- Or: varnishlog
-- GET -H "Host: www.example.com" http://localhost:8081/
-
-.. container:: handout
-
-   The above VCL is complete, with the exception of a missing backend
-   statement. After executing the above code, the VCL state engine
-   continues to execute the default VCL since no return() was specified.
-
-Exercise: Rewrite sport.example.com
------------------------------------
-
-- Assume that the hostname sport.example.com is really located under
-  example.com/sport
-- Use ``req.http.host`` and ``req.url`` combined with if () to
-  modify the URI accordingly.
-
-.. container:: handout
+      GET -H "Host: www.example.com" -USsed http://localhost/
 
    You can use if () to perform a regular expression if-test, or a plain
    string test. In the above exercise, both are valid. E.g.::
 
       if (req.http.host ~ "^sport\.example\.com$") {
-              (...)
-      }
 
    is equivalent with::
 
      if (req.http.host == "sport.example.com") {
-             (...)
-     }
 
    It is slightly faster to use == to perform a string comparison instead
    of a regular expression, but negligible.
@@ -1567,15 +1584,10 @@ Exercise: Rewrite sport.example.com
       ``req.url``. Remember, you can match just the beginning of the line
       with ``regsub(input,"^",replacement)``
 
-Solution: Rewrite sport.example.com
------------------------------------
+Solution: Rewrite URLs and host headers
+---------------------------------------
 
-.. include:: vcl/solution-vcl_recv-rewrite_sport.vcl
-   :literal:
-
-Or:
-
-.. include:: vcl/solution-vcl_recv-rewrite_sport_2.vcl
+.. include:: vcl/solution-vcl_recv-combo.vcl
    :literal:
 
 
@@ -1599,7 +1611,7 @@ VCL - ``vcl_fetch``
    You have multiple tools available in ``vcl_fetch``. First and foremost
    you have the ``beresp.ttl`` variable, which defines how long an object
    is kept.
-   
+
    .. warning::
 
            If the request was not passed *before* reaching ``vcl_fetch``, the
@@ -1649,7 +1661,7 @@ Example: Enforce caching of .jpg urls for 60 seconds
 
 .. include:: vcl/cache_jpg.vcl
    :literal:
-        
+
 .. container:: handout
 
    The above example is typical for a site migrating to Varnish. Setting
@@ -1685,8 +1697,14 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
 Exercise: VCL - avoid caching a page
 ------------------------------------
 
-- Write a VCL which avoids caching the index page at all.
-- It should cover both accessing `/` and `/index.html`
+#. Write a VCL which avoids caching the index page at all.
+   It should cover both accessing `/` and `/index.html`
+#. Write a VCL that makes Varnish honor the following headers::
+
+        Cache-Control: no-cache
+        Cache-Control: private
+        Pragma: no-cache
+
 
 .. container:: handout
 
@@ -1698,11 +1716,20 @@ Exercise: VCL - avoid caching a page
    `www.example.com` and ``req.url`` the value of `/index.html`. Note how
    the leading `/` is included in ``req.url``.
 
+   Varnish only obeys the first header it finds of "s-maxage" in
+   Cache-Control, "max-age" in Cache-Control or the Expire header.
+   However, it is often necessary to check the values of other
+   headers too - ``vcl_fetch`` is the place to do that.
+
+
 
 Solution: VCL - avoid caching a page
 ------------------------------------
 
 .. include:: vcl/avoid_caching_page.vcl
+   :literal:
+
+.. include:: vcl/honor_more_cache_headers.vcl
    :literal:
 
 .. container:: handout
@@ -1716,30 +1743,6 @@ Solution: VCL - avoid caching a page
    make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
    accidentally adding a hitpass object that prevents caching for a long
    time.
-
-Exercise: Honor various cache-control headers
----------------------------------------------
-
-Write a VCL that makes Varnish honor the following headers:
-
-::
-
-        Cache-Control: no-cache
-        Cache-Control: private
-        Pragma: no-cache
-
-.. container:: handout
-
-        Varnish only obeys the first header it finds of "s-maxage" in
-        Cache-Control, "max-age" in Cache-Control or the Expire header.
-        However, it is often necessary to check the values of other
-        headers too - ``vcl_fetch`` is the place to do that.
-
-Solution: Honor various cache-control headers
----------------------------------------------
-
-.. include:: vcl/honor_more_cache_headers.vcl
-   :literal:
 
 Exercise: Either use s-maxage or set ttl by file type
 -----------------------------------------------------
@@ -1812,12 +1815,6 @@ Summary of VCL - Part 1
         ``vcl_recv``, you can do just that. You don't have to copy the
         default VCL, because it will be executed after your own - assuming
         you don't have any `return` statements.
-
-..
-        The point of this slide is to zoom out a bit and give the
-        participants a chance to look at the bigger picture. Focus on how
-        mastering the details like if-then-else and a few simple regular
-        expressions can be enough to build even complex VCL files.
 
 VCL functions
 =============
@@ -1956,7 +1953,7 @@ VCl - ``vcl_pass``
    :literal:
 
 .. container:: handout
-        
+
         The ``vcl_pass`` function belongs in the same group as ``vcl_hit``
         and ``vcl_miss``. It is run right after either a cache lookup or
         ``vcl_recv`` determined that this isn't a cached item and it's not
@@ -3124,6 +3121,68 @@ Exercise: Try the tools
 
 Finishing words
 ===============
+
+Streaming
+---------
+
+- Varnish usually waits until it has the entire object before sending it to
+  a client
+- Varnish 3.0.0 can "stream" a cache miss or pass, but only for one
+  client per object
+- Varnish 3.1 will stream for multiple clients
+- ``set beresp.do_stream = true;``
+
+.. container:: handout
+
+   Streaming support in Varnish has a very specific meaning. As long as
+   something is cached in Varnish, Varnish will happily deliver that
+   content to multiple clients at the same time. But if it is not in cache,
+   Varnish will fetch the entire object from a backend before it starts
+   delivering it to a client.
+
+   With Varnish 3.0.0, the first part of Varnish' streaming support was
+   written. It allowed the first client that gets a cache miss to be sent
+   the data as fast as Varnish receives it. However, any other clients
+   would have to wait for the object to be completely loaded into cache.
+
+   Varnish 3.0.2+streaming was the first Varnish version that implemented
+   full streaming support, where there is no difference between the first
+   and second client.
+
+   Since Varnish 3.0.2+streaming is an experimental release, the Varnish
+   3.1-release is expected to be the first full release with streaming
+   support.
+
+Gzip compression
+----------------
+
+- Varnish 3.0.0 introduced gzip-support for Varnish
+- Mostly relevant for ESI-users
+
+.. container:: handout
+
+   GZip compression is standard content encoding over HTTP. All modern
+   browsers support it, and the user is never aware.
+
+   Before Varnish 3.0, Varnish did not have explicit support for GZip
+   compression. Since Varnish is a cache, it would simply cache the
+   compressed content as the backend server delivered it.
+
+   However, to use Edge Side Includes, Varnish needs to parse the content,
+   and thus be able to understand the content encoding. Before Varnish 3.0,
+   users were forced to not use GZip encoding, or put an other service in
+   front of Varnish to compress the content.
+
+   Varnish 3.0 solves this problem by implementing intelligent support for
+   GZip compression in Varnish. Each individual object is cached, and for
+   ESI, Varnsih will still cache the content compressed, after first
+   parsing it in its uncompressed form. Varnish understands what is and
+   isn't compressed, so there should be little reason to change any
+   settings.
+
+   The bonus from this is when a client that doesn't support GZip comes
+   around. Varnish can then use the compressed object, but uncompress it on
+   the fly.
 
 Varnish 2.1 to 3.0
 ------------------
