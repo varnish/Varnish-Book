@@ -3175,7 +3175,7 @@ Gzip compression
 
    Varnish 3.0 solves this problem by implementing intelligent support for
    GZip compression in Varnish. Each individual object is cached, and for
-   ESI, Varnsih will still cache the content compressed, after first
+   ESI, Varnish will still cache the content compressed, after first
    parsing it in its uncompressed form. Varnish understands what is and
    isn't compressed, so there should be little reason to change any
    settings.
