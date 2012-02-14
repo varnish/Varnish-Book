@@ -1142,6 +1142,7 @@ Exercise : Test the `Vary` header
 
 By using the server code provided and two different browsers test the `Vary`
 header and try to find why and how Varnish returns a different cache object.
+
 Tuning
 ======
 
