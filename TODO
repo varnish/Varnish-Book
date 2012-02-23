@@ -3,6 +3,10 @@ Merging
 
 - The exercise-code for the web-dev material should be more accessible.
 - Need a build tool to exclude web-dev/sysadmin-specific content
+- Verify that all chapters are sensible as slides too.
+- Test the new chapters (HTTP, ESI, Ajax, Cookies) on someone
+- The flow needs to be re-evaluated, particularly towards the last few
+  chapters, after VCL.
 
 Content
 =======
@@ -15,8 +19,6 @@ Content
   - Need a new exercise.
 
 - Add more visuals for the VCL chapters
-- ESI needs to be re-worked to match the rest of the course.
-- Finishing words need love. (Roadmap?)
 
 Nitpicks
 ========
@@ -24,7 +26,8 @@ Nitpicks
 Technical
 =========
 
+- Need to implement regression tests for the PHP too.
 - Make distdist == scp and formulate Announce-mail.
 - Automate fetch default VCL from Varnish
 - Verify fonts
-- Add the rst2s5 patch somewhere sane. Sanitize it.
+- Fix image-sizes

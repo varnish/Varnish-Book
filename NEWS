@@ -4,7 +4,15 @@ New in 4.0
 Mainly about integrating the web-dev material to make a single course.
 
 - New HTTP chapter, goes through core concepts of HTTP.
-
+- Other new chapters: AJAX, Cookies and ESI
+- Note that ESI has been pretty much rewritten
+- An exercise is added to the "Cache invalidation"-chapter that uses the
+  PHP code from the web-dev course. Read it ahead of time!
+- Several code snippets for the new chapters are provided in the material/
+  directory.
+- Still rather rough.
+- Beyond the above entirely new chapters, the material is largely
+  unchanged.
 
 New in 3.0
 ----------

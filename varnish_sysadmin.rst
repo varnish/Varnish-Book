@@ -2787,7 +2787,7 @@ Smart bans
 
          set beresp.http.x-url = req.url;
 
-      Then use that instead of ``req.url`` in your purges, in ``vcl_recv``::
+      Then use that instead of ``req.url`` in your bans, in ``vcl_recv``::
 
          ban("obj.http.x-url == " req.url);
 
@@ -2854,8 +2854,8 @@ Solution: Write a VCL for bans and purges
 Exercise : PURGE an article from the backend
 --------------------------------------------
 
-- Send a PURGE request to Varnish from your backend server after an article is
-  published. The publication part will be simulated.
+- Send a PURGE request to Varnish from your backend server after an article
+  is published. The publication part will be simulated.
 
 - The result should be that the article must be purged in Varnish.
 
@@ -2880,10 +2880,6 @@ Solution : PURGE an article from the backend
 
 .. code-block:: c
     :include: vcl/solution-purge-from-backend.vcl
-
-..
-  XXX: Need more examples on bans and need ban-list stuff.
-
 
 Saving a request
 ================
