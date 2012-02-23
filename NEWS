@@ -1,18 +1,41 @@
 New in 4.0
 ----------
 
-Mainly about integrating the web-dev material to make a single course.
+First version to integrate the web development course, and preparing to go
+public. The material in the sysadmin course is left almost untouched, save
+for an added exercise.
 
-- New HTTP chapter, goes through core concepts of HTTP.
-- Other new chapters: AJAX, Cookies and ESI
-- Note that ESI has been pretty much rewritten
-- An exercise is added to the "Cache invalidation"-chapter that uses the
-  PHP code from the web-dev course. Read it ahead of time!
+New chapters:
+
+- HTTP, AJAX, Cookies
+
+Completely rewritten chapters:
+
+- ESI
+
+There are now three sets of PDFs (6 total):
+
+- The web development PDFs:
+  - build/varnish_dev.pdf
+  - build/varnish_dev_slide.pdf
+- The Sysadmin PDFs:
+  - build/varnish_sysadmin.pdf
+  - build/varnish_sysadmin_slide.pdf
+- And the new, tutorial-pdfs:
+  - build/varnish_tutorial.pdf
+  - build/varnish_tutorial_slide.pdf
+
+The tutorial-PDFs contain all the material.
+
+Other content changes:
+
+- Added a single exercise to the "Cache Invalidation" chapter, based on the
+  material found in material/
+
+Practical changes:
+
 - Several code snippets for the new chapters are provided in the material/
   directory.
-- Still rather rough.
-- Beyond the above entirely new chapters, the material is largely
-  unchanged.
 - Removed teacher-pdf and s5-build (not used or maintained)
 
 New in 3.0

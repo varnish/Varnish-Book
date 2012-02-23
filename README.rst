@@ -27,6 +27,7 @@ Index
 * build/ - Created on make, contains PDF output, html-output and necessary
   images
 * Makefile
+* material/ - PHP files, mainly used by the web-dev material
 * misc/ - Contains strange stuff. Including the old course (Linpro-source)
   and a patch for rst2s5 needed (and a pre-patched version).
 * munin/ - Anonymized munin graphs for instructors
