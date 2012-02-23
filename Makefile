@@ -1,9 +1,7 @@
 
 RST2PDF=/usr/bin/rst2pdf
-RST2S5=/usr/local/bin/rst2s5.py
 BDIR=build
 CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
-htmltarget=${BDIR}/varnish_sysadmin.html
 pdftarget=${BDIR}/varnish_sysadmin.pdf
 pdftargetslide=${BDIR}/varnish_sysadmin_slide.pdf
 pdftargetteach=${BDIR}/varnish_sysadmin_teacher.pdf
@@ -11,7 +9,7 @@ rstsrc=varnish_sysadmin.rst
 images = ui/img/vcl.png ui/img/request.png
 common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/control.rst util/frontpage.rst util/printheaders.rst
 
-all: ${pdftarget} ${htmltarget} ${pdftargetteach} ${pdftargetslide}
+all: ${pdftarget} ${pdftargetslide}
 
 mrproper: clean all
 
@@ -38,9 +36,6 @@ ${BDIR}/img:
 
 ${BDIR}:
 	mkdir -p ${BDIR}
-
-${htmltarget}: ${common} ${BDIR}/img ${BDIR}/ui ui/vs/*
-	${RST2S5} ${rstsrc} -r 5 --strip-elements-with-class=onlypdf --current-slide --theme-url=ui/vs/ ${htmltarget}
 
 ${pdftarget}: ${common} ui/pdf.style
 	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}

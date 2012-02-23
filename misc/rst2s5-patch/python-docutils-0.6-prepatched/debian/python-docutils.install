@@ -1,5 +1,0 @@
-debian/tmp/usr/lib/python*.*/*-packages/docutils*.egg-info
-debian/tmp/usr/lib/python*.*/*-packages/docutils
-tools/editors/emacs/rst.el usr/share/emacs/site-lisp
-debian/50python-docutils.el etc/emacs/site-start.d
-debian/tmp/usr/bin/*

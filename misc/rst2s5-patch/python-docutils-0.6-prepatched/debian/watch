@@ -1,6 +1,0 @@
-version=3
-
-opts=filenamemangle=s/(.*)/python-$1/ \
-http://sf.net/docutils/docutils-(.*)\.tar\.gz
-
-

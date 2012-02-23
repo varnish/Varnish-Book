@@ -13,6 +13,7 @@ Mainly about integrating the web-dev material to make a single course.
 - Still rather rough.
 - Beyond the above entirely new chapters, the material is largely
   unchanged.
+- Removed teacher-pdf and s5-build (not used or maintained)
 
 New in 3.0
 ----------

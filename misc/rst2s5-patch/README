@@ -1,9 +1,0 @@
-Modifications to docutils for VS
-================================
-
-I've modified docutils slightly with raw.patch supplied in this directory.
-For convenience I also provide the entire ubuntu lucid-version of
-python-docutils-0.6 with the patch applied.
-
-The patch should be improved and sent upstream. Ideally, rst2s5 should
-support a -b, similar to rst2pdf.
