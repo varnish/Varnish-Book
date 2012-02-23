@@ -20,4 +20,7 @@ BEGIN {
 	if (inctop==1 && chapter == "")
 		print last
 }
-{ last = $0 }' varnish_sysadmin.rst
+{
+	last = $0
+}
+' varnish_sysadmin.rst

@@ -1,15 +1,21 @@
-
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
 CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
-pdftarget=${BDIR}/varnish_sysadmin.pdf
-pdftargetslide=${BDIR}/varnish_sysadmin_slide.pdf
-pdftargetteach=${BDIR}/varnish_sysadmin_teacher.pdf
+pdftarget=${BDIR}/varnish_tutorial.pdf
+pdftargetslide=${BDIR}/varnish_tutorial_slide.pdf
+pdftargetsysadmin=${BDIR}/varnish_sysadmin.pdf
+pdftargetslidesysadmin=${BDIR}/varnish_sysadmin_slide.pdf
+pdftargetdev=${BDIR}/varnish_dev.pdf
+pdftargetslidedev=${BDIR}/varnish_dev_slide.pdf
 rstsrc=varnish_sysadmin.rst
 images = ui/img/vcl.png ui/img/request.png
 common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/control.rst util/frontpage.rst util/printheaders.rst
+PICK = "./util/pickchapter.sh"
+ALL = "Introduction,Getting started,Tuning,HTTP,VCL Basics,VCL functions,Cache invalidation,Saving a request,AJAX,Cookies,ESI,Varnish Programs,Finishing words"
+SYSADMIN = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
+WEBDEV = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,AJAX,Cookies,ESI,Finishing words"
 
-all: ${pdftarget} ${pdftargetslide}
+all: ${pdftarget} ${pdftargetslide} ${pdftargetsysadmin} ${pdftargetslidesysadmin} ${pdftargetdev} ${pdftargetslidedev}
 
 mrproper: clean all
 
@@ -37,11 +43,25 @@ ${BDIR}/img:
 ${BDIR}:
 	mkdir -p ${BDIR}
 
+# I WOULD LIKE TO SAY: I HATE MYSELF!
+
 ${pdftarget}: ${common} ui/pdf.style
-	 ${RST2PDF} -s ui/pdf.style -b2 ${rstsrc} -o ${pdftarget}
+	${PICK} ${ALL} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftarget}
 
 ${pdftargetslide}: ${common} ui/pdf_slide.style
-	 ./util/strip-class.gawk ${rstsrc} | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
+	${PICK} ${ALL} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
+
+${pdftargetsysadmin}: ${common} ui/pdf.style
+	${PICK} ${SYSADMIN} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetsysadmin}
+
+${pdftargetslidesysadmin}: ${common} ui/pdf_slide.style
+	${PICK} ${SYSADMIN} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslidesysadmin}
+
+${pdftargetdev}: ${common} ui/pdf.style
+	${PICK} ${WEBDEV} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetdev}
+
+${pdftargetslidedev}: ${common} ui/pdf_slide.style
+	${PICK} ${WEBDEV} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslidedev}
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |default_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
