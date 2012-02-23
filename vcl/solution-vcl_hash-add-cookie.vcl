@@ -1,5 +1,5 @@
 sub vcl_hash {
-    set req.hash += req.http.Cookie;
+    hash_data(req.http.Cookie);
 }
 
 sub vcl_recv {

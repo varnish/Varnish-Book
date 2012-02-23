@@ -9,7 +9,7 @@ sub vcl_fetch {
         set req.http.host = "www.google.com";
         set req.url = regsub(req.url, "^/masq", "");
         remove req.http.Cookie;
-        return(lookup);
+        return(deliver);
     }
     /* [...] */
 }
