@@ -1,3 +1,13 @@
+Going-public
+============
+
+- Go through the various util/ stuff to see if I missed any tools
+- Better build instructions
+- Consider renaming 'make dist' or adapting it.
+- Consider re-engineering NEWS so it's also suited for casual readers.
+- RENAME the repository and the individual PDFs
+- Find a tool for making HTML
+
 Merging
 =======
 
@@ -7,6 +17,7 @@ Merging
 - Test the new chapters (HTTP, ESI, Ajax, Cookies) on someone
 - The flow needs to be re-evaluated, particularly towards the last few
   chapters, after VCL.
+- Make-targets for building the different courses
 
 Content
 =======

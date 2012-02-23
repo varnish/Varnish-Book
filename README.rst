@@ -5,9 +5,21 @@ This repository contains:
 
 * The training material used for our Varnish training (the source for the
   slides and printed version)
-* A snapshot of vg.no/'s munin graphs for use by instructors.
+* A snapshot of munin graphs for use by instructors.
 * Build system for said training material
-* Scripts to populate usb sticks. (soon)
+
+This material serves multiple purposes.
+
+First of all, this is the training material Varnish Software uses for
+professional Varnish training courses. That is the original motivation for
+writing this material.
+
+Secondly, it is now (soon?) used as a public tutorial to complement the
+reference documentation.
+
+For training, we hold different courses, hence the existence of different
+PDFs. We also build a "slide" PDF for this purpose, which is why the layout
+of the individual chapters is the way it is.
 
 Index
 -----
@@ -31,6 +43,18 @@ Index
   backend will be added on the fly during make check).
 
 
+Building the material
+---------------------
+
+The following tools are needed:
+
+- rst2pdf
+- gawk (old awk is not sufficient)
+- bash (I'm lazy)
+- git (somewhat optional, I believe)
+- make (possibly GNU make. Not tested)
+- dot (for images)
+
 Updating the training material
 ------------------------------
 
@@ -43,33 +67,14 @@ add significant content changes there, so the instructor(s) can keep track
 of what changes between version-1.5 and version-1.7 without reading commit
 logs which also contain edits to Makefile and whatnot.
 
-There are TWO tools at work here:
-
 - rst2pdf
-- rst2s5
 
 rst2pdf generates the PDF, and needs a bit of help to get page numbering
 properly formated, that's where the oddeven stuff at the top comes in.
-The problem with that, is that it is not proper rst, so rst2s5 will
-complain about. That is why rst2s5 has been told to IGNORE errors. This
-means that the only errors you get are from rst2pdf. Live with it (for
-now?).
-
-rst2s5 creates presentations in the s5-language/format/thingamajing. It is
-not originally intended for documents of the size that we need, so by
-default it will break for a new slide only at top-level headings. That is
-fairly useless when we have this many slides, so a slight modification has
-been made. I (Kristian) have yet to publish this anywhere, but it's fairly
-trivial. I'll add the patch or a complete version here soon enough.
+The problem with that, is that it is not proper rst, so other tools will
+complain about it.
 
 I have tried to use `tip`, `warning` and `note`, and no further
 "boxes".
 
-To change the looks of the slides, edit ui/vs/pretty.css (possibly other
-css files, but unlikely). To change the look of the PDF, change
-ui/pdf.style.
-
-Instructor comments are simple rst comments: .. on a line by itself (NO
-trailing white-space), followed immediately by the comment. They are
-currently a bit of a hack in the Makefile, so avoid multi-line comments or
-other rst-trickery - it wont work.
+To change the look of the PDF, change ui/pdf.style.

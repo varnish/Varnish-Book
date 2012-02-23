@@ -61,17 +61,10 @@ dist: all
 	target=${BDIR}/dist/varnish_sysadmin-$$version/; \
 	echo $$target ;\
 	mkdir -p $${target};\
-	mkdir -p $$target/html/;\
 	mkdir -p $$target/pdf/;\
-	cp -r ${BDIR}/varnish_sysadmin.html $$target/html/;\
-	cp -rL ${BDIR}/ui $$target/html/;\
-	cp -rL ${BDIR}/img $$target/html/;\
 	cp -r ${BDIR}/varnish_sysadmin.pdf $$target/pdf/varnish_sysadmin-v$$version.pdf;\
-	cp -r ${BDIR}/varnish_sysadmin_teacher.pdf $$target/pdf/varnish_sysadmin_teacher-v$$version.pdf;\
 	cp -r munin/ $$target;\
 	cp NEWS $$target;\
-	rm -r $${target}/html/img/staging/;\
-	rm -r $${target}/html/img/*.dot;\
 	tar -hC ${BDIR}/dist/ -cjf varnish_sysadmin-$$version.tar.bz2 varnish_sysadmin-$$version/
 
 check:
