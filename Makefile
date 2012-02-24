@@ -1,21 +1,34 @@
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
 CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
-pdftarget=${BDIR}/varnish_tutorial.pdf
-pdftargetslide=${BDIR}/varnish_tutorial_slide.pdf
-pdftargetsysadmin=${BDIR}/varnish_sysadmin.pdf
-pdftargetslidesysadmin=${BDIR}/varnish_sysadmin_slide.pdf
-pdftargetdev=${BDIR}/varnish_dev.pdf
-pdftargetslidedev=${BDIR}/varnish_dev_slide.pdf
+PICK = "./util/pickchapter.sh"
+
+# The following are chapter lists for the relevant versions of the PDFs.
+# Please note that they need to be exact. No extra spaces, case sensitive
+# etc.
+# 
+# If you want a new set, just make a new variable and that's the name of
+# the pdfs you can now build.
+
+tutorial = "Introduction,Getting started,Tuning,HTTP,VCL Basics,VCL functions,Cache invalidation,Saving a request,AJAX,Cookies,ESI,Varnish Programs,Finishing words"
+sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
+webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,AJAX,Cookies,ESI,Finishing words"
+
+webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
+sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
+tutorialt = ${BDIR}/varnish-tutorial.pdf ${BDIR}/varnish_slide-tutorial.pdf
 rstsrc=varnish_sysadmin.rst
 images = ui/img/vcl.png ui/img/request.png
 common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/control.rst util/frontpage.rst util/printheaders.rst
-PICK = "./util/pickchapter.sh"
-ALL = "Introduction,Getting started,Tuning,HTTP,VCL Basics,VCL functions,Cache invalidation,Saving a request,AJAX,Cookies,ESI,Varnish Programs,Finishing words"
-SYSADMIN = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
-WEBDEV = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,AJAX,Cookies,ESI,Finishing words"
 
-all: ${pdftarget} ${pdftargetslide} ${pdftargetsysadmin} ${pdftargetslidesysadmin} ${pdftargetdev} ${pdftargetslidedev}
+all: webdev tutorial sysadmin
+
+webdev: ${webdevt}
+
+sysadmin: ${sysadmint}
+
+tutorial: ${tutorialt}
+
 
 mrproper: clean all
 
@@ -43,34 +56,16 @@ ${BDIR}/img:
 ${BDIR}:
 	mkdir -p ${BDIR}
 
-# I WOULD LIKE TO SAY: I HATE MYSELF!
+${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
+	${PICK} ${$*} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
 
-${pdftarget}: ${common} ui/pdf.style
-	${PICK} ${ALL} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftarget}
-
-${pdftargetslide}: ${common} ui/pdf_slide.style
-	${PICK} ${ALL} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslide}
-
-${pdftargetsysadmin}: ${common} ui/pdf.style
-	${PICK} ${SYSADMIN} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetsysadmin}
-
-${pdftargetslidesysadmin}: ${common} ui/pdf_slide.style
-	${PICK} ${SYSADMIN} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslidesysadmin}
-
-${pdftargetdev}: ${common} ui/pdf.style
-	${PICK} ${WEBDEV} | ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetdev}
-
-${pdftargetslidedev}: ${common} ui/pdf_slide.style
-	${PICK} ${WEBDEV} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o ${pdftargetslidedev}
+${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
+	${PICK} ${$*} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |default_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
 
 sourceupdate: util/param.rst flowchartupdate
-
-
-${pdftargetteach}: ${common} ui/pdf.style
-	 awk '$$0 == ".." { print ".. admonition:: Instructor comment"; $$0=""; } { print }' ${rstsrc}  |  ${RST2PDF} -s ui/pdf.style -b2 -o ${pdftargetteach}
 
 clean:
 	-rm -r build/
@@ -90,4 +85,4 @@ dist: all
 check:
 	$(MAKE) -C vcl/
 
-.PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst
+.PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst webdev sysadmin tutorial
