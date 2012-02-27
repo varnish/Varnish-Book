@@ -1,12 +1,5 @@
-backend default {
-    .host = "localhost";
-    .port = "80";
-}
-
-acl purgers {
-    "127.0.0.1";
-}
-
+backend default { .host = "localhost"; .port = "80"; }
+acl purgers { "127.0.0.1"; }
 sub vcl_recv {
     if (req.request == "PURGE") {
         if (!client.ip ~ purgers) {
@@ -14,9 +7,7 @@ sub vcl_recv {
         }
 	return (lookup);
     }
-    /* [...] */
 }
-
 sub vcl_hit {
 	if (req.request == "PURGE") {
 		purge;
@@ -29,4 +20,3 @@ sub vcl_miss {
 		error 200 "Purged.";
 	}
 }
-

@@ -1,13 +1,11 @@
 <?php
 header( 'Content-Type: text/plain' );
-
 $hostname = 'localhost';
 $port     = 8000;
 $URL      = '/url/to/article.php';
 $debug    = true;
 
 print "Updating the article in the database ...\n";
-
 purgeURL( $hostname, $port, $URL, $debug );
 
 function purgeURL( $hostname, $port, $purgeURL, $debug )
@@ -37,13 +35,9 @@ function purgeURL( $hostname, $port, $purgeURL, $debug )
     }
 
     $curlHandler = curl_init();
-
     curl_setopt_array( $curlHandler, $curlOptionList );
-
     curl_exec( $curlHandler );
-
     curl_close( $curlHandler );
-
     if( $fd !== false )
     {
         fclose( $fd );

@@ -23,4 +23,4 @@ BEGIN {
 {
 	last = $0
 }
-' varnish_sysadmin.rst
+' varnish_tutorial.rst

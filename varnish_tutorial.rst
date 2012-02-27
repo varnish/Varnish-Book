@@ -1260,7 +1260,7 @@ HTTP
 - Protocol basics
 - Requests and responses
 - HTTP request/response control flow
-- Statelesness and idempotence
+- Statelessness and idempotence
 - Cache related headers
 
 .. container:: handout
@@ -1478,95 +1478,101 @@ invalidation. The most important ones are :
 - Vary
 
 Expires
-.......
+-------
 
-The `Expires` **response** header field gives the date/time after which the response
-is considered stale. A stale cache item will not be returned by any cache
-(proxy cache or client cache).
+The `Expires` **response** header field gives the date/time after which the
+response is considered stale. A stale cache item will not be returned by
+any cache (proxy cache or client cache).
 
-The syntax for this header is : ::
+The syntax for this header is::
 
     Expires: GMT formatted date
 
-It is recommended not to define `Expires` too far in the future. Setting it to 1
-year is usually enough.
+It is recommended not to define `Expires` too far in the future. Setting it
+to 1 year is usually enough.
 
-Using `Expires` does not prevent the cached resource to be updated. If a resource
-is updated chaging its name (by using a version number for instance) is
-possible.
+Using `Expires` does not prevent the cached resource to be updated. If a
+resource is updated chaging its name (by using a version number for
+instance) is possible.
 
-`Expires` works best for any file that is part of your design like JavaScripts
-stylesheets or images.
+`Expires` works best for any file that is part of your design like
+JavaScripts stylesheets or images.
 
 Cache-Control
-.............
+-------------
 
-The `Cache-Control` header field specifies directives that **must** be applied by all
-caching mechanisms (from proxy cache to browser cache). `Cache-Control` accepts
-the following arguments (ony the most relevant are described):
+The `Cache-Control` header field specifies directives that **must** be
+applied by all caching mechanisms (from proxy cache to browser cache).
+`Cache-Control` accepts the following arguments (ony the most relevant are
+described):
 
 - `public`: The response may be cached by any cache.
-- `no-store`: The response body **must not** be stored by any cache mechanism;
-- `no-cache`: Authorizes a cache mechanism to store the response in its cache
-  but it **must not** reuse it without validating it with the origin server
-  first. In order to avoid any confusion with this argument think of it as a
-  "store-but-do-no-serve-from-cache-without-revalidation" instruction.
+- `no-store`: The response body **must not** be stored by any cache
+  mechanism;
+- `no-cache`: Authorizes a cache mechanism to store the response in its
+  cache but it **must not** reuse it without validating it with the origin
+  server first. In order to avoid any confusion with this argument think of
+  it as a "store-but-do-no-serve-from-cache-without-revalidation"
+  instruction.
 - `max-age`: Specifies the period in seconds during which the cache will be
   considered fresh;
 - `smax-age`: Like `max-age` but it applies only to public caches;
 - `must-revalidate`: Indicates that a stale cache item can not be serviced
   without revalidation with the origin server first;
 
-Unlike `Expires`, `Cache-Control` is both a **request** and a **response**
-header, here is the list of arguments you may use for each context:
+.. container:: handout
+        
+        Unlike `Expires`, `Cache-Control` is both a **request** and a **response**
+        header, here is the list of arguments you may use for each context:
 
-+--------------------+---------+-----------+
-| Argument           | Request | Response  |
-+====================+=========+===========+
-| `no-cache`         | X       | X         |
-+--------------------+---------+-----------+
-| `no-store`         | X       | X         |
-+--------------------+---------+-----------+
-| `max-age`          | X       |           |
-+--------------------+---------+-----------+
-| `smax-age`         |         |           |
-+--------------------+---------+-----------+
-| `max-stale`        | X       |           |
-+--------------------+---------+-----------+
-| `min-fresh`        | X       |           |
-+--------------------+---------+-----------+
-| `no-transform`     | X       | X         |
-+--------------------+---------+-----------+
-| `only-if-cached`   | X       |           |
-+--------------------+---------+-----------+
-| `public`           |         | X         |
-+--------------------+---------+-----------+
-| `private`          |         | X         |
-+--------------------+---------+-----------+
-| `must-revalidate`  |         | X         |
-+--------------------+---------+-----------+
-| `proxy-revalidate` |         | X         |
-+--------------------+---------+-----------+
+        +--------------------+---------+-----------+
+        | Argument           | Request | Response  |
+        +====================+=========+===========+
+        | `no-cache`         | X       | X         |
+        +--------------------+---------+-----------+
+        | `no-store`         | X       | X         |
+        +--------------------+---------+-----------+
+        | `max-age`          | X       |           |
+        +--------------------+---------+-----------+
+        | `smax-age`         |         |           |
+        +--------------------+---------+-----------+
+        | `max-stale`        | X       |           |
+        +--------------------+---------+-----------+
+        | `min-fresh`        | X       |           |
+        +--------------------+---------+-----------+
+        | `no-transform`     | X       | X         |
+        +--------------------+---------+-----------+
+        | `only-if-cached`   | X       |           |
+        +--------------------+---------+-----------+
+        | `public`           |         | X         |
+        +--------------------+---------+-----------+
+        | `private`          |         | X         |
+        +--------------------+---------+-----------+
+        | `must-revalidate`  |         | X         |
+        +--------------------+---------+-----------+
+        | `proxy-revalidate` |         | X         |
+        +--------------------+---------+-----------+
 
-Example of a `Cache-Control` header: ::
 
-    Cache-Control: public, must-revalidate, max-age=2592000
+        Example of a `Cache-Control` header::
 
-.. Note::
+            Cache-Control: public, must-revalidate, max-age=2592000
 
-    As you might have noticed `Expires` and `Cache-Control` do more or less the
-    same job, `Cache-Control` gives you more control though. There is a
-    significant difference between these two headers:
+        .. Note::
 
-        - `Cache-Control` uses relative times in seconds, cf (s)max-age
-        - `Expires` always returns an absolute date
+            As you might have noticed `Expires` and `Cache-Control` do more or less the
+            same job, `Cache-Control` gives you more control though. There is a
+            significant difference between these two headers:
 
-.. Note::
+                - `Cache-Control` uses relative times in seconds, cf (s)max-age
+                - `Expires` always returns an absolute date
 
-    Cache-Control **always** overrides Expires.
+        .. Note::
+
+            Cache-Control **always** overrides Expires.
 
 Last-Modified
-.............
+-------------
 
 The `Last-Modified` **response** header field indicates the date and time at
 which the origin server believes the variant was last modified. This headers
@@ -1577,7 +1583,7 @@ Example of a `Last-Modified` header: ::
     Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
 
 If-Modified-Since
-.................
+-----------------
 
 The `If-Modified-Since` **request** header field is used with a method to make it conditional:
 
@@ -1593,7 +1599,7 @@ Example of an `If-Modified-Since` header: ::
     :scale: 70%
 
 If-None-Match
-.............
+-------------
 
 The `If-None-Match` **request** header field is used with a method to make it conditional.
 
@@ -1614,7 +1620,7 @@ Example of an `If-None-Match` header : ::
     :scale: 70%
 
 Etag
-....
+----
 
 The `ETag` **response** header field provides the current value of the entity tag for the requested variant.
 The idea behind `Etag` is to provide a unique value for a resource's contents.
@@ -1624,7 +1630,7 @@ Example of an `Etag` header: ::
     Etag: "1edec-3e3073913b100"
 
 Pragma
-......
+------
 
 The `Pragma` **request** header is a legacy header and should no longer be used.
 Some applications still send headers like `Pragma: no-cache` but this is for
@@ -1635,7 +1641,7 @@ and should not be seen as a reliable header especially when used as a response
 header.
 
 Vary
-....
+----
 
 The `Vary` **response** header indicates the response returned by the origin
 server may vary depending on headers received in the request. For example you
@@ -2869,18 +2875,26 @@ Solution : PURGE an article from the backend
 
 **article.php**
 
-.. code-block:: php
-    :include: material/webdev/article.php
+.. include:: material/webdev/article.php
+   :literal:
+
+.. raw:: pdf
+
+   PageBreak
 
 **purgearticle.php**
 
-.. code-block:: php
-    :include: material/webdev/purgearticle.php
+.. include:: material/webdev/purgearticle.php
+   :literal:
+
+.. raw:: pdf
+
+   PageBreak
 
 **default.vcl**
 
-.. code-block:: c
-    :include: vcl/solution-purge-from-backend.vcl
+.. include:: vcl/solution-purge-from-backend.vcl
+   :literal:
 
 Saving a request
 ================
@@ -3415,13 +3429,17 @@ Solution : write a VCL that masquerades XHR calls
 
 **ajax.html**
 
-.. code-block:: html
-    :include: material/webdev/ajax.html
+.. include:: material/webdev/ajax.html
+   :literal:
+
+.. raw:: pdf
+
+   PageBreak
 
 **default.vcl**
 
-.. code-block:: c
-    :include: vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl
+.. include:: vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl
+   :literal:
 
 Cookies
 =======
@@ -3432,14 +3450,11 @@ Cookies
 How Varnish handles cookies
 ---------------------------
 
-.. container:: handout
+By default, Varnish ignores any request containing a cookie.  Cookies often
+means personalized pages and it is a safe decision not to cache them.
 
-    By default, Varnish ignores any request containing a cookie.
-    Cookies often means personalized pages and it is a safe decision not to cache
-    them.
-
-    However in some situation you can find relevant to cache cookies or to extract
-    part of a cookie in the incoming request.
+However in some situation you can find relevant to cache cookies or to
+extract part of a cookie in the incoming request.
 
 Exercise: With VCL remove all the cookies from the HTTP request
 ----------------------------------------------------------------
@@ -3505,11 +3520,8 @@ ESI
 - How to use ESI
 - Testing ESI without Varnish
 
-What is ESI
------------
-
 .. image:: ui/img/esi.png
-    :scale: 80%
+    :scale: 60%
 
 .. container:: handout
 
@@ -3552,10 +3564,12 @@ How to use ESI
 Testing ESI without Varnish
 ---------------------------
 
+- You can test ESI Using JavaScript to fill in the blanks
+
 .. container:: handout
 
     During the development period you might not need Varnish all the time as it
-    might make you less cumfortable when adding a particular feature. There
+    might make you less comfortable when adding a particular feature. There
     is a solution based on JavaScript that you could use to interpret ESI syntax
     without having to use Varnish at all. You can download the library at the
     following URL:
@@ -3590,6 +3604,11 @@ Solution: Enable ESI in Varnish
 .. code-block:: php
     :include: material/webdev/esi.php
 
+**default.vcl**
+
+.. include:: vcl/solution-vcl_fetch-enable-esi.vcl
+   :literal:
+
 .. container:: handout
 
     `<esi:include/>` is replaced by the object `esi.php`.
@@ -3605,10 +3624,6 @@ Solution: Enable ESI in Varnish
                                 Default is 5
                                 Maximum depth of esi:include processing.
 
-**default.vcl**
-
-.. code-block:: c
-    :include: vcl/solution-vcl_fetch-enable-esi.vcl
 
 Varnish Programs
 ================
@@ -3767,108 +3782,42 @@ Exercise: Try the tools
 Finishing words
 ===============
 
-Streaming
----------
-
-- Varnish usually waits until it has the entire object before sending it to
-  a client
-- Varnish 3.0.0 can "stream" a cache miss or pass, but only for one
-  client per object
-- Varnish 3.1 will stream for multiple clients
-- ``set beresp.do_stream = true;``
-
-.. container:: handout
-
-   Streaming support in Varnish has a very specific meaning. As long as
-   something is cached in Varnish, Varnish will happily deliver that
-   content to multiple clients at the same time. But if it is not in cache,
-   Varnish will fetch the entire object from a backend before it starts
-   delivering it to a client.
-
-   With Varnish 3.0.0, the first part of Varnish' streaming support was
-   written. It allowed the first client that gets a cache miss to be sent
-   the data as fast as Varnish receives it. However, any other clients
-   would have to wait for the object to be completely loaded into cache.
-
-   Varnish 3.0.2+streaming was the first Varnish version that implemented
-   full streaming support, where there is no difference between the first
-   and second client.
-
-   Since Varnish 3.0.2+streaming is an experimental release, the Varnish
-   3.1-release is expected to be the first full release with streaming
-   support.
-
-Gzip compression
-----------------
-
-- Varnish 3.0.0 introduced gzip-support for Varnish
-- Mostly relevant for ESI-users
-
-.. container:: handout
-
-   GZip compression is standard content encoding over HTTP. All modern
-   browsers support it, and the user is never aware.
-
-   Before Varnish 3.0, Varnish did not have explicit support for GZip
-   compression. Since Varnish is a cache, it would simply cache the
-   compressed content as the backend server delivered it.
-
-   However, to use Edge Side Includes, Varnish needs to parse the content,
-   and thus be able to understand the content encoding. Before Varnish 3.0,
-   users were forced to not use GZip encoding, or put an other service in
-   front of Varnish to compress the content.
-
-   Varnish 3.0 solves this problem by implementing intelligent support for
-   GZip compression in Varnish. Each individual object is cached, and for
-   ESI, Varnish will still cache the content compressed, after first
-   parsing it in its uncompressed form. Varnish understands what is and
-   isn't compressed, so there should be little reason to change any
-   settings.
-
-   The bonus from this is when a client that doesn't support GZip comes
-   around. Varnish can then use the compressed object, but uncompress it on
-   the fly.
-
 Varnish 2.1 to 3.0
 ------------------
 
 Varnish 3.0, in addition to new features, also changed several aspects of
 VCL and parameters.
 
-See your documentation for a list.
-
-.. container:: handout
-
-        +------------------------------------+----------------------------------------+
-        | Varnish 2.1                        |  Varnish 3.0                           |
-        +====================================+========================================+
-        | vcl_fetch: ``return (pass);``      |  vcl_fetch: ``return (hit_for_pass);`` |
-        +------------------------------------+----------------------------------------+
-        | vcl_recv: ``return (pass);``       |  vcl_recv: ``return (pass);``          |
-        +------------------------------------+----------------------------------------+
-        | ``purge(....);``                   |  ``ban(.....);``                       |
-        +------------------------------------+----------------------------------------+
-        | ``C{ VRT_Nuke(...); }C``           |  ``purge;``                            |
-        +------------------------------------+----------------------------------------+
-        | ``set req.url = "/test" req.url;`` |  ``set req.url = "/test" + req.url;``  |
-        +------------------------------------+----------------------------------------+
-        | ``log "something";``               |  ``import std;``                       |
-        |                                    |  ``std.log("something");``             |
-        +------------------------------------+----------------------------------------+
-        | ``"%2520"`` is literal `%20`       |  ``"%20"`` - no more %-escapes         |
-        +------------------------------------+----------------------------------------+
-        | ``set req.hash += req.url``        |  ``hash_data(req.url);``               |
-        +------------------------------------+----------------------------------------+
-        | ``esi;``                           |  ``set beresp.do_esi = true;``         |
-        +------------------------------------+----------------------------------------+
-        | `thread_pool_max` does not depend  | Both `thread_pool_max` and             |
-        | on `thread_pools`, but             | `thread_pool_min` are per thread       |
-        | `thread_pool_min` does.            | pool                                   |
-        +------------------------------------+----------------------------------------+
-        | thread_pool_max=200 and            | thread_pool_max=200 and                |
-        | thread_pools=8 means max 200       | thread_pools=8 means max 1600          |
-        | total threads.                     | total threads                          |
-        +------------------------------------+----------------------------------------+
++------------------------------------+----------------------------------------+
+| Varnish 2.1                        |  Varnish 3.0                           |
++====================================+========================================+
+| vcl_fetch: ``return (pass);``      |  vcl_fetch: ``return (hit_for_pass);`` |
++------------------------------------+----------------------------------------+
+| vcl_recv: ``return (pass);``       |  vcl_recv: ``return (pass);``          |
++------------------------------------+----------------------------------------+
+| ``purge(....);``                   |  ``ban(.....);``                       |
++------------------------------------+----------------------------------------+
+| ``C{ VRT_Nuke(...); }C``           |  ``purge;``                            |
++------------------------------------+----------------------------------------+
+| ``set req.url = "/test" req.url;`` |  ``set req.url = "/test" + req.url;``  |
++------------------------------------+----------------------------------------+
+| ``log "something";``               |  ``import std;``                       |
+|                                    |  ``std.log("something");``             |
++------------------------------------+----------------------------------------+
+| ``"%2520"`` is literal `%20`       |  ``"%20"`` - no more %-escapes         |
++------------------------------------+----------------------------------------+
+| ``set req.hash += req.url``        |  ``hash_data(req.url);``               |
++------------------------------------+----------------------------------------+
+| ``esi;``                           |  ``set beresp.do_esi = true;``         |
++------------------------------------+----------------------------------------+
+| `thread_pool_max` does not depend  | Both `thread_pool_max` and             |
+| on `thread_pools`, but             | `thread_pool_min` are per thread       |
+| `thread_pool_min` does.            | pool                                   |
++------------------------------------+----------------------------------------+
+| thread_pool_max=200 and            | thread_pool_max=200 and                |
+| thread_pools=8 means max 200       | thread_pools=8 means max 1600          |
+| total threads.                     | total threads                          |
++------------------------------------+----------------------------------------+
 
 Resources
 ---------

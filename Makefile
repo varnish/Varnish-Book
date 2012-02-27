@@ -17,9 +17,9 @@ webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache inval
 webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 tutorialt = ${BDIR}/varnish-tutorial.pdf ${BDIR}/varnish_slide-tutorial.pdf
-rstsrc=varnish_sysadmin.rst
+rstsrc=varnish_tutorial.rst
 images = ui/img/vcl.png ui/img/request.png
-common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/control.rst util/frontpage.rst util/printheaders.rst
+common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/control.rst util/frontpage.rst util/printheaders.rst material/webdev/*
 
 all: webdev tutorial sysadmin
 
