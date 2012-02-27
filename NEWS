@@ -31,6 +31,7 @@ Other content changes:
 
 - Added a single exercise to the "Cache Invalidation" chapter, based on the
   material found in material/
+- Removed Streaming and GZip from "Finishing words"
 
 Practical changes:
 
