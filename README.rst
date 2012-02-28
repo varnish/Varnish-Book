@@ -79,3 +79,13 @@ I have tried to use `tip`, `warning` and `note`, and no further
 "boxes".
 
 To change the look of the PDF, change ui/pdf.style.
+
+Legal
+-----
+
+This material is provided under a CC-BY-NC-SA license. The license is
+available from:
+
+http://creativecommons.org/licenses/by-nc-sa/3.0/
+
+And a copy of the license is available in the LICENSE file.
