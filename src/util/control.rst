@@ -1,0 +1,1 @@
+/home/kristian/Documents/Source/training/util/control.rst
