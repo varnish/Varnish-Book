@@ -1,11 +1,11 @@
 Going-public
 ============
 
+- Make sphinx look good
+- Fix references and whatnot in sphinx
 - Go through the various util/ stuff to see if I missed any tools
 - Better build instructions
-- Consider renaming 'make dist' or adapting it.
 - Fix the titles for the individual builds
-- Find a tool for making HTML
 - License and copyright
 - Formalize style practices
 

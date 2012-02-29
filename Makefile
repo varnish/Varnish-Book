@@ -29,6 +29,8 @@ common = ${rstsrc} \
 	 material/webdev/*
 
 version = $(subst version-,,$(shell git describe --always --dirty))
+versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
+
 targets = webdev tutorial sysadmin
 
 all: ${targets}
@@ -39,6 +41,9 @@ sysadmin: ${sysadmint}
 
 tutorial: ${tutorialt}
 
+src/conf.py: src/conf.py.in
+	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
+		
 sphinx: ${common}
 	mkdir -p src/util
 	mkdir -p src/build

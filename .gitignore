@@ -19,3 +19,4 @@ src/Tuning.rst
 src/VCL_Basics.rst
 src/VCL_functions.rst
 src/Varnish_Programs.rst
+src/conf.py
