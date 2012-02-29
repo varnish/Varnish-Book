@@ -4,8 +4,6 @@ Going-public
 - Go through the various util/ stuff to see if I missed any tools
 - Better build instructions
 - Consider renaming 'make dist' or adapting it.
-- Consider re-engineering NEWS so it's also suited for casual readers.
-- RENAME the repository and the individual PDFs
 - Fix the titles for the individual builds
 - Find a tool for making HTML
 - License and copyright
@@ -25,6 +23,8 @@ Merging
 Content
 =======
 
+- AJAX, Cookies and ESI should probably be joined together in a single
+  chapter. Or possibly two chapters.
 - On install: Mention how to find VCL syntax errors on rhel
 - Go over tools (specially sizes/hist/adm?)
 - Loadbalancing
@@ -45,3 +45,6 @@ Technical
 - Automate fetch default VCL from Varnish
 - Verify fonts
 - Fix image-sizes
+- Reduce number of blank pages
+- slide-only class, to allow content to go over multiple slides without
+  resulting in multiple empty pages in the printed version

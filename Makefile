@@ -84,5 +84,9 @@ dist: all
 
 check:
 	$(MAKE) -C vcl/
+	@ret=0; for a in vcl/*.vcl; do \
+		grep -q $$a ${rstsrc} || { ret=1; echo "$$a is a file, but not included in the rst"; }; \
+	done; \
+	exit $$ret
 
 .PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst webdev sysadmin tutorial
