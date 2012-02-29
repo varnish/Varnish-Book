@@ -1,1 +1,0 @@
-/home/kristian/Documents/Source/training/varnish_tutorial.rst

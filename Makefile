@@ -41,7 +41,8 @@ tutorial: ${tutorialt}
 
 sphinx: ${common}
 	mkdir -p src/util
-	for a in ui util/* vcl material varnish_tutorial.rst; do \
+	mkdir -p src/build
+	for a in ui util/* vcl material build/version.rst ; do \
 		if [ ! -e src/$$a ]; then \
 			ln -s ${PWD}/$$a src/$$a ;\
 		fi; \
@@ -50,6 +51,8 @@ sphinx: ${common}
 		rm $$a; \
 		touch $$a; \
 	done
+	util/splitchapters.sh ${rstsrc} src/
+	sed -i 's/\.\. class:: handout//' src/*.rst
 	sphinx-build -b html -d build/doctrees   src/ build/html
 
 mrproper: clean all

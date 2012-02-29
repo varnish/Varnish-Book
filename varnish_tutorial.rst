@@ -3470,8 +3470,8 @@ You may use the following command in order to help you testing: ::
 Solution: With VCL remove all the cookies from the HTTP request
 ----------------------------------------------------------------
 
-.. code-block:: c
-    :include: vcl/solution-vcl_recv-cookie-removal.vcl
+.. include:: vcl/solution-vcl_recv-cookie-removal.vcl
+   :literal:
 
 Exercise: Force Varnish to cache even when cookies are present
 --------------------------------------------------------------
@@ -3483,8 +3483,8 @@ command you used for the previous exercise.
 Solution : Force Varnish to cache even when cookies are present
 ---------------------------------------------------------------
 
-.. code-block:: c
-    :include: vcl/solution-vcl_hash-add-cookie.vcl
+.. include:: vcl/solution-vcl_hash-add-cookie.vcl
+   :literal:
 
 .. container:: handout
 
@@ -3510,8 +3510,8 @@ The `bankaccount` cookie must be removed
 Solution: Write a VCL that removes one specific cookie
 ------------------------------------------------------
 
-.. code-block:: c
-    :include: vcl/solution-vcl_recv-cookie-partial-removal.vcl
+.. include:: vcl/solution-vcl_recv-cookie-partial-removal.vcl
+   :literal:
 
 ESI
 ===
@@ -3596,13 +3596,13 @@ Solution: Enable ESI in Varnish
 
 **esi.html**
 
-.. code-block:: html
-    :include: material/webdev/esi.html
+.. include:: material/webdev/esi.html
+   :literal:
 
 **esi.php**
 
-.. code-block:: php
-    :include: material/webdev/esi.php
+.. include:: material/webdev/esi.php
+   :literal:
 
 **default.vcl**
 

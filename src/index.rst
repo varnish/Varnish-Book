@@ -1,15 +1,19 @@
-.. Varnish Tutorial documentation master file, created by
-   sphinx-quickstart on Wed Feb 29 13:50:25 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Welcome to Varnish Tutorial's documentation!
-============================================
+Welcome to the Varnish Tutorial
+===============================
 
 Contents:
 
-.. toctree::
-   :maxdepth: 2
+.. include:: build/autoindex.rst
+
+Version and copyright
+=====================
+
+.. include:: build/version.rst
+
+This is a work in progress.
+
+Do not distribute. Proper links and officalness will arrive soon enough.
 
 Indices and tables
 ==================
