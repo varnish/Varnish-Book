@@ -3840,3 +3840,50 @@ Commercial:
 - http://repo.varnish-software.com (for service agreement customers)
 - support@varnish-software.com (for existing customers, with SLA)
 - sales@varnish-software.com
+
+Appendx A: Extra Material
+=========================
+
+The following is content needed for some of the exercises.
+
+ajax.html
+---------
+
+.. include:: material/webdev/ajax.html
+   :literal:
+
+article.php
+-----------
+
+.. include:: material/webdev/article.php
+   :literal:
+
+cookies.php
+-----------
+
+.. include::  material/webdev/cookies.php
+   :literal:
+
+esi.html
+--------
+
+.. include:: material/webdev/esi.html
+   :literal:
+
+esi.php
+-------
+
+.. include:: material/webdev/esi.php
+   :literal:
+
+httpheadersexample.php
+----------------------
+
+.. include:: material/webdev/httpheadersexample.php
+   :literal:
+
+purgearticle.php
+----------------
+
+.. include:: material/webdev/purgearticle.php
+   :literal:

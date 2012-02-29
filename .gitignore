@@ -3,3 +3,5 @@ misc/rst2s5-patch/python-docutils-0.6-prepatched/dist/
 misc/rst2s5-patch/python-docutils-0.6-prepatched/extras/docutils.egg-info/
 misc/rst2s5-patch/python-docutils-0.6-prepatched/setup.pyc
 varnish_sysadmin-*.tar.bz2
+varnish_webdev-*.tar.bz2
+varnish_tutorial-*.tar.bz2

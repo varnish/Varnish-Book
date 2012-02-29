@@ -13,6 +13,7 @@ Merging
 =======
 
 - The exercise-code for the web-dev material should be more accessible.
+  It's currently included in an appendix that's never included anywhere.
 - Verify that all chapters are sensible as slides too.
 - Test the new chapters (HTTP, ESI, Ajax, Cookies) on someone
 - The flow needs to be re-evaluated, particularly towards the last few
@@ -40,7 +41,10 @@ Nitpicks
 Technical
 =========
 
-- Need to implement regression tests for the PHP too.
+- Check if we can use -b1 instead of -b2 for the non-slide PDF, so we don't
+  waste so much paper.
+- Better PHP regression tests
+- Probably also want better test for the VCL
 - Make distdist == scp and formulate Announce-mail.
 - Automate fetch default VCL from Varnish
 - Verify fonts

@@ -17,11 +17,21 @@ webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache inval
 webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 tutorialt = ${BDIR}/varnish-tutorial.pdf ${BDIR}/varnish_slide-tutorial.pdf
-rstsrc=varnish_tutorial.rst
+rstsrc =varnish_tutorial.rst
 images = ui/img/vcl.png ui/img/request.png
-common = ${rstsrc} ${BDIR}/version.rst ${images} vcl/* util/control.rst util/frontpage.rst util/printheaders.rst material/webdev/*
+common = ${rstsrc} \
+	 ${BDIR}/version.rst \
+	 ${images} \
+	 vcl/*.vcl \
+	 util/control.rst \
+	 util/frontpage.rst \
+	 util/printheaders.rst \
+	 material/webdev/*
 
-all: webdev tutorial sysadmin
+version = $(subst version-,,$(shell git describe --always --dirty))
+targets = webdev tutorial sysadmin
+
+all: ${targets}
 
 webdev: ${webdevt}
 
@@ -46,21 +56,23 @@ flowchartupdate:
 	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/request.dot
 
 ${BDIR}/ui:
-	mkdir -p ${BDIR}
-	ln -s ${PWD}/ui ./${BDIR}/ui
+	@mkdir -p ${BDIR}
+	@ln -s ${PWD}/ui ./${BDIR}/ui
 
 ${BDIR}/img:
-	mkdir -p ${BDIR}
-	ln -s ${PWD}/ui/img ./${BDIR}/img
+	@mkdir -p ${BDIR}
+	@ln -s ${PWD}/ui/img ./${BDIR}/img
 
 ${BDIR}:
-	mkdir -p ${BDIR}
+	@mkdir -p ${BDIR}
 
 ${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
-	${PICK} ${$*} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
+	@echo Building PDFs for $*...
+	@${PICK} ${$*} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
 
 ${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
-	${PICK} ${$*} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
+	@echo Building PDF slides for $*...
+	@${PICK} ${$*} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |default_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
@@ -70,23 +82,28 @@ sourceupdate: util/param.rst flowchartupdate
 clean:
 	-rm -r build/
 
-dist: all
-	version=`./util/version.sh | grep :Version: | sed 's/:Version: //' | tr -d '()[] '`;\
-	echo $$version; \
-	target=${BDIR}/dist/varnish_sysadmin-$$version/; \
-	echo $$target ;\
+varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-%.pdf
+	@echo Preparing $@ ...
+	@target=${BDIR}/dist/varnish_$*-${version}/; \
 	mkdir -p $${target};\
 	mkdir -p $$target/pdf/;\
-	cp -r ${BDIR}/varnish_sysadmin.pdf $$target/pdf/varnish_sysadmin-v$$version.pdf;\
+	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
 	cp -r munin/ $$target;\
-	cp NEWS $$target;\
-	tar -hC ${BDIR}/dist/ -cjf varnish_sysadmin-$$version.tar.bz2 varnish_sysadmin-$$version/
+	cp NEWS ${rstsrc} README.rst LICENSE $$target;\
+	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/
 
-check:
-	$(MAKE) -C vcl/
-	@ret=0; for a in vcl/*.vcl; do \
+dist: $(addprefix varnish_,$(addsuffix -${version}.tar.bz2,${targets}))
+
+vclcheck:
+	@$(MAKE) -C vcl/
+
+materialcheck:
+	@$(MAKE) -C material/
+
+check: vclcheck materialcheck
+	@ret=0; for a in vcl/*.vcl material/webdev/*; do \
 		grep -q $$a ${rstsrc} || { ret=1; echo "$$a is a file, but not included in the rst"; }; \
 	done; \
 	exit $$ret
 
-.PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst webdev sysadmin tutorial
+.PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst ${targets} vclcheck materialcheck
