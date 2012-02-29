@@ -41,10 +41,10 @@ sysadmin: ${sysadmint}
 
 tutorial: ${tutorialt}
 
-src/conf.py: src/conf.py.in
+src/conf.py: src/conf.py.in build/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
 		
-sphinx: ${common}
+sphinx: ${common} src/conf.py
 	mkdir -p src/util
 	mkdir -p src/build
 	for a in ui util/* vcl material build/version.rst ; do \
