@@ -16,6 +16,9 @@ cat <<__EOF__
 :Copyright: Varnish Software AS 2010-2012, Redpill Linpro AS 2008-2009
 :Versions: Documentation ${v} / Tested for Varnish ${varnishversion}
 :Date: $(date +%Y-%m-%d)
+:License: The material is available under a CC-BY-SA-NC license. See
+	  http://creativecommons.org/licenses/by-nc-sa/3.0/ for the full
+	  license.
 
 __EOF__
 
