@@ -3844,7 +3844,7 @@ Commercial:
 - sales@varnish-software.com
 
 Appendix A: Extra Material
-=========================
+==========================
 
 The following is content needed for some of the exercises.
 
