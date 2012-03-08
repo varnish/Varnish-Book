@@ -4,7 +4,7 @@ sub vcl_recv {
 	}
 	if (req.request == "BAN") {
 		ban("obj.http.x-url ~ " + req.http.x-ban-url + 
-		    "obj.http.x-host ~ " + req.http.x-ban-host);
+		    " && obj.http.x-host ~ " + req.http.x-ban-host);
 		error 200 "Banned";
 	}
 	if (req.request == "REFRESH") {

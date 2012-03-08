@@ -323,13 +323,15 @@ Exercise: Installation
 -----------------------
 
 #. Install "apache2" and verify it works by going to `http://localhost/`
+#. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and 
+   `/etc/apache2/sites-enabled/000-default`.
 #. Install Varnish:
 
    - Either use ``apt-get install varnish`` for Ubuntu or Debian systems
    - or ``yum install varnish`` for Red Hat-based systems.
 
-#. Start Varnish "by hand", listening on port `8080`, management interface
-   listening on port `1234` and with `127.0.0.1:80` as the backend.
+#. Start Varnish "by hand", listening on port `80`, management interface
+   listening on port `1234` and with `127.0.0.1:8080` as the backend.
 #. Use ``varnishadm`` to connect to the management interface of Varnish and
    find out what the ``default_ttl`` parameter is set to.
 
@@ -381,7 +383,7 @@ Exercise: Fetch data through Varnish
 ------------------------------------
 
 #. Install ``libwww-perl``
-#. Execute ``GET -Used http://localhost:8000/`` (on the command line)
+#. Execute ``GET -Used http://localhost:80/`` (on the command line)
 #. Compare the results from multiple executions.
 
 .. container:: handout
@@ -643,7 +645,7 @@ Exercise: Define a backend with VCL
         NFILES=131072
         MEMLOCK=82000
         INSTANCE=$(uname -n)
-        DAEMON_OPTS="-a :6081 \
+        DAEMON_OPTS="-a :80 \
                      -T localhost:6082 \
                      -f /etc/varnish/default.vcl \
                      -s file,/var/lib/varnish/$INSTANCE/varnish_storage.bin,1G"
