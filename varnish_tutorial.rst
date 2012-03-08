@@ -3843,7 +3843,7 @@ Commercial:
 - support@varnish-software.com (for existing customers, with SLA)
 - sales@varnish-software.com
 
-Appendx A: Extra Material
+Appendix A: Extra Material
 =========================
 
 The following is content needed for some of the exercises.
