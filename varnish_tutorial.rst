@@ -1518,7 +1518,7 @@ described):
   instruction.
 - `max-age`: Specifies the period in seconds during which the cache will be
   considered fresh;
-- `smax-age`: Like `max-age` but it applies only to public caches;
+- `s-maxage`: Like `max-age` but it applies only to public caches;
 - `must-revalidate`: Indicates that a stale cache item can not be serviced
   without revalidation with the origin server first;
 
@@ -1536,7 +1536,7 @@ described):
         +--------------------+---------+-----------+
         | `max-age`          | X       |           |
         +--------------------+---------+-----------+
-        | `smax-age`         |         |           |
+        | `s-maxage`         |         |           |
         +--------------------+---------+-----------+
         | `max-stale`        | X       |           |
         +--------------------+---------+-----------+

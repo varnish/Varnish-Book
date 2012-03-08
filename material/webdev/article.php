@@ -1,5 +1,5 @@
 <?php
-header( "Cache-Control: public, must-revalidate, max-age=3600, smax-age=3600"  );
+header( "Cache-Control: public, must-revalidate, max-age=3600, s-maxage=3600"  );
 
 $date = new DateTime();
 $now = $date->format( DateTime::RFC2822 );
