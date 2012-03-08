@@ -221,12 +221,12 @@ Design principles
 Getting started
 ===============
 
-A 64 bit environment is recommended for production.
+In this chapter, we will:
 
- - Setting up a backend
- - Downloading the source
- - Compiling and installing
-
+ - Install and test a backend
+ - Install Varnish
+ - Make Varnish and the backend-server work together
+ - Cover basic configuration
 
 .. container:: handout
 
@@ -243,10 +243,30 @@ A 64 bit environment is recommended for production.
 Configuration
 -------------
 
-- Command line configuration
-- Tunable parameters
+Varnish has two categories of configuration:
+
+- Command line configuration and tunable parameters
 - VCL
-- The management interface: ``varnishadm -T localhost:port``
+
+To re-load varnish configuration, you have several commands:
+
++-------------------------------+-----------------------------------------+
+| Command                       | Result                                  |
++===============================+=========================================+
+| ``service varnish restart``   | Completely restarts Varnish, using the  |
+|                               | operating system mechanisms             |
++-------------------------------+-----------------------------------------+
+| ``service varnish reload``    | Only reloads VCL. Cache is not affected.|
++-------------------------------+-----------------------------------------+
+| ``varnishadm vcl.load ..``    | Can be used to manually reload VCL. The |
+| and ``varnishadm vcl.use ..`` | ``service varnish reload`` command does |
+|                               | this for you automatically.             |
++-------------------------------+-----------------------------------------+
+| ``varnishadm param.set ...``  | Can be used to set parameters without   |
+|                               | restarting Varnish                      |
++-------------------------------+-----------------------------------------+
+
+Using the ``service`` commands is recommended. It's safe and fast.
 
 .. container:: handout
 
@@ -317,6 +337,49 @@ Command line configuration
         to an other machine to allow varnishadm to access the management
         interface remotely.
 
+Configuration files
+-------------------
+
+Most Varnish-installations use two configuration-files. One of them is used
+by the operating system to start Varnish, while the other contains your
+VCL.
+
++------------------------------+-----------------------------------------+
+| File                         | Usage                                   |
++==============================+=========================================+
+| ``/etc/default/varnish``     | Used for parameters and command line    |
+|                              | arguments. When you change this, you    |
+|                              | need to run ``service varnish restart`` |
+|                              | for the changes to take effect.         |
+|                              | On RedHat-based OS's, this is kept in   |
+|                              | ``/etc/sysconfig/varnish`` instead.     |
++------------------------------+-----------------------------------------+
+| ``/etc/varnish/default.vcl`` | The VCL file. You can change the name   |
+|                              | file by editing `/etc/default/varnish`  |
+|                              | if you want to, but it's normal to use  |
+|                              | the default name. This contains your    |
+|                              | VCL and backend-definitions. After      |
+|                              | changing this, you can run either       |
+|                              | ``service varnish reload``, which will  |
+|                              | not restart Varnish, or you can run     |
+|                              | ``service varnish restart``, which      |
+|                              | empties the cache.                      |
++------------------------------+-----------------------------------------+
+
+.. container:: handout
+
+   There are other ways to reload VCL and make parameter take effect,
+   mostly using the ``varnishadm`` tool. However, using the ``service
+   varnish reload`` and ``service varnish restart`` commands is a good
+   habit.
+
+   .. note::
+
+      If you want to know how the ``service varnish``-commands work, you
+      can always look at the script that runs behind the scenes. If you are
+      used to UNIX-like systems, it will come as no surprise that the
+      script can be found in ``/etc/init.d/varnish``.
+
 
 
 Exercise: Installation
@@ -330,14 +393,26 @@ Exercise: Installation
    - Either use ``apt-get install varnish`` for Ubuntu or Debian systems
    - or ``yum install varnish`` for Red Hat-based systems.
 
-#. Start Varnish "by hand", listening on port `80`, management interface
-   listening on port `1234` and with `127.0.0.1:8080` as the backend.
-#. Use ``varnishadm`` to connect to the management interface of Varnish and
-   find out what the ``default_ttl`` parameter is set to.
+#. Start Varnish with ``service varnish start``, listening on port `80`,
+   management interface listening on port `1234` and with `127.0.0.1:8080` as the backend.
+
+The end result should be:
+
++------------+------------------------+--------------------------------------------+
+| Service    | Result                 | Related config-files                       |
++============+========================+============================================+
+| Apache     | Answers on port `8080` | ``/etc/apache2/ports.conf`` and            |
+|            |                        | ``/etc/apache2/sites-enabled/000-default`` |
++------------+------------------------+--------------------------------------------+
+| Varnish    | Answers on port `80`   | ``/etc/default/varnish``                   |
++------------+------------------------+--------------------------------------------+
+| Varnish    | Talks to apache on     | ``/etc/varnish/default.vcl``               |
+|            | `localhost:80`         |                                            |
++------------+------------------------+--------------------------------------------+
 
 .. container:: handout
 
-   For simplicity, we are Apache for these exercises.
+   We use Apache for these exercises.
 
    Using the Varnish packages provided by your distribution is often just
    as good as compiling from source. Alternatively, you can add the

@@ -25,12 +25,8 @@ Content
 =======
 
 - In getting started: Start out early by describing:
-   - Ports for Apache and Varnish (a table)
-   - Configuration files for Varnish (a table)
-   - Restart and reload commands (a table!)
    - Brief discussion on the test setup.
-- Getting started: We don't build from source.
-- Intro chapter for web.
+- Intro chapter for web?
 - AJAX, Cookies and ESI should probably be joined together in a single
   chapter. Or possibly two chapters.
 - On install: Mention how to find VCL syntax errors on rhel
@@ -43,8 +39,6 @@ Content
 - Add more visuals for the VCL chapters
 - Reduce the amount of start-up parameters in Getting Started (they just
   add confusion for people on the webdev-course who wont use them).
-- Emphasise usage of 'service varnish reload' and 'service varnish
-  restart', so people don't waste away their life in varnishadm.
 - Down-play varnishadm in the Getting Started chapters (webdevs don't need
   it).
 - Use article.php and httpheaderexample.php-like approaches more. Both for
@@ -52,6 +46,10 @@ Content
 - VCL functions: Need more examples.
 - Update varnishhist
 - NUKE the tools chapter, or move it to a more complete Appendix.
+- Getting Started: Check that the handout matches the exercises.
+- Getting started: Move the VCL-bits up, so we never really run varnishd by
+  hand (the people who get it will get it, those who don't only get
+  confused).
 
 Webdev-related content
 ======================
