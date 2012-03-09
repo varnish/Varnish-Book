@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: text/html');
 header('Cache-Control: max-age=30, s-maxage=0');
+header('Vary: Cookie');
 $date = new DateTime();
 $now = $date->format( DateTime::RFC2822 );
 ?>

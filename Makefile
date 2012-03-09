@@ -10,9 +10,9 @@ PICK = "./util/pickchapter.sh"
 # If you want a new set, just make a new variable and that's the name of
 # the pdfs you can now build.
 
-tutorial = "Introduction,Getting started,Tuning,HTTP,VCL Basics,VCL functions,Cache invalidation,Saving a request,AJAX,Cookies,ESI,Varnish Programs,Finishing words"
+tutorial = "Introduction,Getting started,Tuning,HTTP,VCL Basics,VCL functions,Cache invalidation,Saving a request,Content Composition,Varnish Programs,Finishing words"
 sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
-webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,AJAX,Cookies,ESI,Finishing words"
+webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
 webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
