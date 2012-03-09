@@ -312,30 +312,30 @@ Command line configuration
         is.
 
         Though they are not strictly required, you almost always want to specify
-        a "-s" to select a storage backend, "-a" to make sure Varnish listens for
-        clients on the port you expect and -T to enable a management interface,
-        often referred to as a telnet interface.
+        a ``-s`` to select a storage backend,  ``-a`` to make sure Varnish
+        listens for clients on the port you expect and ``-T`` to enable a
+        management interface, often referred to as a telnet interface.
 
-        Both for -T and -a, you do not need to specify an IP, but can use ":80"
-        to tell Varnish to listen to port 80 on all IPs available. Make sure you
-        don't forget the colon, as "-a 80" will tell Varnish to listen to the IP
-        with the decimal-representation "80", which is almost certainly not what
-        you want. This is a result of the underlying function that accept this kind
-        of syntax.
+        Both for ``-T`` and ``-a``, you do not need to specify an IP, but
+        can use ":80" to tell Varnish to listen to port 80 on all IPs
+        available. Make sure you don't forget the colon, as ``-a 80`` will
+        tell Varnish to listen to the IP with the decimal-representation
+        "80", which is almost certainly not what you want. This is a result
+        of the underlying function that accept this kind of syntax.
 
-        You can specify -p for parameters multiple times. The workflow for
-        tuning varnish parameters usually means that you first try the parameter on
-        a running varnish through the management interface to find the value you
-        want, then store it in a configuration file that will pass it to varnish
-        with -p next time you start it up. We will look at these files later
-        on.
+        You can specify ``-p`` for parameters multiple times. The workflow
+        for tuning varnish parameters usually means that you first try the
+        parameter on a running varnish through the management interface to
+        find the value you want, then store it in a configuration file that
+        will pass it to varnish with ``-p`` next time you start it up. We
+        will look at these files later on.
 
-        The -S option specifies a file which contains a secret to be used
-        for authentication. This can be used to authenticate with
-        varnishadm -S as long as varnishadm can read the same secret file -
-        or rather the same content: The content of the file can be copied
-        to an other machine to allow varnishadm to access the management
-        interface remotely.
+        The ``-S`` option specifies a file which contains a secret to be
+        used for authentication. This can be used to authenticate with
+        ``varnishadm -S`` as long as varnishadm can read the same secret
+        file - or rather the same content: The content of the file can be
+        copied to an other machine to allow varnishadm to access the
+        management interface remotely.
 
 Configuration files
 -------------------
@@ -467,15 +467,16 @@ Exercise: Fetch data through Varnish
         tells the web server - or Varnish in this case - to only reply with the
         HTTP headers, while GET returns everything.
 
-        "GET -Used" tells lwp-request to do a GET-request, print the request
-        headers (U), print the response status code (s), which is typically "200
-        OK" or "404 File not found", print the response headers "-e" and finally to
-        not display the content of the response. Feel free to try remove some of
-        the options to see the effect.
+        ``GET -Used`` tells lwp-request to do a GET-request, print the
+        request headers (U), print the response status code (s), which is
+        typically "200 OK" or "404 File not found", print the response
+        headers "-e" and finally to not display the content of the
+        response. Feel free to try remove some of the options to see the
+        effect.
 
         GET is also useful to generate requests with custom headers, as you can
-        supply extra headers with -H "Header: value", which can be used multiple
-        times.
+        supply extra headers with ``-H "Header: value"``, which can be used
+        multiple times.
 
         You may also be familiar with firebug, an add-on for Firefox used
         for web development and related affairs. This too can show you the
@@ -499,7 +500,7 @@ Defining a backend in VCL
    You almost always want to use VCL: we might as well get started!
 
    The above example defines a backend named ``default``. The name
-   "default" is not special, and the real default backend that Varnish will
+   `default` is not special, and the real default backend that Varnish will
    use is the first backend you specify.
 
    You can specify many backends at the same time.
@@ -668,9 +669,9 @@ varnishstat
    In interactive mode, varnishstat starts out by printing the uptime(45
    minutes, in the example above) and hostname(foobar).
 
-   The "Hitrate ratio" and "Hitrate avg" are related. The Hitrate average
-   measures the cache hit rate for a period of time stated by "hitrate
-   ratio". In the example above, the hitrate average for the last 10
+   The `Hitrate ratio` and `Hitrate avg` are related. The Hitrate average
+   measures the cache hit rate for a period of time stated by `hitrate
+   ratio`. In the example above, the hitrate average for the last 10
    seconds is 0.9507 (or 95.07%), 0.9530 for the last 100 seconds and
    0.9532 for the last 1000 seconds. As you start Varnish, all of these
    will start at 1 second, then grow to 10, 100 and 1000. This is because
@@ -853,8 +854,8 @@ to:
 Varnish uses workspaces to reduce the contention between each thread when
 they need to acquire or modify some part of the memory. There are multiple
 work spaces, but the most important one is the session workspace, which is
-used to manipulate session data. An example is changing "www.example.com"
-to "example.com" before it is entered into the cache, to reduce the number
+used to manipulate session data. An example is changing `www.example.com`
+to `example.com` before it is entered into the cache, to reduce the number
 of duplicates.
 
 It is important to remember that even if you have 5MB of session workspace
@@ -913,12 +914,12 @@ Storage backends
         cache, and you choose which one you want with the '-s' argument.
 
         They approach the same basic problem from two different angles. With the
-        "malloc"-method, Varnish will request the entire size of the cache with a
+        `malloc`-method, Varnish will request the entire size of the cache with a
         malloc() (memory allocation) system call. The operating system will then
         divide the cache between memory and disk by swapping out what it
         can't fit in memory.
 
-        The alternative is to use the "file" storage backend, which instead
+        The alternative is to use the `file` storage backend, which instead
         creates a file on a filesystem to contain the entire cache, then tell the
         operating system through the mmap() (memory map) system call to map the
         entire file into memory if possible.
@@ -2770,9 +2771,9 @@ Banning
 - Ban on anything
 - Does not free up memory
 - ``ban req.url ~ "/foo"``
-- ``ban req.http.user-agent ~ "Firefox" &&
+- ``ban req.http.host ~ "example.com" &&
   obj.http.content-type ~ "text"``
-- VCL: ``ban("req.url ~ " req.url);``
+- VCL: ``ban("req.url ~ " +  req.url);``
 
 .. container:: handout
 
@@ -2825,7 +2826,7 @@ VCL contexts when adding bans
 - In VCL, there is also the context of the client adding the item to the
   ban list. This is the context used when no quotation marks are present.
 
-``ban("req.url == " req.http.x-url);``
+``ban("req.url == " + req.http.x-url);``
 
 - ``req.url`` from the future client that will trigger the test against the
   object is used.
@@ -2834,7 +2835,7 @@ VCL contexts when adding bans
 
 .. container:: handout
 
-   One of the typical examples of purging reads ``ban("req.url == "
+   One of the typical examples of purging reads ``ban("req.url == " +
    req.url)``, which looks fairly strange. The important thing to remember
    is that in VCL, you are essentially just creating one big string.
 
@@ -2873,7 +2874,7 @@ Smart bans
 
       Then use that instead of ``req.url`` in your bans, in ``vcl_recv``::
 
-         ban("obj.http.x-url == " req.url);
+         ban("obj.http.x-url == " +  req.url);
 
       This will allow Varnish to test the bans against less frequently
       accessed objects, so they do not linger in your cache just because
@@ -3395,20 +3396,20 @@ Backend properties
    While the timeouts have already been discussed, there are some other
    notable parameters.
 
-   The saintmode threshold defines how many items can be "blacklisted" by
+   The saintmode threshold defines how many items can be blacklisted by
    saint mode before the entire backend is considered sick. Saint mode will
    be discussed in more detail.
 
    If your backend is struggling, it might be advantageous to set
-   "max_connections" so only a set number of simultaneous connections will
-   be issued to a specific backend.
+   ``max_connections`` so only a set number of simultaneous connections
+   will be issued to a specific backend.
 
 Example: Evil backend hack
 --------------------------
 
 You can not use saintmode in ``vcl_error`` and health probes can be slow to pick up on trouble.
 
-You can use a fake backend that's "always" sick to force a grace copy. This
+You can use a fake backend that's always sick to force a grace copy. This
 is considered a rather dirty hack that works.
 
 .. include:: vcl/fake-backend.vcl
@@ -3425,11 +3426,11 @@ Access Control Lists
 
 .. container:: handout
 
-   ACLs are fairly simple. A single IP is listed as "192.168.1.2", and to
-   turn it into an IP-range, add the /24 *outside* of the quotation marks
-   ("192.168.1.0"/24). To exclude an IP or range from an ACL, precede it
-   with an exclamation mark - that way you can include all the IPs in a
-   range except the gateway, for example.
+   ACLs are fairly simple. A single IP is listed as ``"192.168.1.2"``, and
+   to turn it into an IP-range, add the /24 *outside* of the quotation
+   marks (``"192.168.1.0"/24``). To exclude an IP or range from an ACL,
+   precede it with an exclamation mark - that way you can include all the
+   IPs in a range except the gateway, for example.
 
    ACLs can be used for anything. Some people have even used ACLs to
    differantiate how their Varnish servers behaves (e.g.: A single VCL for
@@ -3457,8 +3458,8 @@ Solution: Combine PURGE and restart
 
    .. note::
 
-      Whenever you are using ``req.http`` to store an "internal" variable, you
-      should get used to unsetting it in ``vcl_recv`` on the first run.
+      Whenever you are using ``req.http`` to store an internal variable,
+      you should get used to unsetting it in ``vcl_recv`` on the first run.
       Otherwise a client could supply it directly. In this situation, the
       outcome wouldn't be harmful, but it's a good habit to establish.
 
@@ -3616,11 +3617,11 @@ ESI
    with a different TTL.
 
    Varnish would then first fetch the news article from a web server, then
-   parse it for ESI content, see the `<esi:include src="/top.html">` item,
-   then fetch `/top.html` as if it was a normal object, either finding it
-   already cached or getting it from a web server and inserting it into
-   cache. The TTL of `/top.html` can be 5 minutes while the article is
-   cached for two days. Varnish will know that it has to glue the page
+   parse it for ESI content, see the ``<esi:include src="/top.html">``
+   item, then fetch `/top.html` as if it was a normal object, either
+   finding it already cached or getting it from a web server and inserting
+   it into cache. The TTL of `/top.html` can be 5 minutes while the article
+   is cached for two days. Varnish will know that it has to glue the page
    together from two different objects when it sends it, and thus it will
    update the parts independently and always use the most updated version.
 

@@ -1,6 +1,7 @@
 sub vcl_error {
 	synthetic "<html><body><!-- Blank page must means it's a browser issue! --></body></html>";
 	set obj.status = 200;
+	return (deliver);
 }
 
 sub vcl_deliver {
