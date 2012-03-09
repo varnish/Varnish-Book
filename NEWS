@@ -5,39 +5,37 @@ First version to integrate the web development course, and preparing to go
 public. The material in the sysadmin course is left almost untouched, save
 for an added exercise.
 
-New chapters:
+New chapters, only affects webdev:
 
-- HTTP, AJAX, Cookies
-
-Completely rewritten chapters:
-
-- ESI
-
-There are now three sets of PDFs (6 total):
-
-- The web development PDFs:
-  - build/varnish_dev.pdf
-  - build/varnish_dev_slide.pdf
-- The Sysadmin PDFs:
-  - build/varnish_sysadmin.pdf
-  - build/varnish_sysadmin_slide.pdf
-- And the new, tutorial-pdfs:
-  - build/varnish_tutorial.pdf
-  - build/varnish_tutorial_slide.pdf
-
-The tutorial-PDFs contain all the material.
+- HTTP, Content Composition (ESI is merged into Content Composition)
 
 Other content changes:
 
+- Polished the Getting Started chapter: More overview-tables and more
+  non-nix-friendly nature.
 - Added a single exercise to the "Cache Invalidation" chapter, based on the
   material found in material/
 - Removed Streaming and GZip from "Finishing words"
+
+HTTP:
+
+The HTTP chapter discusses various cache headers. It is meant to give a
+solid overview of HTTP caching mechanisms, not only Varnish-related
+headers.
+
+Content Composition:
+
+This chapter discusses how to make a site use Varnish fully. It discusses
+Cookies in detail, Vary-vs-hash_data(), ESI, ESI and cookies and a bit of
+AJAX-magic.
 
 Practical changes:
 
 - Several code snippets for the new chapters are provided in the material/
   directory.
-- Removed teacher-pdf and s5-build (not used or maintained)
+- There are now three sets of PDFs. Handout PDF and slides for webdev,
+  sysadmin and tutorial. Tutorial contains all chapters.
+
 
 New in 3.0
 ----------

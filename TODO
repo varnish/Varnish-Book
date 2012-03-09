@@ -15,7 +15,6 @@ Merging
 - The exercise-code for the web-dev material should be more accessible.
   It's currently included in an appendix that's never included anywhere.
 - Verify that all chapters are sensible as slides too.
-- Test the new chapters (HTTP, ESI, Ajax, Cookies) on someone
 - The flow needs to be re-evaluated, particularly towards the last few
   chapters, after VCL.
 - Unify the style of the new and old chapters
@@ -27,7 +26,6 @@ Content
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.
 - Intro chapter for web?
-- AJAX, Cookies and ESI should probably be joined together in a single
   chapter. Or possibly two chapters.
 - On install: Mention how to find VCL syntax errors on rhel
 - Go over tools (specially sizes/hist/adm?)
@@ -54,11 +52,8 @@ Content
 Webdev-related content
 ======================
 
-- HTTP: Merge exercises
 - Fix date-references in php-code
 - Need to verify internal linking.
-- Create an index.html-page that links up and describes all the
-  webdev-material.
 - Distribute it in a tar-ball?
 
 Technical
