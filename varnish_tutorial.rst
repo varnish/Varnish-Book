@@ -1335,6 +1335,8 @@ already running threads?
 HTTP
 ====
 
+This chapter covers:
+
 - Protocol basics
 - Requests and responses
 - HTTP request/response control flow
@@ -1555,6 +1557,33 @@ invalidation. The most important ones are :
 - If-None-Match
 - Vary
 
+Exercise : Test various Cache headers
+-------------------------------------
+
+Before we talk about all the various cache headers and cache mechanisms, we
+will use `httpheadersexample.php` to experiment and get a sense of what
+it's all about.
+
+Try both clicking the links twice, hitting refresh and forced refresh
+(usually done by hitting control-F5, depending on browser).
+
+#. Try out the Expires-header and see how the browser and Varnish behave.
+#. What happens when both Expires and Cache-Control is present?
+#. Test the `If-Modified-Since` request too. Does the browser issue a
+   request to Varnish? If the item was in cache, does Varnish query the
+   web-server?
+#. Try the `Vary`-test by using two different browsers at the same time.
+
+.. container:: handout
+
+   When performing this exercise, try to see if you can spot the patterns.
+   There are many levels of cache on the Web, and you have to think about
+   more than just Varnish.
+
+   If it hasn't already, it's likely that browser cache will confuse you at
+   least a few times through this course. When that happens, pull up
+   varnishlog or an other browser.
+
 Expires
 -------
 
@@ -1773,29 +1802,6 @@ server so the page can be serviced.
 .. image:: ui/img/httpcachemiss.png
     :scale: 70%
 
-Exercise : Test the `Expires` header
-------------------------------------
-
-By using the server code provided test the `Expires` header and see how it
-avoids a new HTTP request.
-
-Exercise : Test the `Cache-Control` header
-------------------------------------------
-
-By using the server code provided test the `Cache-Control` header and see how
-it avoids a new HTTP request. See also how it overrides `Expires`.
-
-Exercise : Test the `If-modified-since` header
-----------------------------------------------
-
-By using the server code provided test the `Last-Modified`/`If-Modified-Since`
-headers and see how it saves HTTP requests.
-
-Exercise : Test the `Vary` header
----------------------------------
-
-By using the server code provided and two different browsers test the `Vary`
-header and try to find why and how Varnish returns a different cache object.
 
 VCL Basics
 ==========
