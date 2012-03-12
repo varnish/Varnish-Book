@@ -354,8 +354,8 @@ VCL.
 |                              | On RedHat-based OS's, this is kept in   |
 |                              | ``/etc/sysconfig/varnish`` instead.     |
 +------------------------------+-----------------------------------------+
-| ``/etc/varnish/default.vcl`` | The VCL file. You can change the name   |
-|                              | file by editing `/etc/default/varnish`  |
+| ``/etc/varnish/default.vcl`` | The VCL file. You can change the file   |
+|                              | name by editing `/etc/default/varnish`  |
 |                              | if you want to, but it's normal to use  |
 |                              | the default name. This contains your    |
 |                              | VCL and backend-definitions. After      |
@@ -380,7 +380,30 @@ VCL.
       used to UNIX-like systems, it will come as no surprise that the
       script can be found in ``/etc/init.d/varnish``.
 
+   .. warning::
 
+      The script-configuration (located in `/etc/sysconfig` or
+      `/etc/default`) is directly sourced as a shell script. Pay special
+      attention to any backslashes (\\) and quotation marks that might move
+      around as you edit the DAEMON_OPTS environmental variable.
+
+Defining a backend in VCL
+-------------------------
+
+/etc/varnish/default.vcl
+
+.. include:: vcl/backend.vcl
+   :literal:
+
+.. container:: handout
+
+   You almost always want to use VCL: we might as well get started!
+
+   The above example defines a backend named ``default``. The name
+   `default` is not special, and the real default backend that Varnish will
+   use is the first backend you specify.
+
+   You can specify many backends at the same time.
 
 Exercise: Installation
 -----------------------
@@ -425,34 +448,17 @@ The end result should be:
       you use Varnish 3.0. There is a list of VCL and configuration-related
       changes between Varnish 2.1 and 3.0 in the final chapter.
 
-   After you ave started Varnish, you can connect to the management
-   interface using ``varnishadm`` with the same ``-T`` argument as you gave
-   to Varnish. The management interface is some times referred to as the
-   CLI or even the telenet interface.
+   Once you have modified the ``/etc/default/varnish``-file, it should look
+   something like this (comments removed)::
 
-   When working in the management interface it is important to keep two
-   things in mind:
+        NFILES=131072
+        MEMLOCK=82000
+        INSTANCE=$(uname -n)
+        DAEMON_OPTS="-a :80 \
+                     -T localhost:6082 \
+                     -f /etc/varnish/default.vcl \
+                     -s mallocl,256m"
 
-   1. Any changes you make are done immediately on the running Varnish
-      instance
-   2. Changes are not persistent across restarts of Varnish. If you change
-      a parameter and you want the change to apply if you restart Varnish,
-      you need to also store it in the regular configuration for the boot
-      script.
-
-   One important concern that regards the management interface is security.
-   Because the management interface is not encrypted, only has limited
-   authentication and still allows almost total control over Varnish, it is
-   important to protect it. The easiest way of doing that is by having it
-   only listen to localhost (127.0.0.1). An other possibility is firewall
-   rules to only allow specific (local) users to connect.
-
-   It is also possible to protect the management interface through a shared
-   secret, and this has become normal in later Varnish versions. The shared
-   secret is typically a file stored in `/etc/varnish/secret` and specified
-   with the ``-S`` option to both Varnish and ``varnishadm``. As long as a
-   user can read that file (or more specifically: read the content of it),
-   the user can access the management interface.
 
 Exercise: Fetch data through Varnish
 ------------------------------------
@@ -486,24 +492,6 @@ Exercise: Fetch data through Varnish
         able to tell if you're using or not. It's often helpful to
         double-check with GET or HEAD if you are in doubt if what you're
         seeing is coming from Varnish or is part of your browser cache.
-
-Defining a backend in VCL
--------------------------
-
-/etc/varnish/default.vcl
-
-.. include:: vcl/backend.vcl
-   :literal:
-
-.. container:: handout
-
-   You almost always want to use VCL: we might as well get started!
-
-   The above example defines a backend named ``default``. The name
-   `default` is not special, and the real default backend that Varnish will
-   use is the first backend you specify.
-
-   You can specify many backends at the same time.
 
 Log data
 --------
@@ -690,50 +678,69 @@ varnishstat
       You may have to specify an ``-n`` option to read the stats for the
       correct Varnish instance if you have multiple instances.
 
+The management interface
+------------------------
 
-Exercise: Define a backend with VCL
------------------------------------
+Varnish offers a management interface, assuming it was started with a
+``-T`` option.
 
-#. Open the startup script configuration for varnish:
+This has several functions:
 
-   - On Red Hat or CentOS: /etc/sysconfig/varnish
-   - On Debian or Ubuntu: /etc/default/varnish
+- Change parameters without restarting varnish
+- Reload VCL
+- View the most up-to-date documentation for parameters
 
-#. With comments removed, it should look similar to::
-
-        NFILES=131072
-        MEMLOCK=82000
-        INSTANCE=$(uname -n)
-        DAEMON_OPTS="-a :80 \
-                     -T localhost:6082 \
-                     -f /etc/varnish/default.vcl \
-                     -s file,/var/lib/varnish/$INSTANCE/varnish_storage.bin,1G"
-
-#. Edit `/etc/varnish/default.vcl` to add your Apache server as the only
-   backend.
-#. Stop any running Varnish instance you have started manually and restart
-   Varnish the way your distribution would do it.
-#. Run a few requests through Varnish to see that it still works.
-#. Observe how this is reflected in ``varnishstat`` and ``varnishlog``. Try
-   using both ``varnishlog -c`` and ``varnishlog -b`` to compare.
+The ``service varnish reload`` command uses the management interface to
+reload VCL without restarting Varnish.
 
 .. container:: handout
 
-   Most of the time, you use VCL to configure backends for Varnish, and
-   in this exercise, we set it up. The first step is to verify that it is
-   used by Varnish. The snippet above represents a typical configuration
-   file for the Varnish init script. Your copy might use variables or
-   malloc instead, but it should be otherwise similar.
+   After you have started Varnish, you can connect to the management
+   interface using ``varnishadm`` with the same ``-T`` argument as you gave
+   to Varnish. The management interface is some times referred to as the
+   CLI or even the telenet interface.
 
-   You can chose a different location than `/etc/varnish/default.vcl` if
-   you wish to.
+   When working in the management interface it is important to keep two
+   things in mind:
 
-   .. warning::
+   1. Any changes you make are done immediately on the running Varnish
+      instance
+   2. Changes are not persistent across restarts of Varnish. If you change
+      a parameter and you want the change to apply if you restart Varnish,
+      you need to also store it in the regular configuration for the boot
+      script.
 
-      The script-configuration (located in `/etc/sysconfig` or
-      `/etc/default`) is directly sourced as a shell script. Pay special
-      attention to any backslashes (\\) and quotation marks that might move
-      around as you edit the DAEMON_OPTS environmental variable.
+   One important concern that regards the management interface is security.
+   Because the management interface is not encrypted, only has limited
+   authentication and still allows almost total control over Varnish, it is
+   important to protect it. The easiest way of doing that is by having it
+   only listen to localhost (127.0.0.1). An other possibility is firewall
+   rules to only allow specific (local) users to connect.
+
+   It is also possible to protect the management interface through a shared
+   secret, and this has become normal in later Varnish versions. The shared
+   secret is typically a file stored in `/etc/varnish/secret` and specified
+   with the ``-S`` option to both Varnish and ``varnishadm``. As long as a
+   user can read that file (or more specifically: read the content of it),
+   the user can access the management interface.
+
+   .. note::
+
+      Newer Varnish-versions will automatically detect the correct
+      arguments for ``varnishadm`` using the `SHM-log`. For older versions,
+      you always had to specify at least the ``-T``-option when using
+      varnishadm.
+
+Exercise: Try out the tools
+---------------------------
+
+#. Run ``varnishstat`` and ``varnishlog`` while performing a few requests
+#. Make ``varnishlog`` only print client-requests where the `TxURL`-tag
+   contains ``/favicon.ico``.
+#. Use ``varnishadm`` to determine the default value for the
+   ``default_ttl``-parameter, and what it does.
+
+.. container:: handout
 
    As you are finishing up this exercise, you hopefully begin to see the
    usefulness of the various Varnish tools. ``varnishstat`` and

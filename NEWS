@@ -3,31 +3,40 @@ New in 4.0
 
 First version to integrate the web development course, and preparing to go
 public. The material in the sysadmin course is left almost untouched, save
-for an added exercise.
+for an added exercise and some restructuring of "Getting Started". NO ESI
+IN SYSADMIN.
 
 New chapters, only affects webdev:
 
 - HTTP, Content Composition (ESI is merged into Content Composition)
 
+Getting Started-changes:
+
+- More focus on using proper mechanisms. We use "service varnish
+  reload/restart" (which is the same as /etc/init.d/varnish restart, so to
+  speak).
+- No 'start varnishd by hand' stuff.
+- Skim through the slides.
+
 Other content changes:
 
-- Polished the Getting Started chapter: More overview-tables and more
-  non-nix-friendly nature.
 - Added a single exercise to the "Cache Invalidation" chapter, based on the
   material found in material/
 - Removed Streaming and GZip from "Finishing words"
 
-HTTP:
+WebDev changes:
 
-The HTTP chapter discusses various cache headers. It is meant to give a
-solid overview of HTTP caching mechanisms, not only Varnish-related
-headers.
+- HTTP:
 
-Content Composition:
+  The HTTP chapter discusses various cache headers. It is meant to give a
+  solid overview of HTTP caching mechanisms, not only Varnish-related
+  headers.
 
-This chapter discusses how to make a site use Varnish fully. It discusses
-Cookies in detail, Vary-vs-hash_data(), ESI, ESI and cookies and a bit of
-AJAX-magic.
+- Content Composition:
+
+  This chapter discusses how to make a site use Varnish fully. It discusses
+  Cookies in detail, Vary-vs-hash_data(), ESI, ESI and cookies and a bit of
+  AJAX-magic.
 
 Practical changes:
 

@@ -13,14 +13,21 @@ Merging
 - Fix the titles for the individual builds
 - Unify the style of the new and old chapters
 
+4.0
+===
+
+To tag for 4.0, this is what I wish to have done:
+
+- The PHP-stuff I wrote at the airport need to be tested and incorporated
+  properly.
+- A sensible distribution-method for the php-files.
+
 Content
 =======
 
 - Introduction to the test environment
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.
-- Intro chapter for web?
-  chapter. Or possibly two chapters.
 - On install: Mention how to find VCL syntax errors on rhel
 - Go over tools (specially sizes/hist/adm?)
 - Loadbalancing
