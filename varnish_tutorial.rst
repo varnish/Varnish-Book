@@ -1540,6 +1540,7 @@ invalidation. The most important ones are :
 - If-Modified-Since
 - If-None-Match
 - Vary
+- Age
 
 Exercise : Test various Cache headers
 -------------------------------------
@@ -1665,9 +1666,10 @@ described):
 Last-Modified
 -------------
 
-The `Last-Modified` **response** header field indicates the date and time at
-which the origin server believes the variant was last modified. This headers
-may be used in conjunction with `If-Modified-Since` and `If-None-Match`.
+The `Last-Modified` **response** header field indicates the date and time
+at which the origin server believes the variant was last modified. This
+headers may be used in conjunction with `If-Modified-Since` and
+`If-None-Match`.
 
 Example of a `Last-Modified` header: ::
 
@@ -1676,11 +1678,13 @@ Example of a `Last-Modified` header: ::
 If-Modified-Since
 -----------------
 
-The `If-Modified-Since` **request** header field is used with a method to make it conditional:
+The `If-Modified-Since` **request** header field is used with a method to
+make it conditional:
 
-**if** the requested variant has not been modified since the time specified in
-this field, an entity will not be returned from the server;
-**instead**, a 304 (not modified) response will be returned without any message-body.
+- **if** the requested variant has not been modified since the time
+  specified in this field, an entity will not be returned from the server;
+- **instead**, a 304 (not modified) response will be returned without any
+  message-body.
 
 Example of an `If-Modified-Since` header: ::
 
@@ -1693,16 +1697,17 @@ Example of an `If-Modified-Since` header: ::
 If-None-Match
 -------------
 
-The `If-None-Match` **request** header field is used with a method to make it conditional.
+The `If-None-Match` **request** header field is used with a method to make
+it conditional.
 
-A client that has one or more entities previously obtained from the resource
-can verify that none of those entities is current by including a list of their
-associated entity tags in the If-None-Match header field.
+A client that has one or more entities previously obtained from the
+resource can verify that none of those entities is current by including a
+list of their associated entity tags in the If-None-Match header field.
 
-The purpose of this feature is to allow efficient updates of cached information
-with a minimum amount of transaction overhead. It is also used to prevent a method
-(e.g. PUT) from inadvertently modifying an existing resource when the client believes
-that the resource does not exist.
+The purpose of this feature is to allow efficient updates of cached
+information with a minimum amount of transaction overhead. It is also used
+to prevent a method (e.g. PUT) from inadvertently modifying an existing
+resource when the client believes that the resource does not exist.
 
 Example of an `If-None-Match` header : ::
 
@@ -1716,8 +1721,9 @@ Example of an `If-None-Match` header : ::
 Etag
 ----
 
-The `ETag` **response** header field provides the current value of the entity tag for the requested variant.
-The idea behind `Etag` is to provide a unique value for a resource's contents.
+The `ETag` **response** header field provides the current value of the
+entity tag for the requested variant.  The idea behind `Etag` is to provide
+a unique value for a resource's contents.
 
 Example of an `Etag` header: ::
 
@@ -1727,12 +1733,12 @@ Pragma
 ------
 
 The `Pragma` **request** header is a legacy header and should no longer be used.
-Some applications still send headers like `Pragma: no-cache` but this is for
-backwards compatibility reasons **only**.
+Some applications still send headers like ``Pragma: no-cache`` but this is
+for backwards compatibility reasons **only**.
 
-Any proxy cache should treat `Pragma: no-cache` as `Cache-Control: no-cache`,
-and should not be seen as a reliable header especially when used as a response
-header.
+Any proxy cache should treat ``Pragma: no-cache`` as ``Cache-Control:
+no-cache``, and should not be seen as a reliable header especially when
+used as a response header.
 
 Vary
 ----
@@ -1743,6 +1749,34 @@ may have a different HTML page for Firefox on a laptop and for an IPhone version
 of your page. Defining `Vary: User-Agent` will indicates Varnish that the
 response returned from the origin server depends on the value of the `User-Agent`
 header.
+
+Age
+---
+
+- A cache server can send an additional response header, `Age`, to indicate
+  the age of the response.
+- Varnish (and other caches) does this.
+- Browsers (and Varnish) will use the Age-header to determine how long to
+  cache.
+- E.g: for a `max-age`-based equation: cache duration = `max-age` - `Age`
+- If you allow Varnish to cache for a long time, the `Age`-header could
+  effectively disallow client-side caches.
+
+.. container:: handout
+
+   Consider what happens if you let Varnish cache content for a week,
+   because you can easily invalidate the cache Varnish keeps. If you do not
+   change the `Age`-header, Varnish will happily inform clients that the
+   content is, for example, two days old, and that the maximum age should
+   be no more than fifteen minutes.
+
+   Browsers will obey this. They will use the reply, but they will also
+   realize that it has exceeded its max-age, so they will not cache it.
+
+   Varnish will do the same, if your web-server emits and `Age`-header (or
+   if you put one Varnish-server in front of an other).
+
+   We will see in later chapters how we can handle this in Varnish.
 
 Header availability summary
 ---------------------------
@@ -1769,6 +1803,8 @@ header or a response one.
 +-------------------+---------+----------+
 | Vary              |         | X        |
 +-------------------+---------+----------+
+| Age               |         | X        |
++-------------------+---------+----------+
 
 Cache-hit and misses
 --------------------
@@ -1790,6 +1826,38 @@ server so the page can be serviced.
 .. image:: ui/img/httpcachemiss.png
    :align: center
    :width: 60%
+
+Exercise: Use `article.php` to test `Age`
+-----------------------------------------
+
+#. Modify the `article.php`-script to send an Age header that says `30` and
+   ``Cache-Control: max-age=60``.
+#. Watch ``varnishlog``.
+#. Send a request to Varnish for `article.php`. See what `Age`-Header
+   varnish replies with.
+#. Is the `Age`-header an accurate method to determine if Varnish made a
+   cache hit or not?
+#. How long does Varnish cache the reply? How long would a browser cache
+   it?
+
+.. container:: handout
+
+   An other thing to consider in this exercise is how to best avoid issues
+   like this. We do not yet know how to modify Varnish' response headers,
+   but hopefully you will understand why you may need to do that.
+
+   Varnish is not the only part of your web-stack that parses and honors
+   cache-related headers. The primary consumer of such headers are the web
+   browsers, and there might also be other caches along the way which you
+   do not control, like a company-wide proxy server.
+
+   By using `s-maxage` instead of `max-age` we limit the number of
+   consumers to cache servers, but even `s-maxage` will be used by caching
+   proxies which you do not control.
+
+   In the next few chapters, you will learn how to modify the response
+   headers Varnish sends. That way, your web-server can emit response
+   headers that are only seen and used by Varnish.
 
 
 VCL Basics
