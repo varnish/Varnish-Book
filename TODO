@@ -1,7 +1,13 @@
+NEXT-TAG
+========
+
+Short-list for the next TAG:
+
 Going-public
 ============
 
 - Make sphinx look good
+- Get a proper domain name for sphinx
 - Go through the various util/ stuff to see if I missed any tools
 - Better build instructions
 - License and copyright
@@ -13,15 +19,6 @@ Merging
 - Fix the titles for the individual builds
 - Unify the style of the new and old chapters
 
-4.0
-===
-
-To tag for 4.0, this is what I wish to have done:
-
-- The PHP-stuff I wrote at the airport need to be tested and incorporated
-  properly.
-- A sensible distribution-method for the php-files.
-
 Content
 =======
 
@@ -29,7 +26,7 @@ Content
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.
 - On install: Mention how to find VCL syntax errors on rhel
-- Go over tools (specially sizes/hist/adm?)
+- Go over tools (specially sizes/hist?)
 - Loadbalancing
 
   - More examples
@@ -45,16 +42,11 @@ Content
 - VCL functions: Need more examples.
 - Update varnishhist
 - NUKE the tools chapter, or move it to a more complete Appendix.
-- Getting Started: Check that the handout matches the exercises.
-- Getting started: Move the VCL-bits up, so we never really run varnishd by
-  hand (the people who get it will get it, those who don't only get
-  confused).
 
 Webdev-related content
 ======================
 
 - Fix date-references in php-code
-- Need to verify internal linking.
 - The exercise-code for the web-dev material should be more accessible.
   It's currently included in an appendix that's never included anywhere.
 - Distribute it in a tar-ball?
@@ -62,6 +54,7 @@ Webdev-related content
 Technical
 =========
 
+- The PNG used for the flowchart looks bad in the PDF.
 - Amazon-instances need to configure apache2 and php.
 - Check if we can use -b1 instead of -b2 for the non-slide PDF, so we don't
   waste so much paper.
