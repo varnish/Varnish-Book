@@ -538,12 +538,7 @@ varnishlog
    97 RxRequest    c GET
    97 RxURL        c /style.css
    97 RxProtocol   c HTTP/1.1
-   97 RxHeader     c User-Agent: Mozilla/5.0 (Windows; U; Windows NT \
-        6.0; nb-NO; rv:1.9.1b1) Gecko/20081007 Firefox/3.1b1
-   97 RxHeader     c Accept: text/css,*/*;q=0.1
-   97 RxHeader     c Accept-Encoding: gzip,deflate,bzip2
    97 RxHeader     c Host: www.example.com
-   97 RxHeader     c Connection: Keep-Alive
    97 VCL_call     c recv lookup
    97 VCL_call     c hash hash
    97 Hit          c 117505004
@@ -553,16 +548,11 @@ varnishlog
    97 TxProtocol   c HTTP/1.1
    97 TxStatus     c 200
    97 TxResponse   c OK
-   97 TxHeader     c Server: Apache/2.2.8 (Ubuntu)
-   97 TxHeader     c Last-Modified: Fri, 21 Nov 2008 13:49:20 GMT
-   97 TxHeader     c ETag: "210215-c32-45ca34fd121800"
-   97 TxHeader     c Content-Type: text/css
    97 TxHeader     c Content-Length: 3218
    97 TxHeader     c Date: Sat, 22 Aug 2008 01:10:10 GMT
    97 TxHeader     c X-Varnish: 117511501 117505004
    97 TxHeader     c Age: 2
    97 TxHeader     c Via: 1.1 varnish
-   97 TxHeader     c Connection: keep-alive
    97 ReqEnd       c 117511501 1227316210.534358978 \
         1227316210.535176039  0.035283089 0.000793934 0.000023127
 
@@ -643,13 +633,6 @@ varnishstat
            53570          .            .   N struct object
            50070          .            .   N struct objecthead
               20          .            .   N struct vbe_conn
-             186          .            .   N struct bereq
-            1200          .            .   N worker threads
-            1200         0.00         0.45 N worker threads created
-            2526         0.00         0.94 N overflowed work requests
-               8          .            .   N backends
-           84929          .            .   N expired objects
-         1002104          .            .   N LRU moved objects
 
 .. container:: handout
 
@@ -1523,7 +1506,8 @@ HTTP request/response control flow
 ----------------------------------
 
 .. image:: ui/img/httprequestflow.png
-    :scale: 70%
+   :align: center
+   :width: 80%
 
 The client sends an HTTP request to the server which returns an HTTP response
 with the message body.
@@ -1703,7 +1687,8 @@ Example of an `If-Modified-Since` header: ::
     If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
 .. image:: ui/img/httpifmodifiedsince.png
-    :scale: 70%
+   :align: center
+   :height: 1235px
 
 If-None-Match
 -------------
@@ -1724,7 +1709,9 @@ Example of an `If-None-Match` header : ::
     If-None-Match: "1edec-3e3073913b100"
 
 .. image:: ui/img/httpifnonematch.png
-    :scale: 70%
+   :align: center
+   :width: 80%
+
 
 Etag
 ----
@@ -1792,7 +1779,8 @@ There is a cache-hit when Varnish returns a page from its cache instead of
 forwarding the request to the origin server.
 
 .. image:: ui/img/httpcachehit.png
-    :scale: 70%
+   :align: center
+   :width: 60%
 
 **cache-miss**
 
@@ -1800,7 +1788,8 @@ There is a cache-miss when Varnish has to forward the request to the origin
 server so the page can be serviced.
 
 .. image:: ui/img/httpcachemiss.png
-    :scale: 70%
+   :align: center
+   :width: 60%
 
 
 VCL Basics
@@ -3650,7 +3639,8 @@ Edge Side Includes
 - Testing ESI without Varnish
 
 .. image:: ui/img/esi.png
-    :scale: 60%
+   :align: center
+   :width: 60%
 
 .. container:: handout
 
@@ -3757,15 +3747,17 @@ Testing ESI without Varnish
 Masquerading AJAX requests
 --------------------------
 
-What works:
++------------------------------+-------------------------------+
+| .. image:: ui/img/ajaxok.png |  .. image:: ui/img/ajaxko.png |
+|   :align: center             |     :align: center            |
+|   :width: 900px              |     :width: 900px             |
++------------------------------+-------------------------------+
+| What works                   | What does not work            |
++------------------------------+-------------------------------+
 
-.. image:: ui/img/ajaxok.png
-    :scale: 75%
 
-What does not work:
 
-.. image:: ui/img/ajaxko.png
-    :scale: 75%
+
 
 .. container:: handout
 
@@ -4059,3 +4051,4 @@ purgearticle.php
 
 .. include:: material/webdev/purgearticle.php
    :literal:
+

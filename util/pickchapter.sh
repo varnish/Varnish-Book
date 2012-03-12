@@ -12,7 +12,7 @@ BEGIN {
 }
 {
 	for (a in includea) {
-		if (includea[a] == chapter) {
+		if (includea[a] == chapter || (chapter != "" && includea[a] == "*")) {
 			print last
 			break
 		}

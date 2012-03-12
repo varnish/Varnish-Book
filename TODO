@@ -6,23 +6,17 @@ Going-public
 - Better build instructions
 - License and copyright
 - Formalize style practices
-- Introduction to the test environment
 
 Merging
 =======
 
 - Fix the titles for the individual builds
-- The exercise-code for the web-dev material should be more accessible.
-  It's currently included in an appendix that's never included anywhere.
-- Verify that all chapters are sensible as slides too.
-- The flow needs to be re-evaluated, particularly towards the last few
-  chapters, after VCL.
 - Unify the style of the new and old chapters
-- Describe the new chapters a bit in NEWS
 
 Content
 =======
 
+- Introduction to the test environment
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.
 - Intro chapter for web?
@@ -54,6 +48,8 @@ Webdev-related content
 
 - Fix date-references in php-code
 - Need to verify internal linking.
+- The exercise-code for the web-dev material should be more accessible.
+  It's currently included in an appendix that's never included anywhere.
 - Distribute it in a tar-ball?
 
 Technical
@@ -68,7 +64,6 @@ Technical
 - Make distdist == scp and formulate Announce-mail.
 - Automate fetch default VCL from Varnish
 - Verify fonts
-- Fix image-sizes
 - Reduce number of blank pages
 - slide-only class, to allow content to go over multiple slides without
   resulting in multiple empty pages in the printed version

@@ -10,7 +10,7 @@ src/AJAX.rst
 src/Appendix_A__Extra_Material.rst
 src/Cache_invalidation.rst
 src/Cookies.rst
-src/ESI.rst
+src/Content_Composition.rst
 src/Finishing_words.rst
 src/Getting_started.rst
 src/HTTP.rst
