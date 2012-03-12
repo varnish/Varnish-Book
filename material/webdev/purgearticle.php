@@ -1,8 +1,9 @@
 <?php
 header( 'Content-Type: text/plain' );
+header( 'Cache-Control: max-age=0' );
 $hostname = 'localhost';
-$port     = 8000;
-$URL      = '/url/to/article.php';
+$port     = 80;
+$URL      = '/article.php';
 $debug    = true;
 
 print "Updating the article in the database ...\n";
