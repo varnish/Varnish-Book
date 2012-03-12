@@ -4103,16 +4103,16 @@ cookies.php
 .. include::  material/webdev/cookies.php
    :literal:
 
-esi.html
---------
+esi-top.php
+-----------
 
-.. include:: material/webdev/esi.html
+.. include:: material/webdev/esi-top.php
    :literal:
 
-esi.php
--------
+esi-user.php
+------------
 
-.. include:: material/webdev/esi.php
+.. include:: material/webdev/esi-user.php
    :literal:
 
 httpheadersexample.php
@@ -4125,5 +4125,17 @@ purgearticle.php
 ----------------
 
 .. include:: material/webdev/purgearticle.php
+   :literal:
+
+test.php
+--------
+
+.. include:: material/webdev/test.php
+   :literal:
+
+set-cookie.php
+--------------
+
+.. include:: material/webdev/set-cookie.php
    :literal:
 
