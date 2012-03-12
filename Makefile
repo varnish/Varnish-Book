@@ -121,7 +121,7 @@ materialcheck:
 	@$(MAKE) -C material/
 
 check: vclcheck materialcheck
-	@ret=0; for a in `ls -1 vcl/*.vcl material/webdev/* | grep -v index`; do \
+	@ret=0; for a in `ls -1 vcl/*.vcl material/webdev/*.php material/webdev/*.html | grep -v index`; do \
 		grep -q $$a ${rstsrc} || { ret=1; echo "$$a is a file, but not included in the rst"; }; \
 	done; \
 	exit $$ret
