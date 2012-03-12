@@ -17,6 +17,7 @@ webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache inval
 webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 tutorialt = ${BDIR}/varnish-tutorial.pdf ${BDIR}/varnish_slide-tutorial.pdf
+materialpath = www_examples
 rstsrc =varnish_tutorial.rst
 images = ui/img/vcl.png ui/img/request.png
 common = ${rstsrc} \
@@ -102,18 +103,28 @@ sourceupdate: util/param.rst flowchartupdate
 clean:
 	-rm -r build/
 
-varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-%.pdf
+varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-%.pdf ${BDIR}/${materialpath}.tar.bz2
 	@echo Preparing $@ ...
 	@target=${BDIR}/dist/varnish_$*-${version}/; \
 	mkdir -p $${target};\
 	mkdir -p $$target/pdf/;\
 	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
 	cp -r munin/ $$target;\
+	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
 	cp NEWS ${rstsrc} README.rst LICENSE $$target;\
 	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/
 
 dist: $(addprefix varnish_,$(addsuffix -${version}.tar.bz2,${targets}))
 
+material/webdev/index.html: material/webdev/index.rst
+	rst2html $< > $@
+
+${BDIR}/${materialpath}.tar.bz2: material/webdev/index.html ${BDIR} material/ material/webdev/*
+	-rm -r ${BDIR}/${materialpath}
+	mkdir -p ${BDIR}/${materialpath}
+	cp -a material/webdev/* ${BDIR}/${materialpath}
+	tar -hC ${BDIR}/ -cjf $@ ${materialpath}
+	
 vclcheck:
 	@$(MAKE) -C vcl/
 
