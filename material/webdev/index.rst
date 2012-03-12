@@ -9,3 +9,6 @@ The following files are provided for the Varnish training material:
   for varnish and the browser.
 * `<purgearticle.php>`_ - Demonstration of how an application can do a
   "callback" to Varnish to purge content.
+* `<esi-top.php>`_
+* `<esi-user.php>`_
+* `<test.php>`_

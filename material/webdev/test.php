@@ -1,16 +1,14 @@
 <?php
+$cc = "";
+if( isset($_GET['k']) and $_GET['k'] !== '' and
+    isset($_GET['v']) and $_GET['v'] !== '') {
+	$k=$_GET['k'];
+	$v=$_GET['v'];
+	$cc = "Cache-Control: $k=$v";
 
-        break;
-
-        case "s-maxage" :
-	    $cachecontrol['s-maxage'] = $_GET['v'];
-        break;
-    }
+	header("$cc");
 
 }
-
-$cc = "Cache-Control: $_GET['k']=$_GET['v']");
-header("$cc");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
