@@ -14,8 +14,8 @@ First of all, this is the training material Varnish Software uses for
 professional Varnish training courses. That is the original motivation for
 writing this material.
 
-Secondly, it is now (soon?) used as a public tutorial to complement the
-reference documentation.
+Secondly, it is now used as a public tutorial to complement the reference
+documentation.
 
 For training, we hold different courses, hence the existence of different
 PDFs. We also build a "slide" PDF for this purpose, which is why the layout
@@ -55,6 +55,40 @@ The following tools are needed:
 - git (somewhat optional, I believe)
 - make (possibly GNU make. Not tested)
 - dot (for images)
+- varnishd
+
+All build-stuff is handled by make. The following is an incomplete list of
+targets:
+
+``make check``
+        Does syntax-checking on VCL and php-files. Ensures that they are
+        used too.
+
+``make all``
+        Builds all PDFs (not sphinx)
+
+``make dist``
+        Builds tar-balls for use by instructurs, which contain PDFs,
+        munin-snapshot, www-examples (material/), NEWS and a bit more.
+
+``make clean``
+        removes build/
+
+``make sphinx``
+        Builds sphinx into build/html/
+
+``make flowchartupdate``
+        Updates the VCL flowcharts from varnish source-code, assuming the
+        correct .c-file (e.g: varnish source-code) is located where
+        Makefile checks. (read Makefile).
+
+``make util/param.rst``
+        Might require deleting the file first. Fetches varnish-parameters
+        from varnishd (as found in your PATH) and updates the
+        util/param.rst with the correct macros.
+
+``make sourceupdate``
+        Does both the util/param.rst-thing and flowchartupdate.
 
 Updating the training material
 ------------------------------
