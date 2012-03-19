@@ -1486,8 +1486,8 @@ Response
 
 
 
-Example response
-----------------
+Response example
+---------------
 
 ::
 
