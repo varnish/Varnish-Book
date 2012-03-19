@@ -1392,7 +1392,7 @@ Requests
    `HEAD` body.
 
 
-Example request
+Request example
 ---------------
 
 ::
