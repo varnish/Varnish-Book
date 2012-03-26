@@ -6,13 +6,13 @@ Short-list for the next TAG:
 Going-public
 ============
 
-- License and copyright
+- License and copyright. Could use a clarification in the README for
+  example...
 
 Merging
 =======
 
 - Fix the titles for the individual builds
-- Unify the style of the new and old chapters
 
 Content
 =======
@@ -49,9 +49,9 @@ Webdev-related content
 Technical
 =========
 
-- Get a proper domain name for sphinx
-- Go through the various util/ stuff to see if I missed any tools
 - Formalize style practices
+- Unify the style of the new and old chapters
+- Go through the various util/ stuff to see if I missed any tools
 - The PNG used for the flowchart looks bad in the PDF.
 - Amazon-instances need to configure apache2 and php.
 - Check if we can use -b1 instead of -b2 for the non-slide PDF, so we don't
