@@ -10,15 +10,15 @@ PICK = "./util/pickchapter.sh"
 # If you want a new set, just make a new variable and that's the name of
 # the pdfs you can now build.
 
-tutorial = "*"
+book = "*"
 sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
 webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
 webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
-tutorialt = ${BDIR}/varnish-tutorial.pdf ${BDIR}/varnish_slide-tutorial.pdf
+bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
 materialpath = www_examples
-rstsrc =varnish_tutorial.rst
+rstsrc =varnish_book.rst
 images = ui/img/vcl.png ui/img/request.png
 common = ${rstsrc} \
 	 ${BDIR}/version.rst \
@@ -32,7 +32,7 @@ common = ${rstsrc} \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = webdev tutorial sysadmin
+targets = webdev book sysadmin
 
 all: ${targets}
 
@@ -40,7 +40,7 @@ webdev: ${webdevt}
 
 sysadmin: ${sysadmint}
 
-tutorial: ${tutorialt}
+book: ${bookt}
 
 src/conf.py: src/conf.py.in build/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
@@ -63,6 +63,8 @@ sphinx: ${common} src/conf.py
 
 sphinx-dist: sphinx
 	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/
+	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book-${version}.pdf
+	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book.pdf
 
 mrproper: clean all
 

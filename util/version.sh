@@ -18,7 +18,11 @@ cat <<__EOF__
 :Date: $(date +%Y-%m-%d)
 :License: The material is available under a CC-BY-SA-NC license. See
 	  http://creativecommons.org/licenses/by-nc-sa/3.0/ for the full
-	  license.
+	  license. For questions regarding what we mean by non-commercial,
+	  please contact training@varnish-software.com.
+:Contact: For any questions regarding this training material, please
+          contact training@varnish-software.com.
+
 
 __EOF__
 

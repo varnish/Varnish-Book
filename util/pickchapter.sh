@@ -23,4 +23,4 @@ BEGIN {
 {
 	last = $0
 }
-' varnish_tutorial.rst
+' varnish_book.rst
