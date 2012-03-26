@@ -66,7 +66,8 @@ sphinx-dist: sphinx
 
 mrproper: clean all
 
-${BDIR}/version.rst: util/version.sh ${rstsrc}
+${BDIR}/version.rst: util/version.sh ${rstsrc} .git/COMMIT_EDITMSG
+
 	mkdir -p ${BDIR}
 	./util/version.sh > ${BDIR}/version.rst
 
