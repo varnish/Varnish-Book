@@ -1,11 +1,13 @@
 New in 4.1
 ----------
+Released: Mon Mar 12 2012
 
 Almost exclusively technical and typographic changes. Released hours after
 4.0 to get a version where webdev-content is mostly OK too.
 
 New in 4.0
 ----------
+Released: Mon Mar 12 2012
 
 First version to integrate the web development course, and preparing to go
 public. The material in the sysadmin course is left almost untouched, save
@@ -54,6 +56,7 @@ Practical changes:
 
 New in 3.0
 ----------
+Released: Mon Nov 28 2011
 
 Big reorganization effort. Much of the content is the same, but moved
 around between different chapters. Reading the TOC is a must. Skimming the
@@ -107,11 +110,13 @@ In "Saving the request":
 
 New in 2.1
 ----------
+Released: Mon Nov 7 2011
 
 - Trivial fixes after 2.0 was tried out
 
 New in 2.0
 ----------
+Released: Thu Sep 29 2011
 
 - Update all VCL for Varnish 3.0 (Tested for 3.0.2)
 - Attempt to convert everything to 3.0 (I might have missed some parts)
@@ -126,6 +131,7 @@ All 2.0 is the first Varnish 3.0 course.
 
 New in 1.7
 ----------
+Released: Mon Aug 8 2011
 
 - Language fixes.
 - Slide-pdf
