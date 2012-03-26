@@ -1,6 +1,6 @@
 
-Welcome to the Varnish Tutorial
-===============================
+Welcome to the Varnish Book
+===========================
 
 Contents:
 
@@ -14,7 +14,7 @@ Version and copyright
 About the material
 ==================
 
-This tutorial is part of Varnish Software's
+This book is part of Varnish Software's
 (http://www.varnish-software.com) official training material.
 
 Since the material is intended to be a complete set of training material,
