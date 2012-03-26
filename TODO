@@ -6,11 +6,7 @@ Short-list for the next TAG:
 Going-public
 ============
 
-- Make sphinx look good
-- Get a proper domain name for sphinx
-- Go through the various util/ stuff to see if I missed any tools
 - License and copyright
-- Formalize style practices
 
 Merging
 =======
@@ -53,6 +49,9 @@ Webdev-related content
 Technical
 =========
 
+- Get a proper domain name for sphinx
+- Go through the various util/ stuff to see if I missed any tools
+- Formalize style practices
 - The PNG used for the flowchart looks bad in the PDF.
 - Amazon-instances need to configure apache2 and php.
 - Check if we can use -b1 instead of -b2 for the non-slide PDF, so we don't

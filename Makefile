@@ -61,6 +61,9 @@ sphinx: ${common} src/conf.py
 	sed -i 's/\.\. class:: handout//' src/*.rst
 	sphinx-build -b html -d build/doctrees   src/ build/html
 
+sphinx-dist: sphinx
+	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/
+
 mrproper: clean all
 
 ${BDIR}/version.rst: util/version.sh ${rstsrc}

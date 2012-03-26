@@ -11,10 +11,6 @@ Version and copyright
 
 .. include:: build/version.rst
 
-This is a work in progress.
-
-Do not distribute. Proper links and officalness will arrive soon enough.
-
 About the material
 ==================
 
