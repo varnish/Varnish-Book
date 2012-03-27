@@ -17,15 +17,14 @@ About the material
 This book is part of Varnish Software's
 (http://www.varnish-software.com) official training material.
 
-Since the material is intended to be a complete set of training material,
-the style of each chapter might be a bit confusing. Every chapter will
-start with typical slide bullet-points before there is more in-depth text
-to explain.
+The material is primarily written to be used in a classroom context. In
+the classroom, each sub-chapter is a slide and the participants gets a
+printed version with extra information. The documentation you are reading
+will reflect that structure.
 
-Since the training material evolves constantly, some chapters will be more
-complete than others. This is because the course instructor will fill in
-the missing blanks for the newer or more rough chapters, so the text
-available on-line might seem incomplete or insufficient.
+The training material evolves constantly. Some chapters are more evolved
+than others, which a course instructor usually compensates for by live
+demonstrations or more in-depth discussion.
 
 All the VCL code examples are verified for syntax-correctness frequently
 (semi-automatically). This does not, however, guarantee that they do what

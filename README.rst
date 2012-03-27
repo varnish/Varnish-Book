@@ -6,20 +6,20 @@ This repository contains:
 * The training material used for our Varnish training (the source for the
   slides and printed version)
 * A snapshot of munin graphs for use by instructors.
+* PHP example-code for testing Varnish
 * Build system for said training material
 
-This material serves multiple purposes.
+This is the training material Varnish Software uses for professional
+Varnish training courses. It is made available under a Creative Commons
+CC-BY-NC-SA license (See the LICENSE file for details) as a book.
 
-First of all, this is the training material Varnish Software uses for
-professional Varnish training courses. That is the original motivation for
-writing this material.
-
-Secondly, it is now used as a public tutorial to complement the reference
-documentation.
-
-For training, we hold different courses, hence the existence of different
-PDFs. We also build a "slide" PDF for this purpose, which is why the layout
-of the individual chapters is the way it is.
+The build system produces different sets of PDFs. Varnish Software
+currently offers two different two-day courses: `Varnish System
+Administration`, which contains all chapters except the `HTTP` chapter and
+`Content Composition`; and `Varnish for Web Developers` which contains all
+chapters except `Tuning` and `Saving the Request`. The third set of slides,
+labeled `Book`, contains all chapters. All the chapters are written with
+this structure in mind.
 
 Index
 -----
@@ -77,6 +77,10 @@ targets:
 ``make sphinx``
         Builds sphinx into build/html/
 
+``make sphinx-dist``
+        Pushes the sphinx-build to the official server. Requires access to
+        the right servers, naturally.
+
 ``make flowchartupdate``
         Updates the VCL flowcharts from varnish source-code, assuming the
         correct .c-file (e.g: varnish source-code) is located where
@@ -123,3 +127,12 @@ available from:
 http://creativecommons.org/licenses/by-nc-sa/3.0/
 
 And a copy of the license is available in the LICENSE file.
+
+Clarification: The Non-Commercial clause of the CC-BY-NC-SA license is
+intentionally vague in the original license. Varnish Software does not
+interpret reading of the material as commercial, regardless of context
+(e.g: You can read the material at work, for the benefit of your self and
+the company). The Non-Commercial clause is intended to block competition
+with other commercial training offerings. If you have any doubt as to how
+this should be interpreted, please contact info@varnish-software.com for
+clarification before proceeding.
