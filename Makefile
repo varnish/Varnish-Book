@@ -1,7 +1,7 @@
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
 CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
-PICK = "./util/pickchapter.sh"
+PICK = "./util/pickchapter2.igawk"
 
 # The following are chapter lists for the relevant versions of the PDFs.
 # Please note that they need to be exact. No extra spaces, case sensitive
@@ -57,7 +57,7 @@ sphinx: ${common} src/conf.py
 		rm $$a; \
 		touch $$a; \
 	done
-	util/splitchapters.sh ${rstsrc} src/
+	util/splitchapters.igawk -v dst=src/ < ${rstsrc}
 	sed -i 's/\.\. class:: handout//' src/*.rst
 	sphinx-build -b html -d build/doctrees   src/ build/html
 
@@ -95,11 +95,11 @@ ${BDIR}:
 
 ${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
 	@echo Building PDFs for $*...
-	@${PICK} ${$*} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
+	@${PICK} -v include=${$*} < ${rstsrc} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
 
 ${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
 	@echo Building PDF slides for $*...
-	@${PICK} ${$*} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
+	@${PICK} -v include=${$*} < ${rstsrc} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |default_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst

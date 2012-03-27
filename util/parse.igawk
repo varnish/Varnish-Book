@@ -1,0 +1,53 @@
+#!/usr/bin/igawk
+
+BEGIN {
+	chapter=""
+	pos=0
+	last=""
+}
+
+/^==+$/ {
+	if (length(last) == length($0)) {
+		chapter_done(chapter);
+		chapterindex[nchapterindex++] = chapter
+		subchapterindex[nsubchapterindex++] = chapter
+		chapter=last;
+		subchapter=chapter
+	}
+}
+
+/^--+$/ || /^\.\.+$/ {
+	if (length(last) == length($0)) {
+		sub_chapter_done(subchapter);
+		subchapterindex[nsubchapterindex++] = chapter
+		subchapter=last;
+	}
+}
+
+{
+	content[pos++] = last
+	content["s:"subchapter,relpos["s:"subchapter]++] = last
+	content[chapter,relpos[chapter]++] = last
+	last = $0
+}
+
+END {
+	sub_chapter_done(subchapter);
+	chapter_done(chapter);
+	chapterindex[nchapterindex++] = chapter
+	subchapterindex[nsubchapterindex++] = chapter
+}
+
+function print_chapter(chap,output,		i) {
+	for (i=0;i<relpos[chap];i++) {
+		if (output != "") {
+			printf("%s\n",content[chap,i]) >> output
+		} else {
+			printf("%s\n",content[chap,i])
+		}
+	}
+}
+
+function print_sub_chapter(chap,output) {
+	print_chapter("s:"chap,output);	
+}

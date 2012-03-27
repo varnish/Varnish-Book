@@ -1,0 +1,23 @@
+#!/usr/bin/igawk -f
+
+@include util/parse.igawk
+
+function chapter_done(chap) {
+}
+
+function sub_chapter_done(chap) {
+}
+
+END {
+	if (include != "*") {
+		print_chapter("");
+		split(include,includea,",");
+		for (a in includea) {
+			print_chapter(includea[a]);
+		}
+	} else {
+		for (i=0; i<nchapterindex; i++) {
+			print_chapter(chapterindex[i]);
+		}
+	}
+}
