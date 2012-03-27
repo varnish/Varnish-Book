@@ -1,3 +1,5 @@
+:orphan:
+
 The following files are provided for the Varnish training material:
 
 * `<ajax.html>`_ - Used to test maqued and unmasqued AJAX calls 
