@@ -133,6 +133,7 @@ intentionally vague in the original license. Varnish Software does not
 interpret reading of the material as commercial, regardless of context
 (e.g: You can read the material at work, for the benefit of your self and
 the company). The Non-Commercial clause is intended to block competition
-with other commercial training offerings. If you have any doubt as to how
-this should be interpreted, please contact info@varnish-software.com for
+with other commercial training offerings and to prohibit commercial
+printing and selling of the book. If you have any doubt as to how this
+should be interpreted, please contact training@varnish-software.com for
 clarification before proceeding.
