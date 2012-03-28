@@ -295,7 +295,7 @@ Command line configuration
 -p <parameter=value>      set tunable parameters
 -S <secretfile>           authentication secret for management
 -d                        debug
--T <hostname:port>        Telnet interface
+-T <hostname:port>        Management interface
 -s <storagetype,options>  where and how to store objects
 
 
@@ -430,7 +430,7 @@ The end result should be:
 | Varnish    | Answers on port `80`   | ``/etc/default/varnish``                   |
 +------------+------------------------+--------------------------------------------+
 | Varnish    | Talks to apache on     | ``/etc/varnish/default.vcl``               |
-|            | `localhost:80`         |                                            |
+|            | `localhost:8080`       |                                            |
 +------------+------------------------+--------------------------------------------+
 
 .. container:: handout
@@ -797,7 +797,7 @@ Varnish has two main process: the management process and the child process.
 The management process apply configuration changes (VCL and parameters),
 compile VCL, monitor Varnish, initialize Varnish and provides a command
 line interface, accessible either directly on the terminal or through a
-telnet interface.
+management interface.
 
 By default, the management process polls the child process every few
 seconds to see if it's still there. If it doesn't get a reply within a
@@ -2144,8 +2144,9 @@ Example: Handling Vary: Accept-Encoding
 Exercise: Rewrite URLs and host headers
 ---------------------------------------
 
-#. Copy the original `Host`-header and URL to a request header you can see
-   ``varnishlog``. E.g: ``req.http.x-host`` and ``req.http.x-url``.
+#. Copy the original `Host`-header (``req.http.Host``) and URL
+   (``req.url``) to two new request header of your choice. E.g:
+   ``req.http.x-host`` and ``req.http.x-url``.
 #. Ensure that `www.example.com` and `example.com` are cached as one, using
    ``regsub()``.
 #. Rewrite all URLs under `http://sport.example.com` to
@@ -2268,6 +2269,59 @@ Default: ``vcl_fetch``
    The default VCL for ``vcl_fetch`` is designed to avoid caching anything
    with a set-cookie header. There are very few situations where caching
    content with a set-cookie header is desirable.
+
+The initial value of ``beresp.ttl``
+-----------------------------------
+
+Before Varnish runs ``vcl_fetch``, the ``beresp.ttl`` variable has already
+been set to a value. It will use the first value it finds among:
+
+- The ``s-maxage`` variable in the ``Cache-Control`` response header
+- The ``max-age`` variable in the ``Cache-Control`` response header
+- The ``Expires`` response header
+- The ``default_ttl`` parameter.
+
+Only the following status codes will be cached by default:
+
+- 200: OK
+- 203: Non-Authoritative Information
+- 300: Multiple Choices
+- 301: Moved Permanently
+- 302: Moved Temporarily
+- 307: Temporary Redirect
+- 410: Gone
+- 404: Not Found
+
+.. container:: handout
+
+        You can still cache other status codes, but you will have to set
+        the ``beresp.ttl`` to a positive value in ``vcl_fetch`` yourself.
+
+        Since all this is done before ``vcl_fetch`` is executed, you can
+        modify the Cache-Control headers without affecting ``beresp.ttl``,
+        and vice versa.
+                
+        A sensible approach is to use the ``s-maxage`` variable in the
+        ``Cache-Control`` header to instruct Varnish to cache, then have
+        Varnish remove that variable before sending it to clients using
+        ``regsub()`` in ``vcl_fetch``. That way, you can safely set max-age
+        to what cache duration the clients should use and s-maxage for
+        Varnish without affecting intermediary caches.
+
+        .. warning::
+
+                Varnish, browsers and intermediary will parse the ``Age``
+                response header. If you stack multiple Varnish servers in
+                front of each other, this means that setting
+                ``s-maxage=300`` will mean that the object really will be
+                cached for only 300 seconds throughout all Varnish servers.
+
+                On the other hand, if your web server sends
+                ``Cache-Control: max-age=300, s-maxage=3600`` and you do
+                not remove the ``Age`` response header, Varnish will send
+                an ``Age``-header that exceeds the ``max-age`` of the
+                objects, which will cause browsers to not cache the
+                content.
 
 
 Example: Enforce caching of .jpg urls for 60 seconds
@@ -3990,22 +4044,26 @@ varnishhist
 -----------
 
 ::
+        
+                              #
+                              #
+                              #
+                              #
+                              ##
+                             ###
+                             ###
+                             ###
+                             ###
+                             ###
+                          |  ###
+                          |  ###
+                        | |  ###
+                        |||| ###                    #
+                        |||| ####                   #
+                        |##|#####   #           #   #  # #
+        +-------+-------+-------+-------+-------+-------+-------+-------+-------
+        |1e-6   |1e-5   |1e-4   |1e-3   |1e-2   |1e-1   |1e0    |1e1    |1e2
 
-        1:100, n = 2000                                    northpole
-
-
-
-
-
-                |
-                |
-                |
-                | |               #
-               || |               #
-               ||||               ##
-               ||||    #          ##
-               |||||   ##       #####  #     #
-        +-----+-----+-----+-----+-----+-----+-----+-----+-----
 
 
 Exercise: Try the tools

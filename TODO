@@ -3,12 +3,6 @@ NEXT-TAG
 
 Short-list for the next TAG:
 
-Going-public
-============
-
-- License and copyright. Could use a clarification in the README for
-  example...
-
 Merging
 =======
 
@@ -30,12 +24,9 @@ Content
 - Add more visuals for the VCL chapters
 - Reduce the amount of start-up parameters in Getting Started (they just
   add confusion for people on the webdev-course who wont use them).
-- Down-play varnishadm in the Getting Started chapters (webdevs don't need
-  it).
 - Use article.php and httpheaderexample.php-like approaches more. Both for
   webdev AND the rest.
 - VCL functions: Need more examples.
-- Update varnishhist
 - NUKE the tools chapter, or move it to a more complete Appendix.
 
 Webdev-related content
