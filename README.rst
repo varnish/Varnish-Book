@@ -21,6 +21,20 @@ chapters except `Tuning` and `Saving the Request`. The third set of slides,
 labeled `Book`, contains all chapters. All the chapters are written with
 this structure in mind.
 
+Thanks
+------
+
+In addition to the authors, the following deserve special thanks (in no
+particular order):
+
+- Rubén Romero
+- Sevan Janiyan
+- Kacper Wysocki
+- Magnus Hagander
+- Martin Blix Grydeland
+- Everyone who has participated on the training courses
+
+
 Index
 -----
 
@@ -38,7 +52,7 @@ Index
 * ui/ - Images, style-definitions for PDFs and CSS for the slides.
 * util/ - Headers for the rst, tool to make version.rst, strip-class to
   remove an rst-class (for generating slides as PDF instead of s5).
-* varnish_sysadmin.rst - course itself
+* varnish_book.rst - course itself
 * vcl/ - VCL files used in the course. Not a copy. Included directly as-is,
   and verified by make check. (note: If 'backend' is missing, a generic
   backend will be added on the fly during make check).

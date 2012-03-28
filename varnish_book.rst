@@ -735,7 +735,7 @@ Exercise: Try out the tools
 ---------------------------
 
 #. Run ``varnishstat`` and ``varnishlog`` while performing a few requests
-#. Make ``varnishlog`` only print client-requests where the `TxURL`-tag
+#. Make ``varnishlog`` only print client-requests where the `RxURL`-tag
    contains ``/favicon.ico``.
 #. Use ``varnishadm`` to determine the default value for the
    ``default_ttl``-parameter, and what it does.
