@@ -61,7 +61,7 @@ sphinx: ${common} src/conf.py
 	sed -i 's/\.\. class:: handout//' src/*.rst
 	sphinx-build -b html -d build/doctrees   src/ build/html
 
-sphinx-dist: sphinx
+sphinx-dist: sphinx book
 	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/
 	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book-${version}.pdf
 	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book.pdf

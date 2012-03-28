@@ -167,15 +167,10 @@ Timeline:
 Design principles
 -----------------
 
-- Optimized for 64-bit - supports 32bit
-- Optimized for multi-core/CPU
+- Solve real problems
+- Optimize for modern hardware (64-bit, multi-core, etc)
 - Work with the kernel, not against it
-- Innovate - not copy/paste
-
-  - VCL, shared memory log, bheaps
-
-- Make the fast-path really fast. Delegate.
-- Solve real problems.
+- Innovation, not regurgitation
 
 .. container:: handout
 
