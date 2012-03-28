@@ -22,8 +22,6 @@ Content
   - Need a new exercise.
 
 - Add more visuals for the VCL chapters
-- Reduce the amount of start-up parameters in Getting Started (they just
-  add confusion for people on the webdev-course who wont use them).
 - Use article.php and httpheaderexample.php-like approaches more. Both for
   webdev AND the rest.
 - VCL functions: Need more examples.

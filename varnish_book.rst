@@ -72,10 +72,10 @@ Goals:
    common configuration files, which is perhaps the most UNIX-centric part
    of the course. Do not hesitate to ask for help.
 
-   The goal of the course is to make you a better system administrator of
-   Varnish and let you adjust Varnish to your exact needs. If you have any
-   specific area you are particularly interested in, the course is usually
-   flexible enough to make room for it.
+   The goal of the course is to make you confident when using Varnish and
+   let you adjust Varnish to your exact needs. If you have any specific
+   area you are particularly interested in, the course is usually flexible
+   enough to make room for it.
 
 Introduction to Varnish
 -----------------------
@@ -89,9 +89,7 @@ Introduction to Varnish
 
    Varnish is a reverse HTTP proxy, sometimes referred to as a HTTP
    accelerator or a web accelerator.  It is designed for modern hardware,
-   modern operating systems and modern work loads. This uncompromising
-   philosophy has helped make Varnish a very clean and fast piece of
-   software, able to scale and evolve to unexpected heights.
+   modern operating systems and modern work loads.
 
    At the same time, Varnish is flexible. The Varnish Configuration
    Language is lighting fast and allows the administrator to express their
@@ -103,30 +101,46 @@ Introduction to Varnish
    development process is public and everyone can submit patches, or just
    take a peek at the code if there is some uncertainty as to how Varnish
    works. There is a community of volunteers who help each other and
-   newcomers. The BSD license used by Varnish is the most restraint-free
-   license among the free licenses, which conceptually makes it easier to
-   use Varnish in combination with non-free environments.
+   newcomers. The BSD-like license used by Varnish does not place
+   significant restriction on re-use of the code, which makes it possible
+   to integrate Varnish in virtually any solution.
 
    Varnish is developed and tested on GNU/Linux and FreeBSD. The code-base
    is kept as self-contained as possible to avoid introducing out-side bugs
-   and unneeded complexity.
+   and unneeded complexity. As a consequence of this, Varnish uses very few
+   external libraries.
 
    Varnish development is governed by the Varnish Governance Board (VGB),
    which thus far has not needed to intervene. The VGB consists of an
    architect, a community representative and a representative from Varnish
-   Software. As of February 2011, the positions are filled by Poul-Henning
-   Kamp (Architect), Artur Bergman (Community) and Kristian Lyngstøl
+   Software. As of March 2012, the positions are filled by Poul-Henning
+   Kamp (Architect), Rogier Mulhuijzen (Community) and Kristian Lyngstøl
    (Varnish Software). On a day-to-day basis, there is little need to
    interfere with the general flow of development.
+
+   For those interested in development, the developers arrange weekly bug
+   washes were recent tickets and development is discussed. This usually
+   takes place on Mondays around 12:00 CET on the IRC channel
+   `#varnish-hacking` on `irc.linpro.net`.
 
 The history of Varnish
 ----------------------
 
-- Initiated by VG, the largest newspaper in Norway, in 2006.
-- Redpill Linpro performed Varnish development.
-- Later development has been financed through service subscriptions
-- Varnish Software was established in 2010 as an independent company to
-  service the increasing commercial interest in Varnish.
+Timeline:
+
+- 2005: Ideas! Verdens Gang (www.vg.no, Norways biggest newspaper) were
+  looking for alternative cache solutions.
+- 2006: Work began. Redpill Linpro was in charge of project management,
+  infrastructure and supporting development. Poul-Henning Kamp did the
+  majority of the actual development.
+- 2006: Varnish 1.0 released
+- 2008: Varnish 2.0 released
+- 2009: The first Varnish User Group Meeting is held in London. Roughly a
+  dozen people participate from all around the world.
+- 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
+- 2011: Varnish 3.0 released
+- 2012: The fifth Varnish User Group Meeting is held in Paris. Roughly 70
+  people participate on the User-day and around 30 on the developer-day!
 
 .. container:: handout
 
@@ -173,11 +187,13 @@ Design principles
         architectures and will scale almost proportional to the number of CPU cores
         you have available. Though CPU-power is rarely a problem.
 
-        If you choose to run Varnish on a 32-bit system, you are limited to 3GB
-        of virtual memory address space, which puts a limit on the number
-        of threads you can run and the size of your cache. This is a
+        If you choose to run Varnish on a 32-bit system, you are limited to
+        3GB of virtual memory address space, which puts a limit on the
+        number of threads you can run and the size of your cache. This is a
         trade-off to gain a simpler design and reduce the amount of work
-        Varnish needs to do.
+        Varnish needs to do. The 3GB limit depends on the operating system
+        kernel. The theoretical maximum is 4GB, but your OS will reserve
+        some of that for the kernel. This is called the user/kernel split.
 
         Varnish does not keep track of whether your cache is on disk or in
         memory. Instead, Varnish will request a large chump of memory and
@@ -187,29 +203,38 @@ Design principles
 
         Accept filters, epoll and kqueue are advanced features of the
         operating system that are designed for high-performance services
-        like Varnish.
+        like Varnish. By using these, Varnish can move a lot of the
+        complexity into the OS kernel which is also better positioned to
+        know what threads are ready to execute when.
 
-        In addition, Varnish uses a configuration language that is translated to
-        C-code, compiled with a normal C compiler and then linked directly into
-        Varnish at run-time. This has several advantages. The most practical of
-        which is the freedom you get as a system administrator. You can use
-        VCL to decide how you want to interface with Varnish, instead of
-        having a developer try to predict every possible scenario. That it
-        boils down to C and a C compiler also gives you very high
-        performance, and if you really wanted to, you could by-pass the VCL
-        to C translation and write raw C code (this is called in-line C in
-        VCL). In short: Varnish provides the features, VCL allow you to
-        specify exactly how you use and combine them.
+        In addition, Varnish uses a configuration language that is
+        translated to C-code, compiled with a normal C compiler and then
+        linked directly into Varnish at run-time. This has several
+        advantages. The most practical of which is the freedom you get as a
+        system administrator. You can use VCL to decide how you want to
+        interface with Varnish, instead of having a developer try to
+        predict every possible scenario. That it boils down to C and a C
+        compiler also gives you very high performance, and if you really
+        wanted to, you could by-pass the VCL to C translation and write raw
+        C code (this is called in-line C in VCL). In short: Varnish
+        provides the features, VCL allow you to specify exactly how you use
+        and combine them.
+
+        With Varnish 3 you also have Varnish Modules or simply vmods. These
+        modules let you extend the functionality of the VCL language by
+        pulling in custom-written features. Some examples include
+        non-standard header manipulation, access to memcached or complex
+        normalization of headers.
 
         The shared memory log allows Varnish to log large amounts of
         information at almost no cost by having other applications parse
         the data and extract the useful bits. This reduces the
         lock-contention in the heavily threaded environment of Varnish.
-        Lock-contention is one of the reasons why Varnish uses a
+        Lock-contention is also one of the reasons why Varnish uses a
         workspace-oriented memory-model instead of only allocating the
         exact amount of space it needs at run-time.
 
-        To summarize: Varnish is designed to run on realistic hardware
+        To summarize: Varnish is designed to run on modern hardware
         under real work-loads and to solve real problems. Varnish does not
         cater to the "I want to make varnish run on my 486 just
         because"-crowd. If it does work on your 486, then that's fine, but
@@ -230,15 +255,22 @@ In this chapter, we will:
 
 .. container:: handout
 
-        You want to use packages for your operating system whenever possible,
-        but today you can choose for yourself.
+        You want to use packages for your operating system whenever
+        possible.
 
-        If the computer you will be using throughout this course has Varnish
-        3.0.0 or more recent available through the package system, you are
-        encouraged to use that package if you do not feel you need the exercise
-        in installing from source.
+        If the computer you will be using throughout this course has
+        Varnish 3.0.0 or more recent available through the package system,
+        you are encouraged to use that package if you do not feel you need
+        the exercise in installing from source.
 
         We will be using Apache as a web server.
+
+        This course is about Varnish, but we need an operating system to
+        test. For the sake of keeping things simple, the course uses Debian
+        as a platform. You will find several references to differences
+        between Debian and Red Hat where they matter the most, but for the
+        most part, this course is independent on the operating system in
+        use.
 
 Configuration
 -------------
@@ -254,7 +286,8 @@ To re-load varnish configuration, you have several commands:
 | Command                       | Result                                  |
 +===============================+=========================================+
 | ``service varnish restart``   | Completely restarts Varnish, using the  |
-|                               | operating system mechanisms             |
+|                               | operating system mechanisms. Your cache |
+|                               | will be flushed.                        |
 +-------------------------------+-----------------------------------------+
 | ``service varnish reload``    | Only reloads VCL. Cache is not affected.|
 +-------------------------------+-----------------------------------------+
@@ -270,11 +303,10 @@ Using the ``service`` commands is recommended. It's safe and fast.
 
 .. container:: handout
 
-        Varnish has two conceptually different configuration sets. Tunable
-        parameters and command line arguments are used to define how varnish should
-        work with operating system and hardware in addition to setting some default
-        values, while VCL define how Varnish should interact with web servers and
-        clients.
+        Tunable parameters and command line arguments are used to define
+        how varnish should work with operating system and hardware in
+        addition to setting some default values, while VCL define how
+        Varnish should interact with web servers and clients.
 
         Almost every aspect of Varnish can be reconfigured without restarting
         Varnish. Notable exceptions are cache size and location, the username and
@@ -290,34 +322,31 @@ Command line configuration
 --------------------------
 
 -a <[hostname]:port>      listen address
--b <hostname:port>        backend address
 -f <filename>             VCL
 -p <parameter=value>      set tunable parameters
 -S <secretfile>           authentication secret for management
--d                        debug
 -T <hostname:port>        Management interface
 -s <storagetype,options>  where and how to store objects
 
 
 .. container:: handout
 
-        All the options that you can pass to the 'varnishd' binary are
-        documented in the varnsihd manual page ("man varnishd"). You may
-        want to take a moment to skim over the options mentioned above.
+        All the options that you can pass to the ``varnishd`` binary are
+        documented in the ``varnsihd(1)`` manual page (``man varnishd``).
+        You may want to take a moment to skim over the options mentioned
+        above.
 
-        The only option that is strictly needed to start Varnish is the -b
-        option to specify a backend or the mutually exclusive -f to specify a VCL
-        file. Note that you can not specify both -b and -f at the same time. Until
-        you start working with VCL, use -b to tell Varnish where your web server
-        is.
+        The only option that is strictly needed to start Varnish is the
+        ``-f`` to specify a VCL file.
 
-        Though they are not strictly required, you almost always want to specify
-        a ``-s`` to select a storage backend,  ``-a`` to make sure Varnish
-        listens for clients on the port you expect and ``-T`` to enable a
-        management interface, often referred to as a telnet interface.
+        Though they are not strictly required, you almost always want to
+        specify a ``-s`` to select a storage backend,  ``-a`` to make sure
+        Varnish listens for clients on the port you expect and ``-T`` to
+        enable a management interface, often referred to as a telnet
+        interface.
 
         Both for ``-T`` and ``-a``, you do not need to specify an IP, but
-        can use ":80" to tell Varnish to listen to port 80 on all IPs
+        can use ``:80`` to tell Varnish to listen to port 80 on all IPs
         available. Make sure you don't forget the colon, as ``-a 80`` will
         tell Varnish to listen to the IP with the decimal-representation
         "80", which is almost certainly not what you want. This is a result
@@ -336,6 +365,18 @@ Command line configuration
         file - or rather the same content: The content of the file can be
         copied to an other machine to allow varnishadm to access the
         management interface remotely.
+
+        .. note::
+
+           It is possible to start Varnish without a VCL file using the
+           ``-b`` option instead of ``-f``:
+           
+           -b <hostname:port>        backend address
+
+           Since the ``-b`` option is mutually exclusive with the ``-f``
+           option, we will only use the ``-f`` option. You can use ``-b``
+           if you do not intend to specify any VCL and only have a single
+           web server.
 
 Configuration files
 -------------------
@@ -368,10 +409,10 @@ VCL.
 
 .. container:: handout
 
-   There are other ways to reload VCL and make parameter take effect,
-   mostly using the ``varnishadm`` tool. However, using the ``service
-   varnish reload`` and ``service varnish restart`` commands is a good
-   habit.
+   There are other ways to reload VCL and make parameter-changes take
+   effect, mostly using the ``varnishadm`` tool. However, using the
+   ``service varnish reload`` and ``service varnish restart`` commands is a
+   good habit.
 
    .. note::
 
@@ -383,7 +424,7 @@ VCL.
    .. warning::
 
       The script-configuration (located in `/etc/sysconfig` or
-      `/etc/default`) is directly sourced as a shell script. Pay special
+      `/etc/default`) is directly sourced as a shell script. Pay close
       attention to any backslashes (\\) and quotation marks that might move
       around as you edit the DAEMON_OPTS environmental variable.
 
@@ -397,27 +438,37 @@ Defining a backend in VCL
 
 .. container:: handout
 
-   You almost always want to use VCL: we might as well get started!
+   In Varnish terminology, a backend-server is whatever server Varnish
+   talks to to fetch content. This can be any sort of service as long as it
+   understands HTTP. Most of the time, Varnish talks to a web server or an
+   application frontend server.
+
+   You almost always want to use VCL so we might as well get started.
 
    The above example defines a backend named ``default``. The name
    `default` is not special, and the real default backend that Varnish will
    use is the first backend you specify.
 
-   You can specify many backends at the same time.
+   You can specify many backends at the same time, but for now, we will
+   only specify one to get started.
 
 Exercise: Installation
 -----------------------
 
-#. Install "apache2" and verify it works by going to `http://localhost/`
+You can install packages on Debian with ``apt-get install <package>``. E.g:
+``apt-get install apache2``. For Red Hat, the tool would be ``yum install
+<package>``.
+
+#. Install ``apache2`` and verify it works by browsing to `http://localhost/`.
+   You probably want to change ``localhost`` with whatever the hostname of
+   the machine you're working is.
 #. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and 
    `/etc/apache2/sites-enabled/000-default`.
-#. Install Varnish:
-
-   - Either use ``apt-get install varnish`` for Ubuntu or Debian systems
-   - or ``yum install varnish`` for Red Hat-based systems.
-
-#. Start Varnish with ``service varnish start``, listening on port `80`,
-   management interface listening on port `1234` and with `127.0.0.1:8080` as the backend.
+#. Install varnish
+#. Modify the Varnish configuration file so Varnish listens on port `80`,
+   has a management interface on port `1234` and uses `127.0.0.1:8080` as
+   the backend.
+#. Start Varnish using ``service varnish start``.
 
 The end result should be:
 
@@ -435,18 +486,11 @@ The end result should be:
 
 .. container:: handout
 
-   We use Apache for these exercises.
-
-   Using the Varnish packages provided by your distribution is often just
-   as good as compiling from source. Alternatively, you can add the
-   repository provided by Varnish Software, with the base URL of
-   http://repo.varnish-cache.org/
-
-   .. note::
-
-      This course is based on Varnish 3.0 and it's strongly advised that
-      you use Varnish 3.0. There is a list of VCL and configuration-related
-      changes between Varnish 2.1 and 3.0 in the final chapter.
+   Varnish Software and the Varnish community maintains a package
+   repository for several common GNU/Linux distributions. If your system
+   does not have sufficiently up-to-date packages, visit
+   https://www.varnish-cache.org/releases and find a package for your
+   distribution.
 
    Once you have modified the ``/etc/default/varnish``-file, it should look
    something like this (comments removed)::
@@ -458,6 +502,11 @@ The end result should be:
                      -T localhost:6082 \
                      -f /etc/varnish/default.vcl \
                      -s mallocl,256m"
+
+   .. tip::
+
+      You can get an overview over services listening on TCP ports by
+      issuing the command ``netstat -nlpt``.
 
 
 Exercise: Fetch data through Varnish
@@ -516,6 +565,16 @@ Log data
    Through the course you will become familiar with varnishlog and
    varnishstat, which are the two most important tools you have at your
    disposal.
+
+   .. note::
+
+      If you want to log to disk you should take a look at
+      ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` (or the
+      ``syconfig`` equivalents). This will allow you to run ``varnishncsa``
+      or ``varnishlog`` as a service in the background that writes to disk.
+
+      Keep in mind that ``varnishlog`` generates large amounts of data,
+      though. You may not want to log all of it to disk.
 
 varnishlog
 ----------
@@ -3729,7 +3788,7 @@ Best practices for cookies
    cache or cache multiple copies of the same content for each user than it
    is to deliver the wrong content to the wrong person.
 
-   You worst-case scenario should be a broken cache and overloaded web
+   Your worst-case scenario should be a broken cache and overloaded web
    servers, not a compromised user-account and a lawsuit.
 
 Exercise: Compare Vary and ``hash_data``
