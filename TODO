@@ -3,14 +3,13 @@ NEXT-TAG
 
 Short-list for the next TAG:
 
-Merging
-=======
-
+- Content walk-through (in progress)
 - Fix the titles for the individual builds
 
 Content
 =======
 
+- Varnishlog: Might want to put the tag-examples on a slid by itself.
 - Introduction to the test environment
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.
