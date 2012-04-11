@@ -102,7 +102,7 @@ ${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
 	@${PICK} -v include=${$*} < ${rstsrc} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
-	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |default_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
+	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |def_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
 
 sourceupdate: util/param.rst flowchartupdate
 

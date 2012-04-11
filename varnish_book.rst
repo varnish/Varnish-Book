@@ -968,17 +968,17 @@ The multi-process architecture:
 The management process
 ......................
 
-Varnish has two main process: the management process and the child process.
-The management process apply configuration changes (VCL and parameters),
-compile VCL, monitor Varnish, initialize Varnish and provides a command
-line interface, accessible either directly on the terminal or through a
-management interface.
+Varnish has two main processes: the management process and the child
+process.  The management process apply configuration changes (VCL and
+parameters), compile VCL, monitor Varnish, initialize Varnish and provides
+a command line interface, accessible either directly on the terminal or
+through a management interface.
 
-By default, the management process polls the child process every few
-seconds to see if it's still there. If it doesn't get a reply within a
-reasonable time, the management process will kill the child and start it
-back up again. The same happens if the child unexpectedly exits, for
-example from a segmentation fault or assert error.
+The management process polls the child process every few seconds to see if
+it's still there. If it doesn't get a reply within a reasonable time, the
+management process will kill the child and start it back up again. The same
+happens if the child unexpectedly exits, for example from a segmentation
+fault or assert error.
 
 This ensures that even if Varnish does contain a critical bug, it will
 start back up again fast. Usually within a few seconds, depending on the
@@ -996,7 +996,8 @@ them, because the perceived downtime is so short.
    up so fast, the users don't even notice the down time, only the extra
    loading time as Varnish is constantly emptying its cache.
 
-   This is easily avoidable by paying attention to syslog.
+   This is easily avoidable by paying attention to syslog and the `uptime`
+   counter in ``varnishstat``.
 
 .. raw:: pdf
 
@@ -1007,9 +1008,8 @@ them, because the perceived downtime is so short.
 The child process
 .................
 
-The child process is where the real magic goes on. The child process
-consist of several different types of threads, including, but not limited
-to:
+The child process consist of several different types of threads, including,
+but not limited to:
 
 - Acceptor thread to accept new connections and delegate them
 - Worker threads - one per session. It's common to use hundreds of worker
@@ -1017,11 +1017,11 @@ to:
 - Expiry thread, to evict old content from the cache
 
 Varnish uses workspaces to reduce the contention between each thread when
-they need to acquire or modify some part of the memory. There are multiple
-work spaces, but the most important one is the session workspace, which is
-used to manipulate session data. An example is changing `www.example.com`
-to `example.com` before it is entered into the cache, to reduce the number
-of duplicates.
+they need to acquire or modify memory. There are multiple workspaces, but
+the most important one is the session workspace, which is used to
+manipulate session data. An example is changing `www.example.com` to
+`example.com` before it is entered into the cache, to reduce the number of
+duplicates.
 
 It is important to remember that even if you have 5MB of session workspace
 and are using 1000 threads, the actual memory usage is not 5GB. The virtual
@@ -1033,7 +1033,7 @@ To communicate with the rest of the system, the child process uses a shared
 memory log accessible from the file system. This means that if a thread
 needs to log something, all it has to do is grab a lock, write to a memory
 area and then free the lock. In addition to that, each worker thread has a
-cache for log data to avoid overly frequent locking.
+cache for log data to reduce lock contention.
 
 The log file is usually about 90MB, and split in two. The first part is
 counters, the second part is request data. To view the actual data, a
@@ -1062,61 +1062,65 @@ Because the compilation is done outside of the child process, there is
 virtually no risk of affecting the running Varnish by accidentally loading
 an ill-formated VCL.
 
+A compiled VCL file is kept around until you restart Varnish completely, or
+until you issue ``vcl.discard`` from the management interface. You can only
+discard compiled VCL files after all references to them are gone, and the
+amount of references left is part of the output of ``vcl.list``.
+
 Storage backends
 ----------------
 
-- Different ways for Varnish to store cache
-- Rule of thumb: malloc if it fits in memory, file if it doesn't
-- Expect around 1kB of overhead per object cached
+Varnish supports different methods of allocating space for the
+cache, and you choose which one you want with the '-s' argument.
 
 - file
 - malloc
 - persistent (experimental)
 
+- Rule of thumb: malloc if it fits in memory, file if it doesn't
+- Expect around 1kB of overhead per object cached
+
 .. container:: handout
 
-        Varnish supports different methods of allocating space for the
-        cache, and you choose which one you want with the '-s' argument.
-
-        They approach the same basic problem from two different angles. With the
-        `malloc`-method, Varnish will request the entire size of the cache with a
-        malloc() (memory allocation) system call. The operating system will then
-        divide the cache between memory and disk by swapping out what it
-        can't fit in memory.
+        They approach the same basic problem from two different angles.
+        With the `malloc`-method, Varnish will request the entire size of
+        the cache with a malloc() (memory allocation) library call. The
+        operating system divides the cache between memory and disk by
+        swapping out what it can't fit in memory.
 
         The alternative is to use the `file` storage backend, which instead
-        creates a file on a filesystem to contain the entire cache, then tell the
-        operating system through the mmap() (memory map) system call to map the
-        entire file into memory if possible.
+        creates a file on a filesystem to contain the entire cache, then
+        tell the operating system through the mmap() (memory map) system
+        call to map the entire file into memory if possible.
 
-        *The file storage method does not retain data when you stop or restart
-        Varnish!* This is what persistent storage is for. While it might
-        seem like that's what it would do, remember that Varnish does not
-        know which parts of the cache is actually written to the file and
-        which are just kept in memory. In fact, the content written to disk
-        is likely going to be the least accessed content you have. Varnish
-        will not try to read the content, though.
+        *The `file` storage method does not retain data when you stop or
+        restart Varnish!* This is what persistent storage is for. When ``-s
+        file`` is used, Varnish does not keep track of what is written to
+        disk and what is not. As a result, it's impossible to know whether
+        the cache on disk can be used or not — it's just random data.
+        Varnish will not (and can not) re-use old cache if you use ``-s
+        file``.
 
-        While malloc will use swap to store data to disk, file will use
+        While `malloc` will use swap to store data to disk, `file` will use
         memory to cache the data instead. Varnish allow you to choose
         between the two because the performance of the two approaches have
         varied historically.
 
-        The persistent storage backend is similar to file, but only
-        released in an experimental state. It does not yet gracefully
+        The persistent storage backend is similar to file, but
+        experimental. It does not yet gracefully
         handle situations where you run out of space. We only recommend
         using persistent if you have a large amount of data that you must
         cache and are prepared to work with us to track down bugs.
 
-        When choosing storage backend, the rule of thumb is to use malloc if
-        your cache will be contained entirely or mostly in memory, while the file
-        storage backend performs far better when you need a large cache that
-        exceeds the physical memory available. This might vary based on the kernel
-        you use, but seems to be the case for 2.6.18 and later Linux kernel, in
-        addition to FreeBSD.
+        When choosing storage backend, the rule of thumb is to use malloc
+        if your cache will be contained entirely or mostly in memory, while
+        the file storage backend performs far better when you need a large
+        cache that exceeds the physical memory available. This might vary
+        based on the kernel you use, but seems to be the case for 2.6.18
+        and later Linux kernel, in addition to FreeBSD.
 
         It is important to keep in mind that the size you specify with the
-        '-s' argument is the size for the actual cache. Varnish has an
+        ``-s`` argument is the size for the actual cache. Varnish has an
         overhead on top of this for keeping track of the cache, so the
         actual memory footprint of Varnish will exceed what the '-s'
         argument specifies if the cache is full. The current estimate
@@ -1124,95 +1128,9 @@ Storage backends
         1kB of overhead needed for each object. For 1 million objects, that
         means 1GB extra memory usage.
 
-The shm-log
------------
-
-- Round-robin log for Varnish
-- Put it on tmpfs to avoid I/O
-
-.. container:: handout
-
-   The shared memory log, or shm-log, is Varnish' log. It is not
-   persistent, so do not expect it to contain any real history. We'll
-   discuss how to use it in detail in later chapters.
-
-   Since the shm-log is a round-robin log and writes a lot of verbose log
-   information, keeping it in memory is key. It will do this by default,
-   but due to the way shared memory mapped to files work it might cause
-   unnecessary I/O. To solve this, put it on a tmpfs.
-
-   This is typically done in '/etc/fstab', and the shmlog is normally kept
-   in '/var/lib/varnish' or equivalent locations. All the content in that
-   directory is safe to delete.
-
-   .. warning::
-
-      Some packages will use '-s file' by default with a path that puts the
-      storage file in the same directory as the shmlog. You want to avoid
-      this.
-
-Threading model
----------------
-
-- The child process runs multiple threads
-- Worker threads are the bread and butter of the Varnish architecture
-- Utility-threads
-- Balance
-
-.. container:: handout
-
-   The child process of Varnish is where the magic takes place. It consists
-   of several distinct threads performing different tasks. The following
-   table lists some interesting threads, to give you an idea of what goes
-   on. The table is not complete.
-
-   +---------------+---------------------------+------------------------+
-   | Thread        | # instances               | Task                   |
-   +===============+===========================+========================+
-   | cache-worker  | One per active connection | Handle requests        |
-   +---------------+---------------------------+------------------------+
-   | cache-main    | One                       | Startup                |
-   +---------------+---------------------------+------------------------+
-   | ban lurker    | One                       | Clean bans             |
-   +---------------+---------------------------+------------------------+
-   | acceptor      | One                       | Accept new connections |
-   +---------------+---------------------------+------------------------+
-   | epoll/kqueue  | Configurable, default: 2  | Manage thread pools    |
-   +---------------+---------------------------+------------------------+
-   | expire        | One                       | Remove old content     |
-   +---------------+---------------------------+------------------------+
-   | backend poll  | One per backend poll      | Health checks          |
-   +---------------+---------------------------+------------------------+
-
-   We mostly work with the worker threads. The rest are rarely relevant for
-   tuning.
-
-   .. note::
-
-      The acceptor-thread will have multiple instances in Varnish 3.1, this
-      will allow Varnish to accept connections faster and is sometimes
-      called "turbo acceptors". Still, Varnish 3.0 isn't slow: On modern
-      hardware it can easily accept several tens of thousands of
-      connections per second, and requests are handled separate of that,
-      since the acceptor thread just accepts the connection and delegates
-      the rest to a worker thread.
-      
-      Varnish developers like speed.
-
-   For tuning Varnish, you need to think about your expected traffic. The
-   thread model allows you to use multiple thread pools, but time and
-   experience has shown that as long as you have 2 thread pools, adding
-   more will not increase performance.
-
-   .. note::
-
-      Old tuning advice would often suggest to have one thread pool for
-      each CPU core. You'll often see setups using that, and even recent
-      advise copying that rationale, but it will not help you. It will not
-      reduce performance either, though.
-
-   The most important thread factor is the number of worker threads. We
-   will discuss the specific of thread tuning shortly.
+        In addition to the per-object overhead, there is also a fairly
+        static overhead which you can calculate by starting Varnish without
+        any objects. Typically around 100MB.
 
 Tunable parameters
 ------------------
@@ -1241,10 +1159,97 @@ Tunable parameters
         boost to performance, it's generally better to use safe defaults if you
         don't have a very specific need.
 
+        A few hidden commands exist in the CLI, which can be revealed with
+        ``help -d``. These are meant exclusively for development or
+        testing, and many of them are downright dangerous. They are hidden
+        for a reason, and the only exception is perhaps ``debug.health``,
+        which is somewhat common to use.
+
+The shared memory log
+---------------------
+
+Varnish' shared memory log is used to log most data. It's sometimes called
+a shm-log, and operates on a round-robin capacity.
+
+There's not much you have to do with the shared memory log, except ensure
+that it does not cause I/O. This is easily accomplished by putting it on a
+tmpfs.
+
+.. container:: handout
+
+   This is typically done in '/etc/fstab', and the shmlog is normally kept
+   in '/var/lib/varnish' or equivalent locations. All the content in that
+   directory is safe to delete.
+
+   The shared memory log is not persistent, so do not expect it to contain
+   any real history.
+
+   The typical size of the shared memory log is 80MB. If you want to see
+   old log entries, not just real-time, you can use the ``-d`` argument for
+   `varnishlog`: ``varnishlog -d``.
+
+   .. warning::
+
+      Some packages will use ``-s file`` by default with a path that puts
+      the storage file in the same directory as the shmlog. You want to
+      avoid this.
+
+Threading model
+---------------
+
+- The child process runs multiple threads
+- Worker threads are the bread and butter of the Varnish architecture
+- Utility-threads
+- Balance
+
+.. container:: handout
+
+   The child process of Varnish is where the magic takes place. It consists
+   of several distinct threads performing different tasks. The following
+   table lists some interesting threads, to give you an idea of what goes
+   on. The table is not complete.
+
+   +---------------+---------------------------+------------------------+
+   | Thread-name   | Amount of threads         | Task                   |
+   +===============+===========================+========================+
+   | cache-worker  | One per active connection | Handle requests        |
+   +---------------+---------------------------+------------------------+
+   | cache-main    | One                       | Startup                |
+   +---------------+---------------------------+------------------------+
+   | ban lurker    | One                       | Clean bans             |
+   +---------------+---------------------------+------------------------+
+   | acceptor      | One                       | Accept new connections |
+   +---------------+---------------------------+------------------------+
+   | epoll/kqueue  | Configurable, default: 2  | Manage thread pools    |
+   +---------------+---------------------------+------------------------+
+   | expire        | One                       | Remove old content     |
+   +---------------+---------------------------+------------------------+
+   | backend poll  | One per backend poll      | Health checks          |
+   +---------------+---------------------------+------------------------+
+   
+   Most of the time, we only deal with the cache-worker threads when
+   configuring Varnish. With the exception of the amount of thread pools,
+   all the other threads are not configurable.
+
+   For tuning Varnish, you need to think about your expected traffic. The
+   thread model allows you to use multiple thread pools, but time and
+   experience has shown that as long as you have 2 thread pools, adding
+   more will not increase performance.
+
+   The most important thread setting is the number of worker threads.
+   
+   .. note::
+
+      If you run across tuning advice that suggests running one thread pool
+      for each CPU core, res assured that this is old advice. Experiments
+      and data from production environments have revealed that as long as
+      you have two thread pools (which is the default), there is nothing to
+      gain by increasing the number of thread pools.
+
+
 Threading parameters
 --------------------
 
-- Threads
 - Thread pools can safely be ignored
 - Maximum: Roughly 5000 (total)
 - Start them sooner rather than later
@@ -1255,104 +1260,93 @@ Threading parameters
 Details of threading parameters
 ...............................
 
-While most parameters can be left to the defaults, the one big exception
-is number of threads.
+While most parameters can be left to the defaults, the exception
+is the number of threads.
 
-Since Varnish will use one thread for each session, the number of
+Varnish will use one thread for each session and the number of
 threads you let Varnish use is directly proportional to how many
 requests Varnish can serve concurrently.
 
 The available parameters directly related to threads are:
 
 =========================  ====================================
-Parameter                  Default
+Parameter                  Default value
 =========================  ====================================
-thread_pool_add_delay      |default_thread_pool_add_delay|
-thread_pool_add_threshold  |default_thread_pool_add_threshold|
-thread_pool_fail_delay     |default_thread_pool_fail_delay|
-thread_pool_max            |default_thread_pool_max|
-thread_pool_min            |default_thread_pool_min|
-thread_pool_purge_delay    |default_thread_pool_purge_delay|
-thread_pool_stack          |default_thread_pool_stack|
-thread_pool_timeout        |default_thread_pool_timeout|
-thread_pools               |default_thread_pools|
-thread_stats_rate          |default_thread_stats_rate|
+thread_pool_add_delay      |def_thread_pool_add_delay|
+thread_pool_add_threshold  |def_thread_pool_add_threshold|
+thread_pool_fail_delay     |def_thread_pool_fail_delay|
+thread_pool_max            |def_thread_pool_max|
+thread_pool_min            |def_thread_pool_min|
+thread_pool_purge_delay    |def_thread_pool_purge_delay|
+thread_pool_stack          |def_thread_pool_stack|
+thread_pool_timeout        |def_thread_pool_timeout|
+thread_pools               |def_thread_pools|
+thread_stats_rate          |def_thread_stats_rate|
 =========================  ====================================
 
-Out of all of these, the two most important are thread_pool_min and
-thread_pool_max. The thread_pools parameter is also of some importance, but
-mainly because it is used to calculate the real number of minimum threads.
+Among these, ``thread_pool_min`` and ``thread_pool_max`` are most
+important. The ``thread_pools`` parameter is also of some importance, but
+mainly because it is used to calculate the final number of threads.
 
-Varnish splits the threads into multiple pools of threads, the theory being
-that if we only had one thread pool, it might become a contention point in
-a massively multi-tasked environment. In the past, the rule of thumb was to
-have roughly one thread pool for each CPU core. Experience has shown us
-that the importance of multiple thread pools was exaggerated, though, and
-there is little measurable difference between running with one thread pool
-and eight thread pools on a eight-core machine. This holds true even under
-heavy load.
+Varnish operates with multiple pools of threads. When a connection is
+accepted, the connection is delegated to one of these thread pools. The
+thread pool will further delegate the connection to available thread if one
+is available, put the connection on a queue if there are no available
+threads or drop the connection if the queue is full. By default, Varnish
+uses 2 thread pools, and this has proven sufficient for even the most busy
+Varnish server.
 
-So for the sake of keeping things simple, the current best practice is to
-leave thread_pools at the default |default_thread_pools|.
+For the sake of keeping things simple, the current best practice is to
+leave thread_pools at the default |def_thread_pools|.
 
 .. class:: handout
 
 Number of threads
 .................
 
-The threading model of Varnish allows it to start and stop threads based on
-demand. Time has shown us that this, too, was perhaps a bit unnecessary.
-On a normal 64-bit system, there is little practical difference between
-having 10 threads available and having 1000 threads available. However,
-leaving the minimum amount of threads too low will result in a delay when
-Varnish has to start new threads. The actual delay is likely going to be
-unnoticeable to the user, but since there is virtually no extra cost of
-keeping a few hundred extra threads around, it's generally advisable to
-tune Varnish to always have a few spare threads.
+Varnish has the ability to spawn new worker threads on demand, and remove
+them once the load is reduced. This is mainly intended for traffic spikes.
+It's a better approach to try to always keep a few threads idle during
+regular traffic than it is to run on a minimum amount of threads and
+constantly spawn and destroy threads as demand changes. As long as you are
+on a 64-bit system, the cost of running a few hundred threads extra is very
+limited.
 
 The ``thread_pool_min`` parameter defines how many threads will be running
 for each thread pool even when there is no load. ``thread_pool_max``
 defines the maximum amount of threads that will be used per thread pool.
 
-The defaults of a minimum of |default_thread_pool_min| and maximum
-|default_thread_pool_max| threads per thread pool and
-|default_thread_pools| will result in:
+The defaults of a minimum of |def_thread_pool_min| and maximum
+|def_thread_pool_max| threads per thread pool and
+|def_thread_pools| will result in:
 
-- At any given time, at least |default_thread_pool_min| *
-  |default_thread_pools| worker threads will be running
-- No more than |default_thread_pool_max| * |default_thread_pools| threads
+- At any given time, at least |def_thread_pool_min| *
+  |def_thread_pools| worker threads will be running
+- No more than |def_thread_pool_max| * |def_thread_pools| threads
   will run.
 
-In the past, there was a natural limit to how many threads Varnish could
-use, but this has been removed. Still, we rarely recommend running with
-more than 5000 threads. If you seem to need more than 5000 threads, it's
-very likely that there is something not quite right about your setup, and
-you should investigate elsewhere before you increase the maximum value.
+We rarely recommend running with more than 5000 threads. If you seem to
+need more than 5000 threads, it's very likely that there is something not
+quite right about your setup, and you should investigate elsewhere before
+you increase the maximum value.
 
 For minimum, it's common to operate with 500 to 1000 threads minimum
 (total). You can observe if this is enough through varnishstat, by looking
-at the 'overflowed work requests' over time. It should be fairly static
-after startup.
+at the `N queued work requests` (``n_wrk_queued``) counter over time. It
+should be fairly static after startup.
 
 .. class:: handout
 
 Timing thread growth
 ....................
 
-When Varnish was initially written, it was revealed that certain operating
-system kernels did not take kindly to a process trying to start a thousand
-threads instantly. To avoid this, a delay between adding threads was added.
-This is tunable through ``thread_pool_add_delay``. If you follow the best
-practice of always having enough threads available, this isn't a problem
-for normal operation. However, during initial startup, when Varnish may
-have to start a thousand threads, waiting 20ms (per pool) between each new
-thread is a long time to wait.
-
-Today, there is little risk involved in reducing the
-``thread_pool_add_delay`` and the default value is
-|default_thread_pool_add_delay|. In earlier versions
-it was 20ms. The difference from 20ms to 2ms reduces the startup time of
-1000 threads over 2 pools from 10 seconds to half a second.
+Varnish can use several thousand threads, and has had this capability from
+the very beginning. Not all operating system kernels were prepared to deal
+with this, though, so the parameter ``thread_pool_add_delay`` was added
+which ensures that there is a small delay between each thread that spawns.
+As operating systems have matured, this has become less important and the
+default value of ``thread_pool_add_delay`` has been reduced dramatically,
+from 20ms to 2ms.
 
 There are a few, less important parameters related to thread timing. The
 ``thread_pool_timeout`` is how long a thread is kept around when there is
@@ -1365,8 +1359,12 @@ after the operating system denied us a new thread before we try again.
 System parameters
 -----------------
 
+As Varnish has matured, fewer and fewer parameters require tuning. The
+``sess_workspace`` is one of the parameters that could still pose a
+problem.
+
 - ``sess_workspace`` - incoming HTTP header workspace (from client)
-- Common values range from the default of |default_sess_workspace| to 10MB
+- Common values range from the default of |def_sess_workspace| to 10MB
 - ESI typically requires exponential growth
 - Remember: It's all virtual - not physical memory.
 
@@ -1380,8 +1378,7 @@ System parameters
         precise size is allocated and the object is stored read-only.
 
         Some times you may have to increase the session workspace to avoid
-        running out of workspace. We will talk more about this when we get
-        to troubleshooting.
+        running out of workspace.
 
         As most of the parameters can be left unchanged, we will not go through
         all of them, but take a look at the list ``param.show`` gives you
@@ -1399,32 +1396,16 @@ System parameters
 Timers
 ------
 
-Backend:
-
-===================== =============================== ========================
-Parameter             Default                         Description
-===================== =============================== ========================
-connect_timeout       |default_connect_timeout|       OS/network latency
-first_byte_timeout    |default_first_byte_timeout|    Page generation?
-between_bytes_timeout |default_between_bytes_timeout| Hiccoughs?
-===================== =============================== ========================
-
-Client:
-
-===================== =============================== ========================
-Parameter             Default                         Description
-===================== =============================== ========================
-send_timeout          |default_send_timeout|          Client-in-tunnel
-sess_timeout          |default_sess_timeout|          keep-alive timeout
-===================== =============================== ========================
-
-Mangement:
-
-===================== =============================== ========================
-Parameter             Default                         Description
-===================== =============================== ========================
-cli_timeout           |default_cli_timeout|           Management thread->child
-===================== =============================== ========================
+======================= =========================== ======================== ===========
+Parameter               Default                     Description              Scope      
+======================= =========================== ======================== ===========
+connect_timeout         |def_connect_timeout|       OS/network latency       Backend    
+first_byte_timeout      |def_first_byte_timeout|    Page generation?         Backend    
+between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?               Backend    
+send_timeout            |def_send_timeout|          Client-in-tunnel         Client     
+sess_timeout            |def_sess_timeout|          keep-alive timeout       Client     
+cli_timeout             |def_cli_timeout|           Management thread->child Management 
+======================= =========================== ======================== ===========
 
 .. container:: handout
 
@@ -1443,12 +1424,16 @@ cli_timeout           |default_cli_timeout|           Management thread->child
 
         .. note::
 
-           The connect_timeout is |default_connect_timeout| by default.
+           The ``connect_timeout`` is |def_connect_timeout| by default.
            This is more than enough time for the typical setup where
            Varnish talks to a backend in the same server room - but it may
            be too short if Varnish is using a remote backend which may have
            more latency. If this is set too high, it will not let Varnish
            handle errors gracefully.
+
+           An other use-case for increasing ``connect_timeout`` occurs when
+           virtual machines are involved in the stack, as they can increase
+           the connection time significantly.
 
 Exercise: Tune first_byte_timeout
 ---------------------------------
@@ -1474,7 +1459,7 @@ Exercise: Configure threading
 While performing this exercise, watch the `threads` counter in
 ``varnishstat`` to determine the number of threads that are running.
 
-#. Start Varnish as normal
+#. Start Varnish
 #. Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get
    100 threads running at any given time, but never more than 400.
 #. Make the changes work across restarts of Varnish
@@ -3638,7 +3623,7 @@ Saint mode
    available, or try to use a graced object, or finally deliver an error
    message.
 
-   If you have more than |default_saintmode_threshold| (default) objects
+   If you have more than |def_saintmode_threshold| (default) objects
    black listed for a specific backend, the entire backend is considered
    sick. The rationale is that if 10 URLs already failed, there's probably
    no reason to try an 11th.
