@@ -10,6 +10,9 @@ No big structural changes.
   handout.
 - In VCL: A slide discussing the initial value of beresp.ttl (e.g:
   s-maxage/max-age/Expires).
+- In tuning: Clarifications.
+- Tuning: Move the Param-slide up.
+- Tuning: Less focus on historic relics.
 
 New in 4.1
 ----------
