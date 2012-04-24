@@ -68,6 +68,9 @@ sphinx-dist: sphinx book
 
 mrproper: clean all
 
+.git/COMMIT_EDITMSG:
+	touch .git/COMMIT_EDITMSG
+
 ${BDIR}/version.rst: util/version.sh ${rstsrc} .git/COMMIT_EDITMSG
 
 	mkdir -p ${BDIR}
