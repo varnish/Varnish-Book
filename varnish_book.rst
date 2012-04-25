@@ -2127,8 +2127,8 @@ Syntax
 VCL - request flow
 ------------------
 
-- `Simplified request flow <img/vcl.png>`_
-- `Complete request flow <img/request.png>`_
+- `Simplified request flow <_images/vcl.png>`_
+- `Complete request flow <_images/request.png>`_
 
 .. class:: handout
 
