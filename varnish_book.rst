@@ -2301,7 +2301,7 @@ Example: Handling Vary: Accept-Encoding
       User-Agent in the Vary header, you should consider changing it, or
       you are likely to get abysmal cache utilization.
 
-.. include:: exercises/complete-rewrite_urls_and_headers.rst
+.. include:: build/exercises/complete-rewrite_urls_and_headers.rst
 
 
 VCL - ``vcl_fetch``

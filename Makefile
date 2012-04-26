@@ -15,11 +15,11 @@ sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache i
 webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
 exercises = $(basename $(notdir $(wildcard exercises/*test)))
-exercises_solutions = $(addprefix exercises/solution-,$(addsuffix .rst,${exercises}))
-exercises_handouts = $(addprefix exercises/handout-,$(addsuffix .rst,${exercises}))
-exercises_task = $(addprefix exercises/,$(addsuffix .rst,${exercises}))
-exercises_vtc = $(addprefix exercises/,$(addsuffix .vtc,${exercises}))
-exercises_complete = $(addprefix exercises/complete-,$(addsuffix .rst,${exercises}))
+exercises_solutions = $(addprefix ${BDIR}/exercises/solution-,$(addsuffix .rst,${exercises}))
+exercises_handouts = $(addprefix ${BDIR}/exercises/handout-,$(addsuffix .rst,${exercises}))
+exercises_task = $(addprefix ${BDIR}/exercises/,$(addsuffix .rst,${exercises}))
+exercises_vtc = $(addprefix ${BDIR}/exercises/,$(addsuffix .vtc,${exercises}))
+exercises_complete = $(addprefix ${BDIR}/exercises/complete-,$(addsuffix .rst,${exercises}))
 exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${excercises_handouts}
 
 
@@ -33,6 +33,7 @@ images = ui/img/vcl.png ui/img/request.png
 common = ${rstsrc} \
 	 ${BDIR}/version.rst \
 	 ${images} \
+	 Makefile \
 	 vcl/*.vcl \
 	 util/control.rst \
 	 util/frontpage.rst \
@@ -146,22 +147,25 @@ ${BDIR}/${materialpath}.tar.bz2: material/webdev/index.html ${BDIR} material/ ma
 	cp -a material/webdev/* ${BDIR}/${materialpath}
 	tar -hC ${BDIR}/ -cjf $@ ${materialpath}
 
-exercises/%.vtc: exercises/%.test Makefile
+${BDIR}/exercises: ${BDIR}
+	mkdir -p ${BDIR}/exercises
+
+${BDIR}/exercises/%.vtc: exercises/%.test Makefile ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=VARNISHTEST" $<  | egrep -v '^[^\t ]' > $@
 
-exercises/%.rst: exercises/%.test
+${BDIR}/exercises/%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@
 
-exercises/solution-%.rst: exercises/%.vtc
+${BDIR}/exercises/solution-%.rst: ${BDIR}/exercises/%.vtc ${BDIR}/exercises
 	awk '/} -start/ { p=0 }; p == 1; /varnish v1 -vcl\+backend {/ { p=1 };' $< > $@
 
-exercises/handout-%.rst: exercises/%.test
+${BDIR}/exercises/handout-%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=RST HANDOUT" $< | egrep -v '(RST HANDOUT|==========)' > $@
 
-exercises/solution-extra-%.rst: exercises/%.test
+${BDIR}/exercises/solution-extra-%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
 	
-exercises/complete-%.rst: exercises/solution-%.rst exercises/%.rst exercises/handout-%.rst exercises/solution-extra-%.rst util/exercise_builder.sh
+${BDIR}/exercises/complete-%.rst: ${BDIR}/exercises/solution-%.rst ${BDIR}/exercises/%.rst ${BDIR}/exercises/handout-%.rst ${BDIR}/exercises/solution-extra-%.rst util/exercise_builder.sh
 	util/exercise_builder.sh "$*"
 
 vclcheck: ${exercises_vtc}
