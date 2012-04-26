@@ -2301,69 +2301,7 @@ Example: Handling Vary: Accept-Encoding
       User-Agent in the Vary header, you should consider changing it, or
       you are likely to get abysmal cache utilization.
 
-Exercise: Rewrite URLs and host headers
----------------------------------------
-
-#. Copy the original `Host`-header (``req.http.Host``) and URL
-   (``req.url``) to two new request header of your choice. E.g:
-   ``req.http.x-host`` and ``req.http.x-url``.
-#. Ensure that `www.example.com` and `example.com` are cached as one, using
-   ``regsub()``.
-#. Rewrite all URLs under `http://sport.example.com` to
-   `http://example.com/sport/`. For example:
-   `http://sport.example.com/article1.html` to
-   `http://example.com/sport/article1.html`.
-#. Use varnishlog to verify the result.
-
-Extra: Make sure `/` and `/index.html` is cached as one object. How can you
-verify that it is, without changing the content?
-
-Extra 2: Make the redirection work for any domain with `sport.` at the
-front. E.g: `sport.example.com`, `sport.foobar.example.net`,
-`sport.blatti`, etc.
-
-.. container:: handout
-
-   The syntax for ``regsub()`` is ``regsub(<string>, <regex>, <replacement>);``.
-   `string` is the input string, in this case, ``req.http.host``. `regex`
-   is the regular expression matching whatever content you need to change.
-   "^www\." matches a string that begins (^) with www followed by a
-   literal dot.  `replacement` is what you desire to change it with, ""
-   can be used to remove it.
-
-   To write a header, use ``set req.http.headername = "value";`` or ``set
-   req.http.headername = regsub(...);``.
-
-   To verify the result, you can use ``varnishlog``, or lwp-request.
-   Example command::
-
-      GET -H "Host: www.example.com" -USsed http://localhost/
-
-   You can use if () to perform a regular expression if-test, or a plain
-   string test. In the above exercise, both are valid. E.g.::
-
-      if (req.http.host ~ "^sport\.example\.com$") {
-
-   is equivalent with::
-
-     if (req.http.host == "sport.example.com") {
-
-   It is slightly faster to use == to perform a string comparison instead
-   of a regular expression, but negligible.
-
-   .. tip::
-
-      You do not need to use regsub() on the host header for this exercise
-      unless you want it to apply for all instances of `sport.<some
-      domain>`. You will, however, need it to prepend `/sport` to the
-      ``req.url``. Remember, you can match just the beginning of the line
-      with ``regsub(input,"^",replacement)``
-
-Solution: Rewrite URLs and host headers
----------------------------------------
-
-.. include:: vcl/solution-vcl_recv-combo.vcl
-   :literal:
+.. include:: exercises/complete-rewrite_urls_and_headers.rst
 
 
 VCL - ``vcl_fetch``

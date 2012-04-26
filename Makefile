@@ -14,12 +14,21 @@ book = "*"
 sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
 webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
+exercises = $(basename $(notdir $(wildcard exercises/*test)))
+exercises_solutions = $(addprefix exercises/solution-,$(addsuffix .rst,${exercises}))
+exercises_handouts = $(addprefix exercises/handout-,$(addsuffix .rst,${exercises}))
+exercises_task = $(addprefix exercises/,$(addsuffix .rst,${exercises}))
+exercises_vtc = $(addprefix exercises/,$(addsuffix .vtc,${exercises}))
+exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${excercises_handouts}
+
+
 webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
 images = ui/img/vcl.png ui/img/request.png
+
 common = ${rstsrc} \
 	 ${BDIR}/version.rst \
 	 ${images} \
@@ -27,6 +36,7 @@ common = ${rstsrc} \
 	 util/control.rst \
 	 util/frontpage.rst \
 	 util/printheaders.rst \
+	 ${exercise_stuff} \
 	 material/webdev/*
 
 version = $(subst version-,,$(shell git describe --always --dirty))
@@ -111,6 +121,7 @@ sourceupdate: util/param.rst flowchartupdate
 
 clean:
 	-rm -r build/
+	-rm exercises/*.vtc exercises/*.rst
 
 varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-%.pdf ${BDIR}/${materialpath}.tar.bz2
 	@echo Preparing $@ ...
@@ -133,9 +144,28 @@ ${BDIR}/${materialpath}.tar.bz2: material/webdev/index.html ${BDIR} material/ ma
 	mkdir -p ${BDIR}/${materialpath}
 	cp -a material/webdev/* ${BDIR}/${materialpath}
 	tar -hC ${BDIR}/ -cjf $@ ${materialpath}
+
+exercises/%.vtc: exercises/%.test Makefile
+	util/pickchapter2.igawk -v "include=VARNISHTEST" $<  | egrep -v '^[^\t ]' > $@
+
+exercises/%.rst: exercises/%.test
+	util/pickchapter2.igawk -v "include=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@
+
+exercises/solution-%.rst: exercises/%.vtc
+	awk '/} -start/ { p=0 }; p == 1; /varnish v1 -vcl\+backend {/ { p=1 };' $< > $@
+
+exercises/handout-%.rst: exercises/%.test
+	util/pickchapter2.igawk -v "include=RST HANDOUT" $< | egrep -v '(RST HANDOUT|==========)' > $@
+
+exercises/solution-extra-%.rst: exercises/%.test
+	util/pickchapter2.igawk -v "include=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
 	
-vclcheck:
+exercises/complete-%.rst: exercises/solution-%.rst exercises/%.rst exercises/handout-%.rst exercises/solution-extra-%.rst util/exercise_builder.sh
+	util/exercise_builder.sh "$*"
+
+vclcheck: ${exercises_vtc}
 	@$(MAKE) -C vcl/
+	varnishtest -j3 ${exercises_vtc}
 
 materialcheck:
 	@$(MAKE) -C material/
