@@ -123,7 +123,6 @@ sourceupdate: util/param.rst flowchartupdate
 
 clean:
 	-rm -r build/
-	-rm exercises/*.vtc exercises/*.rst
 
 varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-%.pdf ${BDIR}/${materialpath}.tar.bz2
 	@echo Preparing $@ ...
