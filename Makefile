@@ -19,6 +19,7 @@ exercises_solutions = $(addprefix exercises/solution-,$(addsuffix .rst,${exercis
 exercises_handouts = $(addprefix exercises/handout-,$(addsuffix .rst,${exercises}))
 exercises_task = $(addprefix exercises/,$(addsuffix .rst,${exercises}))
 exercises_vtc = $(addprefix exercises/,$(addsuffix .vtc,${exercises}))
+exercises_complete = $(addprefix exercises/complete-,$(addsuffix .rst,${exercises}))
 exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${excercises_handouts}
 
 
@@ -36,7 +37,7 @@ common = ${rstsrc} \
 	 util/control.rst \
 	 util/frontpage.rst \
 	 util/printheaders.rst \
-	 ${exercise_stuff} \
+	 ${exercises_complete} \
 	 material/webdev/*
 
 version = $(subst version-,,$(shell git describe --always --dirty))
