@@ -1,18 +1,18 @@
 New in 4.2
 ----------
+Released: Fri Apr 27 2012
 
 No big structural changes.
 
-- A good bit of rephrasing and clarification on details.
-- Getting started: Added a table of example-tags in the handout to
-  emphasise the Rx/Tx nature.
+- A good bit of rephrasing and clarification on details. Also reduction of
+  (now) historic details.
+- Getting started: Added a table of varnishlog example-tags in the handout
+  to emphasise the Rx/Tx nature.
 - Getting started: Added a table of interesting varnsihstat-counters to the
   handout.
 - In VCL: A slide discussing the initial value of beresp.ttl (e.g:
   s-maxage/max-age/Expires).
-- In tuning: Clarifications.
 - Tuning: Move the Param-slide up.
-- Tuning: Less focus on historic relics.
 
 New in 4.1
 ----------
