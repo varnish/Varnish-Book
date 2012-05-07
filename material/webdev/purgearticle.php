@@ -27,8 +27,7 @@ function purgeURL( $hostname, $port, $purgeURL, $debug )
     );
 
     $fd = false;
-    if( $debug == true )
-    {
+    if( $debug == true ) {
         print "\n---- Curl debug -----\n";
         $fd = fopen("php://output", 'w+');
         $curlOptionList[CURLOPT_VERBOSE] = true;
@@ -39,8 +38,7 @@ function purgeURL( $hostname, $port, $purgeURL, $debug )
     curl_setopt_array( $curlHandler, $curlOptionList );
     curl_exec( $curlHandler );
     curl_close( $curlHandler );
-    if( $fd !== false )
-    {
+    if( $fd !== false ) {
         fclose( $fd );
     }
 }

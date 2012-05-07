@@ -2773,7 +2773,7 @@ VCL - ``vcl_hash``
 ------------------
 
 - Defines what is unique about a request.
-- Executed directly after ``vcl_recv``, assuming "lookup" was requested
+- Executed directly after ``vcl_recv``
 
 .. include:: vcl/default-vcl_hash.vcl
    :literal:
@@ -2785,14 +2785,16 @@ VCL - ``vcl_hash``
 
    One usage of ``vcl_hash`` could be to add a user-name in the cache hash
    to cache user-specific data. However, be warned that caching user-data
-   should only be done cautiously.
+   should only be done cautiously. A better alternative might be to cache
+   differently based on whether a user is logged in or not, but not
+   necessarily what user it is.
 
    The default VCL for ``vcl_hash`` adds the hostname (or IP) and the URL
    to the cache hash.
 
    .. note::
 
-      The Vary: process is separate from the cache hash.
+      The handling of the `Vary`-header is separate from the cache hash.
 
 VCL - ``vcl_hit``
 -----------------
@@ -2804,15 +2806,12 @@ VCL - ``vcl_hit``
 .. include:: vcl/default-vcl_hit.vcl
    :literal:
 
-..
-        Note that the next slide (vcl_miss) also talks about vcl_hit in
-        more detail.
-
 VCL - ``vcl_miss``
 ------------------
 
 - Right after an object was looked up and not found in cache
 - Mostly used to issue ``purge;``
+- Can also be used to modify backend request headers
 
 .. include:: vcl/default-vcl_miss.vcl
    :literal:
@@ -2827,6 +2826,12 @@ VCL - ``vcl_miss``
    One example is using ``purge;`` to invalidate an object (more on this
    later), an other is to rewrite a backend request when you want the ESI
    fragments to get the unmodified data.
+
+   You can also modify the backend request headers in ``vcl_miss``. This is
+   very uncommon, as you've likely done this in ``vcl_recv`` already.
+   However, if you do not wish to send an `X-Varnish` header to the backend
+   server, you need to remove it in in ``vcl_miss`` and ``vcl_pass`` using
+   ``unset bereq.http.x-varnish;``.
 
 
 VCl - ``vcl_pass``
@@ -2966,7 +2971,7 @@ Cache invalidation
 - ``purge;`` removes all variants of an object from cache, freeing up
   memory
 - ``ban();`` can be used to invalidate objects based on regular
-  expressions, but does not necessarily free up memory
+  expressions, but does not necessarily free up memory any time soon.
 - ``set req.hash_always_miss = true;`` can refresh content explicitly
 - Which to use when?
 - What about this ban lurker?
@@ -3025,8 +3030,8 @@ Removing a single object
 ------------------------
 
 - If you know exactly what to remove, use ``purge;``.
-- It must be used in both ``vcl_hit`` /and/ ``vcl_miss``
-- Frees up memory, removes all variants of the object.
+- It must be used in both ``vcl_hit`` and ``vcl_miss``
+- Frees up memory, removes all ``Vary:``-variants of the object.
 - Leaves it to the next client to refresh the content
 - Often combined with ``return(restart);``
 
@@ -3035,19 +3040,23 @@ Removing a single object
    The ``purge;`` keyword is the simplest manner of removing content from
    the cache explicitly.
 
-   Since an object can exist in multiple variants, it's important to issue
-   the ``purge;`` keyword also for ``vcl_miss``. If the web-server sends a
-   ``Vary: Accept-Encoding,Cookie`` header, Varnish will deal with the
-   Accept-Encoding header itself since Varnish 3 understands
-   gzip-compression, but for each client with a unique `Cookie`-header,
-   Varnish will store a unique copy – or variant – of the object. Relying
-   on ``set obj.ttl = 0s;`` or just using ``purge;`` in ``vcl_hit`` does
-   not ensure that all these different variants are purged, so using
-   ``purge;`` in ``vcl_miss`` is the easy way to solve that.
+   A resource can exist in multiple ``Vary:``-variants. For example you
+   could have a desktop version, a tablet version and a desktop version of
+   your site and use ``Vary`` in combination with device detection to store
+   different variants of the same resource.
 
-   One consideration to keep in mind is what could happen if your web
-   server is down. Since the object is removed from cache, Varnish will not
-   be able to fall back to this copy later using grace.
+   If you update your content you can use ``purge;`` to evict all variants
+   of that content from the cache. This is done in both ``vcl_hit`` and
+   ``vcl_miss``. This is typically done by letting your content management
+   system send a special HTTP request to Varnish. Since the content
+   management system doesn't necessarily hit a variant of the object that
+   is cached, you have to issue ``purge;`` in ``vcl_miss`` too. This
+   ensures that all variants of that resource are evicted from cache.
+
+   The biggest down-side of using ``purge;`` is that you evict the content
+   from cache before you know if Varnish can fetch a new copy from a web
+   server. If the web server is down, Varnish has no old copy of the
+   content.
 
 Example: ``purge;``
 -------------------
@@ -3058,9 +3067,9 @@ Example: ``purge;``
 .. container:: handout
 
    The PURGE example above is fairly complete and deals with a non-standard
-   method. Using ``purge;`` will remove all variants of the object,
-   unlike the older method of using ``obj.ttl = 0s;`` which had to be
-   issued for each variants of an object. 
+   method. Using ``purge;`` will remove all ``Vary:``-variants of the
+   object, unlike the older method of using ``obj.ttl = 0s;`` which had to
+   be issued for each variants of an object. 
 
    .. note::
 
@@ -3123,10 +3132,10 @@ Banning
    ban-list. It can be done both trough the command line interface, and
    through VCL, and the syntax is almost the same.
 
-   A ban is one or more statement in VCL-like syntax that will be tested
-   against objects in the cache when they are retrieved. A ban statement
-   might be "the url starts with /sport" or "the object has a Server-header
-   matching lighttpd".
+   A ban is one or more statements in VCL-like syntax that will be tested
+   against objects in the cache when they are looked up in the cache hash.
+   A ban statement might be "the url starts with /sport" or "the object has
+   a Server-header matching lighttpd".
 
    Each object in the cache always points to an entry on the ban-list. This
    is the entry that they were last checked against. Whenever Varnish
@@ -3150,15 +3159,6 @@ Banning
    your cache, adding a ban is instantaneous. The load is spread over time
    as the objects are requested, and they will never need to be tested if
    they expire first.
-
-   .. tip::
-
-      To keep the ban-list short, avoid very specific bans, or do periodic
-      bans that cover a wider name-space, thus letting Varnish remove the
-      specific bans.
-
-      If you need specific bans, the recommended method is to use the
-      ``purge;``.
 
 VCL contexts when adding bans
 -----------------------------
@@ -3406,6 +3406,13 @@ Core grace mechanisms
    ``req.grace`` to a value higher than ``beresp.grace``, but there could
    be a point in setting ``beresp.grace`` higher than ``req.grace``.
 
+   .. tip::
+
+      You can use ``set req.grace = 0s;`` to ensure that editorial staff
+      doesn't get older objects (assuming they also don't hit the cache).
+      The obvious downside of this is that you disable all grace
+      functionality for these users, regardless of the reason.
+
 When can grace happen
 ---------------------
 
@@ -3511,10 +3518,10 @@ Health checks
    The above shows the output of debug.health - the same data is also
    available in the more concise `Debug_health` tag of varnishlog.
 
-   Good IPv4 indicates that the IP was available for routing, Good Xmit
-   indicates that Varnish was able to transmit data - thus also connect.
-   Good Recv indicates that Varnish got a valid reply. While Happy
-   indicates that the reply was a 200 OK.
+   `Good IPv4` indicates that the IP was available for routing and that
+   Varnish was able to connect over IPv4. `Good Xmit` indicates that
+   Varnish was able to transmit data.  `Good Recv` indicates that Varnish
+   got a valid reply. `Happy` indicates that the reply was a 200 OK.
 
    .. note::
 
@@ -3711,8 +3718,7 @@ Restart in VCL
 
 .. container:: handout
 
-   Restarts in VCL can be used almost everywhere as of Varnish 2.1.5 (which
-   introduced restart in ``vcl_deliver``).
+   Restarts in VCL can be used everywhere.
 
    They allow you to re-run the VCL state engine with different variables.
    The above example simply executes a redirect without going through the
@@ -3721,6 +3727,11 @@ Restart in VCL
 
    Yet an other example is to combine it with saint mode, which we will
    discuss later.
+
+   .. note::
+
+      Varnish version 2.1.5 is the first version where ``return(restart);``
+      is valid in ``vcl_deliver``, making it available everywhere.
 
 Backend properties
 ------------------
@@ -3745,6 +3756,12 @@ Backend properties
    If your backend is struggling, it might be advantageous to set
    ``max_connections`` so only a set number of simultaneous connections
    will be issued to a specific backend.
+
+   .. tip::
+
+      Varnish only accepts hostnames for backend servers that resolve to a
+      maximum of one IPv4 address `and` one IPv6 address. The parameter
+      ``prefer_ipv6`` defines which one Varnish will prefer.
 
 Example: Evil backend hack
 --------------------------
@@ -3930,8 +3947,8 @@ Best practices for cookies
 
 - Once you have a URL scheme that works, add the req.http.cookie to the
   cache hash in `vcl_hash`: ``hash_data(req.http.cookie);``.
-- Never cache any content that has a `Set-Cookie` header. Either remove the
-  header or don't cache it.
+- Never cache a `Set-Cookie` header. Either remove the header before
+  caching or don't cache the object at all.
 - Avoid using ``return (deliver);`` more than once in `vcl_fetch`. Instead,
   finish up with something similar to::
 
@@ -4030,11 +4047,19 @@ them for the sub-page. This is done in `vcl_recv`.
 
 .. container:: handout
 
-    Varnish only supports the two following tags:
+    Varnish only supports the three following tags:
 
-    - <esi:include> : calls the page defined in the "src" attribute and inserts it
+    - ``<esi:include>`` : calls the page defined in the "src" attribute and inserts it
       in the page where the tag has been placed.
-    - <esi:remove> : removes any code inside this opening and closing tag.
+    - ``<esi:remove>`` : removes any code inside this opening and closing tag.
+    - ``<!--esi ``(content)`` -->``: Leaves ``(content)`` unparsed. E.g,
+      the following will not perform substitution for the
+      ``<esi:include...`` tag::
+        
+        <!--esi
+            An esi tag looks like: <esi:include src="example">
+        -->
+
 
     .. note::
 
@@ -4211,7 +4236,6 @@ varnishtop
              1.00 TxStatus       403
 
 - Group tags and tag-content by frequency
-- Often underrated
 
 .. container:: handout
 
@@ -4241,6 +4265,8 @@ varnishtop
         - ``varnishtop -i RxStatus`` will list status codes received from a
           web server.
         - ``varnishtop -i VCL_call`` shows what VCL functions are used.
+        - ``varnishtop -i RxHeader -I Referrer`` shows the most common
+          referrer addresses.
 
 varnishncsa
 -----------

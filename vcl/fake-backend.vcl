@@ -6,7 +6,7 @@ backend normal {
 backend fail {
 	.host = "localhost";
 	.port = "21121";
-	.probe = { .url = "/asfasfasf"; .initial = 0; }
+	.probe = { .url = "/asfasfasf"; .initial = 0; .interval = 1d; }
 }
 
 sub vcl_recv {

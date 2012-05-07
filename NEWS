@@ -11,6 +11,8 @@ No big structural changes.
 - VCL: Switch the Accept-Encoding example with a simple device detection
   example. Note that the handout suggests sending ``Vary: User-Agent``
   /from/ varnish if you do this, to avoid confused upstream caches.
+- VCL Functions: mention bereq in vcl_miss and how it can be used to remove
+  X-Varnish headers from the backend request...
 
 
 New in 4.2

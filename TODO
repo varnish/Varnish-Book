@@ -23,6 +23,18 @@ Content
    - Brief discussion on the test setup.
 - On install: Mention how to find VCL syntax errors on rhel
 - Go over tools (specially sizes/hist?)
+- The VCL Functions chapter needs an overhaul
+- Cache Invalidation: Banning needs work. Add cache channels.
+- ACLs: Generally fix.... List of suggestions from phk:
+
+  - Other things about ACL:  you can use domain names:
+    "www.cnn.com" / 24
+  - If you put an entry in (...) it ignores it if DNS
+    does not resolve.
+  - Also IPv6
+  - Blindingly fast, long lists are perfectly OK.
+  - Good place to show example of "include" in VCL
+
 - Loadbalancing
 
   - More examples
