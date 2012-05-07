@@ -3,13 +3,21 @@ NEXT-TAG
 
 Short-list for the next TAG:
 
-- Content walk-through (in progress)
 - Fix the titles for the individual builds
 
 Content
 =======
 
-- Varnishlog: Might want to put the tag-examples on a slid by itself.
+- Introduction: Explain the course language early. This could also include
+  markup used (e.g: ``literal`` stuff etc).
+- Split the introduction to Varnish sub-chapter into introduction to the
+  FOSS-project and introduction to Varnish the software.
+- Mention VTLA's wherever relevant. This might be an appendix too.
+- Find a unified approach for Vary. There are at least two or three places
+  it's discussed.
+- VCL: Need to re-phrase the state engine talk. Specially regarding what
+  state is next.
+- Varnishlog: Might want to put the tag-examples on a slide by itself.
 - Introduction to the test environment
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.

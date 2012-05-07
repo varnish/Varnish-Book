@@ -128,8 +128,8 @@ The history of Varnish
 
 Timeline:
 
-- 2005: Ideas! Verdens Gang (www.vg.no, Norways biggest newspaper) were
-  looking for alternative cache solutions.
+- 2005: Ideas! Anders Berg at Verdens Gang (www.vg.no, Norways biggest
+  newspaper) was looking for alternative cache solutions.
 - 2006: Work began. Redpill Linpro was in charge of project management,
   infrastructure and supporting development. Poul-Henning Kamp did the
   majority of the actual development.
@@ -149,20 +149,16 @@ Timeline:
         an experienced FreeBSD kernel hacker and continues to bring his
         wisdom to Varnish in most areas where it counts.
 
-        From 2006 throughout 2008, most of the development was sponsored by
+        From 2006 throughout 2008, much of the development was sponsored by
         VG, API, Escenic and Aftenposten, with project management,
-        infrastructure and extra man-power provided by Redpill Linpro. At
-        the time, Redpill Linpro had roughly 140 employees mostly centered
-        around consulting services.
+        infrastructure and extra man-power provided by Redpill Linpro.
 
-        Today Varnish Software is able to fund the core development with
-        income from service agreements, in addition to offering development
-        of specific features on a case-by-case basis.
-
-        The interest in Varnish continue to increase on an almost daily
-        basis.  An informal study based on the list of most popular web
-        sites in Norway indicates that about 75% or more of the web traffic
-        that originates in Norway is served through Varnish.
+        Today, Varnish Cache is developed by Poul-Henning Kamp and Varnish
+        Software. Poul-Henning Kamp is funded by a "no-strings-attached"
+        Varnish Moral License (VML) and Varnish Software is funded by
+        Varnish service subscriptions and customers purchasing development
+        of specific features. Varnish Software still contributes to roughly
+        30% of the income Poul-Henning Kamp gets from the VML system.
 
 Design principles
 -----------------
@@ -204,10 +200,11 @@ Design principles
 
         In addition, Varnish uses a configuration language that is
         translated to C-code, compiled with a normal C compiler and then
-        linked directly into Varnish at run-time. This has several
-        advantages. The most practical of which is the freedom you get as a
-        system administrator. You can use VCL to decide how you want to
-        interface with Varnish, instead of having a developer try to
+        dynamically linked directly into Varnish at run-time. This has
+        several advantages. The most practical of which is the freedom you
+        get as a system administrator. You can use VCL to decide how you
+        want to interface with Varnish, instead of having a developer try
+        to
         predict every possible scenario. That it boils down to C and a C
         compiler also gives you very high performance, and if you really
         wanted to, you could by-pass the VCL to C translation and write raw
@@ -226,7 +223,7 @@ Design principles
         the data and extract the useful bits. This reduces the
         lock-contention in the heavily threaded environment of Varnish.
         Lock-contention is also one of the reasons why Varnish uses a
-        workspace-oriented memory-model instead of only allocating the
+        workspace-oriented memory-model instead of allocating the
         exact amount of space it needs at run-time.
 
         To summarize: Varnish is designed to run on modern hardware
@@ -311,7 +308,9 @@ Using the ``service`` commands is recommended. It's safe and fast.
         the child to take effect (modifying the listening port, for instance) or
         might not be visible immediately. Changes to how long objects are cached,
         for instance, usually only take effect after the currently cached objects
-        expire and are fetched again.
+        expire and are fetched again. Issuing ``param.show <parameter>``
+        will give you a description of the parameter, when and how it takes
+        effect and the default and current value.
 
 Command line configuration
 --------------------------
@@ -547,6 +546,9 @@ important tools to process that log data is:
   provides information about specific clients and requests).
 - Varnishstat, used to access global counters (Provides overall statistics,
   e.g the number of total requests, number of objects and more)
+- If you have multiple Varnish instances on the same machine, you need to
+  specify ``-n <name>`` both when starting Varnish and when starting the
+  corresponding tools.
 
 .. container:: handout
 
@@ -575,6 +577,15 @@ important tools to process that log data is:
 
       Keep in mind that ``varnishlog`` generates large amounts of data,
       though. You may not want to log all of it to disk.
+
+   .. note::
+
+      All log tools (and varnishadm) takes an ``-n`` option. Varnish itself
+      also takes a ``-n`` option. This is used to specify a name for
+      ``varnishd``, or the location of the shared memory log. On most
+      installations ``-n`` is not used, but if you run multiple Varnish
+      instances on a single machine you need to use ``-n`` to distinguish
+      one varnish-instance from an other.
 
 varnishlog
 ----------
@@ -695,31 +706,35 @@ varnishlog options
 
 .. container:: handout
 
-   -n <name>         The name of the varnish instance, or path to the shmlog.
-                     Useful for running multiple instances of Varnish.
-   -i <tag>          Only show one tag.
-   -I <regex>        Filter the tag provided by -i, using the regular expression for -I.
+   -n <name>            The name of the varnish instance, or path to the shmlog.
+                        Useful for running multiple instances of Varnish.
+   -i <tag[,tag][..]>   Only show the specified tags.
+   -I <regex>           Filter the tag provided by -i, using the regular expression for -I.
+
 
    Some examples of useful command-combinations:
 
-   +-------------------------------+---------------------------------------------------+
-   | Command                       | Description                                       |
-   +===============================+===================================================+
-   | ``varnishlog -c ``            | Only show client-requests for the url             |
-   | ``-m RxURL:/specific/url/``   | `/specific/url`                                   |
-   +-------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i ReqEnd``   | Only show the ReqEnd tag. Useful to spot sporadic |
-   |                               | slowdown. Watch the last three values of it.      |
-   +-------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i TxURL``    | Only show the URLs sent to backend servers. E.g:  |
-   |                               | Cache misses and content not cached.              |
-   +-------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i RxHeader`` | Show the Accept-Encoding response header.         |
-   | `` -I Accept-Encoding``       |                                                   |
-   +-------------------------------+---------------------------------------------------+
-   | ``varnishlog -b ``            | Show backend requests using the POST method.      |
-   | ``-m TxRequest:POST``         |                                                   |
-   +-------------------------------+---------------------------------------------------+
+   +--------------------------------+---------------------------------------------------+
+   | Command                        | Description                                       |
+   +================================+===================================================+
+   | ``varnishlog -c``              | Only show client-requests for the url             |
+   | ``-m RxURL:/specific/url/``    | `/specific/url`                                   |
+   +--------------------------------+---------------------------------------------------+
+   | ``varnishlog -O -i ReqEnd``    | Only show the ReqEnd tag. Useful to spot sporadic |
+   |                                | slowdown. Watch the last three values of it.      |
+   +--------------------------------+---------------------------------------------------+
+   | ``varnishlog -O -i TxURL``     | Only show the URLs sent to backend servers. E.g:  |
+   |                                | Cache misses and content not cached.              |
+   +--------------------------------+---------------------------------------------------+
+   | ``varnishlog -O -i RxHeader``  | Show the Accept-Encoding response header.         |
+   | ``-I Accept-Encoding``         |                                                   |
+   +--------------------------------+---------------------------------------------------+
+   | ``varnishlog -b``              | Show backend requests using the POST method.      |
+   | ``-m TxRequest:POST``          |                                                   |
+   +--------------------------------+---------------------------------------------------+
+   | ``varnishlog -O``              | Only shows the URL sent to a backend server and   |
+   | ``-i TxURL,TxHeader``          | all headers sent, either to a client or backend.  |
+   +--------------------------------+---------------------------------------------------+
 
    .. warning::
 
@@ -850,10 +865,6 @@ varnishstat
    |                 | Particularly useful if a monitor tool uses it. |
    +-----------------+------------------------------------------------+
 
-   .. note::
-
-      You may have to specify an ``-n`` option to read the stats for the
-      correct Varnish instance if you have multiple instances.
 
 The management interface
 ------------------------
@@ -900,9 +911,15 @@ reload VCL without restarting Varnish.
    .. note::
 
       Newer Varnish-versions will automatically detect the correct
-      arguments for ``varnishadm`` using the `SHM-log`. For older versions,
-      you always had to specify at least the ``-T``-option when using
-      varnishadm.
+      arguments for ``varnishadm`` using the shared memory log. For older
+      versions, you always had to specify at least the ``-T``-option when
+      using varnishadm.
+
+      This automatic detection relies on the ``-n`` option since
+      ``varnishadm`` needs to find the shared memory log.
+
+      For remote access you will always specify ``-T`` and ``-S`` since a
+      remote ``varnishadm`` can't read the shared memory log.
 
 Exercise: Try out the tools
 ---------------------------
@@ -1059,8 +1076,8 @@ in case it still has references to it, but the policies of the new VCL
 takes effect immediately.
 
 Because the compilation is done outside of the child process, there is
-virtually no risk of affecting the running Varnish by accidentally loading
-an ill-formated VCL.
+no risk of affecting the running Varnish by accidentally loading an
+ill-formated VCL.
 
 A compiled VCL file is kept around until you restart Varnish completely, or
 until you issue ``vcl.discard`` from the management interface. You can only
@@ -1071,7 +1088,7 @@ Storage backends
 ----------------
 
 Varnish supports different methods of allocating space for the
-cache, and you choose which one you want with the '-s' argument.
+cache, and you choose which one you want with the ``-s`` argument.
 
 - file
 - malloc
@@ -1093,8 +1110,8 @@ cache, and you choose which one you want with the '-s' argument.
         tell the operating system through the mmap() (memory map) system
         call to map the entire file into memory if possible.
 
-        *The `file` storage method does not retain data when you stop or
-        restart Varnish!* This is what persistent storage is for. When ``-s
+        The `file` storage method does not retain data when you stop or
+        restart Varnish! This is what persistent storage is for. When ``-s
         file`` is used, Varnish does not keep track of what is written to
         disk and what is not. As a result, it's impossible to know whether
         the cache on disk can be used or not — it's just random data.
@@ -1694,6 +1711,11 @@ Statelesness and idempotence
     idempotent whereas `POST` requests are not. In other words, you can not
     cache `POST` HTTP responses.
 
+.. container:: handout
+
+   For more discussion about idempotence
+   http://queue.acm.org/detail.cfm?id=2187821.
+
 Cache related headers
 ---------------------
 
@@ -1911,11 +1933,41 @@ Vary
 ----
 
 The `Vary` **response** header indicates the response returned by the origin
-server may vary depending on headers received in the request. For example you
-may have a different HTML page for Firefox on a laptop and for an IPhone version
-of your page. Defining `Vary: User-Agent` will indicates Varnish that the
-response returned from the origin server depends on the value of the `User-Agent`
-header.
+server may vary depending on headers received in the request.
+
+The most common usage of `Vary` is to use ``Vary: Accept-Encoding``, which
+tells caches (Varnish included) that the content might look different
+depending on the `Accept-Encoding`-header the client sends. In other words:
+The page can be delivered compressed or uncompressed depending on the
+client.
+
+.. container:: handout
+
+   The `Vary`-header is one of the trickiest headers to deal with for a
+   cache. A cache, like Varnish, does not necessarily understand the
+   semantics of a header, or what part triggers different variants of a
+   page.
+
+   As a result, using ``Vary: User-Agent`` for instance tells a cache that
+   for ANY change in the `User-Agent`-header, the content `might` look
+   different. Since there are probably thousands of `User-Agent` strings
+   out there, this means you will drastically reduce the efficiency of any
+   cache method.
+   
+   An other example is using ``Vary: Cookie`` which is actually not a bad
+   idea. Unfortunately, you can't issue ``Vary: Cookie(but only THESE
+   cookies: ...)``. And since a client will send you a great deal of
+   cookies, this means that just using ``Vary: Cookie`` is not necessarily
+   sufficient. We will discuss this further in the Content Composition
+   chapter.
+
+   .. note::
+
+      From Varnish version 3, Varnish handles `Accept-Encoding` and ``Vary:
+      Accept-Encoding`` for you. This is because Varnish 3 has support for
+      gzip compression. In Varnish 2 it was necessary to normalize the
+      `Accept-Encoding`-header, but this is redundant in Varnish 3.
+
 
 Age
 ---
@@ -2058,8 +2110,8 @@ The VCL State Engine
 - Each request is independent of any others going on at the same time,
   previously or later
 - States are related, but isolated
-- ``return(x);`` exits one state and instructs Varnish to proceed to state
-  ``x`` next.
+- ``return(x);`` exits one state and instructs Varnish to proceed to the
+  next state.
 - Default VCL code is always present, appended below your own VCL
 
 .. container:: handout
@@ -2200,9 +2252,12 @@ VCL - ``vcl_recv``
 ------------------
 
 - Normalize client-input
-- Pick a web server
+- Pick a backend web server
 - Re-write client-data for web applications
 - Decide caching policy based on client-input
+- Access control
+- Security barriers
+- Fixing mistakes (e.g: ``index.htlm`` -> ``index.html``)
 
 .. container:: handout
 
@@ -2234,6 +2289,13 @@ VCL - ``vcl_recv``
    message, redirect message or response to a health check from a load
    balancer.
 
+   It's also common to use ``vcl_recv`` to apply some security measures.
+   Varnish is not a replacement for Intrusion Detection Systems, but can
+   still be used to stop some typical attacks early. Simple access control
+   lists can be applied in ``vcl_recv`` too. For further discussion about
+   security in VCL, take a look at the Security.vcl project, found at
+   https://github.com/comotion/security.vcl.
+
 Default: ``vcl_recv``
 ---------------------
 
@@ -2260,46 +2322,42 @@ Default: ``vcl_recv``
    logic in your own VCL, or letting Varnish fall through to the default
    VCL.
 
-Example: Handling Vary: Accept-Encoding
-----------------------------------------
+Example: Basic Device Detection
+-------------------------------
 
-- Vary: is sent by a server and tells any caches (like Varnish) what
-  client-headers will result in different variants of a page. Varnish deals
-  with Vary implicitly.
+One way of serving different content for mobile devices and desktop
+browsers is to run some simple parsing on the `User-Agent` header to create
+your own custom-header for mobile devices:
 
-.. include:: vcl/normalize_accept_encoding.vcl
+.. include:: vcl/example-normalize_user_agent.vcl
    :literal:
+
+You can read more about different types of device detection at
+https://www.varnish-cache.org/docs/trunk/tutorial/devicedetection.html
 
 .. container:: handout
 
-   Whenever Varnish sees a Vary: header in the response from a web server,
-   it knows that the content it just got can look different based on a
-   client-specified header. 
-   
-   The most common client-header to vary on is the Accept-Encoding header:
-   Compressed data will be different from the same page uncompressed. Web
-   browsers support a multitude of different compression schemes, and
-   announce them in different ways. This can cause Varnish to cache tens of
-   different variants of the same page, even though the web server is
-   likely to only use one or two different compression schemes.
+   This simple VCL will create a request header called `X-Device` which
+   will contain either ``mobile`` or ``desktop``. The Web server can then
+   use this header to determine what page to serve, and inform Varnish
+   about it through ``Vary: X-Device``.
 
-   As caching multiple identical variants of the same page is unwanted, it
-   is wise to normalize the Accept-Encoding header, and any other header
-   that the Web server will vary on. The above example takes advantage of
-   the knowledge that only deflate and gzip are the really relevant
-   compression schemes supported. It ensures that at most three different
-   variants of a page can exist.
+   It might be tempting to just send ``Vary: User-Agent``, but that would
+   either require you to normalize the `User-Agent` header itself and
+   losing the detailed information on the browser, or it would drastically
+   inflate the cache size by keeping possibly hundreds of different
+   variants for each object just because there are tiny variations of the
+   `User-Agent` header.
 
-   To see the result, compare ``varnishtop -i RxHeader -I Accept-Encoding``
-   with ``varnishtop -i TxHeader -I Accept-Encoding``.
+   For more information on the `Vary`-header, see the HTTP chapter.
 
-   .. warning::
+   .. note::
 
-      The second most common header to Vary on is the User-Agent header.
-      This is generally considered a mistake, as normalizing the User-Agent
-      header is, at best, extremely difficult. If your web server reports
-      User-Agent in the Vary header, you should consider changing it, or
-      you are likely to get abysmal cache utilization.
+      If you do use ``Vary: X-Device``, you might want to send ``Vary:
+      User-Agent`` to the users `after` Varnish has used it. Otherwise,
+      intermediary caches will not know that the page looks different for
+      different devices.
+
 
 Exercise: Rewrite URLs and host headers
 ---------------------------------------
