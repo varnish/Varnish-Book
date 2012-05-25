@@ -642,56 +642,54 @@ varnishlog
    Header" (`TxHeader`) tag, and it's up to you to interpret if that means
    it was sent to a client or a web server.
 
-   .. raw:: pdf
 
-      PageBreak
+Varnishlog tag examples
+-----------------------
 
-   +---------------+---------------------------+----------------------------+
-   | Tag           | Example value             | Description                |
-   +===============+===========================+============================+
-   | ``RxURL``     | ``/index.html``           | Varnish received a URL,    |
-   |               |                           | the only scenario where    |
-   |               |                           | Varnish receives a URL is  |
-   |               |                           | from a client, thus: a     |
-   |               |                           | client sent us this URL.   |
-   +---------------+---------------------------+----------------------------+
-   | ``TxURL``     | ``/index.html``           | Varnish sent a URL,        |
-   |               |                           | the only scenario where    |
-   |               |                           | Varnish sends a URL is     |
-   |               |                           | to a backend, thus: this   |
-   |               |                           | is part of a backend       |
-   |               |                           | request.                   |
-   +---------------+---------------------------+----------------------------+
-   | ``RxHeader``  | ``Host: www.example.com`` | A received header. Could   |
-   |               |                           | be either a request        |
-   |               |                           | header from a client or    |
-   |               |                           | a response header from a   |
-   |               |                           | backend, but since we      |
-   |               |                           | know the `Host`-header is  |
-   |               |                           | a request header, we can   |
-   |               |                           | assume it's from a client. |
-   +---------------+---------------------------+----------------------------+
-   | ``TxHeader``  | ``Host: example.com``     | A header Varnish sent.     |
-   |               |                           | Either a request header    |
-   |               |                           | sent to a backend or a     |
-   |               |                           | response header sent to a  |
-   |               |                           | client. This we know the   |
-   |               |                           | `Host`-header is a request |
-   |               |                           | header we can assume it is |
-   |               |                           | a header varnish sent to a |
-   |               |                           | backend.                   |
-   +---------------+---------------------------+----------------------------+
-   | ``RxRequest`` | ``GET``                   | Received request method.   |
-   |               |                           | Varnish only receives      |
-   |               |                           | requests from clients.     |
-   +---------------+---------------------------+----------------------------+
-   | ``TxStatus``  | ``200``                   | Status code Varnish sent.  |
-   |               |                           | Only sent to clients.      |
-   +---------------+---------------------------+----------------------------+
-   | ``RxStatus``  | ``500``                   | Status code varnish        |
-   |               |                           | received from a backend.   |
-   +---------------+---------------------------+----------------------------+
-
++---------------+---------------------------+----------------------------+
+| Tag           | Example value             | Description                |
++===============+===========================+============================+
+| ``RxURL``     | ``/index.html``           | Varnish received a URL,    |
+|               |                           | the only scenario where    |
+|               |                           | Varnish receives a URL is  |
+|               |                           | from a client, thus: a     |
+|               |                           | client sent us this URL.   |
++---------------+---------------------------+----------------------------+
+| ``TxURL``     | ``/index.html``           | Varnish sent a URL,        |
+|               |                           | the only scenario where    |
+|               |                           | Varnish sends a URL is     |
+|               |                           | to a backend, thus: this   |
+|               |                           | is part of a backend       |
+|               |                           | request.                   |
++---------------+---------------------------+----------------------------+
+| ``RxHeader``  | ``Host: www.example.com`` | A received header.         |
+|               |                           | Either a request           |
+|               |                           | header or                  |
+|               |                           | a response header          |
+|               |                           | backend. Since we          |
+|               |                           | know the `Host`-header is  |
+|               |                           | a request header, we can   |
+|               |                           | assume it's from a client. |
++---------------+---------------------------+----------------------------+
+| ``TxHeader``  | ``Host: example.com``     | A header Varnish sent.     |
+|               |                           | Either a request header    |
+|               |                           | or a  response header.     |
+|               |                           | Since we know the          |
+|               |                           | `Host`-header is a request |
+|               |                           | header we can assume it is |
+|               |                           | a header Varnish sent to a |
+|               |                           | backend.                   |
++---------------+---------------------------+----------------------------+
+| ``RxRequest`` | ``GET``                   | Received request method.   |
+|               |                           | Varnish only receives      |
+|               |                           | requests from clients.     |
++---------------+---------------------------+----------------------------+
+| ``TxStatus``  | ``200``                   | Status code Varnish sent.  |
+|               |                           | Only sent to clients.      |
++---------------+---------------------------+----------------------------+
+| ``RxStatus``  | ``500``                   | Status code Varnish        |
+|               |                           | received from a backend.   |
++---------------+---------------------------+----------------------------+
 
 
 varnishlog options

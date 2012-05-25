@@ -13,7 +13,8 @@ No big structural changes.
   /from/ varnish if you do this, to avoid confused upstream caches.
 - VCL Functions: mention bereq in vcl_miss and how it can be used to remove
   X-Varnish headers from the backend request...
-
+- Varnishlog: Add a slide for different log tags to illustrate that Tx is
+  sent from varnish and Rx* received by varnish.
 
 New in 4.2
 ----------
