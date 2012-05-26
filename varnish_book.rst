@@ -32,7 +32,10 @@ The course has roughly 50% exercises and 50% instruction, and you will find
 all the information on the slides in the supplied training material.
 
 The supplied training material also has additional information for most
-chapters.
+chapters. 
+
+The Varnish Book includes the material for both the `Varnish System
+Administration` course and the `Varnish for Web developers` course.
 
 .. container:: handout
 
@@ -944,6 +947,8 @@ Exercise: Try out the tools
 Tuning
 ======
 
+*This chapter is for the system administration course only*
+
 This chapter will cover:
 
 - Architecture
@@ -1499,6 +1504,8 @@ already running threads?
 
 HTTP
 ====
+
+*This chapter is for the webdeveloper course only*
 
 This chapter covers:
 
@@ -3317,6 +3324,8 @@ Solution : PURGE an article from the backend
 Saving a request
 ================
 
+*This chapter is for the system administration course only*
+
 - Grace and grace mode
 - Health checks
 - Saint mode
@@ -3821,16 +3830,10 @@ Solution: Combine PURGE and restart
       outcome wouldn't be harmful, but it's a good habit to establish.
 
 
-..
-  Please device an exercise at this point - the old one involved installing
-  lighttpd next to Apache, but you may be better off with just using two
-  random web servers on the web + firewall. Sorry for the inconvenience.
-
-..
-        XXX: Got here. Need better examples towards the end and more.
-
 Content Composition
 ===================
+
+*This chapter is for the webdeveloper course only*
 
 You now know almost all you need to know to adapt your site to work well
 with Varnish. In this chapter, we will look closer at how to glue your
