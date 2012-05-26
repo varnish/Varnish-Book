@@ -3,6 +3,8 @@ New in 4.3
 
 No big structural changes.
 
+- We now only use the Varnish Book (all slides). Course-specific chapters
+  start out with a big bold notice about it.
 - Several clarifications and rephrases throughout the book.
 - Mention Anders Berg and the VML in the introduction. See
   http://phk.freebsd.dk/VML/ for VML-info.
@@ -15,6 +17,7 @@ No big structural changes.
   X-Varnish headers from the backend request...
 - Varnishlog: Add a slide for different log tags to illustrate that Tx is
   sent from varnish and Rx* received by varnish.
+- Varnish Programs moved to appendix.
 
 New in 4.2
 ----------

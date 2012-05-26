@@ -4162,8 +4162,70 @@ Solution : write a VCL that masquerades XHR calls
    :literal:
 
 
-Varnish Programs
-================
+Finishing words
+===============
+
+Varnish 2.1 to 3.0
+------------------
+
+Varnish 3.0, in addition to new features, also changed several aspects of
+VCL and parameters.
+
++------------------------------------+----------------------------------------+
+| Varnish 2.1                        |  Varnish 3.0                           |
++====================================+========================================+
+| vcl_fetch: ``return (pass);``      |  vcl_fetch: ``return (hit_for_pass);`` |
++------------------------------------+----------------------------------------+
+| vcl_recv: ``return (pass);``       |  vcl_recv: ``return (pass);``          |
++------------------------------------+----------------------------------------+
+| ``purge(....);``                   |  ``ban(.....);``                       |
++------------------------------------+----------------------------------------+
+| ``C{ VRT_Nuke(...); }C``           |  ``purge;``                            |
++------------------------------------+----------------------------------------+
+| ``set req.url = "/test" req.url;`` |  ``set req.url = "/test" + req.url;``  |
++------------------------------------+----------------------------------------+
+| ``log "something";``               |  ``import std;``                       |
+|                                    |  ``std.log("something");``             |
++------------------------------------+----------------------------------------+
+| ``"%2520"`` is literal `%20`       |  ``"%20"`` - no more %-escapes         |
++------------------------------------+----------------------------------------+
+| ``set req.hash += req.url``        |  ``hash_data(req.url);``               |
++------------------------------------+----------------------------------------+
+| ``esi;``                           |  ``set beresp.do_esi = true;``         |
++------------------------------------+----------------------------------------+
+| `thread_pool_max` does not depend  | Both `thread_pool_max` and             |
+| on `thread_pools`, but             | `thread_pool_min` are per thread       |
+| `thread_pool_min` does.            | pool                                   |
++------------------------------------+----------------------------------------+
+| thread_pool_max=200 and            | thread_pool_max=200 and                |
+| thread_pools=8 means max 200       | thread_pools=8 means max 1600          |
+| total threads.                     | total threads                          |
++------------------------------------+----------------------------------------+
+
+Resources
+---------
+
+- RFC 2616
+
+Community driven:
+
+- http://varnish-cache.org
+- http://varnish-cache.org/docs/
+- http://repo.varnish-cache.org/
+- http://varnish-cache.org/wiki/VCLExamples
+- Public mailing lists: http://varnish-cache.org/wiki/MailingLists
+- Public IRC channel: #varnish at irc.linpro.no
+
+Commercial:
+
+- http://planet.varnish-cache.org/
+- http://www.varnish-software.com
+- http://repo.varnish-software.com (for service agreement customers)
+- support@varnish-software.com (for existing customers, with SLA)
+- sales@varnish-software.com
+
+Appendix A: Varnish Programs
+============================
 
 SHMLOG tools
 
@@ -4290,6 +4352,7 @@ varnishhist
 
 ::
         
+
                               #
                               #
                               #
@@ -4321,69 +4384,7 @@ Exercise: Try the tools
 - Install ``siege``
 - Run siege against localhost while looking at varnishhist
 
-Finishing words
-===============
-
-Varnish 2.1 to 3.0
-------------------
-
-Varnish 3.0, in addition to new features, also changed several aspects of
-VCL and parameters.
-
-+------------------------------------+----------------------------------------+
-| Varnish 2.1                        |  Varnish 3.0                           |
-+====================================+========================================+
-| vcl_fetch: ``return (pass);``      |  vcl_fetch: ``return (hit_for_pass);`` |
-+------------------------------------+----------------------------------------+
-| vcl_recv: ``return (pass);``       |  vcl_recv: ``return (pass);``          |
-+------------------------------------+----------------------------------------+
-| ``purge(....);``                   |  ``ban(.....);``                       |
-+------------------------------------+----------------------------------------+
-| ``C{ VRT_Nuke(...); }C``           |  ``purge;``                            |
-+------------------------------------+----------------------------------------+
-| ``set req.url = "/test" req.url;`` |  ``set req.url = "/test" + req.url;``  |
-+------------------------------------+----------------------------------------+
-| ``log "something";``               |  ``import std;``                       |
-|                                    |  ``std.log("something");``             |
-+------------------------------------+----------------------------------------+
-| ``"%2520"`` is literal `%20`       |  ``"%20"`` - no more %-escapes         |
-+------------------------------------+----------------------------------------+
-| ``set req.hash += req.url``        |  ``hash_data(req.url);``               |
-+------------------------------------+----------------------------------------+
-| ``esi;``                           |  ``set beresp.do_esi = true;``         |
-+------------------------------------+----------------------------------------+
-| `thread_pool_max` does not depend  | Both `thread_pool_max` and             |
-| on `thread_pools`, but             | `thread_pool_min` are per thread       |
-| `thread_pool_min` does.            | pool                                   |
-+------------------------------------+----------------------------------------+
-| thread_pool_max=200 and            | thread_pool_max=200 and                |
-| thread_pools=8 means max 200       | thread_pools=8 means max 1600          |
-| total threads.                     | total threads                          |
-+------------------------------------+----------------------------------------+
-
-Resources
----------
-
-- RFC 2616
-
-Community driven:
-
-- http://varnish-cache.org
-- http://varnish-cache.org/docs/
-- http://repo.varnish-cache.org/
-- http://varnish-cache.org/wiki/VCLExamples
-- Public mailing lists: http://varnish-cache.org/wiki/MailingLists
-- Public IRC channel: #varnish at irc.linpro.no
-
-Commercial:
-
-- http://planet.varnish-cache.org/
-- http://www.varnish-software.com
-- http://repo.varnish-software.com (for service agreement customers)
-- support@varnish-software.com (for existing customers, with SLA)
-- sales@varnish-software.com
-
-Appendix A: Extra Material
+Appendix B: Extra Material
 ==========================
 
 The following is content needed for some of the exercises.
