@@ -7,7 +7,7 @@
         "frames": [
             ["0cm", "0cm", "100%", "100%"]
           ],
-        "background" : "ui/img/frontpage.pdf",
+        "background" : "ui/img/front_page_book.pdf",
         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0
