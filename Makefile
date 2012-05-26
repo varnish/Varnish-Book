@@ -11,11 +11,11 @@ PICK = "./util/pickchapter2.igawk"
 # the pdfs you can now build.
 
 book = "*"
-sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
-webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
+#sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
+#webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
-webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
-sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
+#webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
+#sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
@@ -32,7 +32,8 @@ common = ${rstsrc} \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = webdev book sysadmin
+targets = book
+#webdev book sysadmin
 
 all: ${targets}
 
