@@ -1,15 +1,16 @@
 New in 4.3
 ----------
+Released: Tue May 29 2012
 
 No big structural changes.
 
 - We now only use the Varnish Book (all slides). Course-specific chapters
   start out with a big bold notice about it.
-- Several clarifications and rephrases throughout the book.
+- Several minor clarifications and rephrases throughout the book.
 - Mention Anders Berg and the VML in the introduction. See
   http://phk.freebsd.dk/VML/ for VML-info.
 - VCL: vcl_recv: Mention security briefly. Including security.vcl. Don't
-  invest too much time to this subject.
+  invest too much time in this subject.
 - VCL: Switch the Accept-Encoding example with a simple device detection
   example. Note that the handout suggests sending ``Vary: User-Agent``
   /from/ varnish if you do this, to avoid confused upstream caches.

@@ -32,6 +32,7 @@ particular order):
 - Kacper Wysocki
 - Magnus Hagander
 - Martin Blix Grydeland
+- Poul-Henning Kamp
 - Everyone who has participated on the training courses
 
 
