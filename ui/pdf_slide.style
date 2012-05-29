@@ -22,6 +22,15 @@
         "showFooter" : false,
 	"fontSize": 0
     },
+    "vclPage": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/frontpage.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
     "introPages": {
 	    "frames": [
             ["0cm", "0cm", "100%", "100%"]
