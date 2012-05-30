@@ -1,4 +1,4 @@
-#!/usr/bin/igawk -f
+#!/usr/bin/env igawk -f
 
 # Splits chapters into individual files for each chapter and create an
 # index page for sphinx.
