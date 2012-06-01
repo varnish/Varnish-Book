@@ -1,0 +1,191 @@
+RST TITLE STUB
+==============
+
+Avoid caching a page
+
+RST DESCRIPTION
+===============
+
+#. Write a VCL which avoids caching the index page at all.
+   It should cover both accessing `/` and `/index.html`
+#. Write a VCL that makes Varnish honor the following headers::
+
+        Cache-Control: no-cache
+        Cache-Control: private
+        Pragma: no-cache
+
+RST HANDOUT
+===========
+
+.. container:: handout
+
+   When trying this out, remember that Varnish keeps the `Host`-header in
+   ``req.http.host`` and the part after the hostname in ``req.url``.
+
+   For `http://www.example.com/index.html`, the `http://` part is not seen
+   by Varnish at all, but ``req.http.host`` will have the value of
+   `www.example.com` and ``req.url`` the value of `/index.html`. Note how
+   the leading `/` is included in ``req.url``.
+
+   Varnish only obeys the first header it finds of "s-maxage" in
+   Cache-Control, "max-age" in Cache-Control or the Expire header.
+   However, it is often necessary to check the values of other
+   headers too - ``vcl_fetch`` is the place to do that.
+
+VARNISHTEST
+===========
+
+::
+
+        varnishtest "Rewrite URLS and headers"
+
+        server s1 {
+                rxreq
+                expect req.url == "/"
+                txresp -status 200 -hdr "Req: 1"
+
+		rxreq
+                expect req.url == "/"
+                txresp -status 200 -hdr "Req: 2"
+
+		rxreq
+                expect req.url == "/index.html"
+                txresp -status 200 -hdr "Req: 3"
+
+		rxreq
+                expect req.url == "/index.html"
+                txresp -status 200 -hdr "Req: 4"
+
+		rxreq
+		expect req.url == "/nocache"
+		txresp -status 200 -hdr "req: 5" -hdr "Cache-Control: no-cache"
+
+		rxreq
+		expect req.url == "/nocache"
+		txresp -status 200 -hdr "req: 6" -hdr "Cache-Control: no-cache"
+
+		rxreq
+		expect req.url == "/private"
+		txresp -status 200 -hdr "req: 7" -hdr "Cache-Control: private"
+
+		rxreq
+		expect req.url == "/private"
+		txresp -status 200 -hdr "req: 8" -hdr "Cache-Control: private"
+
+		rxreq
+		expect req.url == "/pragma"
+		txresp -status 200 -hdr "req: 9" -hdr "Pragma: no-cache"
+
+		rxreq
+		expect req.url == "/pragma"
+		txresp -status 200 -hdr "req: 10" -hdr "Pragma: no-cache"
+
+                rxreq
+                expect req.url == "/cachethis"
+                txresp -status 200 -hdr "req: 11"
+        } -start
+
+        varnish v1 -vcl+backend {
+		sub vcl_recv {
+			if (req.url ~ "^/index\.html" ||
+			    req.url ~ "^/$") { return(pass); }
+		}
+		// Or:
+		sub vcl_fetch {
+			if (req.url ~ "^/index\.html" ||
+			    req.url ~ "^/$") { return(hit_for_pass); }
+		}
+
+		sub vcl_fetch {
+			if (beresp.http.cache-control ~ "(no-cache|private)" ||
+			    beresp.http.pragma ~ "no-cache") {
+				set beresp.ttl = 0s;
+			}
+		}
+	} -start
+
+	client c1 {
+		txreq -url "/"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "1"
+		
+		txreq -url "/"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "2"
+
+		txreq -url "/index.html"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "3"
+
+		txreq -url "/index.html"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "4"
+
+		txreq -url "/nocache"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "5"
+		expect resp.http.cache-control == "no-cache"
+		
+		txreq -url "/nocache"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "6"
+		expect resp.http.cache-control == "no-cache"
+		
+		txreq -url "/private"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "7"
+		expect resp.http.cache-control == "private"
+
+		txreq -url "/private"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "8"
+		expect resp.http.cache-control == "private"
+
+		txreq -url "/pragma"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "9"
+		expect resp.http.pragma == "no-cache"
+
+		txreq -url "/pragma"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "10"
+		expect resp.http.pragma == "no-cache"
+
+		txreq -url "/cachethis"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "11"
+
+		txreq -url "/cachethis"
+		rxresp
+		expect resp.status == 200
+		expect resp.http.req == "11"
+	} -run
+
+
+
+SOLUTION EXTRA
+==============
+
+.. container:: handout
+
+   The above examples are both valid.
+
+   It is usually most convenient to do as much as possible in ``vcl_recv``,
+   and this is no exception. Even though using pass in ``vcl_fetch`` is
+   reasonable, it creates a hitpass object, which can create unnecessary
+   complexity. Whenever you do use pass in ``vcl_fetch``, you should also
+   make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
+   accidentally adding a hitpass object that prevents caching for a long
+   time.
+
