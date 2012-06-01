@@ -151,7 +151,7 @@ ${BDIR}/exercises: ${BDIR}
 	mkdir -p ${BDIR}/exercises
 
 ${BDIR}/exercises/%.vtc: exercises/%.test Makefile ${BDIR}/exercises
-	util/pickchapter2.igawk -v "include=VARNISHTEST" $<  | egrep -v '^[^\t ]' > $@
+	util/pickchapter2.igawk -v "include=VARNISHTEST" $<  | egrep -v '^[^[:blank:]]' > $@
 
 ${BDIR}/exercises/%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@

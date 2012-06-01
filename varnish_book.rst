@@ -2526,56 +2526,7 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
         s-maxage, it will be used, but if it is missing, a forced TTL is
         set.
 
-
-Exercise: VCL - avoid caching a page
-------------------------------------
-
-#. Write a VCL which avoids caching the index page at all.
-   It should cover both accessing `/` and `/index.html`
-#. Write a VCL that makes Varnish honor the following headers::
-
-        Cache-Control: no-cache
-        Cache-Control: private
-        Pragma: no-cache
-
-
-.. container:: handout
-
-   When trying this out, remember that Varnish keeps the `Host`-header in
-   ``req.http.host`` and the part after the hostname in ``req.url``.
-
-   For `http://www.example.com/index.html`, the `http://` part is not seen
-   by Varnish at all, but ``req.http.host`` will have the value of
-   `www.example.com` and ``req.url`` the value of `/index.html`. Note how
-   the leading `/` is included in ``req.url``.
-
-   Varnish only obeys the first header it finds of "s-maxage" in
-   Cache-Control, "max-age" in Cache-Control or the Expire header.
-   However, it is often necessary to check the values of other
-   headers too - ``vcl_fetch`` is the place to do that.
-
-
-
-Solution: VCL - avoid caching a page
-------------------------------------
-
-.. include:: vcl/avoid_caching_page.vcl
-   :literal:
-
-.. include:: vcl/honor_more_cache_headers.vcl
-   :literal:
-
-.. container:: handout
-
-   The above examples are both valid.
-
-   It is usually most convenient to do as much as possible in ``vcl_recv``,
-   and this is no exception. Even though using pass in ``vcl_fetch`` is
-   reasonable, it creates a hitpass object, which can create unnecessary
-   complexity. Whenever you do use pass in ``vcl_fetch``, you should also
-   make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
-   accidentally adding a hitpass object that prevents caching for a long
-   time.
+.. include:: build/exercises/complete-avoid_caching_a_page.rst
 
 Exercise: Either use s-maxage or set ttl by file type
 -----------------------------------------------------
