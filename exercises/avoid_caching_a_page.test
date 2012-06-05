@@ -37,7 +37,7 @@ VARNISHTEST
 
 ::
 
-        varnishtest "Avoid caching a page"
+        varnishtest "Rewrite URLS and headers"
 
         server s1 {
                 rxreq
