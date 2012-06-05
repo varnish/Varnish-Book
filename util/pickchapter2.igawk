@@ -1,4 +1,4 @@
-#!/usr/bin/igawk -f
+#!/usr/bin/env igawk -f
 
 @include util/parse.igawk
 
