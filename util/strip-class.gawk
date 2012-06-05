@@ -1,4 +1,4 @@
-#!/usr/bin/env gawk -f
+#!/usr/bin/gawk -f
 
 BEGIN {
 	ignoreclass["handout"] = 1

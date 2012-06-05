@@ -1,4 +1,4 @@
-RST2PDF=$(shell which rst2pdf)
+RST2PDF=/usr/bin/rst2pdf
 BDIR=build
 CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
 PICK = "./util/pickchapter2.igawk"
