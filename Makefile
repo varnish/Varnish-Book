@@ -131,7 +131,7 @@ varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-
 	mkdir -p $${target};\
 	mkdir -p $$target/pdf/;\
 	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
-	cp -r ${BDIR}/varnish_slide-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
+	cp -r ${BDIR}/varnish_slide-$*.pdf $$target/pdf/varnish_slide_$*-v${version}.pdf;\
 	cp -r munin/ $$target;\
 	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
 	cp NEWS ${rstsrc} README.rst LICENSE $$target;\
