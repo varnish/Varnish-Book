@@ -1793,7 +1793,7 @@ Cache-Control
 
 The `Cache-Control` header field specifies directives that **must** be
 applied by all caching mechanisms (from proxy cache to browser cache).
-`Cache-Control` accepts the following arguments (ony the most relevant are
+`Cache-Control` accepts the following arguments (only the most relevant are
 described):
 
 - `public`: The response may be cached by any cache.
@@ -2070,9 +2070,9 @@ Exercise: Use `article.php` to test `Age`
 
 .. container:: handout
 
-   An other thing to consider in this exercise is how to best avoid issues
-   like this. We do not yet know how to modify Varnish' response headers,
-   but hopefully you will understand why you may need to do that.
+   Also consider how you would avoid issues like this to begin with.  We do
+   not yet know how to modify Varnish' response headers, but hopefully you
+   will understand why you may need to do that.
 
    Varnish is not the only part of your web-stack that parses and honors
    cache-related headers. The primary consumer of such headers are the web
@@ -3483,7 +3483,7 @@ Directors
         And a director must have a name.
 
         The simplest directors available are the round-robin director and
-        the random director. The round-robin director only takes no
+        the random director. The round-robin director takes no
         additional arguments - only the backends. It will pick the first
         backend for the first request, then the second backend for the
         second request, and so on, and start again from the top. If a
