@@ -129,10 +129,12 @@ varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-
 	@echo Preparing $@ ...
 	@target=${BDIR}/dist/varnish_$*-${version}/; \
 	mkdir -p $${target};\
-	mkdir -p $$target/pdf/;\
+	mkdir -p $${target}/pdf/;\
+	mkdir -p $${target}/img/;\
 	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
 	cp -r ${BDIR}/varnish_slide-$*.pdf $$target/pdf/varnish_slide_$*-v${version}.pdf;\
-	cp -r munin/ $$target;\
+	cp -r munin/ $${target};\
+	cp ui/img/vcl.png ui/img/request.png $${target}/img/; \
 	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
 	cp NEWS ${rstsrc} README.rst LICENSE $$target;\
 	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/
