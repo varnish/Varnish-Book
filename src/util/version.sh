@@ -1,1 +1,0 @@
-/home/kristian/Documents/Source/training/util/version.sh
