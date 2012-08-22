@@ -731,7 +731,7 @@ varnishlog options
    | ``varnishlog -O -i TxURL``     | Only show the URLs sent to backend servers. E.g:  |
    |                                | Cache misses and content not cached.              |
    +--------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i RxHeader``  | Show the Accept-Encoding response header.         |
+   | ``varnishlog -O -i RxHeader``  | Show the Accept-Encoding request header.          |
    | ``-I Accept-Encoding``         |                                                   |
    +--------------------------------+---------------------------------------------------+
    | ``varnishlog -b``              | Show backend requests using the POST method.      |
@@ -1265,7 +1265,7 @@ Threading model
    .. note::
 
       If you run across tuning advice that suggests running one thread pool
-      for each CPU core, res assured that this is old advice. Experiments
+      for each CPU core, rest assured that this is old advice. Experiments
       and data from production environments have revealed that as long as
       you have two thread pools (which is the default), there is nothing to
       gain by increasing the number of thread pools.
@@ -3906,7 +3906,7 @@ Edge Side Includes
 
    With ESI, Varnish can be used not only to deliver objects, but to glue
    them together. The most typical use case for ESI is a news article with
-   a "most recent news" box at the side. The article it self is most likely
+   a "most recent news" box at the side. The article itself is most likely
    written once and possibly never changed, and can be cached for a long
    time. The box at the side with "most recent news", however, will change
    frequently. With ESI, the article can include a "most recent news" box
