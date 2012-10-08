@@ -2235,7 +2235,7 @@ VCL - functions
    regsuball() is that the latter changes all occurrences while the former
    only affects the first match.
 
-   ``ban_url` is one of the original ban functions provided, and are
+   ``ban_url`` is one of the original ban functions provided, and are
    generally not used much. The more flexible `ban()` function can perform
    the same task. ``ban_url(foo)`` is the equivalent of ``ban("req.url ~ "
    foo)``: Add a URL, host name excluded, to the ban list. We will go
