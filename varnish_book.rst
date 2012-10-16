@@ -1156,6 +1156,35 @@ cache, and you choose which one you want with the ``-s`` argument.
         static overhead which you can calculate by starting Varnish without
         any objects. Typically around 100MB.
 
+The shared memory log
+---------------------
+
+Varnish' shared memory log is used to log most data. It's sometimes called
+a shm-log, and operates on a round-robin capacity.
+
+There's not much you have to do with the shared memory log, except ensure
+that it does not cause I/O. This is easily accomplished by putting it on a
+tmpfs.
+
+.. container:: handout
+
+   This is typically done in '/etc/fstab', and the shmlog is normally kept
+   in '/var/lib/varnish' or equivalent locations. All the content in that
+   directory is safe to delete.
+
+   The shared memory log is not persistent, so do not expect it to contain
+   any real history.
+
+   The typical size of the shared memory log is 80MB. If you want to see
+   old log entries, not just real-time, you can use the ``-d`` argument for
+   `varnishlog`: ``varnishlog -d``.
+
+   .. warning::
+
+      Some packages will use ``-s file`` by default with a path that puts
+      the storage file in the same directory as the shmlog. You want to
+      avoid this.
+
 Tunable parameters
 ------------------
 
@@ -1188,35 +1217,6 @@ Tunable parameters
         testing, and many of them are downright dangerous. They are hidden
         for a reason, and the only exception is perhaps ``debug.health``,
         which is somewhat common to use.
-
-The shared memory log
----------------------
-
-Varnish' shared memory log is used to log most data. It's sometimes called
-a shm-log, and operates on a round-robin capacity.
-
-There's not much you have to do with the shared memory log, except ensure
-that it does not cause I/O. This is easily accomplished by putting it on a
-tmpfs.
-
-.. container:: handout
-
-   This is typically done in '/etc/fstab', and the shmlog is normally kept
-   in '/var/lib/varnish' or equivalent locations. All the content in that
-   directory is safe to delete.
-
-   The shared memory log is not persistent, so do not expect it to contain
-   any real history.
-
-   The typical size of the shared memory log is 80MB. If you want to see
-   old log entries, not just real-time, you can use the ``-d`` argument for
-   `varnishlog`: ``varnishlog -d``.
-
-   .. warning::
-
-      Some packages will use ``-s file`` by default with a path that puts
-      the storage file in the same directory as the shmlog. You want to
-      avoid this.
 
 Threading model
 ---------------
