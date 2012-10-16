@@ -1,5 +1,5 @@
 acl management {
-	"172.16.0.0."/16;
+	"172.16.0.0"/16;
 }
 
 acl sysadmins {
