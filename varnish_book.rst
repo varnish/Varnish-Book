@@ -3123,9 +3123,9 @@ Smart bans
 - Banning is more flexible than ``purge;``, but also slightly more complex
 - Banning can be done from CLI and VCL, while ``purge;`` is only possible
   in VCL.
-- Smart bans require that your VCL stores ``req.url`` and ``req.http.host``
-  on the object ahead of time, even though banning on ``req.url`` directly
-  will still work.
+- Smart bans require that your VCL stores ``req.url`` (or any other fields
+  you intend to ban on) ahead of time, even though banning on ``req.url``
+  directly will still work.
 - Banning is not designed to free up memory, but smart bans using the ban
   lurker will still do this.
 
