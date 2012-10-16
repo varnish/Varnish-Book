@@ -3591,7 +3591,7 @@ Saint mode
    no reason to try an 11th.
 
    There is no need to worry about recovering. The object will only be on
-   the ban list for as long as you specify, regardless of whether the
+   the saint list for as long as you specify, regardless of whether the
    threshold is reached or not.
 
    Use saint mode to complement your health checks. They are meant to
@@ -3599,7 +3599,7 @@ Saint mode
    health probes can take over, or catch errors that are not possible to
    spot with the health checks.
 
-   As such, it's advised to keep the ban period short. Typical suggestions
+   As such, it's advised to keep the saint period short. Typical suggestions
    are 20 seconds, 30 seconds, etc.
 
 Restart in VCL
