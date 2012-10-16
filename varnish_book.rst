@@ -1480,7 +1480,7 @@ Exercise: Tune first_byte_timeout
 Exercise: Configure threading
 -----------------------------
 
-While performing this exercise, watch the `threads` counter in
+While performing this exercise, watch the `n_wrk` counter in
 ``varnishstat`` to determine the number of threads that are running.
 
 #. Start Varnish
