@@ -3504,12 +3504,12 @@ Directors
 Client and hash directors
 .........................
 
-The client and hash directors were both added with Varnish 2.1.0 as special
-variants of the random directors. Instead of a random number, the client
-director uses the ``client.identity``. The ``client.identity`` variable
-defaults to the client IP, but can be changed in VCL. The same client will
-be directed to the same backend, assuming that the ``client.identity`` is
-the same for all requests.
+The client and hash directors are both special variants of the random
+director. Instead of a random number, the client director uses the
+``client.identity``. The ``client.identity`` variable defaults to the
+client IP, but can be changed in VCL. The same client will be directed
+to the same backend, assuming that the ``client.identity`` is the same
+for all requests.
 
 Similarly, the hash director uses the hash data, which means that the same
 URL will go to the same web server every time. This is most relevant for
