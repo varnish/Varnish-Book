@@ -2865,9 +2865,9 @@ Cache invalidation
 - Explicit invalidation of cache
 - ``purge;`` removes all variants of an object from cache, freeing up
   memory
+- ``set req.hash_always_miss = true;`` can refresh content explicitly
 - ``ban();`` can be used to invalidate objects based on regular
   expressions, but does not necessarily free up memory any time soon.
-- ``set req.hash_always_miss = true;`` can refresh content explicitly
 - Which to use when?
 - What about this ban lurker?
 - ``obj.ttl = 0s;`` is obsolete.
