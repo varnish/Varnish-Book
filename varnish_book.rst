@@ -2764,8 +2764,8 @@ VCL - ``vcl_deliver``
 .. container:: handout
 
    While the ``vcl_deliver`` function is simple, it is also very useful for
-   modifying the output of Varnish. If you need to remove or add a header
-   that isn't supposed to be stored in the cache, ``vcl_deliver`` is the
+   modifying the output of Varnish. If you need to remove a header, or add
+   one that isn't supposed to be stored in the cache, ``vcl_deliver`` is the
    place to do it.
 
    The main building blocks of ``vcl_deliver`` are:
