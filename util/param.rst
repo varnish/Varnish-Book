@@ -49,7 +49,7 @@
 .. |def_saintmode_threshold| replace::         10 [objects]
 .. |def_send_timeout| replace::                60 [seconds]
 .. |def_sess_timeout| replace::                5 [seconds]
-.. |def_sess_workspace| replace::              16384 [bytes]
+.. |def_sess_workspace| replace::              65536 [bytes]
 .. |def_session_linger| replace::              50 [ms]
 .. |def_session_max| replace::                 100000 [sessions]
 .. |def_shm_reclen| replace::                  255 [bytes]
