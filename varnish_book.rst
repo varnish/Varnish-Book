@@ -3378,14 +3378,14 @@ Health checks
 - varnishlog: Backend_health
 - varnishadm: debug.health
 
+.. include:: vcl/health.vcl
+   :literal:
+
 .. container:: handout
 
    You can define a health check for each backend, which will cause Varnish
    to probe a URL every few seconds. Normally, it will take more than one
    failed request before Varnish stops using a specific backend server.
-
-   .. include:: vcl/health.vcl
-      :literal:
 
    The above example will cause Varnish to send a request to
    http://example.com/healthtest every 3 seconds. When deciding whether to
