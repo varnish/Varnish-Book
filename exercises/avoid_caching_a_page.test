@@ -96,6 +96,7 @@ VARNISHTEST
 			    req.url ~ "^/$") { return(hit_for_pass); }
 		}
 
+		// Second part of exercise
 		sub vcl_fetch {
 			if (beresp.http.cache-control ~ "(no-cache|private)" ||
 			    beresp.http.pragma ~ "no-cache") {
