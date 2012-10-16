@@ -1059,7 +1059,7 @@ needs to log something, all it has to do is grab a lock, write to a memory
 area and then free the lock. In addition to that, each worker thread has a
 cache for log data to reduce lock contention.
 
-The log file is usually about 90MB, and split in two. The first part is
+The log file is usually about 80MB, and split in two. The first part is
 counters, the second part is request data. To view the actual data, a
 number of tools exist that parses the shared memory log. Because the
 log-data is not meant to be written to disk in its raw form, Varnish can
