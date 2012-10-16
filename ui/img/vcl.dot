@@ -19,7 +19,7 @@ vcl_pass->fetch [ label="fetch" weight=2 color=red style=bold ]
 fetch->vcl_fetch [ weight=4 style=bold ]
 
 vcl_fetch->cache [ label="deliver" color=green style=bold ]
-vcl_fetch->dont_cache [ label="pass" color=red style=bold ]
+vcl_fetch->dont_cache [ label="hit_for_pass" color=red style=bold ]
 cache->vcl_deliver [ weight=2 color=green style=bold ]
 dont_cache->vcl_deliver [ color=red style=bold ]
 
