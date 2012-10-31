@@ -29,8 +29,10 @@ bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
 images = ui/img/vcl.png ui/img/request.png
+mergedrst = ${BDIR}/merged_book.rst
 
-common = ${rstsrc} \
+common = ${mergedrst} \
+	 ${rstsrc} \
 	 ${BDIR}/version.rst \
 	 ${images} \
 	 Makefile \
@@ -39,6 +41,7 @@ common = ${rstsrc} \
 	 util/frontpage.rst \
 	 util/printheaders.rst \
 	 ${exercises_complete} \
+	 ${exercises_stuff} \
 	 material/webdev/*
 
 version = $(subst version-,,$(shell git describe --always --dirty))
@@ -47,7 +50,7 @@ versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 targets = book
 #webdev book sysadmin
 
-all: ${targets}
+all: ${common} ${targets}
 
 webdev: ${webdevt}
 
@@ -70,7 +73,7 @@ sphinx: ${common} src/conf.py
 		rm $$a; \
 		touch $$a; \
 	done
-	util/splitchapters.igawk -v dst=src/ < ${rstsrc}
+	util/splitchapters.igawk -v dst=src/ < ${mergedrst}
 	sed -i 's/\.\. class:: handout//' src/*.rst
 	sphinx-build -b html -d build/doctrees   src/ build/html
 
@@ -84,7 +87,10 @@ mrproper: clean all
 .git/COMMIT_EDITMSG:
 	touch .git/COMMIT_EDITMSG
 
-${BDIR}/version.rst: util/version.sh ${rstsrc} .git/COMMIT_EDITMSG
+${mergedrst}: ${rstsrc} 
+	util/parse.pl < $< > $@
+
+${BDIR}/version.rst: util/version.sh ${mergedrst} .git/COMMIT_EDITMSG
 
 	mkdir -p ${BDIR}
 	./util/version.sh > ${BDIR}/version.rst
@@ -111,11 +117,11 @@ ${BDIR}:
 
 ${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
 	@echo Building PDFs for $*...
-	@${PICK} -v include=${$*} < ${rstsrc} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
+	@${PICK} -v include=${$*} < ${mergedrst} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
 
 ${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
 	@echo Building PDF slides for $*...
-	@${PICK} -v include=${$*} < ${rstsrc} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
+	@${PICK} -v include=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |def_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
@@ -136,7 +142,7 @@ varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-
 	cp -r munin/ $${target};\
 	cp ui/img/vcl.png ui/img/request.png $${target}/img/; \
 	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
-	cp NEWS ${rstsrc} README.rst LICENSE $$target;\
+	cp NEWS ${mergedrst} README.rst LICENSE $$target;\
 	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/
 
 dist: $(addprefix varnish_,$(addsuffix -${version}.tar.bz2,${targets}))
@@ -156,7 +162,7 @@ ${BDIR}/exercises: ${BDIR}
 ${BDIR}/exercises/%.vtc: exercises/%.test Makefile ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=VARNISHTEST" $<  | egrep -v '^[^[:blank:]]' > $@
 
-${BDIR}/exercises/%.rst: exercises/%.test ${BDIR}/exercises
+${BDIR}/exercises/desc-%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@
 
 ${BDIR}/exercises/solution-%.rst: ${BDIR}/exercises/%.vtc ${BDIR}/exercises
@@ -168,7 +174,7 @@ ${BDIR}/exercises/handout-%.rst: exercises/%.test ${BDIR}/exercises
 ${BDIR}/exercises/solution-extra-%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
 	
-${BDIR}/exercises/complete-%.rst: ${BDIR}/exercises/solution-%.rst ${BDIR}/exercises/%.rst ${BDIR}/exercises/handout-%.rst ${BDIR}/exercises/solution-extra-%.rst util/exercise_builder.sh
+${BDIR}/exercises/complete-%.rst: ${BDIR}/exercises/solution-%.rst ${BDIR}/exercises/desc-%.rst ${BDIR}/exercises/handout-%.rst ${BDIR}/exercises/solution-extra-%.rst util/exercise_builder.sh
 	util/exercise_builder.sh "$*"
 
 vclcheck: ${exercises_vtc}
@@ -184,4 +190,4 @@ check: vclcheck materialcheck
 	done; \
 	exit $$ret
 
-.PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst ${targets} vclcheck materialcheck
+.PHONY: all mrproper clean sourceupdate flowchartupdate util/param.rst vclcheck materialcheck

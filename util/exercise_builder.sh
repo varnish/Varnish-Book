@@ -8,7 +8,7 @@ underlines=$(echo ${title_1} | sed s/./-/g)
 cat > "build/exercises/complete-${1}.rst" <<_EOF_
 ${title_1}
 ${underlines}
-$(cat build/exercises/${1}.rst) 
+$(cat build/exercises/desc-${1}.rst) 
 $(cat build/exercises/handout-${1}.rst)
 
 ${title_2}
