@@ -19,7 +19,7 @@ sub vcl_hit {
 	}
 }
 sub vcl_miss {
-	if (req.request == "PURGE") { 
+	if (req.request == "PURGE") {
 		purge;
 		error 404 "Not in cache";
 	}

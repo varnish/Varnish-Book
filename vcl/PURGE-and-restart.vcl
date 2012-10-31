@@ -25,7 +25,7 @@ sub vcl_hit {
 }
 
 sub vcl_miss {
-	if (req.request == "PURGE") { 
+	if (req.request == "PURGE") {
 		purge;
 		set req.request = "GET";
 		set req.http.X-purger = "Purged-possibly";

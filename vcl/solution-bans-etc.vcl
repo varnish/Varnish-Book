@@ -3,7 +3,7 @@ sub vcl_recv {
 		return (lookup);
 	}
 	if (req.request == "BAN") {
-		ban("obj.http.x-url ~ " + req.http.x-ban-url + 
+		ban("obj.http.x-url ~ " + req.http.x-ban-url +
 		    " && obj.http.x-host ~ " + req.http.x-ban-host);
 		error 200 "Banned";
 	}
@@ -21,7 +21,7 @@ sub vcl_hit {
 }
 
 sub vcl_miss {
-	if (req.request == "PURGE") { 
+	if (req.request == "PURGE") {
 		purge;
 		error 404 "Not in cache";
 	}
