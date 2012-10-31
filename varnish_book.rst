@@ -502,7 +502,7 @@ The end result should be:
         DAEMON_OPTS="-a :80 \
                      -T localhost:6082 \
                      -f /etc/varnish/default.vcl \
-                     -s mallocl,256m"
+                     -s malloc,256m"
 
    .. tip::
 
@@ -556,6 +556,9 @@ important tools to process that log data is:
 - If you have multiple Varnish instances on the same machine, you need to
   specify ``-n <name>`` both when starting Varnish and when starting the
   corresponding tools.
+
+In addition the ``varnishncsa``-tool is often used to write apache-like log
+files.
 
 .. container:: handout
 
@@ -2253,6 +2256,11 @@ VCL - functions
    `lookup`, `pass`, `pipe`, `hit_for_pass`, `fetch`, `deliver` and `hash`,
    but only a limited number of them are available in each VCL domain.
 
+   .. warning::
+
+      ``ban_url()`` uses a regular expression instead of actual string
+      matching. It will be removed in Varnish 4. You should use ``ban()``
+      instead.
 
 VCL - ``vcl_recv``
 ------------------
@@ -4016,9 +4024,6 @@ Masquerading AJAX requests
 +------------------------------+-------------------------------+
 | What works                   | What does not work            |
 +------------------------------+-------------------------------+
-
-
-
 
 
 .. container:: handout
