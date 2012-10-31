@@ -1,0 +1,35 @@
+- Juster Process Architecture
+- Flere ekstraøvelser
+- hosts-fil hacking blir en overraskelse i 5.8 / øvelse for rewrite
+- libwww-perl vs curl
+- Intro til curl
+- Trekk inn varnishncsa
+- Trekk inn ReqEnd i eksempel-tags tidlig
+- XID bør nevnes tidlig.
+- Mer ferdigdistribuering av script
+- test.cgi bør ha date
+- variabel-tilgjengelighet på siste-siden.
+- Panic-øvelse i tuning.
+- bra tags: Backend_health
+- Mer om -O ?
+- ACL'er er out of order. Til basics.
+- Probe-øvelse fikses.
+- VCL functions (vcl_recv, etc) terminologi. Hør med scoof etc.
+- Rydd opp terminologi rundt return og restarts.
+- Warning om ban_url og regex
+- Nevne parameteren for unref warning
+- Exercise installation: mallocl
+- Nevne selinux på en annen port enn 80
+- Bort med historikken
+- Forklare hva vi jobber for
+
+
+- Mer innhold.
+  - Flere øvelser
+  - Ekstra-kappitler
+  - Delt kappittel om cookies?
+  - Mer om hit for pass
+  - DDOS protection
+  - Handlevogn-eksempel
+  - Mer monitoring
+  - 
