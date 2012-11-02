@@ -1,0 +1,104 @@
+#! /usr/bin/python
+
+#
+# Copyright ⓒ Varnish Software AS 2010-2012
+# Written by Tollef Fog Heen <tfheen@varnish-software.com>
+#
+# This script is used to provision training VMS.  Requires the
+# following to work:
+#
+# - EC2_ACCESS_KEY and EC2_SECRET_KEY set in the environment
+# - EC2_SSH_KEY set to the name of the SSH key to use (must be registered with EC2
+# - INSTANCES can be set in the environment to control the number of instances to run
+
+import os
+
+# instance AMI:
+# image_id = "ami-60c73709"
+# EBS backed AMI:
+image_id = "ami-3e02f257"
+
+INSTANCE_TYPE = "m1.small"
+SECURITY_GROUP = "training"
+INSTANCES = int(os.environ.get("INSTANCES", "1"))
+NUM_WORDS_IN_PW = 4
+EC2_URL = "http://ec2.amazonaws.com"
+EC2_ACCESS_KEY = os.environ["EC2_ACCESS_KEY"]
+EC2_SECRET_KEY = os.environ["EC2_SECRET_KEY"]
+EC2_SSH_KEY = os.environ.get("EC2_SSH_KEY", "vstest")
+
+import boto.ec2
+import subprocess
+import time
+import random
+
+words = filter(lambda x: len(x) in range(3,7) and x[-2] != "'", [x.strip() for x in file("/usr/share/dict/british-english").readlines()])
+passwords = [" ".join(random.sample(words, NUM_WORDS_IN_PW)) for x in range(INSTANCES)]
+
+conn = boto.ec2.connection.EC2Connection(EC2_ACCESS_KEY, EC2_SECRET_KEY)
+
+ami = conn.get_image(image_id)
+print "Starting instances with id: %s" % (image_id,)
+reservation = None
+
+reservation = ami.run(min_count=INSTANCES, max_count=INSTANCES, key_name = EC2_SSH_KEY,
+                      instance_type = INSTANCE_TYPE, security_groups = [SECURITY_GROUP])
+# Sigh.
+time.sleep(1)
+
+# Reuse instance? 
+if reservation is None:
+    instances = conn.get_all_instances()
+    for i in instances:
+        if i.instances[0].id == "i-1bd45c77":
+            reservation = i
+            break
+
+while True:
+    b = True
+    for i in reservation.instances:
+        i.update()
+        if i.state != "running":
+            b = False
+    if b:
+        break
+    time.sleep(2)
+
+print "All instances (almost) ready, sleeping 60s"
+time.sleep(60)
+
+for num, i in enumerate(reservation.instances):
+    script = """
+# SSH
+sudo sed -i "s/PasswordAuthentication.*/PasswordAuthentication yes/" /etc/ssh/sshd_config
+sudo service ssh restart
+
+# Root pw
+echo "root:%(root_pw)s" | sudo chpasswd
+
+# Varnish repo
+curl http://repo.varnish-cache.org/debian/GPG-key.txt | sudo apt-key add -
+echo "deb http://repo.varnish-cache.org/debian/ $(lsb_release -s -c) varnish-3.0" | sudo tee /etc/apt/sources.list.d/varnish-cache.list
+sudo apt-get update
+""" % { "root_pw": passwords[num]}
+
+    command = ["ssh", "-i", "/home/tfheen/vstest.pem", "-l", "ubuntu", i.public_dns_name,
+               "-o", "BatchMode=yes", "-t", "-o", "StrictHostKeyChecking=no",
+               "-o", "UserKnownHostsFile=/dev/null"]
+    print "Running %s on %s" % (command, i.public_dns_name)
+    proc = subprocess.Popen(command, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
+                            stderr = subprocess.PIPE)
+    (stdoutdata, stderrdata) = proc.communicate(script)
+    print "=========================================="
+    print i.public_dns_name
+    print "------------------------------------------\nScript"
+    print script
+    print "------------------------------------------\nSTDOUT"
+    print stderrdata
+    print "------------------------------------------\nSTDERR"
+    print stdoutdata
+    print "------------------------------------------"
+    
+
+for n, i in enumerate(reservation.instances):
+    print "host: %s root pw: %s" % (i.public_dns_name, passwords[n])
