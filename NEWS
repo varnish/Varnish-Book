@@ -2,6 +2,8 @@ New in 4.7
 ----------
 
 - Tiny content adjustments.
+- Remove history-section
+- Add ReqEnd to the log tag overview
 - In 4.6, two exercises were missing on the slide deck but present in the
   hand out. This is now fixed.
 

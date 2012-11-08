@@ -130,43 +130,6 @@ Introduction to Varnish
    takes place on Mondays around 12:00 CET on the IRC channel
    `#varnish-hacking` on `irc.linpro.net`.
 
-The history of Varnish
-----------------------
-
-Timeline:
-
-- 2005: Ideas! Anders Berg at Verdens Gang (www.vg.no, Norways biggest
-  newspaper) was looking for alternative cache solutions.
-- 2006: Work began. Redpill Linpro was in charge of project management,
-  infrastructure and supporting development. Poul-Henning Kamp did the
-  majority of the actual development.
-- 2006: Varnish 1.0 released
-- 2008: Varnish 2.0 released
-- 2009: The first Varnish User Group Meeting is held in London. Roughly a
-  dozen people participate from all around the world.
-- 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
-- 2011: Varnish 3.0 released
-- 2012: The fifth Varnish User Group Meeting is held in Paris. Roughly 70
-  people participate on the User-day and around 30 on the developer-day!
-
-.. container:: handout
-
-        VG, a large Norwegian newspaper, initiated the Varnish-project in
-        cooperation with Linpro. The lead developer, Poul-Henning Kamp is
-        an experienced FreeBSD kernel hacker and continues to bring his
-        wisdom to Varnish in most areas where it counts.
-
-        From 2006 throughout 2008, much of the development was sponsored by
-        VG, API, Escenic and Aftenposten, with project management,
-        infrastructure and extra man-power provided by Redpill Linpro.
-
-        Today, Varnish Cache is developed by Poul-Henning Kamp and Varnish
-        Software. Poul-Henning Kamp is funded by a "no-strings-attached"
-        Varnish Moral License (VML) and Varnish Software is funded by
-        Varnish service subscriptions and customers purchasing development
-        of specific features. Varnish Software still contributes to roughly
-        30% of the income Poul-Henning Kamp gets from the VML system.
-
 Design principles
 -----------------
 
@@ -240,7 +203,6 @@ Design principles
         that's not where you will see our focus. Nor will you see us
         sacrifice performance or simplicity for the sake of niche use-cases
         that can easily be solved by other means - like using a 64-bit OS.
-
 
 Getting started
 ===============
@@ -699,6 +661,25 @@ Varnishlog tag examples
 +---------------+---------------------------+----------------------------+
 | ``RxStatus``  | ``500``                   | Status code Varnish        |
 |               |                           | received from a backend.   |
++---------------+---------------------------+----------------------------+
+| ``ReqEnd``    | 1048725851                | The "End of request" entry |
+|               | 1352290440.688310385      | has various timing details |
+|               | 1352290440.688468695      | for debugging. The first   |
+|               | 0.000107288 0.000083208   | number is the XID, the     |
+|               | 0.000075102               | second is the time the     |
+|               |                           | request started and the    |
+|               |                           | second is when it finished.|
+|               |                           | The fourth number is       |
+|               |                           | time from accepting the    |
+|               |                           | connection to processing   |
+|               |                           | of the request started.    |
+|               |                           | The fifth number is time   |
+|               |                           | from request processing    |
+|               |                           | started to delivery (e.g:  |
+|               |                           | VCL execution and backend  |
+|               |                           | fetching). The sixth and   |
+|               |                           | last number is how long    |
+|               |                           | the delivery itself took.  |
 +---------------+---------------------------+----------------------------+
 
 
