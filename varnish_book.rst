@@ -3013,8 +3013,8 @@ Banning
 .. container:: handout
 
    Banning in the context of Varnish refers to adding a ban to the
-   ban-list. It can be done both trough the command line interface, and
-   through VCL, and the syntax is almost the same.
+   ban-list. It can be done both through the command line interface,
+   and through VCL, and the syntax is almost the same.
 
    A ban is one or more statements in VCL-like syntax that will be tested
    against objects in the cache when they are looked up in the cache hash.
