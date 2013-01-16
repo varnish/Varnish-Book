@@ -1766,7 +1766,7 @@ It is recommended not to define `Expires` too far in the future. Setting it
 to 1 year is usually enough.
 
 Using `Expires` does not prevent the cached resource to be updated. If a
-resource is updated chaging its name (by using a version number for
+resource is updated changing its name (by using a version number for
 instance) is possible.
 
 `Expires` works best for any file that is part of your design like
