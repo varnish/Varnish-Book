@@ -9,9 +9,9 @@ function sub_chapter_done(chap) {
 }
 
 END {
-	if (include != "*") {
+	if (inc != "*") {
 		print_chapter("");
-		split(include,includea,",");
+		split(inc,includea,",");
 		for (a in includea) {
 			print_chapter(includea[a]);
 		}

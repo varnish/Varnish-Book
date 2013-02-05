@@ -1,6 +1,6 @@
 #!/bin/bash
 
-title=$(util/pickchapter2.igawk -v 'include=RST TITLE STUB' exercises/${1}.test | egrep -v '^$' | tail -n1)
+title=$(util/pickchapter2.igawk -v 'inc=RST TITLE STUB' exercises/${1}.test | egrep -v '^$' | tail -n1)
 title_1=$(echo Exercise: ${title})
 title_2=$(echo Solution: ${title})
 underlines=$(echo ${title_1} | sed s/./-/g)
