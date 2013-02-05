@@ -60,7 +60,7 @@ book: ${bookt}
 
 src/conf.py: src/conf.py.in build/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
-		
+
 sphinx: ${common} src/conf.py
 	mkdir -p src/util
 	mkdir -p src/build
@@ -173,7 +173,7 @@ ${BDIR}/exercises/handout-%.rst: exercises/%.test ${BDIR}/exercises
 
 ${BDIR}/exercises/solution-extra-%.rst: exercises/%.test ${BDIR}/exercises
 	util/pickchapter2.igawk -v "include=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
-	
+
 ${BDIR}/exercises/complete-%.rst: ${BDIR}/exercises/solution-%.rst ${BDIR}/exercises/desc-%.rst ${BDIR}/exercises/handout-%.rst ${BDIR}/exercises/solution-extra-%.rst util/exercise_builder.sh
 	util/exercise_builder.sh "$*"
 
