@@ -2328,7 +2328,7 @@ your own custom-header for mobile devices:
    :literal:
 
 You can read more about different types of device detection at
-https://www.varnish-cache.org/docs/trunk/tutorial/devicedetection.html
+https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
 
 .. container:: handout
 
