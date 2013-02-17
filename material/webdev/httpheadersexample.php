@@ -1,6 +1,9 @@
 <?php
 define( 'LAST_MODIFIED_STRING', 'Sat, 09 Sep 2000 22:00:00 GMT' );
-define( 'EXPIRES_DATE', '2 June 2011');
+
+// expires_date : 10s after page generation
+$expires_date = new DateTime();
+$expires_date->add(new DateInterval('PT10S'));
 
 $headers = array(
     'Date' => date( 'D, d M Y H:i:s', time() ),
@@ -11,7 +14,7 @@ if( isset( $_GET['h'] ) and $_GET['h'] !== '' )
     switch( $_GET['h'] )
     {
         case "expires" :
-            $headers['Expires'] = toUTCDate( new DateTime( EXPIRES_DATE ) );
+            $headers['Expires'] = toUTCDate($expires_date);
         break;
 
         case "cache-control":
@@ -19,7 +22,7 @@ if( isset( $_GET['h'] ) and $_GET['h'] !== '' )
         break;
 
         case "cache-control-override":
-            $headers['Expires'] = toUTCDate( new DateTime( EXPIRES_DATE ) );
+            $headers['Expires'] = toUTCDate($expires_date);
             $headers['Cache-Control'] = "public, must-revalidate, max-age=2, s-maxage=2";
         break;
 
@@ -35,7 +38,7 @@ if( isset( $_GET['h'] ) and $_GET['h'] !== '' )
         break;
 
         case "vary":
-            $headers['Expires'] = toUTCDate( new DateTime( EXPIRES_DATE ) );
+            $headers['Expires'] = toUTCDate($expires_date);
             $headers['Vary'] = 'User-Agent';
         break;
     }
@@ -76,11 +79,11 @@ function toUTCDate( DateTime $date )
         <hr/>
         <h1>Links for testing</h1>
         <ul>
-            <li><a href="./?h=expires">Test Expires response header</a></li>
-            <li><a href="./?h=cache-control">Test Cache-Control response header</a></li>
-            <li><a href="./?h=cache-control-override">Test Cache-Control response header overrides Expires</a></li>
-            <li><a href="./?h=last-modified">Test Last-Modified/If-modified-since response header</a></li>
-            <li><a href="./?h=vary">Test Vary response header</a></li>
+            <li><a href="<?=$_SERVER['PHP_SELF']?>?h=expires">Test Expires response header</a></li>
+            <li><a href="<?=$_SERVER['PHP_SELF']?>?h=cache-control">Test Cache-Control response header</a></li>
+            <li><a href="<?=$_SERVER['PHP_SELF']?>?h=cache-control-override">Test Cache-Control response header overrides Expires</a></li>
+            <li><a href="<?=$_SERVER['PHP_SELF']?>?h=last-modified">Test Last-Modified/If-modified-since response header</a></li>
+            <li><a href="<?=$_SERVER['PHP_SELF']?>?h=vary">Test Vary response header</a></li>
         <ul>
     </body>
 </html>
