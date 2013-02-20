@@ -87,7 +87,7 @@ mrproper: clean all
 .git/COMMIT_EDITMSG:
 	touch .git/COMMIT_EDITMSG
 
-${mergedrst}: ${rstsrc} 
+${mergedrst}: ${rstsrc} build/version.rst
 	util/parse.pl < $< > $@
 
 ${BDIR}/version.rst: util/version.sh ${mergedrst} .git/COMMIT_EDITMSG

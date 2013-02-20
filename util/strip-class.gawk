@@ -1,5 +1,7 @@
 #!/usr/bin/gawk -f
 
+# Removes a specific class, e.g "handout"
+
 BEGIN {
 	ignoreclass["handout"] = 1
 }
