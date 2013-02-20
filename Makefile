@@ -60,7 +60,7 @@ book: ${bookt}
 
 src/conf.py: src/conf.py.in build/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
-		
+
 sphinx: ${common} src/conf.py
 	mkdir -p src/util
 	mkdir -p src/build
@@ -87,8 +87,8 @@ mrproper: clean all
 .git/COMMIT_EDITMSG:
 	touch .git/COMMIT_EDITMSG
 
-${mergedrst}: ${rstsrc} build/version.rst
-	util/parse.pl < $< > $@
+${mergedrst}: ${BDIR} ${rstsrc} ${BDIR}/version.rst
+	util/parse.pl < ${rstsrc} > $@
 
 ${BDIR}/version.rst: util/version.sh ${mergedrst} .git/COMMIT_EDITMSG
 
@@ -117,11 +117,11 @@ ${BDIR}:
 
 ${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
 	@echo Building PDFs for $*...
-	@${PICK} -v include=${$*} < ${mergedrst} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
+	@${PICK} -v inc=${$*} < ${mergedrst} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
 
 ${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
 	@echo Building PDF slides for $*...
-	@${PICK} -v include=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
+	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |def_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
@@ -160,20 +160,20 @@ ${BDIR}/exercises: ${BDIR}
 	mkdir -p ${BDIR}/exercises
 
 ${BDIR}/exercises/%.vtc: exercises/%.test Makefile ${BDIR}/exercises
-	util/pickchapter2.igawk -v "include=VARNISHTEST" $<  | egrep -v '^[^[:blank:]]' > $@
+	util/pickchapter2.igawk -v "inc=VARNISHTEST" $<  | egrep -v '^[^[:blank:]]' > $@
 
 ${BDIR}/exercises/desc-%.rst: exercises/%.test ${BDIR}/exercises
-	util/pickchapter2.igawk -v "include=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@
+	util/pickchapter2.igawk -v "inc=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@
 
 ${BDIR}/exercises/solution-%.rst: ${BDIR}/exercises/%.vtc ${BDIR}/exercises
 	awk '/} -start/ { p=0 }; p == 1; /varnish v1 -vcl\+backend {/ { p=1 };' $< > $@
 
 ${BDIR}/exercises/handout-%.rst: exercises/%.test ${BDIR}/exercises
-	util/pickchapter2.igawk -v "include=RST HANDOUT" $< | egrep -v '(RST HANDOUT|==========)' > $@
+	util/pickchapter2.igawk -v "inc=RST HANDOUT" $< | egrep -v '(RST HANDOUT|==========)' > $@
 
 ${BDIR}/exercises/solution-extra-%.rst: exercises/%.test ${BDIR}/exercises
-	util/pickchapter2.igawk -v "include=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
-	
+	util/pickchapter2.igawk -v "inc=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
+
 ${BDIR}/exercises/complete-%.rst: ${BDIR}/exercises/solution-%.rst ${BDIR}/exercises/desc-%.rst ${BDIR}/exercises/handout-%.rst ${BDIR}/exercises/solution-extra-%.rst util/exercise_builder.sh
 	util/exercise_builder.sh "$*"
 
