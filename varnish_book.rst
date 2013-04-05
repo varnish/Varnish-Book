@@ -36,7 +36,7 @@ The course has roughly 50% exercises and 50% instruction, and you will find
 all the information on the slides in the supplied training material.
 
 The supplied training material also has additional information for most
-chapters. 
+chapters.
 
 The Varnish Book includes the material for both the `Varnish System
 Administration` course and the `Varnish for Web developers` course.
@@ -99,12 +99,12 @@ Introduction to Varnish
    modern operating systems and modern work loads.
 
    At the same time, Varnish is flexible. The Varnish Configuration
-   Language is lighting fast and allows the administrator to express their
+   Language is lightning fast and allows the administrator to express their
    wanted policy rather than being constrained by what the Varnish
    developers want to cater for or could think of. Varnish has shown itself
    to work well both on large (and expensive) servers and tiny appliances.
 
-   Varnish is also an open source project, or free software. The
+   Varnish is also an open source project, and free software. The
    development process is public and everyone can submit patches, or just
    take a peek at the code if there is some uncertainty as to how Varnish
    works. There is a community of volunteers who help each other and
@@ -157,7 +157,7 @@ Design principles
         some of that for the kernel. This is called the user/kernel split.
 
         Varnish does not keep track of whether your cache is on disk or in
-        memory. Instead, Varnish will request a large chump of memory and
+        memory. Instead, Varnish will request a large chunk of memory and
         leave it to the operating system to figure out where that memory
         really is. The operating system can generally do a better job than
         a user-space program.
@@ -175,7 +175,7 @@ Design principles
         get as a system administrator. You can use VCL to decide how you
         want to interface with Varnish, instead of having a developer try
         to
-        predict every possible scenario. That it boils down to C and a C
+        predict every possible scenario. The fact that it boils down to C and a C
         compiler also gives you very high performance, and if you really
         wanted to, you could by-pass the VCL to C translation and write raw
         C code (this is called in-line C in VCL). In short: Varnish
@@ -198,7 +198,7 @@ Design principles
 
         To summarize: Varnish is designed to run on modern hardware
         under real work-loads and to solve real problems. Varnish does not
-        cater to the "I want to make varnish run on my 486 just
+        cater to the "I want to make Varnish run on my 486 just
         because"-crowd. If it does work on your 486, then that's fine, but
         that's not where you will see our focus. Nor will you see us
         sacrifice performance or simplicity for the sake of niche use-cases
@@ -241,7 +241,7 @@ Varnish has two categories of configuration:
 - Command line configuration and tunable parameters
 - VCL
 
-To re-load varnish configuration, you have several commands:
+To re-load Varnish configuration, you have several commands:
 
 +-------------------------------+-----------------------------------------+
 | Command                       | Result                                  |
@@ -257,7 +257,7 @@ To re-load varnish configuration, you have several commands:
 |                               | this for you automatically.             |
 +-------------------------------+-----------------------------------------+
 | ``varnishadm param.set ...``  | Can be used to set parameters without   |
-|                               | restarting Varnish                      |
+|                               | restarting Varnish.                     |
 +-------------------------------+-----------------------------------------+
 
 Using the ``service`` commands is recommended. It's safe and fast.
@@ -265,7 +265,7 @@ Using the ``service`` commands is recommended. It's safe and fast.
 .. container:: handout
 
         Tunable parameters and command line arguments are used to define
-        how varnish should work with operating system and hardware in
+        how Varnish should work with operating system and hardware in
         addition to setting some default values, while VCL define how
         Varnish should interact with web servers and clients.
 
@@ -316,24 +316,24 @@ Command line configuration
         of the underlying function that accept this kind of syntax.
 
         You can specify ``-p`` for parameters multiple times. The workflow
-        for tuning varnish parameters usually means that you first try the
-        parameter on a running varnish through the management interface to
+        for tuning Varnish parameters usually means that you first try the
+        parameter on a running Varnish through the management interface to
         find the value you want, then store it in a configuration file that
-        will pass it to varnish with ``-p`` next time you start it up. We
+        will pass it to Varnish with ``-p`` next time you start it up. We
         will look at these files later on.
 
         The ``-S`` option specifies a file which contains a secret to be
         used for authentication. This can be used to authenticate with
         ``varnishadm -S`` as long as varnishadm can read the same secret
         file - or rather the same content: The content of the file can be
-        copied to an other machine to allow varnishadm to access the
+        copied to another machine to allow varnishadm to access the
         management interface remotely.
 
         .. note::
 
            It is possible to start Varnish without a VCL file using the
            ``-b`` option instead of ``-f``:
-           
+
            -b <hostname:port>        backend address
 
            Since the ``-b`` option is mutually exclusive with the ``-f``
@@ -425,9 +425,9 @@ You can install packages on Debian with ``apt-get install <package>``. E.g:
 #. Install ``apache2`` and verify it works by browsing to `http://localhost/`.
    You probably want to change ``localhost`` with whatever the hostname of
    the machine you're working is.
-#. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and 
+#. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and
    `/etc/apache2/sites-enabled/000-default`.
-#. Install varnish
+#. Install Varnish
 #. Modify the Varnish configuration file so Varnish listens on port `80`,
    has a management interface on port `1234` and uses `127.0.0.1:8080` as
    the backend.
@@ -489,7 +489,7 @@ Exercise: Fetch data through Varnish
         request headers (U), print the response status code (s), which is
         typically "200 OK" or "404 File not found", print the response
         headers "-e" and finally to not display the content of the
-        response. Feel free to try remove some of the options to see the
+        response. Feel free to try removing some of the options observe the
         effect.
 
         GET is also useful to generate requests with custom headers, as you can
@@ -508,13 +508,12 @@ Exercise: Fetch data through Varnish
 Log data
 --------
 
-Varnish provides a great deal of information in real-time. The two most
-important tools to process that log data is:
+Varnish provides a great deal of log data in real-time. The two most important tools to process that log data is:
 
 - Varnishlog, used to access request-specific data (An extended access log,
-  provides information about specific clients and requests).
-- Varnishstat, used to access global counters (Provides overall statistics,
-  e.g the number of total requests, number of objects and more)
+  provides information about specific clients and requests.).
+- varnishstat, used to access global counters (Provides overall statistics,
+  e.g the number of total requests, number of objects and more.).
 - If you have multiple Varnish instances on the same machine, you need to
   specify ``-n <name>`` both when starting Varnish and when starting the
   corresponding tools.
@@ -557,7 +556,7 @@ files.
       ``varnishd``, or the location of the shared memory log. On most
       installations ``-n`` is not used, but if you run multiple Varnish
       instances on a single machine you need to use ``-n`` to distinguish
-      one varnish-instance from an other.
+      one varnish-instance from another.
 
 varnishlog
 ----------
@@ -597,7 +596,7 @@ varnishlog
    1. The number on the left is a semi-unique identifier of the request. It
       is used to distinguish different requests.
    2. Each piece of log information belongs to a tag, as seen on the second
-      left-most column. TxHeader, RxHeader, VCL_call etc. You can later use
+      left-most column. TxHeader, RxHeader, VCL_call etc. You can use
       those tags for intelligent filtering.
    3. Varnishlog will try to decipher if a request is related to a client
       (c), backend (b) or "misc" (-). This can be used to filter the log.
@@ -686,16 +685,16 @@ Varnishlog tag examples
 varnishlog options
 ------------------
 
--b                only show traffic to backend
--c                only show traffic to client
--O                do not group by request
+-b                Only show traffic to backend.
+-c                Only show traffic to client.
+-O                Do not group by request.
 -m <tag:filter>   Show *requests* where the <tag> matches <filter>. Example:
                   ``varnishlog -m TxStatus:500`` to show requests
                   returned to a client with status code 500.
 
 .. container:: handout
 
-   -n <name>            The name of the varnish instance, or path to the shmlog.
+   -n <name>            The name of the Varnish instance, or path to the shmlog.
                         Useful for running multiple instances of Varnish.
    -i <tag[,tag][..]>   Only show the specified tags.
    -I <regex>           Filter the tag provided by -i, using the regular expression for -I.
@@ -707,7 +706,7 @@ varnishlog options
    | Command                        | Description                                       |
    +================================+===================================================+
    | ``varnishlog -c``              | Only show client-requests for the url             |
-   | ``-m RxURL:/specific/url/``    | `/specific/url`                                   |
+   | ``-m RxURL:/specific/url/``    | `/specific/url`..                                   |
    +--------------------------------+---------------------------------------------------+
    | ``varnishlog -O -i ReqEnd``    | Only show the ReqEnd tag. Useful to spot sporadic |
    |                                | slowdown. Watch the last three values of it.      |
@@ -769,7 +768,7 @@ varnishstat
    usefulness of varnishstat, only counters with a value different from
    0 is shown by default.
 
-   Varnishstat can be executed either as a one-shot tool which simply
+   varnishstat can be executed either as a one-shot tool which simply
    prints the current values of all the counters, using the ``-1`` option,
    or interactively. Both methods allow you to specify specific counters
    using ``-f field1,field2,...`` to limit the list.
@@ -781,7 +780,7 @@ varnishstat
    measures the cache hit rate for a period of time stated by `hitrate
    ratio`. In the example above, the hitrate average for the last 10
    seconds is 0.9507 (or 95.07%), 0.9530 for the last 100 seconds and
-   0.9532 for the last 175 seconds. When you start Varnishstat, all of
+   0.9532 for the last 175 seconds. When you start varnishstat, all of
    these will start at 1 second, then grow to 10, 100 and 1000. This is
    because varnishstat has to compute the average while it is running;
    there is no historic data of counters available.
@@ -809,7 +808,7 @@ varnishstat
    +-----------------+------------------------------------------------+
    | Counter         | Description                                    |
    +=================+================================================+
-   | `client_drop`   | This counts clients varnish had to drop due to |
+   | `client_drop`   | This counts clients Varnish had to drop due to |
    |                 | resource shortage. It should be 0.             |
    +-----------------+------------------------------------------------+
    | `cache_hitpass` | Hitpass is a special type of cache miss.       |
@@ -832,11 +831,11 @@ varnishstat
    | `n_wrk_drop`    | Once Varnish is out of threads, it will queue  |
    |                 | up requests and `n_wrk_queued` counts how many |
    |                 | times this has happened. Once the queue is     |
-   |                 | full, varnish starts dropping requests without |
+   |                 | full, Varnish starts dropping requests without |
    |                 | answering. `n_wrk_drop` counts how many times  |
    |                 | a request has been dropped. It should be 0.    |
    +-----------------+------------------------------------------------+
-   | `n_lru_nuked`   | Counts the number of objects varnish has had   |
+   | `n_lru_nuked`   | Counts the number of objects Varnish has had   |
    |                 | to evict from cache before they expired to     |
    |                 | make room for other content. If it is always   |
    |                 | 0, there is no point increasing the size of    |
@@ -859,7 +858,7 @@ The management interface
 ------------------------
 
 Varnish offers a management interface (Historically called the Telnet
-interface), assuming it was started with a ``-T`` option. You can use the
+interface.), assuming it was started with a ``-T`` option. You can use the
 management interface to:
 
 - Change parameters without restarting varnish
@@ -878,7 +877,7 @@ reload VCL without restarting Varnish.
    Keep the following in mind when using the management interface:
 
    1. Any changes you make are done immediately on the running Varnish
-      instance
+      instance.
    2. Changes are not persistent across restarts of Varnish. If you change
       a parameter and you want the change to apply if you restart Varnish,
       you need to also store it in the regular configuration for the boot
@@ -913,7 +912,7 @@ reload VCL without restarting Varnish.
 Exercise: Try out the tools
 ---------------------------
 
-#. Run ``varnishstat`` and ``varnishlog`` while performing a few requests
+#. Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
 #. Make ``varnishlog`` only print client-requests where the `RxURL`-tag
    contains ``/favicon.ico``.
 #. Use ``varnishadm`` to determine the default value for the
@@ -1019,10 +1018,10 @@ The child process
 The child process consist of several different types of threads, including,
 but not limited to:
 
-- Acceptor thread to accept new connections and delegate them
+- Acceptor thread to accept new connections and delegate them.
 - Worker threads - one per session. It's common to use hundreds of worker
   threads.
-- Expiry thread, to evict old content from the cache
+- Expiry thread, to evict old content from the cache.
 
 Varnish uses workspaces to reduce the contention between each thread when
 they need to acquire or modify memory. There are multiple workspaces, but
@@ -1054,7 +1053,7 @@ or to monitor Varnish in real-time.
 .. class:: handout
 
 VCL compilation
-...............
+...j............
 
 Configuring the caching policies of Varnish is done in the Varnish
 Configuration Language (VCL). Your VCL is then interpreted by the
@@ -1085,8 +1084,10 @@ cache, and you choose which one you want with the ``-s`` argument.
 - malloc
 - persistent (experimental)
 
-- Rule of thumb: malloc if it fits in memory, file if it doesn't
-- Expect around 1kB of overhead per object cached
+.. note::
+
+    As a Rule of thumb use: malloc if it fits in memory, file if it doesn't.
+    Expect around 1kB of overhead per object cached.
 
 .. container:: handout
 
@@ -1234,7 +1235,7 @@ Threading model
    +---------------+---------------------------+------------------------+
    | backend poll  | One per backend poll      | Health checks          |
    +---------------+---------------------------+------------------------+
-   
+
    Most of the time, we only deal with the cache-worker threads when
    configuring Varnish. With the exception of the amount of thread pools,
    all the other threads are not configurable.
@@ -1245,7 +1246,7 @@ Threading model
    more will not increase performance.
 
    The most important thread setting is the number of worker threads.
-   
+
    .. note::
 
       If you run across tuning advice that suggests running one thread pool
@@ -1361,7 +1362,7 @@ There are a few, less important parameters related to thread timing. The
 no work for it before it is removed. This only applies if you have more
 threads than the minimum, and is rarely changed.
 
-An other is the ``thread_pool_fail_delay``, which defines how long to wait
+Another less important parameter is the ``thread_pool_fail_delay``, which defines how long to wait
 after the operating system denied us a new thread before we try again.
 
 System parameters
@@ -1405,20 +1406,20 @@ Timers
 ------
 
 ======================= =========================== ======================== ===========
-Parameter               Default                     Description              Scope      
+Parameter               Default                     Description              Scope
 ======================= =========================== ======================== ===========
-connect_timeout         |def_connect_timeout|       OS/network latency       Backend    
-first_byte_timeout      |def_first_byte_timeout|    Page generation?         Backend    
-between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?               Backend    
-send_timeout            |def_send_timeout|          Client-in-tunnel         Client     
-sess_timeout            |def_sess_timeout|          keep-alive timeout       Client     
-cli_timeout             |def_cli_timeout|           Management thread->child Management 
+connect_timeout         |def_connect_timeout|       OS/network latency       Backend
+first_byte_timeout      |def_first_byte_timeout|    Page generation?         Backend
+between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?               Backend
+send_timeout            |def_send_timeout|          Client-in-tunnel         Client
+sess_timeout            |def_sess_timeout|          keep-alive timeout       Client
+cli_timeout             |def_cli_timeout|           Management thread->child Management
 ======================= =========================== ======================== ===========
 
 .. container:: handout
 
         The timeout-parameters are generally set to pretty good defaults, but
-        you might have to adjust them for strange applications. The connection
+        you might have to adjust them for unusual applications. The connection
         timeout is tuned for a geographically close web server, and might have to
         be increased if your Varnish server and web server are not close.
 
@@ -1455,10 +1456,10 @@ Exercise: Tune first_byte_timeout
         echo
         echo "Hello world"
 
-#. Make it executable
-#. Test that it works outside of Varnish
-#. Start Varnish, test that it works through Varnish
-#. Set ``first_byte_timeout`` to 2s
+#. Make it executable.
+#. Test that it works outside of Varnish.
+#. Start Varnish, test that it works through Varnish.
+#. Set ``first_byte_timeout`` to 2s.
 #. Check that it doesn't work.
 
 Exercise: Configure threading
@@ -1467,10 +1468,10 @@ Exercise: Configure threading
 While performing this exercise, watch the `n_wrk` counter in
 ``varnishstat`` to determine the number of threads that are running.
 
-#. Start Varnish
-#. Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get
+#. Start Varnish.
+#. Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get.
    100 threads running at any given time, but never more than 400.
-#. Make the changes work across restarts of Varnish
+#. Make the changes work across restarts of Varnish.
 
 Extra: Experiment with ``thread_pools``, ``thread_pool_add_delay`` and
 ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread
@@ -1749,7 +1750,7 @@ Try both clicking the links twice, hitting refresh and forced refresh
 
    If it hasn't already, it's likely that browser cache will confuse you at
    least a few times through this course. When that happens, pull up
-   varnishlog or an other browser.
+   varnishlog or another browser.
 
 Expires
 -------
@@ -1795,7 +1796,7 @@ described):
   without revalidation with the origin server first;
 
 .. container:: handout
-        
+
         Unlike `Expires`, `Cache-Control` is both a **request** and a **response**
         header, here is the list of arguments you may use for each context:
 
@@ -1946,7 +1947,7 @@ client.
    different. Since there are probably thousands of `User-Agent` strings
    out there, this means you will drastically reduce the efficiency of any
    cache method.
-   
+
    An other example is using ``Vary: Cookie`` which is actually not a bad
    idea. Unfortunately, you can't issue ``Vary: Cookie(but only THESE
    cookies: ...)``. And since a client will send you a great deal of
@@ -1986,7 +1987,7 @@ Age
    realize that it has exceeded its max-age, so they will not cache it.
 
    Varnish will do the same, if your web-server emits and `Age`-header (or
-   if you put one Varnish-server in front of an other).
+   if you put one Varnish-server in front of another).
 
    We will see in later chapters how we can handle this in Varnish.
 
@@ -2046,7 +2047,7 @@ Exercise: Use `article.php` to test `Age`
    ``Cache-Control: max-age=60``.
 #. Watch ``varnishlog``.
 #. Send a request to Varnish for `article.php`. See what `Age`-Header
-   varnish replies with.
+   Varnish replies with.
 #. Is the `Age`-header an accurate method to determine if Varnish made a
    cache hit or not?
 #. How long does Varnish cache the reply? How long would a browser cache
@@ -2099,13 +2100,13 @@ VCL Basics
 The VCL State Engine
 --------------------
 
-- Each request is processed separately
+- Each request is processed separately.
 - Each request is independent of any others going on at the same time,
-  previously or later
-- States are related, but isolated
+  previously or later.
+- States are related, but isolated.
 - ``return(x);`` exits one state and instructs Varnish to proceed to the
   next state.
-- Default VCL code is always present, appended below your own VCL
+- Default VCL code is always present, appended below your own VCL.
 
 .. container:: handout
 
@@ -2215,7 +2216,7 @@ VCL - functions
 
    regsub() and regsuball() has the same syntax and does the same thing:
    They both take a string as input, search it with a regular expression
-   and replace it with an other string. The difference between regsub() and
+   and replace it with another string. The difference between regsub() and
    regsuball() is that the latter changes all occurrences while the former
    only affects the first match.
 
@@ -2232,7 +2233,7 @@ VCL - functions
    an error is triggered, thus avoiding infinite looping.
 
    ``return()`` is used when execution of a VCL domain (for example
-   ``vcl_recv``) is completed and control is returned to varnish with a
+   ``vcl_recv``) is completed and control is returned to Varnish with a
    single instruction as to what should happen next. Return values are
    `lookup`, `pass`, `pipe`, `hit_for_pass`, `fetch`, `deliver` and `hash`,
    but only a limited number of them are available in each VCL domain.
@@ -2267,7 +2268,7 @@ VCL - ``vcl_recv``
    #. Deciding which Web server to use.
 
    In ``vcl_recv`` you can perform the following terminating statements:
-   
+
    `pass` the cache, executing the rest of the Varnish processing as
    normal, but not looking up the content in cache or storing it to cache.
 
@@ -2451,7 +2452,7 @@ Only the following status codes will be cached by default:
         Since all this is done before ``vcl_fetch`` is executed, you can
         modify the Cache-Control headers without affecting ``beresp.ttl``,
         and vice versa.
-                
+
         A sensible approach is to use the ``s-maxage`` variable in the
         ``Cache-Control`` header to instruct Varnish to cache, then have
         Varnish remove that variable before sending it to clients using
@@ -2523,7 +2524,7 @@ Write a VCL that:
 - Caches ``.jpg`` for 30 seconds if s-maxage isn't present
 - Caches ``.html`` for 10 seconds if s-maxage isn't present
 - Removes the Set-Cookie header if s-maxage OR the above rules indicates
-  that varnish should cache.
+  that Varnish should cache.
 
 .. container:: handout
 
@@ -2536,7 +2537,7 @@ Write a VCL that:
    .. note::
 
       Varnish automatically reads s-maxage for you, so you only need to
-      check if it is there or not - if it's present, varnish has already
+      check if it is there or not - if it's present, Varnish has already
       used it to set ``beresp.ttl``.
 
 
@@ -2708,7 +2709,7 @@ VCL - ``vcl_miss``
    internal Varnish tricks - not debug-feedback or backend modification.
 
    One example is using ``purge;`` to invalidate an object (more on this
-   later), an other is to rewrite a backend request when you want the ESI
+   later), another is to rewrite a backend request when you want the ESI
    fragments to get the unmodified data.
 
    You can also modify the backend request headers in ``vcl_miss``. This is
@@ -2925,7 +2926,7 @@ Removing a single object
    the cache explicitly.
 
    A resource can exist in multiple ``Vary:``-variants. For example you
-   could have a desktop version, a tablet version and a desktop version of
+   could have a desktop version, a tablet version and a smartphone version of
    your site and use ``Vary`` in combination with device detection to store
    different variants of the same resource.
 
@@ -2953,7 +2954,7 @@ Example: ``purge;``
    The PURGE example above is fairly complete and deals with a non-standard
    method. Using ``purge;`` will remove all ``Vary:``-variants of the
    object, unlike the older method of using ``obj.ttl = 0s;`` which had to
-   be issued for each variants of an object. 
+   be issued for each variants of an object.
 
    .. note::
 
@@ -3036,7 +3037,7 @@ Banning
    Varnish tries to remove duplicate bans by marking them as "gone"
    (indicated by a G on the ban list). Gone bans are left on the list
    because an object is pointing to them, but are never again tested
-   against, as there is a newer bans that superseeds it.
+   against, as there is a newer ban that superseeds it.
 
    The biggest pro of the ban-list approach is that Varnish can add bans to
    the ban-list in constant time. Even if you have three million objects in
@@ -3075,7 +3076,7 @@ VCL contexts when adding bans
 Smart bans
 ----------
 
-- When varnish tests bans, any ``req.*``-reference has to come from whatever
+- When Varnish tests bans, any ``req.*``-reference has to come from whatever
   client triggered the test.
 - A "ban lurker" thread runs in the background to test bans on less
   accessed objects
@@ -3121,7 +3122,7 @@ Smart bans
 .. container:: handout
 
    There is rarely a need to pick either bans or purges in Varnish, as you
-   can have both. Some guide lines for selection, though:
+   can have both. Some guidelines for selection, though:
 
    - Any frequent automated or semi-automated cache invalidation will
      likely require VCL changes for the best effect, be it ``purge;`` or
@@ -3146,7 +3147,7 @@ To build further on this, you can also have a `REFRESH` method that fetches
 new content, using ``req.hash_always_miss``.
 
 .. container:: handout
-   
+
    To test this exercise you can use lwp-request. Example commands::
 
       lwp-request -f -m PURGE http://localhost/testpage
@@ -3228,7 +3229,7 @@ Core grace mechanisms
   cache
 - `Grace mode` is when Varnish uses a `graced` object
 - There is more than one way Varnish can end up using a graced object.
-- ``req.grace`` defines how long an overdue an object can be for Varnish to
+- ``req.grace`` defines how long overdue an object can be for Varnish to
   still consider it for grace mode.
 - ``beresp.grace`` defines how long past the ``beresp.ttl``-time Varnish
   will keep an object
@@ -3242,7 +3243,7 @@ Core grace mechanisms
    might happen, one of them being if a backend is marked as bad by a
    health probe.
 
-   But for Varnish to be able to use a graced object, two things need to
+  For Varnish to be able to use a graced object, two things need to
    happen:
 
    - The object needs to still be kept around. This is affected by
@@ -3390,7 +3391,7 @@ Health checks
    ::
 
         debug.health
-        200 545     
+        200 545
         Backend foo is Healthy
         Current states  good:  8 threshold:  5 window:  8
         Average responsetime of good probes: 0.355237
@@ -3610,7 +3611,7 @@ Restart in VCL
    client. An other example is using it in combination with PURGE and
    rewriting so the script that issues PURGE will also refresh the content.
 
-   Yet an other example is to combine it with saint mode, which we will
+   Yet another example is to combine it with saint mode, which we will
    discuss later.
 
    .. note::
@@ -3717,11 +3718,11 @@ You now know almost all you need to know to adapt your site to work well
 with Varnish. In this chapter, we will look closer at how to glue your
 content together. We will look at:
 
-- AJAX and masquerading AJAX requests through Varnish
-- Cookies and how you can work with them
+- AJAX and masquerading AJAX requests through Varnish.
+- Cookies and how you can work with them.
 - Edge Side Includes (ESI) and how you can compose a single client-visible
   page out of multiple objects.
-- Combining ESI and Cookies
+- Combining ESI and Cookies.
 
 .. container:: handout
 
@@ -3734,9 +3735,9 @@ A typical site
 
 Most websites follow a pattern, with easily distinguishable parts:
 
-- A front page
-- Articles or sub-pages
-- A login-box or "home bar"
+- A front page.
+- Articles or sub-pages.
+- A login-box or "home bar".
 - Static elements, like CSS, JavaScript and graphics.
 
 To truly utilize Varnish to its full potential, you have to start by
@@ -3752,7 +3753,7 @@ mentally organizing your own site. Ask yourself this:
    An other easy option is to only cache content for users that are not
    logged in. For news-papers, that's probably enough. For a web-shop,
    that's not going to cut it.
-   
+
    But even for a web-shop, you can frequently re-use objects. If you can
    isolate the user-specific bits, like the shopping cart, you can cache
    the rest. You could even cache the shopping cart, if you told Varnish
@@ -3912,12 +3913,12 @@ Edge Side Includes
 Basic ESI usage
 ---------------
 
-Enabling ESI in varnish is simple enough:
+Enabling ESI in Varnish is simple enough:
 
 .. include:: vcl/esi_basic.vcl
          :literal:
 
-To include a page in an other, the ``<esi:include>`` tag is used::
+To include a page in another, the ``<esi:include>`` tag is used::
 
    <esi:include src="/url" />
 
@@ -3934,7 +3935,7 @@ them for the sub-page. This is done in `vcl_recv`.
     - ``<!--esi ``(content)`` -->``: Leaves ``(content)`` unparsed. E.g,
       the following will not perform substitution for the
       ``<esi:include...`` tag::
-        
+
         <!--esi
             An esi tag looks like: <esi:include src="example">
         -->
@@ -4009,7 +4010,7 @@ Masquerading AJAX requests
 
 .. container:: handout
 
-    With AJAX it is not possible to send requets to a request across another domain.
+    With AJAX it is not possible to send requests to a request across another domain.
     This is a security restriction imposed by browsers. This issue can be easily
     solved by using Varnish and VCL.
 
@@ -4123,7 +4124,7 @@ Misc
 .. container:: handout
 
    Varnish provides several tools to help monitor and control Varnish.
-   Varnishadm, used to access the management interface, is the only one
+   varnishadm, used to access the management interface, is the only one
    that can affect a running instance of Varnish.
 
    All the other tools operate exclusively on the shared memory log, often
@@ -4146,7 +4147,7 @@ Misc
    information.
 
    If varnishlog is used to dump data to disk, varnishreplay can simulate a
-   similar load. Varnishtest is used for regression tests, mainly during
+   similar load. varnishtest is used for regression tests, mainly during
    development. Both are outside the scope of this course.
 
 
@@ -4177,7 +4178,7 @@ varnishtop
 
 .. container:: handout
 
-        Varnishtop groups tags and the content of the tag together to
+        varnishtop groups tags and the content of the tag together to
         generate a sorted list of the most frequently appearing
         tag/tag-content pair.
 
@@ -4226,7 +4227,7 @@ varnishhist
 -----------
 
 ::
-        
+
 
                               #
                               #
