@@ -12,6 +12,6 @@ $now = $date->format( DateTime::RFC2822 );
         <h1>This is an article, cached for 1 hour</h1>
 
         <h2>Now is <?php echo $now; ?></h2>
-        <a href="cachedpage.php">Refresh this page</a>
+        <a href="<?=$_SERVER['PHP_SELF']?>">Refresh this page</a>
     </body>
 </html>
