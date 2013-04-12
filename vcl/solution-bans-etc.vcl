@@ -27,12 +27,6 @@ sub vcl_miss {
 	}
 }
 
-sub vcl_pass {
-	if (req.request == "PURGE") {
-		error 502 "PURGE on a passed object";
-	}
-}
-
 sub vcl_fetch {
 	set beresp.http.x-url = req.url;
 	set beresp.http.x-host = req.http.host;
