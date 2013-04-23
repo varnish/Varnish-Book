@@ -706,7 +706,7 @@ varnishlog options
    | Command                        | Description                                       |
    +================================+===================================================+
    | ``varnishlog -c``              | Only show client-requests for the url             |
-   | ``-m RxURL:/specific/url/``    | `/specific/url`..                                   |
+   | ``-m RxURL:/specific/url/``    | `/specific/url`..                                 |
    +--------------------------------+---------------------------------------------------+
    | ``varnishlog -O -i ReqEnd``    | Only show the ReqEnd tag. Useful to spot sporadic |
    |                                | slowdown. Watch the last three values of it.      |
