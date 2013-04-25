@@ -295,7 +295,7 @@ Command line configuration
 .. container:: handout
 
         All the options that you can pass to the ``varnishd`` binary are
-        documented in the ``varnsihd(1)`` manual page (``man varnishd``).
+        documented in the ``varnishd(1)`` manual page (``man varnishd``).
         You may want to take a moment to skim over the options mentioned
         above.
 
