@@ -3652,7 +3652,10 @@ Backend properties
 Example: Evil backend hack
 --------------------------
 
-You can not use saintmode in ``vcl_error`` and health probes can be slow to pick up on trouble.
+You can not use saintmode in ``vcl_error`` and health probes can be
+slow to pick up on trouble. So, in order to act on a failing backend
+right away you can use the supplied hack to force delivery of graced
+object right away.
 
 You can use a fake backend that's always sick to force a grace copy. This
 is considered a rather dirty hack that works.
