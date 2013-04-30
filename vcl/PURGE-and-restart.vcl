@@ -20,7 +20,7 @@ sub vcl_hit {
 		purge;
 		set req.request = "GET";
 		set req.http.X-purger = "Purged";
-		return (restart);
+		error 800 "restart";
 	}
 }
 
@@ -29,7 +29,13 @@ sub vcl_miss {
 		purge;
 		set req.request = "GET";
 		set req.http.X-purger = "Purged-possibly";
-		return (restart);
+		error 800 "restart";    # cant restart in miss, yet. go via error
+	}
+}
+
+sub vcl_error {
+	if (obj.status = 800 ) {
+		return(restart);
 	}
 }
 
