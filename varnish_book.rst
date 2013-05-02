@@ -462,7 +462,7 @@ The end result should be:
         MEMLOCK=82000
         INSTANCE=$(uname -n)
         DAEMON_OPTS="-a :80 \
-                     -T localhost:6082 \
+                     -T localhost:1234 \
                      -f /etc/varnish/default.vcl \
                      -s malloc,256m"
 
