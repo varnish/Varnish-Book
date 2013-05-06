@@ -1846,6 +1846,12 @@ described):
 
             Cache-Control **always** overrides Expires.
 
+        .. Note::
+
+            By default, Varnish does not care about the Cache-Control
+	    request header.  If you want to let users update the cache
+	    via a force refresh you need to do it yourself.
+
 Last-Modified
 -------------
 
