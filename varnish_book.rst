@@ -95,8 +95,11 @@ Introduction to Varnish
 .. container:: handout
 
    Varnish is a reverse HTTP proxy, sometimes referred to as a HTTP
-   accelerator or a web accelerator.  It is designed for modern hardware,
-   modern operating systems and modern work loads.
+   accelerator or a web accelerator.  It stores files or fragments of
+   files in memory, allowing them to be served quickly. It is
+   essentially a key/value store, that usually uses the URL as a
+   key.It is designed for modern hardware, modern operating systems
+   and modern work loads.
 
    At the same time, Varnish is flexible. The Varnish Configuration
    Language is lightning fast and allows the administrator to express their
@@ -204,6 +207,34 @@ Design principles
         that's not where you will see our focus. Nor will you see us
         sacrifice performance or simplicity for the sake of niche use-cases
         that can easily be solved by other means - like using a 64-bit OS.
+
+How objects are stored
+----------------------
+
+
+- Objects in Varnish are stored in a hash
+- You can control the hashing
+- Multiple objects can have the same hash key
+
+.. container:: handout
+
+	Varnish has, as mentioned, a key/value store in it's
+	core. Objects are stored in memory and a reference to this
+	object is kept in a hash tree.
+
+	A rather unique feature of Varnish is that you can actually
+	control what goes into the hashing algorithm that Varnish uses
+	to store data. Typically the key is made out of the HTTP Host
+	header and the URL, but you're actually able to override this
+	if you should choose to do so.
+
+	The HTTP protocol specifies that there can be multiple objects
+	that can be served on the same URL, depending on the
+	preferences of the client. For instance, serving gzip'ed
+	content to a client that doesn't indicate gzip support doesn't
+	make much sense and Varnish might look at the Various objects
+	stored at that key to pick out the one that matches.
+
 
 Getting started
 ===============
