@@ -143,10 +143,11 @@ Design principles
         The focus of Varnish has always been performance and flexibility.
         That has required some sacrifices.
 
-        Varnish is designed for hardware that you buy today, not the hardware
-        you bought 15 years ago. Varnish is designed to run on 64-bit
-        architectures and will scale almost proportional to the number of CPU cores
-        you have available. Though CPU-power is rarely a problem.
+        Varnish is designed for hardware that you buy today, not the
+        hardware you bought 15 years ago. Varnish is designed to run
+        on 64-bit architectures and will scale almost proportional to
+        the number of CPU cores you have available. Though CPU-power
+        is rarely a problem.
 
         If you choose to run Varnish on a 32-bit system, you are limited to
         3GB of virtual memory address space, which puts a limit on the
@@ -169,18 +170,18 @@ Design principles
         know what threads are ready to execute when.
 
         In addition, Varnish uses a configuration language that is
-        translated to C-code, compiled with a normal C compiler and then
-        dynamically linked directly into Varnish at run-time. This has
-        several advantages. The most practical of which is the freedom you
-        get as a system administrator. You can use VCL to decide how you
-        want to interface with Varnish, instead of having a developer try
-        to
-        predict every possible scenario. The fact that it boils down to C and a C
-        compiler also gives you very high performance, and if you really
-        wanted to, you could by-pass the VCL to C translation and write raw
-        C code (this is called in-line C in VCL). In short: Varnish
-        provides the features, VCL allow you to specify exactly how you use
-        and combine them.
+        translated to C-code, compiled with a normal C compiler and
+        then dynamically linked directly into Varnish at
+        run-time. This has several advantages. The most practical of
+        which is the freedom you get as a system administrator. You
+        can use VCL to decide how you want to interface with Varnish,
+        instead of having a developer try to predict every possible
+        scenario. The fact that it boils down to C and a C compiler
+        also gives you very high performance, and if you really wanted
+        to, you could by-pass the VCL to C translation and write raw C
+        code (this is called in-line C in VCL). In short: Varnish
+        provides the features, VCL allow you to specify exactly how
+        you use and combine them.
 
         With Varnish 3 you also have Varnish Modules or simply vmods. These
         modules let you extend the functionality of the VCL language by
@@ -269,17 +270,20 @@ Using the ``service`` commands is recommended. It's safe and fast.
         addition to setting some default values, while VCL define how
         Varnish should interact with web servers and clients.
 
-        Almost every aspect of Varnish can be reconfigured without restarting
-        Varnish. Notable exceptions are cache size and location, the username and
-        group that Varnish runs as and hashing algorithm.
+        Almost every aspect of Varnish can be reconfigured without
+        restarting Varnish. Notable exceptions are cache size and
+        location, the username and group that Varnish runs as and
+        hashing algorithm.
 
-        While you can change the values, some changes might require restarting
-        the child to take effect (modifying the listening port, for instance) or
-        might not be visible immediately. Changes to how long objects are cached,
-        for instance, usually only take effect after the currently cached objects
-        expire and are fetched again. Issuing ``param.show <parameter>``
-        will give you a description of the parameter, when and how it takes
-        effect and the default and current value.
+        While you can change the values, some changes might require
+        restarting the child to take effect (modifying the listening
+        port, for instance) or might not be visible
+        immediately. Changes to how long objects are cached, for
+        instance, usually only take effect after the currently cached
+        objects expire and are fetched again. Issuing ``param.show
+        <parameter>`` will give you a description of the parameter,
+        when and how it takes effect and the default and current
+        value.
 
 Command line configuration
 --------------------------
