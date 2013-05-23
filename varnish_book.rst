@@ -1088,7 +1088,7 @@ or to monitor Varnish in real-time.
 .. class:: handout
 
 VCL compilation
-...j............
+................
 
 Configuring the caching policies of Varnish is done in the Varnish
 Configuration Language (VCL). Your VCL is then interpreted by the
@@ -2218,7 +2218,7 @@ VCL - request flow
 
 .. image:: ui/img/vcl.png
    :align: center
-   :height: 2400px
+   :height: 2235px
 
 .. raw:: pdf
 
@@ -4363,3 +4363,5 @@ set-cookie.php
 .. include:: material/webdev/set-cookie.php
    :literal:
 
+
+PageBreak
