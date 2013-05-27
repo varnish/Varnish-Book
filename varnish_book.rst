@@ -218,7 +218,7 @@ How objects are stored
 
 .. container:: handout
 
-	Varnish has, as mentioned, a key/value store in it's
+	Varnish has, as mentioned, a key/value store in its
 	core. Objects are stored in memory and a reference to this
 	object is kept in a hash tree.
 
