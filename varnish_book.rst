@@ -98,7 +98,7 @@ Introduction to Varnish
    accelerator or a web accelerator.  It stores files or fragments of
    files in memory, allowing them to be served quickly. It is
    essentially a key/value store, that usually uses the URL as a
-   key.It is designed for modern hardware, modern operating systems
+   key. It is designed for modern hardware, modern operating systems
    and modern work loads.
 
    At the same time, Varnish is flexible. The Varnish Configuration
