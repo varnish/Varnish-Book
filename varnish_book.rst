@@ -1508,7 +1508,7 @@ While performing this exercise, watch the `n_wrk` counter in
    100 threads running at any given time, but never more than 400.
 #. Make the changes work across restarts of Varnish.
 
-Extra: Experiment with ``thread_pools``, ``thread_pool_add_delay`` and
+Extra: Experiment with ``thread_pool_add_delay`` and
 ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread
 creation and destruction is affected. Does ``thread_pool_timeout`` affect
 already running threads?
