@@ -2864,8 +2864,6 @@ Exercise: Modify the error message and headers
 - Add a header saying either HIT or MISS
 - "Rename" the Age header to X-Age.
 
-Bonus: Only show HIT/MISS for certain IP addresses.
-
 Solution: Modify the error message and headers
 ----------------------------------------------
 
