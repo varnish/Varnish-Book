@@ -34,7 +34,7 @@ sub vcl_miss {
 }
 
 sub vcl_error {
-	if (obj.status = 800 ) {
+	if (obj.status == 800 ) {
 		return(restart);
 	}
 }
