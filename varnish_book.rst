@@ -3085,6 +3085,12 @@ Banning
    as the objects are requested, and they will never need to be tested if
    they expire first.
 
+   .. tip::
+
+      If the cache is completely empty, bans you add will not show up in
+      the ban list. This can often happen when testing your VCL code during
+      debugging.
+
 VCL contexts when adding bans
 -----------------------------
 
