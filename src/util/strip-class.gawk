@@ -1,1 +1,0 @@
-/home/kristian/Documents/Source/training/util/strip-class.gawk
