@@ -1490,6 +1490,7 @@ Exercise: Tune first_byte_timeout
         echo "Cache-control: max-age=0"
         echo
         echo "Hello world"
+	date
 
 #. Make it executable.
 #. Test that it works outside of Varnish.
@@ -3374,6 +3375,7 @@ Exercise: Grace
         echo "Cache-control: max-age=20"
         echo
         echo "Hello world"
+	date
 
 2. Make it executable
 3. Test that it works outside of Varnish
