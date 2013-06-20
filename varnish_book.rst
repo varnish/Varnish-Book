@@ -3049,7 +3049,8 @@ Banning
 - ``ban req.url ~ "/foo"``
 - ``ban req.http.host ~ "example.com" &&
   obj.http.content-type ~ "text"``
-- VCL: ``ban("req.url ~ " +  req.url);``
+- ``ban.list``
+- In VCL: ``ban("req.url ~ /foo");``
 
 .. container:: handout
 
