@@ -3658,8 +3658,7 @@ Restart in VCL
    client. An other example is using it in combination with PURGE and
    rewriting so the script that issues PURGE will also refresh the content.
 
-   Yet another example is to combine it with saint mode, which we will
-   discuss later.
+   Yet another example is to combine it with saint mode.
 
    .. note::
 
