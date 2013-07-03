@@ -2905,8 +2905,8 @@ Cache invalidation
 .. container:: handout
 
    Whenever you deal with a cache, you will eventually have to deal with
-   the challenge of invalidation the cache, or refreshing content. There
-   are many motives behind such a task, and Varnish addresses the problem
+   the challenge of cache invalidation, or refreshing content. There are
+   many motives behind such a task, and Varnish addresses the problem
    in several slightly different ways.
 
    Some questions you need to ask whenever the topic of cache invalidation
