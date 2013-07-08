@@ -79,8 +79,10 @@ sphinx: ${common} src/conf.py
 
 sphinx-dist: sphinx book
 	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/
+	ssh angela find /srv/www.varnish-software.com/static/book/ -exec chmod g+ws {} \;
 	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book-${version}.pdf
 	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book.pdf
+	ssh angela find /srv/www.varnish-software.com/static/pdfs/ -exec chmod g+ws {} \;
 
 mrproper: clean all
 
