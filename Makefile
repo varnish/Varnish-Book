@@ -1,6 +1,6 @@
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
-CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
+CACHECENTERC=../varnish-cache-3.0/bin/varnishd/cache_center.c
 PICK = "./util/pickchapter2.igawk"
 
 # The following are chapter lists for the relevant versions of the PDFs.
