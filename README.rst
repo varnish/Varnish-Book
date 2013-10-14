@@ -71,6 +71,7 @@ The following tools are needed:
 - make (possibly GNU make. Not tested)
 - dot (for images)
 - varnishd
+- php5
 
 All build-stuff is handled by make. The following is an incomplete list of
 targets:
