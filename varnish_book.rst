@@ -15,6 +15,88 @@
 
    PageBreak oneColumn
 
+Abstract
+========
+
+The Varnish Book is the training material of Varnish cache.
+This book is used under training courses, but it is also self-instructive.
+The book teaches technical staff to use Varnish cache effectively.
+
+The book explains how to get started with the Varnish Configuration Language (VCL).
+Covered are such procedures to effectively use VCL functions, cache invalidation, saving requests, and more.
+Also included are Varnish programs such as varnishtop, and extra material.
+
+Preface
+=======
+
+TODO
+
+Purpose of the Book
+-------------------
+
+The Varnish Book provides technical staff with a practical approach to write VCL code.
+**After finishing this book, you will be able to write effective VCL code.**
+
+Necessary Background
+-------------------
+
+You need have no background in theory or application behind Varnish to complete this book.
+However, it is assumed that you have experience and expertise in basic UNIX commands.
+These skills should include the ability to:
+
+- TODO
+- TODO
+- TODO
+
+Organization of the Book
+------------------------
+
+The Varnish Book defines the basic skills or objectives that you should learn in each chapter.
+The book teaches these basic skills and provides exercises so you can practice them.
+As self-instructive material, it allows you to pace your own progress and to choose the part you want to learn.
+
+The introduction presents background information of the relevant technologies behind Varnish.
+It presents the history and main design principles needed to understand Varnish cache.
+
+Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
+The format of each sub-objective is of a five-part **lesson** including:
+1) Background, 2) Checklist, 3) Example, 4) Exercise(s), and 5) Feedback.
+At the end of each chapter there is a **Fast Track** section, and it contains three parts:
+1) a Review, 2) Exercise(s), and 3) Feedback.
+The Fast Track can be used for various purposes:
+
+- As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
+- As a test. If you can perform the exercises in the Fast Track, you have learned the important skills taught in the chapter.
+- As a express lesson. If you don't have the time to complete the entire chapter, you can use the Fast Track instead.
+- As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
+- As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
+
+In Appendix A of the book, you will find the **Varnish Book Reference**.
+This is a complete listing, by chapter, of all the checklists.
+Appendix B and C contain special purpose Varnish programs and supporting material respectively.
+
+How to Use the Book
+-------------------
+
+The Varnish Book can be used as training material under a course taught by a certified instructor or as self-instructional tutorial.
+Under a course, the instructor guides you and selects the relevant chapters to learn.
+If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
+Read the Review and Exercise parts of the Fast Track.
+If you can complete the exercise(s), you may skip the chapter. If not, you should complete it.
+
+There are almost always many ways to do an exercise.
+The solutions provided in this book or by your instructor are not necessarily better than your own.
+
+To complete this book, you need the following installation:
+
+- Varnish 4.0 or later
+- TODO
+- TODO
+
+This book is meant to be understandable to everyone who has the required skills.
+If you find something unclear, don't be shy and blame yourself, ask your instructor.
+You can also contact Varnish Software to book trainig at https://varnish-software.com/academy or the Varnish open-source community for help at https://varnish-cache.org.
+
 Introduction
 ============
 
