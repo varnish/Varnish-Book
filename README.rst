@@ -1,6 +1,8 @@
 Training material and related tools
 ===================================
 
+This Github branch holds work in progress to update The Varnish Book for Varnish cache version 4.
+
 This repository contains:
 
 * The training material used for our Varnish training (the source for the
