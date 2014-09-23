@@ -18,6 +18,10 @@
 Abstract
 ========
 
+
+
+.. container:: handout
+
 The Varnish Book is the training material of Varnish cache.
 This book is used under training courses, but it is also self-instructive.
 The book teaches technical staff to use Varnish cache effectively.
@@ -29,27 +33,74 @@ Also included are Varnish programs such as varnishtop, and extra material.
 Preface
 =======
 
-TODO
+The Varnish Book is designed to teach attendees of Varnish cache courses to install and configure a Varnish server, and to write effective VCL code.
+This is the common goal that sets the foundations for the courses: admin, webdev and vmod.
 
-Purpose of the Book
--------------------
+.. container:: handout
 
-The Varnish Book provides technical staff with a practical approach to write VCL code.
-**After finishing this book, you will be able to write effective VCL code.**
+The admin course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
+The webdev course teaches how to adapt web applications so that they work with Varnish Cache. 
+This guarantees a fast experience for visitors of any website.
+.. TODO for author: "as visitors' requests scales": can we say in magnitude of some number? or at what level of scalability are we talking about?
+.. The vmod course shows how to ???.
+
+Purpose of the Book and Course
+------------------------------
+
+.. TODO for instructor: tailor this slide!
+
+**After finishing this course, you will be able to install and configure a Varnish server, and to write effective VCL code.**
+In addition, you will learn the specific material for the course you take.
+
+.. container:: handout
+
+The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish cache.
+The goal of the book is to make you confident when using Varnish.
+Varnish instructors focus on your area, needs or interest.
+Varnish courses are usually flexible enough to make room for it.
 
 Necessary Background
 -------------------
 
-You need have no background in theory or application behind Varnish to complete this book.
+.. TODO for instructor: tailor this slide!
+
+The admin and Vmod courses require that you:
+
+- work in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
+- understand HTTP and related Internet protocols,
+- and understand regular expressions.
+
+The webdev course requires that you:
+
+- work in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
+- understand HTTP and related Internet protocols,
+
+.. container:: handout
+
+You need have no background in theory or application behind Varnish to complete this course.
 However, it is assumed that you have experience and expertise in basic UNIX commands.
-These skills should include the ability to:
+More specific prerequisite skills depend the course you take.
 
-- TODO
-- TODO
-- TODO
+The book starts with the installation of Varnish and navigation of some of the common configuration files.
+This part is perhaps the most UNIX-centric part of the course.
+If you are taking the Varnish course, do not hesitate to ask your instructor for help.
 
-Organization of the Book
-------------------------
+Organization of the Book and Course
+-----------------------------------
+
+.. TODO for instructor: tailor this slide!
+
+Each chapter has the following structure:
+1) background, 2) checklist, 3) example(s), 4) exercise(s), and 5) feedback.
+
+At the end of each chapter there is a **Fast Track** section, and it contains three parts:
+1) a review, 2) exercise(s), and 3) feedback.
+
+In Appendix A of the book, you will find the **Varnish Book Reference**.
+
+Appendix B and C contain special purpose Varnish programs and supporting material respectively.
+
+.. container:: handout
 
 The Varnish Book defines the basic skills or objectives that you should learn in each chapter.
 The book teaches these basic skills and provides exercises so you can practice them.
@@ -58,11 +109,8 @@ As self-instructive material, it allows you to pace your own progress and to cho
 The introduction presents background information of the relevant technologies behind Varnish.
 It presents the history and main design principles needed to understand Varnish cache.
 
-Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
-The format of each sub-objective is of a five-part **lesson** including:
-1) Background, 2) Checklist, 3) Example, 4) Exercise(s), and 5) Feedback.
-At the end of each chapter there is a **Fast Track** section, and it contains three parts:
-1) a Review, 2) Exercise(s), and 3) Feedback.
+.. Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
+.. The format of each sub-objective is of a five-part **lesson** including:
 The Fast Track can be used for various purposes:
 
 - As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
@@ -71,108 +119,50 @@ The Fast Track can be used for various purposes:
 - As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
 - As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
 
-In Appendix A of the book, you will find the **Varnish Book Reference**.
-This is a complete listing, by chapter, of all the checklists.
-Appendix B and C contain special purpose Varnish programs and supporting material respectively.
+The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
 
 How to Use the Book
 -------------------
 
-The Varnish Book can be used as training material under a course taught by a certified instructor or as self-instructional tutorial.
+- The instructor guides you through the book
+- To practice the course, use the Fast Track in the following way:
+  + Read the Review and Exercise parts of the Fast Track.
+  + If you can complete the exercise(s), you remember the most important parts.
+  + If not, you should repeat the chapter.
+
+.. container:: handout
+
+The Varnish Book is designed to be used as training material under a Varnish course taught by a certified instructor.
 Under a course, the instructor guides you and selects the relevant chapters to learn.
 If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
-Read the Review and Exercise parts of the Fast Track.
-If you can complete the exercise(s), you may skip the chapter. If not, you should complete it.
 
 There are almost always many ways to do an exercise.
 The solutions provided in this book or by your instructor are not necessarily better than your own.
 
 To complete this book, you need the following installation:
-
 - Varnish 4.0 or later
 - TODO
 - TODO
 
+The book is written with different formatting conventions.
+Varnish Configuration Language (VCL) text is in verbatim mode.
+.. TODO
+Important notes and tips are stated inside boxes throughout the book.
+
 This book is meant to be understandable to everyone who has the required skills.
-If you find something unclear, don't be shy and blame yourself, ask your instructor.
-You can also contact Varnish Software to book trainig at https://varnish-software.com/academy or the Varnish open-source community for help at https://varnish-cache.org.
+If you find something unclear, don't be shy and blame yourself, ask for help.
+If you are taking the Varnish course, ask your instructor.
+Otherwise, you can book training at https://varnish-software.com/academy or contact the Varnish open-source community at https://varnish-cache.org.
 
 Introduction
 ============
 
-- About the course
-- Goals and prerequisites
-- Introduction to Varnish
-- History
-- Design Principles
-
-About the course
-----------------
-
-The course is split in two:
-
-1. Architecture, command line tools, installation, parameters, etc
-2. The Varnish Configuration Language
-
-The course has roughly 50% exercises and 50% instruction, and you will find
-all the information on the slides in the supplied training material.
-
-The supplied training material also has additional information for most
-chapters.
-
-The Varnish Book includes the material for both the `Varnish System
-Administration` course and the `Varnish for Web developers` course.
-
-.. container:: handout
-
-   The agenda is adjusted based on the progress made. There is usually
-   ample time to investigate specific aspects of Varnish that may be of
-   special interest to some of the participants.
-
-   The exercises will occasionally offer multiple means to reach the same
-   goals. Specially when you start working on VCL, you will notice that
-   there are almost always more than one way to solve a specific problem,
-   and it isn't necessarily given that the solution offered by the
-   instructor or this course material is better than what you might come up
-   with yourself.
-
-   Always feel free to interrupt the instructor if something is unclear.
-
-Goals and Prerequisites
------------------------
-
-Prerequisites:
-
-- Comfortable working in a shell on a Linux/UNIX machine, including editing
-  text files and starting daemons.
-- Basic understanding of HTTP and related internet protocols
-
-Goals:
-
-- Thorough understanding of Varnish
-- Understanding of how VCL works and how to use it
-
-.. container:: handout
-
-   The course is oriented around a GNU/Linux server-platform, but the
-   majority of the tasks only require minimal knowledge of GNU/Linux.
-
-   The course starts out by installing Varnish and navigating some of the
-   common configuration files, which is perhaps the most UNIX-centric part
-   of the course. Do not hesitate to ask for help.
-
-   The goal of the course is to make you confident when using Varnish and
-   let you adjust Varnish to your exact needs. If you have any specific
-   area you are particularly interested in, the course is usually flexible
-   enough to make room for it.
-
-Introduction to Varnish
------------------------
-
 - What is Varnish?
+- Benefits of Varnish
 - Open Source / Free Software
-- History
+- How can Varnish be used?
 - Varnish Governance Board (VGB)
+- History
 
 .. container:: handout
 
@@ -202,10 +192,23 @@ Introduction to Varnish
    and unneeded complexity. As a consequence of this, Varnish uses very few
    external libraries.
 
+   .. TODO for author: how can Varnish be used?
+   Varnish is more than a reverse HTTP proxy.
+   Varnish can be used as:
+   
+   - firewall to improve security such as fending DDoS attacks,
+   .. read https://www.varnish-software.com/de/blog/greetings-denmark-edge-side-http-security-toolkit
+   - load balancer,
+   - integration point,
+   - quick fix for unstable backends, and
+   - HTTP router.
+
    Varnish development is governed by the Varnish Governance Board (VGB),
    which thus far has not needed to intervene. The VGB consists of an
    architect, a community representative and a representative from Varnish
-   Software. As of March 2012, the positions are filled by Poul-Henning
+   Software.
+   .. TODO for editor: confirm the VGB positions
+   As of December 2014, the positions are filled by Poul-Henning
    Kamp (Architect), Rogier Mulhuijzen (Community) and Kristian Lyngstøl
    (Varnish Software). On a day-to-day basis, there is little need to
    interfere with the general flow of development.
