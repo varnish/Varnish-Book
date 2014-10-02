@@ -18,13 +18,11 @@
 Abstract
 ========
 
-
-
 .. container:: handout
 
-The Varnish Book is the training material of Varnish cache.
-This book is used under training courses, but it is also self-instructive.
-The book teaches technical staff to use Varnish cache effectively.
+The Varnish Book is the training material of Varnish Plus.
+This book is used under training courses.
+The book teaches technical staff to use Varnish Cache and the selected modules of Varnish Plus effectively.
 
 The book explains how to get started with the Varnish Configuration Language (VCL).
 Covered are such procedures to effectively use VCL functions, cache invalidation, saving requests, and more.
@@ -33,31 +31,38 @@ Also included are Varnish programs such as varnishtop, and extra material.
 Preface
 =======
 
-The Varnish Book is designed to teach attendees of Varnish cache courses to install and configure a Varnish server, and to write effective VCL code.
-This is the common goal that sets the foundations for the courses: admin, webdev and vmod.
-
-.. container:: handout
-
-The admin course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
-The webdev course teaches how to adapt web applications so that they work with Varnish Cache. 
-This guarantees a fast experience for visitors of any website.
-.. TODO for author: "as visitors' requests scales": can we say in magnitude of some number? or at what level of scalability are we talking about?
-.. The vmod course shows how to ???.
-
-Purpose of the Book and Course
-------------------------------
+- Course for Varnish Plus
+- Install and configure a Varnish server
+- Write effective VCL code
+- Learn specific features depending the course and your needs
 
 .. TODO for instructor: tailor this slide!
 
-**After finishing this course, you will be able to install and configure a Varnish server, and to write effective VCL code.**
-In addition, you will learn the specific material for the course you take.
-
 .. container:: handout
 
-The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish cache.
+.. Common goal:
+**After finishing this course, you will be able to install and configure a Varnish server, and to write effective VCL code.**
+The Varnish Book is designed to teach attendees of Varnish Plus courses.
+Varnish Plus is the commercial suite including the enhanced commercial edition of Varnish Cache.
+This enhanced edition is called Varnish Cache Plus.
+
+Most of the material presented in this book also applies to the open source Varnish Cache.
+Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
+
+For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
+More information about differences between Varnish Cache and Varnish Cache Plus is stated in the Introduction section.
+
+The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish.
 The goal of the book is to make you confident when using Varnish.
 Varnish instructors focus on your area, needs or interest.
 Varnish courses are usually flexible enough to make room for it.
+
+In addition, you will learn the specific material for the course you take.
+The admin course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
+The webdev course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
+.. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
+.. The vmod course shows how to ???.
+Other courses may also be thaught with this book.
 
 Necessary Background
 -------------------
@@ -83,7 +88,7 @@ More specific prerequisite skills depend the course you take.
 
 The book starts with the installation of Varnish and navigation of some of the common configuration files.
 This part is perhaps the most UNIX-centric part of the course.
-If you are taking the Varnish course, do not hesitate to ask your instructor for help.
+If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
 Organization of the Book and Course
 -----------------------------------
@@ -102,12 +107,11 @@ Appendix B and C contain special purpose Varnish programs and supporting materia
 
 .. container:: handout
 
-The Varnish Book defines the basic skills or objectives that you should learn in each chapter.
-The book teaches these basic skills and provides exercises so you can practice them.
-As self-instructive material, it allows you to pace your own progress and to choose the part you want to learn.
-
+.. TODO presentation of outline
 The introduction presents background information of the relevant technologies behind Varnish.
-It presents the history and main design principles needed to understand Varnish cache.
+It presents the history and main design principles needed to understand Varnish.
+.. TODO for the author:
+.. complete this paragraph
 
 .. Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
 .. The format of each sub-objective is of a five-part **lesson** including:
@@ -124,6 +128,7 @@ The Varnish Book Reference is a complete listing, by chapter, of all the checkli
 How to Use the Book
 -------------------
 
+- Most of the material in this book applies to Varnish Cache, parts that apply only to Varnish Cache Plus are clearly stated.
 - The instructor guides you through the book
 - To practice the course, use the Fast Track in the following way:
   + Read the Review and Exercise parts of the Fast Track.
@@ -132,7 +137,7 @@ How to Use the Book
 
 .. container:: handout
 
-The Varnish Book is designed to be used as training material under a Varnish course taught by a certified instructor.
+The Varnish Book is designed to be used as training material under a Varnish Plus course taught by a certified instructor.
 Under a course, the instructor guides you and selects the relevant chapters to learn.
 If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
@@ -140,7 +145,7 @@ There are almost always many ways to do an exercise.
 The solutions provided in this book or by your instructor are not necessarily better than your own.
 
 To complete this book, you need the following installation:
-- Varnish 4.0 or later
+- Varnish Cache Plus  4.0 or later
 - TODO
 - TODO
 
@@ -149,70 +154,145 @@ Varnish Configuration Language (VCL) text is in verbatim mode.
 .. TODO
 Important notes and tips are stated inside boxes throughout the book.
 
-This book is meant to be understandable to everyone who has the required skills.
-If you find something unclear, don't be shy and blame yourself, ask for help.
-If you are taking the Varnish course, ask your instructor.
-Otherwise, you can book training at https://varnish-software.com/academy or contact the Varnish open-source community at https://varnish-cache.org.
+This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
+If you find something unclear, don't be shy and blame yourself, ask your instructor for help.
+You can also contact the Varnish open source community at https://varnish-cache.org.
+To book training, please look at https://varnish-software.com/academy.
 
 Introduction
 ============
 
 - What is Varnish?
 - Benefits of Varnish
-- Open Source / Free Software
-- How can Varnish be used?
+- Open source / Free software
+- Varnish Software: The company
+- What is Varnish Plus?
+  - What is Varnish Cache Plus?
+- Varnish: more than a cache server
+.. TODO Comparison of related software solutions such as: Apache mod_security, Squid, Nginx, and Apache Traffic Server (ATS) (reverse and forward proxy, generally comparable to Nginx and Squid).
+- History of Varnish
 - Varnish Governance Board (VGB)
-- History
+
+Varnish Cache and Varnish Cache Plus
+------------------------------------
+- TODO: Here goes a diagram of Varnish as reverse HTTP proxy.
+- TODO: Here goes a diagram of Varnish Plus
 
 .. container:: handout
 
-   Varnish is a reverse HTTP proxy, sometimes referred to as a HTTP
-   accelerator or a web accelerator.  It stores files or fragments of
-   files in memory, allowing them to be served quickly. It is
-   essentially a key/value store, that usually uses the URL as a
-   key. It is designed for modern hardware, modern operating systems
-   and modern work loads.
+   .. What is Varnish?:
+   Varnish is a reverse HTTP proxy, sometimes referred to as a HTTP accelerator or a web accelerator.
+   A reverse proxy is a proxy server that appears to clients as an ordinary server.
+   Varnish stores files or fragments of files in memory, allowing them to be served quickly. 
+   It is essentially a key/value store, that usually uses the URL as a key. 
+   It is designed for modern hardware, modern operating systems and modern work loads.
 
+   .. Benefits:
    At the same time, Varnish is flexible. The Varnish Configuration
-   Language is lightning fast and allows the administrator to express their
+   Language is lightning fast and allows system administrators to express their
    wanted policy rather than being constrained by what the Varnish
    developers want to cater for or could think of. Varnish has shown itself
    to work well both on large (and expensive) servers and tiny appliances.
 
-   Varnish is also an open source project, and free software. The
+   .. Open Source / Free Software:
+   Varnish Cache is an open source project, and free software. The
    development process is public and everyone can submit patches, or just
-   take a peek at the code if there is some uncertainty as to how Varnish
+   take a peek at the code if there is some uncertainty as to how Varnish Cache
    works. There is a community of volunteers who help each other and
-   newcomers. The BSD-like license used by Varnish does not place
+   newcomers. The BSD-like license used by Varnish Cache does not place
    significant restriction on re-use of the code, which makes it possible
-   to integrate Varnish in virtually any solution.
+   to integrate Varnish Cache in virtually any solution.
 
-   Varnish is developed and tested on GNU/Linux and FreeBSD. The code-base
+   Varnish Cache is developed and tested on GNU/Linux and FreeBSD. The code-base
    is kept as self-contained as possible to avoid introducing out-side bugs
    and unneeded complexity. As a consequence of this, Varnish uses very few
    external libraries.
 
-   .. TODO for author: how can Varnish be used?
-   Varnish is more than a reverse HTTP proxy.
-   Varnish can be used as:
+   .. Varnish Software:
+   Varnish Software is the company behind Varnish Cache.
+   Varnish Software and the Varnish community maintain a package repository of Varnish Cache for several common GNU/Linux distributions.
+   .. Varnish Plus:
+   Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
+   The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
+   This edition is proprietary and it is called *Varnish Cache Plus*.
    
-   - firewall to improve security such as fending DDoS attacks,
-   .. read https://www.varnish-software.com/de/blog/greetings-denmark-edge-side-http-security-toolkit
+   The Varnish Plus offer of software products include:
+
+   - the Varnish Massive Storage Engine,
+   - hashtwo (Varnish Software implemenation of surrogate keys),
+   - Varnish Administration Console (VAC),
+   - Varnish Customer Statistics (VCS),
+   - Varnish Tuner,
+   - and more.
+
+   .. Varnish use
+   Varnish is more than a reverse HTTP proxy.
+   Depending on the installation, Varnish can be used as:
+
+   .. TODO for the author: can we be more specific with what functionality is achieved with Varnish Cache, and which one with Varnish Cache Plus?
+
+   - web application firewall,
+   - DDoS attacks defender,
    - load balancer,
    - integration point,
    - quick fix for unstable backends, and
    - HTTP router.
 
+Varnish Software
+----------------
+
+Varnish timeline:
+
+- 2005: Ideas! Verdens Gang (www.vg.no, Norways biggest newspaper) were
+  looking for alternative cache solutions.
+- 2006: Work began. Redpill Linpro was in charge of project management,
+  infrastructure and supporting development. Poul-Henning Kamp did the
+  majority of the actual development.
+- 2006: Varnish 1.0 released
+- 2008: Varnish 2.0 released
+- 2009: The first Varnish User Group Meeting is held in London. Roughly a
+  dozen people participate from all around the world.
+- 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
+- 2011: Varnish 3.0 released
+- 2012: The fifth Varnish User Group Meeting is held in Paris. Roughly 70
+  people participate on the User-day and around 30 on the developer-day!
+
+- The Varnish Governance Board
+
+.. container:: handout
+
+        VG, a large Norwegian newspaper, initiated the Varnish-project in
+        cooperation with Linpro. The lead developer, Poul-Henning Kamp is
+        an experienced FreeBSD kernel hacker and continues to bring his
+        wisdom to Varnish in most areas where it counts.
+
+        From 2006 throughout 2008, most of the development was sponsored by
+        VG, API, Escenic and Aftenposten, with project management,
+        infrastructure and extra man-power provided by Redpill Linpro. At
+        the time, Redpill Linpro had roughly 140 employees mostly centered
+        around consulting services.
+
+        Today Varnish Software is able to fund the core development with
+        income from service agreements, in addition to offering development
+        of specific features on a case-by-case basis.
+
+        The interest in Varnish continue to increase on an almost daily
+        basis.  An informal study based on the list of most popular web
+        sites in Norway indicates that about 75% or more of the web traffic
+        that originates in Norway is served through Varnish.
+
+   .. VGB
    Varnish development is governed by the Varnish Governance Board (VGB),
    which thus far has not needed to intervene. The VGB consists of an
    architect, a community representative and a representative from Varnish
    Software.
-   .. TODO for editor: confirm the VGB positions
+   .. TODO for the editor: confirm the VGB positions
    As of December 2014, the positions are filled by Poul-Henning
    Kamp (Architect), Rogier Mulhuijzen (Community) and Kristian Lyngstøl
    (Varnish Software). On a day-to-day basis, there is little need to
    interfere with the general flow of development.
 
+   .. TODO for the editor: is this still true?
    For those interested in development, the developers arrange weekly bug
    washes were recent tickets and development is discussed. This usually
    takes place on Mondays around 12:00 CET on the IRC channel
@@ -221,10 +301,13 @@ Introduction
 Design principles
 -----------------
 
-- Solve real problems
-- Optimize for modern hardware (64-bit, multi-core, etc)
-- Work with the kernel, not against it
-- Innovation, not regurgitation
+Varnish is designed to:
+
+- solve real problems,
+- run on modern hardware (64-bit multi-core architectures),
+- work with the kernel, not against it, and
+- be extendible via Varnish Modules (Vmods).
+.. - Innovation, not regurgitation
 
 .. container:: handout
 
@@ -241,9 +324,9 @@ Design principles
         3GB of virtual memory address space, which puts a limit on the
         number of threads you can run and the size of your cache. This is a
         trade-off to gain a simpler design and reduce the amount of work
-        Varnish needs to do. The 3GB limit depends on the operating system
+        Varnish needs to do. The 3GB limit depends on the operating system (OS)
         kernel. The theoretical maximum is 4GB, but your OS will reserve
-        some of that for the kernel. This is called the user/kernel split.
+        some of that for the kernel. This is called the user/kernel  memory split.
 
         Varnish does not keep track of whether your cache is on disk or in
         memory. Instead, Varnish will request a large chunk of memory and
@@ -251,11 +334,13 @@ Design principles
         really is. The operating system can generally do a better job than
         a user-space program.
 
-        Accept filters, epoll and kqueue are advanced features of the
+        Accept ``filters``, ``epoll`` and ``kqueue`` are advanced features of the
         operating system that are designed for high-performance services
         like Varnish. By using these, Varnish can move a lot of the
         complexity into the OS kernel which is also better positioned to
         know what threads are ready to execute when.
+
+	.. Bookmark!
 
         In addition, Varnish uses a configuration language that is
         translated to C-code, compiled with a normal C compiler and
@@ -410,7 +495,6 @@ Command line configuration
 -S <secretfile>           authentication secret for management
 -T <hostname:port>        Management interface
 -s <storagetype,options>  where and how to store objects
-
 
 .. container:: handout
 
