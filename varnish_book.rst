@@ -22,11 +22,11 @@ Abstract
 
 The Varnish Book is the training material of Varnish Plus.
 This book is used under training courses.
-The book teaches technical staff to use Varnish Cache and the selected modules of Varnish Plus effectively.
+The book teaches technical staff to use Varnish Cache and selected modules of Varnish Plus effectively.
 
 The book explains how to get started with the Varnish Configuration Language (VCL).
 Covered are such procedures to effectively use VCL functions, cache invalidation, saving requests, and more.
-Also included are Varnish programs such as varnishtop, and extra material.
+Also included are Varnish programs such as ``varnishtop``, and extra material.
 
 Preface
 =======
@@ -58,26 +58,27 @@ Varnish instructors focus on your area, needs or interest.
 Varnish courses are usually flexible enough to make room for it.
 
 In addition, you will learn the specific material for the course you take.
-The admin course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
-The webdev course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
+The System Administration (Admin) course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
+The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
+
 .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
 .. The vmod course shows how to ???.
-Other courses may also be thaught with this book.
+Other courses may also be taught with this book.
 
 Necessary Background
 -------------------
 
 .. TODO for instructor: tailor this slide!
 
-The admin and Vmod courses require that you:
+The Admin course requires that you:
 
-- work in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
+- have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
 - understand HTTP and related Internet protocols,
 - and understand regular expressions.
 
-The webdev course requires that you:
+The Webdev course requires that you:
 
-- work in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
+- have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
 - understand HTTP and related Internet protocols,
 
 .. container:: handout
@@ -109,6 +110,7 @@ Appendix B and C contain special purpose Varnish programs and supporting materia
 .. TODO presentation of outline
 The introduction presents background information of the relevant technologies behind Varnish.
 It presents the history and main design principles needed to understand Varnish.
+
 .. TODO for the author:
 .. complete this paragraph
 
@@ -144,12 +146,14 @@ There are almost always many ways to do an exercise.
 The solutions provided in this book or by your instructor are not necessarily better than your own.
 
 To complete this book, you need the following installation:
+
 - Varnish Cache Plus  4.0 or later
 - TODO
 - TODO
 
 The book is written with different formatting conventions.
 Varnish Configuration Language (VCL) text is in verbatim mode.
+
 .. TODO
 Important notes and tips are stated inside boxes throughout the book.
 
@@ -218,7 +222,7 @@ Varnish Cache and Varnish Cache Plus
    The Varnish Plus offer of software products include:
 
    - the Varnish Massive Storage Engine,
-   - hashtwo (Varnish Software implemenation of surrogate keys),
+   - hashtwo (Varnish Software implementation of surrogate keys),
    - Varnish Administration Console (VAC),
    - Varnish Customer Statistics (VCS),
    - Varnish Tuner,
@@ -242,7 +246,7 @@ Varnish Software
 
 Varnish timeline:
 
-- 2005: Ideas! Verdens Gang (www.vg.no, Norways biggest newspaper) were
+- 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were
   looking for alternative cache solutions.
 - 2006: Work began. Redpill Linpro was in charge of project management,
   infrastructure and supporting development. Poul-Henning Kamp did the
@@ -285,6 +289,7 @@ Varnish timeline:
    which thus far has not needed to intervene. The VGB consists of an
    architect, a community representative and a representative from Varnish
    Software.
+   
    .. TODO for the editor: confirm the VGB positions
    As of December 2014, the positions are filled by Poul-Henning
    Kamp (Architect), Rogier Mulhuijzen (Community) and Kristian Lyngstøl
@@ -352,7 +357,7 @@ Varnish is designed to:
 	You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
 	In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
 
-	.. VMODs
+	.. Vmods
         With Varnish 3 you also have Varnish Modules or simply Vmods.
 	These modules let you extend the functionality of the VCL language by
         pulling in custom-written features. Some examples include
