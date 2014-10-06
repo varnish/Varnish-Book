@@ -264,25 +264,25 @@ Varnish timeline:
 
 .. container:: handout
 
-        VG, a large Norwegian newspaper, initiated the Varnish-project in
-        cooperation with Linpro. The lead developer, Poul-Henning Kamp is
-        an experienced FreeBSD kernel hacker and continues to bring his
-        wisdom to Varnish in most areas where it counts.
+   VG, a large Norwegian newspaper, initiated the Varnish-project in
+   cooperation with Linpro. The lead developer, Poul-Henning Kamp is
+   an experienced FreeBSD kernel hacker and continues to bring his
+   wisdom to Varnish in most areas where it counts.
 
-        From 2006 throughout 2008, most of the development was sponsored by
-        VG, API, Escenic and Aftenposten, with project management,
-        infrastructure and extra man-power provided by Redpill Linpro. At
-        the time, Redpill Linpro had roughly 140 employees mostly centered
-        around consulting services.
+   From 2006 throughout 2008, most of the development was sponsored by
+   VG, API, Escenic and Aftenposten, with project management,
+   infrastructure and extra man-power provided by Redpill Linpro. At
+   the time, Redpill Linpro had roughly 140 employees mostly centered
+   around consulting services.
 
-        Today Varnish Software is able to fund the core development with
-        income from service agreements, in addition to offering development
-        of specific features on a case-by-case basis.
+   Today Varnish Software is able to fund the core development with
+   income from service agreements, in addition to offering development
+   of specific features on a case-by-case basis.
 
-        The interest in Varnish continue to increase on an almost daily
-        basis.  An informal study based on the list of most popular web
-        sites in Norway indicates that about 75% or more of the web traffic
-        that originates in Norway is served through Varnish.
+   The interest in Varnish continue to increase on an almost daily
+   basis.  An informal study based on the list of most popular web
+   sites in Norway indicates that about 75% or more of the web traffic
+   that originates in Norway is served through Varnish.
 
    .. VGB
    Varnish development is governed by the Varnish Governance Board (VGB),
@@ -301,7 +301,7 @@ Varnish timeline:
    washes were recent tickets and development is discussed. This usually
    takes place on Mondays around 12:00 CET on the IRC channel
    `#varnish-hacking` on `irc.linpro.net`.
-
+	
 Design principles
 -----------------
 
@@ -413,29 +413,107 @@ Getting started
 
 In this chapter, we will:
 
- - Install and test a backend
  - Install Varnish
+ - Install Apache as backend
  - Make Varnish and the backend-server work together
  - Cover basic configuration
 
 .. container:: handout
 
-        You want to use packages for your operating system whenever
-        possible.
+        Use packages for your operating system whenever possible.
+	You may skipt the Installation subsection, if the software repository of your computer has Varnish 4.0.0 or more recent version available.
 
-        If the computer you will be using throughout this course has
-        Varnish 3.0.0 or more recent available through the package system,
-        you are encouraged to use that package if you do not feel you need
-        the exercise in installing from source.
+	This course is independent of the operating system in use.
+	However, there are some differences between Linux distributions that Varnish supports.
+	Those differences are stated when necessary.
 
-        We will be using Apache as a web server.
+	
 
-        This course is about Varnish, but we need an operating system to
-        test. For the sake of keeping things simple, the course uses Debian
-        as a platform. You will find several references to differences
-        between Debian and Red Hat where they matter the most, but for the
-        most part, this course is independent on the operating system in
-        use.
+Exercise: Install Varnish and Apache
+------------------------------------
+
+- Use packages provided by varnish-cache.org
+
+.. container:: handout
+
+You can install packages on Ubuntu and Debian with the command ``apt-get install <package>``.
+E.g: ``apt-get install varnish``. 
+For Red Hat, use ``yum install <package>``.
+
+Varnish is distributed in the Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
+We generally recommend you to use the packages provided by varnish-cache.org.
+Please be advised that we only provide packages for Ubuntu's LTS releases, not all the intermediate releases.
+However, these packages might still work fine on newer releases.
+
+The only supported architecture is amd64.
+
+To use the varnish-cache.org repository and install Varnish on Ubuntu 14.04 trusty do the following as root::
+
+  1. apt-get install apt-transport-https
+  2. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+  3. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> /etc/apt/sources.list.d/varnish-cache.list
+  4. apt-get update
+  5. apt-get install varnish
+
+For Ubuntu 12.04 (precise) replace ``trusty`` with ``precise`` in instruction 3.
+If you want to install the older 3.0 version, replace ``varnish-4.0`` with varnish-3.0 in instruction 3.
+
+To install Apache in Ubuntu, type the command: ``apt-get install apache2``. Then:
+
+.. bookmark
+
+#. Verify that Apache works by browsing to `http://localhost/`.
+   You probably want to change ``localhost`` with whatever the hostname of
+   the machine you're working is.
+#. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and
+   `/etc/apache2/sites-enabled/000-default`.
+
+
+
+#. Install Varnish
+#. Modify the Varnish configuration file so Varnish listens on port `80`,
+   has a management interface on port `1234` and uses `127.0.0.1:8080` as
+   the backend.
+#. Start Varnish using ``service varnish start``.
+
+The end result should be:
+
++------------+------------------------+--------------------------------------------+
+| Service    | Result                 | Related config-files                       |
++============+========================+============================================+
+| Apache     | Answers on port `8080` | ``/etc/apache2/ports.conf`` and            |
+|            |                        | ``/etc/apache2/sites-enabled/000-default`` |
++------------+------------------------+--------------------------------------------+
+| Varnish    | Answers on port `80`   | ``/etc/default/varnish``                   |
++------------+------------------------+--------------------------------------------+
+| Varnish    | Talks to apache on     | ``/etc/varnish/default.vcl``               |
+|            | `localhost:8080`       |                                            |
++------------+------------------------+--------------------------------------------+
+
+.. container:: handout
+
+   Varnish Software and the Varnish community maintains a package
+   repository for several common GNU/Linux distributions. If your system
+   does not have sufficiently up-to-date packages, visit
+   https://www.varnish-cache.org/releases and find a package for your
+   distribution.
+
+   Once you have modified the ``/etc/default/varnish``-file, it should look
+   something like this (comments removed)::
+
+        NFILES=131072
+        MEMLOCK=82000
+        INSTANCE=$(uname -n)
+        DAEMON_OPTS="-a :80 \
+                     -T localhost:1234 \
+                     -f /etc/varnish/default.vcl \
+                     -s malloc,256m"
+
+   .. tip::
+
+      You can get an overview over services listening on TCP ports by
+      issuing the command ``netstat -nlpt``.
+
 
 Configuration
 -------------
@@ -620,63 +698,6 @@ Defining a backend in VCL
 
    You can specify many backends at the same time, but for now, we will
    only specify one to get started.
-
-Exercise: Installation
------------------------
-
-You can install packages on Debian with ``apt-get install <package>``. E.g:
-``apt-get install apache2``. For Red Hat, the tool would be ``yum install
-<package>``.
-
-#. Install ``apache2`` and verify it works by browsing to `http://localhost/`.
-   You probably want to change ``localhost`` with whatever the hostname of
-   the machine you're working is.
-#. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and
-   `/etc/apache2/sites-enabled/000-default`.
-#. Install Varnish
-#. Modify the Varnish configuration file so Varnish listens on port `80`,
-   has a management interface on port `1234` and uses `127.0.0.1:8080` as
-   the backend.
-#. Start Varnish using ``service varnish start``.
-
-The end result should be:
-
-+------------+------------------------+--------------------------------------------+
-| Service    | Result                 | Related config-files                       |
-+============+========================+============================================+
-| Apache     | Answers on port `8080` | ``/etc/apache2/ports.conf`` and            |
-|            |                        | ``/etc/apache2/sites-enabled/000-default`` |
-+------------+------------------------+--------------------------------------------+
-| Varnish    | Answers on port `80`   | ``/etc/default/varnish``                   |
-+------------+------------------------+--------------------------------------------+
-| Varnish    | Talks to apache on     | ``/etc/varnish/default.vcl``               |
-|            | `localhost:8080`       |                                            |
-+------------+------------------------+--------------------------------------------+
-
-.. container:: handout
-
-   Varnish Software and the Varnish community maintains a package
-   repository for several common GNU/Linux distributions. If your system
-   does not have sufficiently up-to-date packages, visit
-   https://www.varnish-cache.org/releases and find a package for your
-   distribution.
-
-   Once you have modified the ``/etc/default/varnish``-file, it should look
-   something like this (comments removed)::
-
-        NFILES=131072
-        MEMLOCK=82000
-        INSTANCE=$(uname -n)
-        DAEMON_OPTS="-a :80 \
-                     -T localhost:1234 \
-                     -f /etc/varnish/default.vcl \
-                     -s malloc,256m"
-
-   .. tip::
-
-      You can get an overview over services listening on TCP ports by
-      issuing the command ``netstat -nlpt``.
-
 
 Exercise: Fetch data through Varnish
 ------------------------------------
