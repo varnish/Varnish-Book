@@ -93,8 +93,7 @@ If you are taking a Varnish course, do not hesitate to ask your instructor for h
 Organization of the Book and Course
 -----------------------------------
 
-.. TODO for instructor: tailor this slide!
-
+.. TODO for instructor: tailor this slide
 Each chapter has the following structure:
 1) background, 2) checklist, 3) example(s), 4) exercise(s), and 5) feedback.
 
@@ -305,15 +304,16 @@ Varnish is designed to:
 
 - solve real problems,
 - run on modern hardware (64-bit multi-core architectures),
-- work with the kernel, not against it, and
-- be extendible via Varnish Modules (Vmods).
+- work with the kernel, not against it,
+- to translate Varnish Configuration Language (VCL) to C programming language,
+- be extendible via Varnish Modules (Vmods), and
+- reduce lock-contention via its workspace-oriented shared memory model.
 .. - Innovation, not regurgitation
 
 .. container:: handout
 
+	.. run on modern hardware
         The focus of Varnish has always been performance and flexibility.
-        That has required some sacrifices.
-
         Varnish is designed for hardware that you buy today, not the
         hardware you bought 15 years ago. Varnish is designed to run
         on 64-bit architectures and will scale almost proportional to
@@ -328,6 +328,7 @@ Varnish is designed to:
         kernel. The theoretical maximum is 4GB, but your OS will reserve
         some of that for the kernel. This is called the user/kernel  memory split.
 
+	.. work with the kernel
         Varnish does not keep track of whether your cache is on disk or in
         memory. Instead, Varnish will request a large chunk of memory and
         leave it to the operating system to figure out where that memory
@@ -340,28 +341,25 @@ Varnish is designed to:
         complexity into the OS kernel which is also better positioned to
         know what threads are ready to execute when.
 
-	.. Bookmark!
+        .. VCL   
+	In addition, Varnish uses a configuration language (VCL) that is translated to C programming language code.
+	This code is compiled with a standard C compiler and then dynamically linked directly into Varnish at run-time. 
+	This has several advantages.
+	The most practical is the freedom you get as system administrator.
+	
+	You can use VCL to decide how you want to interface with Varnish, instead of having a developer trying to predict every possible caching scenario.
+	The fact that VCL is translated to C code, gives Varnish a very high performance.
+	You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
+	In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
 
-        In addition, Varnish uses a configuration language that is
-        translated to C-code, compiled with a normal C compiler and
-        then dynamically linked directly into Varnish at
-        run-time. This has several advantages. The most practical of
-        which is the freedom you get as a system administrator. You
-        can use VCL to decide how you want to interface with Varnish,
-        instead of having a developer try to predict every possible
-        scenario. The fact that it boils down to C and a C compiler
-        also gives you very high performance, and if you really wanted
-        to, you could by-pass the VCL to C translation and write raw C
-        code (this is called in-line C in VCL). In short: Varnish
-        provides the features, VCL allow you to specify exactly how
-        you use and combine them.
-
-        With Varnish 3 you also have Varnish Modules or simply vmods. These
-        modules let you extend the functionality of the VCL language by
+	.. VMODs
+        With Varnish 3 you also have Varnish Modules or simply Vmods.
+	These modules let you extend the functionality of the VCL language by
         pulling in custom-written features. Some examples include
-        non-standard header manipulation, access to memcached or complex
+        non-standard header manipulation, access to *memcached* or complex
         normalization of headers.
 
+	.. shared memory
         The shared memory log allows Varnish to log large amounts of
         information at almost no cost by having other applications parse
         the data and extract the useful bits. This reduces the
@@ -381,33 +379,32 @@ Varnish is designed to:
 How objects are stored
 ----------------------
 
-
 - Objects in Varnish are stored in a hash
 - You can control the hashing
 - Multiple objects can have the same hash key
 
 .. container:: handout
 
-	Varnish has, as mentioned, a key/value store in its
-	core. Objects are stored in memory and a reference to this
-	object is kept in a hash tree.
+	.. hash
+	Varnish has a key/value store in its core. 
+	Objects are stored in memory and references to these objects are kept in a hash tree.
 
-	A rather unique feature of Varnish is that you can actually
-	control what goes into the hashing algorithm that Varnish uses
-	to store data. Typically the key is made out of the HTTP Host
-	header and the URL, but you're actually able to override this
-	if you should choose to do so.
+	.. Cache control
+	A rather unique feature of Varnish is that it allows you to control the input of the hashing algorithm.
+	The key is by default made out of the HTTP Host header and the URL, which is sufficient and recommended for typical cases.
+	However, you're able to create the key from something else.
+	For example, you can use cookies or the user-agent of a client request to create a hash key.
 
-	The HTTP protocol specifies that there can be multiple objects
-	that can be served on the same URL, depending on the
-	preferences of the client. For instance, serving gzip'ed
-	content to a client that doesn't indicate gzip support doesn't
-	make much sense and Varnish might look at the Various objects
-	stored at that key to pick out the one that matches.
-
+	.. multiple objects
+	The HTTP protocol specifies that multiple objects can be served from the same URL, depending on the preferences of the client.
+	For instance, content in *gzip* format is sent only to clients that indicate *gzip* support.
+	Varnish stores various objects under one key.
+	Upon a client request, Varnish selects the object that matches the client preferences.
 
 Getting started
 ===============
+
+.. bookmark!
 
 In this chapter, we will:
 
