@@ -62,7 +62,7 @@ The System Administration (Admin) course provides attendees with the necessary k
 The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
 
 .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
-.. The vmod course shows how to ???.
+.. The Vmod course shows how to ???.
 Other courses may also be taught with this book.
 
 Necessary Background
@@ -421,8 +421,8 @@ In this chapter, you will:
    However, there are some differences between Linux distributions that Varnish supports.
    Those differences are stated when necessary.
 
-   Most of the commands you will type in this course require root privilages.
-   You can get temporary root privilages by typing ``sudo <command>``, or permanent root privilages by typing ``sudo -i``.
+   Most of the commands you will type in this course require root privileges.
+   You can get temporary root privileges by typing ``sudo <command>``, or permanent root privileges by typing ``sudo -i``.
 
 Install Varnish and Apache
 ----------------------------------------
@@ -534,7 +534,7 @@ Using the ``service`` commands is recommended. It's safe and fast.
 
 .. container:: handout
 
-        Command line options and tunnable parameters are used to:
+        Command line options and tunable parameters are used to:
 	1) define how Varnish should work with operating system and hardware, and
 	2) set default values.
 	Configuration in VCL defines how Varnish should interact with web servers and clients.
@@ -543,7 +543,7 @@ Using the ``service`` commands is recommended. It's safe and fast.
 	Notable exceptions are:
 	1) allocated memory size for caching,
 	2) cache file location, 
-	3) ownership (for user and group privilages) of the Varnish daemon, and
+	3) ownership (for user and group privileges) of the Varnish daemon, and
 	4) the hashing algorithm.
 
         Some parameters changes require to restart Varnish to take effect.
@@ -555,6 +555,8 @@ Using the ``service`` commands is recommended. It's safe and fast.
 
 	Issuing ``param.show <parameter>`` will give you a description of the parameter.
 	The description includes when and how modifications takes effect, and the default and current value of the parameter.
+
+.. bookmark
 
 Command line configuration
 --------------------------
