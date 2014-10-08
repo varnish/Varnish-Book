@@ -409,43 +409,66 @@ How objects are stored
 Getting started
 ===============
 
-.. bookmark!
-
 In this chapter, we will:
 
- - Install Varnish
- - Install Apache as backend
+ - Install and configure Apache
+ - Install and configure  Varnish to use Apache as backend
  - Make Varnish and the backend-server work together
  - Cover basic configuration
 
 .. container:: handout
 
-        Use packages for your operating system whenever possible.
-	You may skipt the Installation subsection, if the software repository of your computer has Varnish 4.0.0 or more recent version available.
+   Use packages for your operating system whenever possible.
+   You may skipt the Installation subsection, if the software repository of your computer has Varnish 4.0.0 or more recent version available.
 
-	This course is independent of the operating system in use.
-	However, there are some differences between Linux distributions that Varnish supports.
-	Those differences are stated when necessary.
+   This course is independent of the operating system in use.
+   However, there are some differences between Linux distributions that Varnish supports.
+   Those differences are stated when necessary.
 
-	
-
-Exercise: Install Varnish and Apache
-------------------------------------
+Install Varnish and Apache
+--------------------------
 
 - Use packages provided by varnish-cache.org
 
++------------+---------------------------+--------------------------------------------+
+| Service    | Result                    | Configuration file                         |
++============+===========================+============================================+
+| Varnish    | Listens on port `80`      | ``/etc/default/varnish``                   |
++------------+---------------------------+--------------------------------------------+
+| Varnish    | Uses Apache as backend on | ``/etc/varnish/default.vcl``               |
+|            | `localhost:8080`          |                                            |
++------------+---------------------------+--------------------------------------------+
+| Apache     | Listens on port `8080`    | ``/etc/apache2/ports.conf`` and            |
+|            |                           | ``/etc/apache2/sites-enabled/000-default`` |
++------------+---------------------------+--------------------------------------------+
+Table I. Varnish and Apache configuration
+
 .. container:: handout
 
-You can install packages on Ubuntu and Debian with the command ``apt-get install <package>``.
+Most of the commands you will type in this course require root privilages.
+You can get temporary root privilages by typing ``sudo <command>``, or permanent root privilages by typing ``sudo -i``.
+
+To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``.
 E.g: ``apt-get install varnish``. 
 For Red Hat, use ``yum install <package>``.
 
+.. Install Apache
+To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
+Install the *HTTPie* utility with the command: ``apt-get install httpie``.
+HTTPie allows you to issue arbitrary HTTP requests in command line interface (CLI).
+Next:
+
+#. Verify that Apache works by typing ``http -p h localhost``.
+   You should see a ``200 OK`` response from Apache.
+   .. You probably want to change ``localhost`` with whatever the hostname of the machine you're working is.
+#. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default`.
+#. Restart Apache: ``service apache2 restart``.
+
+.. Install Varnish
 Varnish is distributed in the Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
 We generally recommend you to use the packages provided by varnish-cache.org.
 Please be advised that we only provide packages for Ubuntu's LTS releases, not all the intermediate releases.
 However, these packages might still work fine on newer releases.
-
-The only supported architecture is amd64.
 
 To use the varnish-cache.org repository and install Varnish on Ubuntu 14.04 trusty do the following as root::
 
@@ -456,68 +479,29 @@ To use the varnish-cache.org repository and install Varnish on Ubuntu 14.04 trus
   5. apt-get install varnish
 
 For Ubuntu 12.04 (precise) replace ``trusty`` with ``precise`` in instruction 3.
-If you want to install the older 3.0 version, replace ``varnish-4.0`` with varnish-3.0 in instruction 3.
+If you want to install the older version 3.0, replace ``varnish-4.0`` with ``varnish-3.0`` in instruction 3.
 
-To install Apache in Ubuntu, type the command: ``apt-get install apache2``. Then:
+.. Configure Varnish
+Next, you edit the Varnish configuration file ``/etc/default/varnish`` to listen on port `80` and have a management interface on port `1234`.
+This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
+  -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
+  -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
-.. bookmark
+After that, edit the configuration file ``/etc/varnish/default.vcl`` to use Apache as backend::
+  backend default {
+    .host = "127.0.0.1";
+    .port = "8080";
+  }
 
-#. Verify that Apache works by browsing to `http://localhost/`.
-   You probably want to change ``localhost`` with whatever the hostname of
-   the machine you're working is.
-#. Change Apache's ports from 80 to 8080, in `/etc/apache2/ports.conf` and
-   `/etc/apache2/sites-enabled/000-default`.
-
-
-
-#. Install Varnish
-#. Modify the Varnish configuration file so Varnish listens on port `80`,
-   has a management interface on port `1234` and uses `127.0.0.1:8080` as
-   the backend.
-#. Start Varnish using ``service varnish start``.
-
-The end result should be:
-
-+------------+------------------------+--------------------------------------------+
-| Service    | Result                 | Related config-files                       |
-+============+========================+============================================+
-| Apache     | Answers on port `8080` | ``/etc/apache2/ports.conf`` and            |
-|            |                        | ``/etc/apache2/sites-enabled/000-default`` |
-+------------+------------------------+--------------------------------------------+
-| Varnish    | Answers on port `80`   | ``/etc/default/varnish``                   |
-+------------+------------------------+--------------------------------------------+
-| Varnish    | Talks to apache on     | ``/etc/varnish/default.vcl``               |
-|            | `localhost:8080`       |                                            |
-+------------+------------------------+--------------------------------------------+
-
-.. container:: handout
-
-   Varnish Software and the Varnish community maintains a package
-   repository for several common GNU/Linux distributions. If your system
-   does not have sufficiently up-to-date packages, visit
-   https://www.varnish-cache.org/releases and find a package for your
-   distribution.
-
-   Once you have modified the ``/etc/default/varnish``-file, it should look
-   something like this (comments removed)::
-
-        NFILES=131072
-        MEMLOCK=82000
-        INSTANCE=$(uname -n)
-        DAEMON_OPTS="-a :80 \
-                     -T localhost:1234 \
-                     -f /etc/varnish/default.vcl \
-                     -s malloc,256m"
+Finally, restart Varnish using ``service varnish restart``.
 
    .. tip::
 
-      You can get an overview over services listening on TCP ports by
-      issuing the command ``netstat -nlpt``.
+      You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
 
-
-Configuration
--------------
-
+More about Varnish Configuration
+-------------------------------
+.. bookmark!
 Varnish has two categories of configuration:
 
 - Command line configuration and tunable parameters
