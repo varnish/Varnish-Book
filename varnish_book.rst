@@ -409,24 +409,23 @@ How objects are stored
 Getting started
 ===============
 
-In this chapter, we will:
+In this chapter, you will:
 
- - Install and configure Apache
- - Install and configure  Varnish to use Apache as backend
- - Make Varnish and the backend-server work together
- - Cover basic configuration
+- Install Varnish and Apache
+- Configure Varnish to use Apache as backend
+- Cover basic configuration
 
 .. container:: handout
-
-   Use packages for your operating system whenever possible.
-   You may skipt the Installation subsection, if the software repository of your computer has Varnish 4.0.0 or more recent version available.
 
    This course is independent of the operating system in use.
    However, there are some differences between Linux distributions that Varnish supports.
    Those differences are stated when necessary.
 
+   Most of the commands you will type in this course require root privilages.
+   You can get temporary root privilages by typing ``sudo <command>``, or permanent root privilages by typing ``sudo -i``.
+
 Install Varnish and Apache
---------------------------
+----------------------------------------
 
 - Use packages provided by varnish-cache.org
 
@@ -444,9 +443,6 @@ Install Varnish and Apache
 Table I. Varnish and Apache configuration
 
 .. container:: handout
-
-Most of the commands you will type in this course require root privilages.
-You can get temporary root privilages by typing ``sudo <command>``, or permanent root privilages by typing ``sudo -i``.
 
 To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``.
 E.g: ``apt-get install varnish``. 
@@ -500,55 +496,65 @@ Finally, restart Varnish using ``service varnish restart``.
       You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
 
 More about Varnish Configuration
--------------------------------
-.. bookmark!
-Varnish has two categories of configuration:
+--------------------------------
 
-- Command line configuration and tunable parameters
-- VCL
+Varnish has three categories of configuration.
 
-To re-load Varnish configuration, you have several commands:
++-------------------------------+------------------+------------------------------------------------------------------+
+| Configuration Type            | Restart Required | Persistence at Next Restart                                      |
++===============================+==================+==================================================================+
+| 1. Command line options       | Yes              | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
++-------------------------------+------------------+------------------------------------------------------------------+
+| 2. Tunable parameters         | No               | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
++-------------------------------+------------------+------------------------------------------------------------------+
+| 3. Configuration in VCL       | No               | Yes                                                              |
++-------------------------------+------------------+------------------------------------------------------------------+
 
-+-------------------------------+-----------------------------------------+
-| Command                       | Result                                  |
-+===============================+=========================================+
-| ``service varnish restart``   | Completely restarts Varnish, using the  |
-|                               | operating system mechanisms. Your cache |
-|                               | will be flushed.                        |
-+-------------------------------+-----------------------------------------+
-| ``service varnish reload``    | Only reloads VCL. Cache is not affected.|
-+-------------------------------+-----------------------------------------+
-| ``varnishadm vcl.load ..``    | Can be used to manually reload VCL. The |
-| and ``varnishadm vcl.use ..`` | ``service varnish reload`` command does |
-|                               | this for you automatically.             |
-+-------------------------------+-----------------------------------------+
-| ``varnishadm param.set ...``  | Can be used to set parameters without   |
-|                               | restarting Varnish.                     |
-+-------------------------------+-----------------------------------------+
+To reload Varnish configuration, you have several commands:
+
++-------------------------------------------------+-----------------------------------------+
+| Command                                         | Result                                  |
++=================================================+=========================================+
+| ``service varnish restart``                     | Restarts Varnish using the              |
+|                                                 | operating system mechanisms. Caches     |
+|                                                 | are flushed.                            |
++-------------------------------------------------+-----------------------------------------+
+| ``service varnish reload``                      | Only reloads the VCL.                   |
+|                                                 | Caches are not affected.                |
++-------------------------------------------------+-----------------------------------------+
+| ``varnishadm vcl.load <configname> <filename>`` | Can be used to manually reload VCL. The |
+| and ``varnishadm vcl.use <configname>``         | ``service varnish reload`` command does |
+|                                                 | this for you automatically.             |
++-------------------------------------------------+-----------------------------------------+
+| ``varnishadm param.set <param> <value>``        | Can be used to set parameters without   |
+|                                                 | restarting Varnish.                     |
++-------------------------------------------------+-----------------------------------------+
 
 Using the ``service`` commands is recommended. It's safe and fast.
 
 .. container:: handout
 
-        Tunable parameters and command line arguments are used to define
-        how Varnish should work with operating system and hardware in
-        addition to setting some default values, while VCL define how
-        Varnish should interact with web servers and clients.
+        Command line options and tunnable parameters are used to:
+	1) define how Varnish should work with operating system and hardware, and
+	2) set default values.
+	Configuration in VCL defines how Varnish should interact with web servers and clients.
 
-        Almost every aspect of Varnish can be reconfigured without
-        restarting Varnish. Notable exceptions are cache size and
-        location, the username and group that Varnish runs as and
-        hashing algorithm.
+        Almost every aspect of Varnish can be reconfigured without restarting Varnish.
+	Notable exceptions are:
+	1) allocated memory size for caching,
+	2) cache file location, 
+	3) ownership (for user and group privilages) of the Varnish daemon, and
+	4) the hashing algorithm.
 
-        While you can change the values, some changes might require
-        restarting the child to take effect (modifying the listening
-        port, for instance) or might not be visible
-        immediately. Changes to how long objects are cached, for
-        instance, usually only take effect after the currently cached
-        objects expire and are fetched again. Issuing ``param.show
-        <parameter>`` will give you a description of the parameter,
-        when and how it takes effect and the default and current
-        value.
+        Some parameters changes require to restart Varnish to take effect.
+	For example, the modification of the listening port requires a restart.
+
+	Other changes might not take effect immediately, but they do not require to restart Varnish.
+	Changes to cache time-to-live (TTL), for instance, take effect only after the current cached objects expire.
+	In this example, the value of the TTL parameter is only applicable to caches fetched after the TTL modification.
+
+	Issuing ``param.show <parameter>`` will give you a description of the parameter.
+	The description includes when and how modifications takes effect, and the default and current value of the parameter.
 
 Command line configuration
 --------------------------
