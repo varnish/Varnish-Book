@@ -483,7 +483,8 @@ This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_O
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
-After that, edit the configuration file ``/etc/varnish/default.vcl`` to use Apache as backend::
+
+Edit the configuration file ``/etc/varnish/default.vcl`` to use Apache as backend::
   backend default {
     .host = "127.0.0.1";
     .port = "8080";
@@ -501,7 +502,7 @@ More about Varnish Configuration
 Varnish has three categories of configuration.
 
 +-------------------------------+------------------+------------------------------------------------------------------+
-| Configuration Type            | Restart Required | Persistence at Next Restart                                      |
+| Configuration Type            | Restart Required | Persistence at next restart                                      |
 +===============================+==================+==================================================================+
 | 1. Command line options       | Yes              | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
 +-------------------------------+------------------+------------------------------------------------------------------+
@@ -547,9 +548,8 @@ Using the ``service`` commands is recommended. It's safe and fast.
 	4) the hashing algorithm.
 
         Some parameters changes require to restart Varnish to take effect.
-	For example, the modification of the listening port requires a restart.
-
-	Other changes might not take effect immediately, but they do not require to restart Varnish.
+	For example, the modification of the listening port.
+	Other changes might not take effect immediately, but restart is not required.
 	Changes to cache time-to-live (TTL), for instance, take effect only after the current cached objects expire.
 	In this example, the value of the TTL parameter is only applicable to caches fetched after the TTL modification.
 
