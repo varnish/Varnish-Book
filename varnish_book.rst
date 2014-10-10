@@ -501,15 +501,15 @@ More about Varnish Configuration
 
 Varnish has three categories of configuration.
 
-+-------------------------------+------------------+------------------------------------------------------------------+
-| Configuration Type            | Restart Required | Persistence at next restart                                      |
-+===============================+==================+==================================================================+
-| 1. Command line options       | Yes              | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
-+-------------------------------+------------------+------------------------------------------------------------------+
-| 2. Tunable parameters         | No               | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
-+-------------------------------+------------------+------------------------------------------------------------------+
-| 3. Configuration in VCL       | No               | Yes                                                              |
-+-------------------------------+------------------+------------------------------------------------------------------+
++-------------------------------+-----------------------------------+------------------------------------------------------------------+
+| Configuration Type            | Restart Required                  | Persistence at next restart                                      |
++===============================+===================================+==================================================================+
+| 1. Command line options       | Yes                               | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
++-------------------------------+-----------------------------------+------------------------------------------------------------------+
+| 2. Tunable parameters         | No (if changed in ``varnishadm``) | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
++-------------------------------+-----------------------------------+------------------------------------------------------------------+
+| 3. Configuration in VCL       | No                                | Yes                                                              |
++-------------------------------+-----------------------------------+------------------------------------------------------------------+
 
 To reload Varnish configuration, you have several commands:
 
@@ -556,16 +556,17 @@ Using the ``service`` commands is recommended. It's safe and fast.
 	Issuing ``param.show <parameter>`` will give you a description of the parameter.
 	The description includes when and how modifications takes effect, and the default and current value of the parameter.
 
-.. bookmark
-
 Command line configuration
 --------------------------
 
+Type ``man varnishd`` to see all options of the Varnish daemon.
+Relevant options for the course are:
+
 -a <[hostname]:port>      listen address
--f <filename>             VCL
+-f <filename>             VCL file
 -p <parameter=value>      set tunable parameters
--S <secretfile>           authentication secret for management
--T <hostname:port>        Management interface
+-S <secretfile>           secret for authorizing access to the management port
+-T <hostname:port>        management interface
 -s <storagetype,options>  where and how to store objects
 
 .. container:: handout
@@ -575,8 +576,10 @@ Command line configuration
         You may want to take a moment to skim over the options mentioned
         above.
 
-        The only option that is strictly needed to start Varnish is the
-        ``-f`` to specify a VCL file.
+        For Varnish to start, you must specify a backend.
+	You can specify a backend by two means: 
+	1) declare it in a VCL file, or
+	2) use the ``-b`` to declare a backend when starting ``varnishd``.
 
         Though they are not strictly required, you almost always want to
         specify a ``-s`` to select a storage backend,  ``-a`` to make sure
@@ -584,7 +587,7 @@ Command line configuration
         enable a management interface, often referred to as a telnet
         interface.
 
-        Both for ``-T`` and ``-a``, you do not need to specify an IP, but
+        For both ``-T`` and ``-a``, you do not need to specify an IP, but
         can use ``:80`` to tell Varnish to listen to port 80 on all IPs
         available. Make sure you don't forget the colon, as ``-a 80`` will
         tell Varnish to listen to the IP with the decimal-representation
@@ -594,10 +597,11 @@ Command line configuration
         You can specify ``-p`` for parameters multiple times. The workflow
         for tuning Varnish parameters usually means that you first try the
         parameter on a running Varnish through the management interface to
-        find the value you want, then store it in a configuration file that
-        will pass it to Varnish with ``-p`` next time you start it up. We
-        will look at these files later on.
+        find the value you want.
+	Then store the parameter and value in a configuration file ``/etc/default/varnish``.
+	This file is read everytime you start Varnish.
 
+	.. TODO for the author: To consider to remove -S from the book
         The ``-S`` option specifies a file which contains a secret to be
         used for authentication. This can be used to authenticate with
         ``varnishadm -S`` as long as varnishadm can read the same secret
@@ -621,30 +625,26 @@ Configuration files
 -------------------
 
 Most Varnish-installations use two configuration-files. One of them is used
-by the operating system to start Varnish, while the other contains your
-VCL.
+by the operating system to start Varnish, and the other contains your VCL.
 
-+------------------------------+-----------------------------------------+
-| File                         | Usage                                   |
-+==============================+=========================================+
-| ``/etc/default/varnish``     | Used for parameters and command line    |
-|                              | arguments. When you change this, you    |
-|                              | need to run ``service varnish restart`` |
-|                              | for the changes to take effect.         |
-|                              | On RedHat-based OS's, this is kept in   |
-|                              | ``/etc/sysconfig/varnish`` instead.     |
-+------------------------------+-----------------------------------------+
-| ``/etc/varnish/default.vcl`` | The VCL file. You can change the file   |
-|                              | name by editing `/etc/default/varnish`  |
-|                              | if you want to, but it's normal to use  |
-|                              | the default name. This contains your    |
-|                              | VCL and backend-definitions. After      |
-|                              | changing this, you can run either       |
-|                              | ``service varnish reload``, which will  |
-|                              | not restart Varnish, or you can run     |
-|                              | ``service varnish restart``, which      |
-|                              | empties the cache.                      |
-+------------------------------+-----------------------------------------+
++------------------------------+------------------------------------------------+
+| File                         | Usage                                          |
++==============================+================================================+
+| ``/etc/default/varnish``     | Used for parameters and command line           |
+|                              | arguments. When you change this, you           |
+|                              | need to run ``service varnish restart``        |
+|                              | for the changes to take effect.                |
+|                              | On RedHat-based OS's, the file location        |
+|                              | is ``/etc/sysconfig/varnish``.                 |
++------------------------------+------------------------------------------------+
+| ``/etc/varnish/default.vcl`` | Default VCL file location. You can change this |
+|                              | location by editing `/etc/default/varnish`.    |
+|                              | The VCL file contains your                     |
+|                              | VCL and backend definitions. After             |
+|                              | changing this file, you can run                |
+|                              | ``service varnish reload``, which does         |
+|                              | not restart Varnish                            |
++------------------------------+------------------------------------------------+
 
 .. container:: handout
 
@@ -662,10 +662,12 @@ VCL.
 
    .. warning::
 
-      The script-configuration (located in `/etc/sysconfig` or
-      `/etc/default`) is directly sourced as a shell script. Pay close
+      The `varnish` script-configuration (located under `/etc/default/`
+      or `/etc/sysconfig/`) is directly sourced as a shell script. Pay close
       attention to any backslashes (\\) and quotation marks that might move
       around as you edit the DAEMON_OPTS environmental variable.
+
+.. bookmark
 
 Defining a backend in VCL
 -------------------------
