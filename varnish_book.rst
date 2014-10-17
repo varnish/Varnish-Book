@@ -643,7 +643,7 @@ by the operating system to start Varnish, and the other contains your VCL.
 |                              | VCL and backend definitions. After             |
 |                              | changing this file, you can run                |
 |                              | ``service varnish reload``, which does         |
-|                              | not restart Varnish                            |
+|                              | not restart `varnishd`.                        |
 +------------------------------+------------------------------------------------+
 
 .. container:: handout
