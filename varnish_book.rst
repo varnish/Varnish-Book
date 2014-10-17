@@ -705,6 +705,10 @@ Exercise: Fetch data through Varnish
 	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
         Therefore, it is useful to double-check web browsers requests with HTTPie.
 
+.. ############ Varnish Control Flow #############
+
+.. bookmark
+
 
 .. ################################################### Varnish log starts here #############################################
 
@@ -753,9 +757,6 @@ Logging Goals for Varnish 4
 - Query Language
 - Output control
 - API reorder of framents
-- Log query language
-- Output Control
-- Zero copy in the common case
 
 .. container:: handout
 
@@ -767,13 +768,7 @@ Logging Goals for Varnish 4
 
     .. API reorder of framents
 
-    .. Log query language
-
-    ..  Output Control
-
-    ..  Zero copy in the common case
-
-Log data tools
+Log Data Tools
 --------------
 The two most important tools to process that log data are:
 
@@ -795,58 +790,23 @@ Log Layout
 ----------
 
 - TODO: diagram of the shared memory log layout as page 4 and 5 of M. B. Grydeland, “Varnish 4 Logging API,” varnish-cache.org. [Online]. Available: https://www.varnish-cache.org/sites/default/files/Varnish%204%20Logging%20API.pdf. [Accessed: 13-Oct-2014].
-- 
 
 .. container:: handout
 
     .. Shared memory log layout
 
-
-Transactions and Transactions Groups
-------------------------------------
-
-.. TODO for the author: See at VSL.h for details about 'reason'
-- Transactions type:
-  - Session
-  - Client request
-  - Backend request
-  - ESI subrequest
-
-Reasons
-.. from /vagrant/varnish-cache/include/vapi/vsl.h:
-
-  enum VSL_reason_e {
-        VSL_r_unknown,
-        VSL_r_http_1,
-        VSL_r_rxreq,
-        VSL_r_esi,
-        VSL_r_restart,
-        VSL_r_pass,
-        VSL_r_fetch,
-        VSL_r_bgfetch,
-        VSL_r_pipe,
-        VSL_r__MAX,
-};
-
-- Transaction Groups:
-  - VXID
-  - Request
-  - Session
-  - Raw
-
-
-Varnish Transactions in the log
--------------------------------
+Transactions
+------------
 
 - A transaction is one work item in Varnish
-- Share a single Varnish Transaction ID (VXID) per types of transactions:
+- Share a single Varnish Transaction ID (VXID) per types of transactions.
+  - Session
   - Client request
   - Backend request
-  - Edge Side Includes (ESI) subrequest
-  - Session
-  - Restart
+
 .. container:: handout
 
+   A transaction is a set of log lines that belongs together, e.g. a client request or a backend request.
    .. A transaction is one work item in Varnish
    .. Share a single VXID
    The Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
@@ -859,21 +819,37 @@ Varnish Transactions in the log
    Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
 
    .. ESI
-   Edge Side Includes (ESI) is one technique to compose a single client-visible page out of multiple objects.
-   For more information about ESI and how to use it with Varnish, please see the Content Composition Section.
-  
+   We will see in the Content Composition Section how to analyze the log for Edge Side Includes (ESI) transactions.
+     
   .. Session
 
 
 Transaction Groups
------------------
+------------------
+
+.. the vsl-query man page describes the grouping modes and the transaction hierarchy
+.. https://www.varnish-cache.org/docs/trunk/reference/vsl-query.html
 
 - ``varnishlog -g <session | request | vxid | raw>`` groups together transactions
-- Transaction groups are hirarchical
-- Levels are equal to relationships
+- Transaction groups are hierarchical
+- Levels are equal to relationships (parents and children)
+
+::
+   Lvl 1: Client request (cache miss)
+     Lvl 2: Backend request
+     Lvl 2: ESI subrequest (cache miss)
+       Lvl 3: Backend request
+       Lvl 3: Backend request (VCL restart)
+       Lvl 3: ESI subrequest (cache miss)
+         Lvl 4: Backend request
+     Lvl 2: ESI subrequest (cache hit)
 
 .. container:: handout
 
+   ..
+
+   When grouping transactions, there is a hierarchy structure showing which transaction initiated what. 
+   
    .. client request
    In client request grouping mode, the various work items are logged together with their originating client request.
    For example, a client request that triggers a backend request might trigger two more ESI subrequests, which in turn might trigger yet another ESI subrequest.
@@ -888,24 +864,78 @@ Transaction Groups
    This statement contains the VXID of the parent request.
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
 
+Query language
+--------------
+
+- Operates on transaction groups
+- Query expression is true if it matches one or more records, false otherwise.
+- Supports:
+  - string matching ``RespProtocol eq "HTTP/1.1"``
+  - regex ``ReqMethod ~ "GET|POST"``
+  - integer and float matching ``RespStatus == 200``
+  - boolean operators ``RespStatus >= 500 and RespStatus < 600``
+  - parenthesis hierarchy
+  - Negate using ``not``
+
+::
+   varnishlog -q 'respstatus < 500'
+
+.. container:: handout
+
+    A query is run on a group of transactions.
+    Query expressions can be combined using boolean functions.
+
+    .. tip::
+
+       Other useful tricks:
+       
+       - Response time exceeds 1⁄2 second ``ReqEnd[5] >= 0.5``
+       - Client requests connection closed ``ReqHeader:connection ~ close``
+       - ESI miss (-g request) ``{3+}Begin ~ Bereq``
+
 Example of Log Output
 ---------------------
 
 ``varnishlog -g request -q "ReqUrl eq '/'" -i Timestamp,Begin,ReqMethod,ReqUrl,ReqHeader -d``
 
-.. TODO for the author: Insert image like page 10 of presentation by Martin
+TODO: Insert log snippet
+
+.. TODO for the author: Insert image like page 10 \cite{LogginginVarnish:l86uMkk5}
 .. The figure is titled: "Cache miss with request grouping"
 
 .. container:: handout
+   
+    .. Query Log Language
+    The ``-q`` option allows you to add a query to ``varnishlog``. 
+    Think of it as a sort of select filter for ``varnishlog``. 
+    It works together with the grouping so that if the query matches some part of any of the work items in the transaction group, the whole group matches and gets displayed.
 
-
-    .. bookmark
-
+    There are many output control options, such as ``-i``.
+    Output controls are applied last, and they do not affect queries.
+    .. -i
     The example above showcases a couple of new items in addition to the grouping.
     As you can see, we are using the ``-i`` to only show the log records that are listed.
-    One of these are the timestamps.
+    One of these is ``Timestamp``.
     Varnish timestamps the log at certain points, giving you detailed timing information as the request flows through Varnish.
-    For those of you who are doing weird stuff in VCL, you might appreciate that now there is a VCL function called timestamp in the std module, which will insert a custom timestamp with a user provided label.
+    You can customize timestamps with VCL function ``timestamp`` in the ``std`` module.
+    This function inserts a custom timestamp with a user provided label.
+
+    .. -q
+    The grouping and the query log processing all happens in the Varnish logging API. 
+    This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
+    For example, you can issue the ``varnishhist`` tool to only cover transactions delivering text/html that should be easy,
+
+    ::
+        $ varnishhist -q "RespHeader eq 'Content-Type: text/html'"
+   
+    or you can instruct ``varnishncsa`` to dump everything pointing to a certain domain and subdomains.
+
+    ::
+       $ varnishncsa -q "ReqHeader ~ '^Host: .*\.example.com'"
+ 
+    See the Appendix A for more information about ``varnishhist``, ``varnishncsa``, and other Varnish programs.
+
+.. .........................................................................................................
 
 varnishlog
 ----------
