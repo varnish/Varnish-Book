@@ -101,10 +101,6 @@ Each chapter has the following structure:
 At the end of each chapter there is a **Fast Track** section, and it contains three parts:
 1) a review, 2) exercise(s), and 3) feedback.
 
-In Appendix A of the book, you will find the **Varnish Book Reference**.
-
-Appendix B and C contain special purpose Varnish programs and supporting material respectively.
-
 .. container:: handout
 
 .. TODO presentation of outline
@@ -124,7 +120,12 @@ The Fast Track can be used for various purposes:
 - As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
 - As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
 
+In Appendix A of the book, you will find the **Varnish Book Reference**.
 The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
+Appendix B and C contain special purpose Varnish programs and supporting material respectively.
+Appendix D lists the Varnish Three Letter Acronyms.
+.. https://www.varnish-cache.org/trac/wiki/VTLA
+
 
 How to Use the Book
 -------------------
@@ -215,7 +216,7 @@ Varnish Cache and Varnish Cache Plus
    Varnish Software is the company behind Varnish Cache.
    Varnish Software and the Varnish community maintain a package repository of Varnish Cache for several common GNU/Linux distributions.
    .. Varnish Plus:
-   Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
+v   Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
    This edition is proprietary and it is called *Varnish Cache Plus*.
    
@@ -424,8 +425,14 @@ In this chapter, you will:
    Most of the commands you will type in this course require root privileges.
    You can get temporary root privileges by typing ``sudo <command>``, or permanent root privileges by typing ``sudo -i``.
 
-Install Varnish and Apache
-----------------------------------------
+   .. backend definition
+   In Varnish terminology, a backend server is whatever server Varnish talks to fetch content.
+   This can be any sort of service as long as it understands HTTP. 
+   Most of the time, Varnish talks to a web server or an application frontend server.
+   In this book, we use the terms interchangeably.
+
+Install Varnish and Apache as backend
+-------------------------------------
 
 - Use packages provided by varnish-cache.org
 
@@ -482,7 +489,6 @@ Next, you edit the Varnish configuration file ``/etc/default/varnish`` to listen
 This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
-
 
 Edit the configuration file ``/etc/varnish/default.vcl`` to use Apache as backend::
   backend default {
@@ -565,6 +571,7 @@ Relevant options for the course are:
 -a <[hostname]:port>      listen address
 -f <filename>             VCL file
 -p <parameter=value>      set tunable parameters
+.. TODO for the author: Consider to remove -S
 -S <secretfile>           secret for authorizing access to the management port
 -T <hostname:port>        management interface
 -s <storagetype,options>  where and how to store objects
@@ -604,22 +611,22 @@ Relevant options for the course are:
 	.. TODO for the author: To consider to remove -S from the book
         The ``-S`` option specifies a file which contains a secret to be
         used for authentication. This can be used to authenticate with
-        ``varnishadm -S`` as long as varnishadm can read the same secret
+        ``varnishadm -S`` as long as ``varnishadm`` can read the same secret
         file - or rather the same content: The content of the file can be
-        copied to another machine to allow varnishadm to access the
+        copied to another machine to allow ``varnishadm`` to access the
         management interface remotely.
 
         .. note::
 
-           It is possible to start Varnish without a VCL file using the
-           ``-b`` option instead of ``-f``:
-
-           -b <hostname:port>        backend address
+	   Varnish requires that you specify a backend.
+	   A backend is normally specified in the VCL file.
+           You specify the VCL file with the ``-f`` option.
+	   However, it is possible to start Varnish without a VCL file by specifying the backend server with the ``-b <hostname:port>`` option instead.
 
            Since the ``-b`` option is mutually exclusive with the ``-f``
            option, we will only use the ``-f`` option. You can use ``-b``
            if you do not intend to specify any VCL and only have a single
-           web server.
+           backend server.
 
 Configuration files
 -------------------
@@ -667,8 +674,6 @@ by the operating system to start Varnish, and the other contains your VCL.
       attention to any backslashes (\\) and quotation marks that might move
       around as you edit the DAEMON_OPTS environmental variable.
 
-.. bookmark
-
 Defining a backend in VCL
 -------------------------
 
@@ -679,105 +684,228 @@ Defining a backend in VCL
 
 .. container:: handout
 
-   In Varnish terminology, a backend-server is whatever server Varnish
-   talks to to fetch content. This can be any sort of service as long as it
-   understands HTTP. Most of the time, Varnish talks to a web server or an
-   application frontend server.
-
-   You almost always want to use VCL so we might as well get started.
-
-   The above example defines a backend named ``default``. The name
-   `default` is not special, and the real default backend that Varnish will
-   use is the first backend you specify.
-
-   You can specify many backends at the same time, but for now, we will
-   only specify one to get started.
+   The above example defines a backend named ``default``.
+   The name `default` is not special.
+   The real default backend that Varnish will use is the first backend you specify.
+   You can specify many backends at the same time, but for now, we will only specify one to get started.
 
 Exercise: Fetch data through Varnish
 ------------------------------------
 
-#. Install ``libwww-perl``
-#. Execute ``GET -Used http://localhost:80/`` (on the command line)
+#. Execute ``http -p hH http://localhost/`` on the command line
 #. Compare the results from multiple executions.
 
 .. container:: handout
 
-        GET and HEAD is actually the same tool; lwp-request. A HTTP HEAD request
-        tells the web server - or Varnish in this case - to only reply with the
-        HTTP headers, while GET returns everything.
+        ``-p hH`` specifies HTTPie to print only request and response headers, but not the content.
+	The typical HTTP response is "200 OK" or "404 File not found".
+	Feel free to try removing some of the options observe the effect.
+	For more information about the HTTPie command, type ``man http``.
 
-        ``GET -Used`` tells lwp-request to do a GET-request, print the
-        request headers (U), print the response status code (s), which is
-        typically "200 OK" or "404 File not found", print the response
-        headers "-e" and finally to not display the content of the
-        response. Feel free to try removing some of the options observe the
-        effect.
+	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
+        Therefore, it is useful to double-check web browsers requests with HTTPie.
 
-        GET is also useful to generate requests with custom headers, as you can
-        supply extra headers with ``-H "Header: value"``, which can be used
-        multiple times.
 
-        You may also be familiar with firebug, an add-on for Firefox used
-        for web development and related affairs. This too can show you the
-        response headers.
+.. ################################################### Varnish log starts here #############################################
 
-        Web browsers have their own cache which you may not immediately be
-        able to tell if you're using or not. It's often helpful to
-        double-check with GET or HEAD if you are in doubt if what you're
-        seeing is coming from Varnish or is part of your browser cache.
+The Varnish Log
+===============
 
-Log data
---------
+In this chapter you will learn about:
 
-Varnish provides a great deal of log data in real-time. The two most important tools to process that log data is:
+- Log data is in shared memory
+- Varnish logs everything (no debug switches)
+- Log layout
+- Utilities to inspect the log: ``varnishlog`` and ``varnishstat``
 
-- Varnishlog, used to access request-specific data (An extended access log,
-  provides information about specific clients and requests.).
-- varnishstat, used to access global counters (Provides overall statistics,
-  e.g the number of total requests, number of objects and more.).
-- If you have multiple Varnish instances on the same machine, you need to
-  specify ``-n <name>`` both when starting Varnish and when starting the
-  corresponding tools.
+.. container:: handout
+   
+   .. Log data is in shared memory
+   Varnish provides a great deal of log data in real-time. 
+   If you look for logging data from Varnish you may discover that `/var/log/varnish/` is either non-existent or empty. 
+   There's a reason for that.
 
-In addition the ``varnishncsa``-tool is often used to write apache-like log
-files.
+   Varnish logs all its information to a shared memory log which is overwritten repeatedly every time it's filled up.
+   The downside is that you don't have historic data unless you set it up yourself, which is not covered in this chapter.
+   The upside is that you get an abundance of information when you need it.
+
+   .. Log layout
+   .. TODO
+
+   .. Utilities to inspect the log
+   To use the log data, you need to use specific tools to parse the content.
+   Through the course you will become familiar with ``varnishlog`` and ``varnishstat``, which are the two most important tools you have at your disposal.
+
+   .. note::
+
+      If you want to log to disk you should take a look at ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` (or under the ``/etc/syconfig/`` equivalents for Red Hat).
+      .. TODO for the author: What is "this"?
+      This will allow you to run ``varnishncsa`` or ``varnishlog`` as a service in the background that writes to disk.
+
+      Keep in mind that ``varnishlog`` generates large amounts of data.
+      You may not want to log all of it to disk.
+
+Logging Goals for Varnish 4
+----------------------------
+
+- Log data tools
+- Transactions and Transactions Groups
+- Query Language
+- Output control
+- API reorder of framents
+- Log query language
+- Output Control
+- Zero copy in the common case
 
 .. container:: handout
 
-   If you look for logging data for Varnish you may discover that
-   `/var/log/varnish/` is either non-existent or empty. There's a reason
-   for that.
+    .. Transactions and Transactions Groups
 
-   Varnish logs all its information to a shared memory log which is
-   overwritten repeatedly every time it's filled up. To use the log data,
-   you need to use specific tools to parse the content.
+    .. Query Language
 
-   The downside is that you don't have historic data unless you set it up
-   yourself, which is not covered in this chapter, but the upside is that
-   you get an abundance of information when you need it.
+    .. Output control
 
-   Through the course you will become familiar with varnishlog and
-   varnishstat, which are the two most important tools you have at your
-   disposal.
+    .. API reorder of framents
 
-   .. note::
+    .. Log query language
 
-      If you want to log to disk you should take a look at
-      ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` (or the
-      ``syconfig`` equivalents). This will allow you to run ``varnishncsa``
-      or ``varnishlog`` as a service in the background that writes to disk.
+    ..  Output Control
 
-      Keep in mind that ``varnishlog`` generates large amounts of data,
-      though. You may not want to log all of it to disk.
+    ..  Zero copy in the common case
 
-   .. note::
+Log data tools
+--------------
+The two most important tools to process that log data are:
 
-      All log tools (and varnishadm) takes an ``-n`` option. Varnish itself
-      also takes a ``-n`` option. This is used to specify a name for
-      ``varnishd``, or the location of the shared memory log. On most
-      installations ``-n`` is not used, but if you run multiple Varnish
-      instances on a single machine you need to use ``-n`` to distinguish
-      one varnish-instance from another.
+- ``varnishlog``, used to access request-specific data: An extended access log, provides information about specific clients and requests.
+- ``varnishstat``, used to access global counters: Provides overall statistics, e.g the number of total requests, number of objects and more.
+- If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when starting the corresponding tools.
+
+In addition, the ``varnishncsa`` tool is often used to write Apache-like log files.
+
+.. container:: handout
+
+      All log tools (and ``varnishadm``) takes a ``-n`` option. 
+      The Varnish daemon ``varnishd`` itself also takes a ``-n`` option. 
+      This option is used to specify a name for ``varnishd``, or the location of the shared memory log. 
+      On most installations ``-n`` is not used, but if you run multiple Varnish instances on a single machine, you need to use ``-n`` to distinguish one Varnish instance from another.
+
+
+Log Layout
+----------
+
+- TODO: diagram of the shared memory log layout as page 4 and 5 of M. B. Grydeland, “Varnish 4 Logging API,” varnish-cache.org. [Online]. Available: https://www.varnish-cache.org/sites/default/files/Varnish%204%20Logging%20API.pdf. [Accessed: 13-Oct-2014].
+- 
+
+.. container:: handout
+
+    .. Shared memory log layout
+
+
+Transactions and Transactions Groups
+------------------------------------
+
+.. TODO for the author: See at VSL.h for details about 'reason'
+- Transactions type:
+  - Session
+  - Client request
+  - Backend request
+  - ESI subrequest
+
+Reasons
+.. from /vagrant/varnish-cache/include/vapi/vsl.h:
+
+  enum VSL_reason_e {
+        VSL_r_unknown,
+        VSL_r_http_1,
+        VSL_r_rxreq,
+        VSL_r_esi,
+        VSL_r_restart,
+        VSL_r_pass,
+        VSL_r_fetch,
+        VSL_r_bgfetch,
+        VSL_r_pipe,
+        VSL_r__MAX,
+};
+
+- Transaction Groups:
+  - VXID
+  - Request
+  - Session
+  - Raw
+
+
+Varnish Transactions in the log
+-------------------------------
+
+- A transaction is one work item in Varnish
+- Share a single Varnish Transaction ID (VXID) per types of transactions:
+  - Client request
+  - Backend request
+  - Edge Side Includes (ESI) subrequest
+  - Session
+  - Restart
+.. container:: handout
+
+   .. A transaction is one work item in Varnish
+   .. Share a single VXID
+   The Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
+   A unique VXID is assigned to each type of transaction.
+   You can use the VXID when you view the log through varnishlog. 
+   
+   The default is to group the log on VXID, which basically makes ``varnishlog`` act more or less the way it does in Varnish 3.0.
+   When viewing a log for a simple cache miss, you’ll see the backend request, the client request and then the session.
+   They are displayed in the order they end.
+   Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
+
+   .. ESI
+   Edge Side Includes (ESI) is one technique to compose a single client-visible page out of multiple objects.
+   For more information about ESI and how to use it with Varnish, please see the Content Composition Section.
+  
+  .. Session
+
+
+Transaction Groups
+-----------------
+
+- ``varnishlog -g <session | request | vxid | raw>`` groups together transactions
+- Transaction groups are hirarchical
+- Levels are equal to relationships
+
+.. container:: handout
+
+   .. client request
+   In client request grouping mode, the various work items are logged together with their originating client request.
+   For example, a client request that triggers a backend request might trigger two more ESI subrequests, which in turn might trigger yet another ESI subrequest.
+   After that, it comes the response from the backend to the client.
+   All these requests together with the client response are arranged in the order they are initiated.
+   This arragement is easier to grasp than when grouping by VXID.
+
+   .. Levels and relationships of transactions
+   .. TODO for the author: explain that levels are equal to relationships.
+   .. This explanation will probably go before when explaining subroutines.
+   When a subrequest occurs in the log, the subrequest tells us about the relationship to its parent request through the `Link` statement. 
+   This statement contains the VXID of the parent request.
+   ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
+
+Example of Log Output
+---------------------
+
+``varnishlog -g request -q "ReqUrl eq '/'" -i Timestamp,Begin,ReqMethod,ReqUrl,ReqHeader -d``
+
+.. TODO for the author: Insert image like page 10 of presentation by Martin
+.. The figure is titled: "Cache miss with request grouping"
+
+.. container:: handout
+
+
+    .. bookmark
+
+    The example above showcases a couple of new items in addition to the grouping.
+    As you can see, we are using the ``-i`` to only show the log records that are listed.
+    One of these are the timestamps.
+    Varnish timestamps the log at certain points, giving you detailed timing information as the request flows through Varnish.
+    For those of you who are doing weird stuff in VCL, you might appreciate that now there is a VCL function called timestamp in the std module, which will insert a custom timestamp with a user provided label.
 
 varnishlog
 ----------
