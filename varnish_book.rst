@@ -2577,7 +2577,7 @@ Varnish Processing States
 .. TODO for the author
 
 Client Side
-...........
+-----------
 
 .. image:: ui/img/log_layout.png
    :align: center
