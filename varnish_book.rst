@@ -705,8 +705,6 @@ Exercise: Fetch data through Varnish
 	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
         Therefore, it is useful to double-check web browsers requests with HTTPie.
 
-.. ################################################### Varnish log starts here #############################################
-
 The Varnish Log
 ===============
 
@@ -714,7 +712,6 @@ In this chapter you will learn about:
 
 - Log data is in shared memory
 - Varnish logs everything (no debug switches)
-- Processing States
 - Utilities to inspect the log: ``varnishlog`` and ``varnishstat``
 
 .. container:: handout
@@ -740,25 +737,6 @@ In this chapter you will learn about:
 
       Keep in mind that ``varnishlog`` generates large amounts of data.
       You may not want to log all of it to disk.
-
-Logging Goals for Varnish 4
-----------------------------
-
-- Log data tools
-- Transactions and Transactions Groups
-- Query Language
-- Output control
-- API reorder of fragments
-
-.. container:: handout
-
-    .. Transactions and Transactions Groups
-
-    .. Query Language
-
-    .. Output control
-
-    .. API reorder of fragments
 
 Log Data Tools
 --------------
@@ -803,30 +781,24 @@ Transactions
 ------------
 
 - A transaction is one work item in Varnish
-- Share a single Varnish Transaction ID (VXID) per types of transactions.
-  - Session
+- Share a single Varnish Transaction ID (VXID) per types of transactions. Examples of transaction types are:
   - Client request
   - Backend request
+  - Session
 
 .. container:: handout
 
+   .. Definition of transaction
    A transaction is a set of log lines that belongs together, e.g. a client request or a backend request.
-   .. A transaction is one work item in Varnish
-   .. Share a single VXID
    The Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
    A unique VXID is assigned to each type of transaction.
    You can use the VXID when you view the log through varnishlog. 
    
+   .. More aobut VXID
    The default is to group the log on VXID, which basically makes ``varnishlog`` act more or less the way it does in Varnish 3.0.
    When viewing a log for a simple cache miss, you’ll see the backend request, the client request and then the session.
    They are displayed in the order they end.
    Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
-
-   .. ESI
-   We will see in the Content Composition Section how to analyze the log for Edge Side Includes (ESI) transactions.
-     
-  .. Session
-
 
 Transaction Groups
 ------------------
@@ -836,9 +808,8 @@ Transaction Groups
 
 - ``varnishlog -g <session | request | vxid | raw>`` groups together transactions
 - Transaction groups are hierarchical
-- Levels are equal to relationships (parents and children)
-
-::
+- Levels are equal to relationships (parents and children)::
+ 
    Lvl 1: Client request (cache miss)
      Lvl 2: Backend request
      Lvl 2: ESI subrequest (cache miss)
@@ -850,16 +821,16 @@ Transaction Groups
 
 .. container:: handout
 
-   .. TODO
-
-   When grouping transactions, there is a hierarchy structure showing which transaction initiated what. 
-   
+   .. Hierarchy
+   When grouping transactions, there is a hierarchy structure showing which transaction initiated what.    
    .. client request
    In client request grouping mode, the various work items are logged together with their originating client request.
    For example, a client request that triggers a backend request might trigger two more ESI subrequests, which in turn might trigger yet another ESI subrequest.
    After that, it comes the response from the backend to the client.
    All these requests together with the client response are arranged in the order they are initiated.
    This arrangement is easier to grasp than when grouping by VXID.
+  .. ESI
+   We will see in the Content Composition section how to analyze the log for Edge Side Includes (ESI) transactions.
 
    .. Levels and relationships of transactions
    .. TODO for the author: explain that levels are equal to relationships.
@@ -867,6 +838,36 @@ Transaction Groups
    When a subrequest occurs in the log, the subrequest tells us about the relationship to its parent request through the `Link` statement. 
    This statement contains the VXID of the parent request.
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
+
+Example of Transaction Grouping
+...............................
+
+vagrant@trusty-amd64:~$ varnishlog -g request -i Link,VCL_call,VCL_return -d
+*   << Request  >> 2
+-   VCL_call       RECV
+-   VCL_return     hash
+-   VCL_call       HASH
+-   VCL_return     lookup
+-   VCL_call       MISS
+-   VCL_return     fetch
+-   Link           bereq 3 fetch
+-   VCL_call       DELIVER
+-   VCL_return     deliver
+**  << BeReq    >> 3
+--  VCL_call       BACKEND_FETCH
+--  VCL_return     fetch
+--  VCL_call       BACKEND_RESPONSE
+--  VCL_return     deliver
+
+.. container:: handout
+
+   The example shows a client request in a *cache miss* scenario.
+   Figure ## shows 
+   Figure ##+1 The command returns records grouped by request, and it shows only some tags for simplicity.
+
+   To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
+   You will learn the work flow of Varnish in detail in section ##.
+   
 
 Query language
 --------------
@@ -2577,21 +2578,20 @@ Varnish Processing States
 .. TODO for the author
 
 Client Side
------------
+...........
 
 .. image:: ui/img/log_layout.png
    :align: center
-   :with: 80%
-
-
+   :width: 80%
 
 .. ui/img/cache_req_fsm.png
+
 Backend Side
 ............
 
 .. image:: ui/img/cache_fetch.png
    :align: center
-   :with: 80%
+   :width: 80%
 
 
 VCL - request flow
