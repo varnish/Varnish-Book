@@ -2580,13 +2580,13 @@ Client Side
 ...........
 .. image:: ui/img/cache_req_fsm.png
    :align: center
-   .. :with: 80%
+   :with: 80%
 
 Backend Side
 ............
-.. iamge:: ui/img/cache_fetch.png
+.. image:: ui/img/cache_fetch.png
    :align: center
-
+   :with: 80%
 
 
 VCL - request flow
