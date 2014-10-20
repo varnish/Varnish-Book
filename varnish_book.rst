@@ -2578,6 +2578,7 @@ Varnish Processing States
 
 Client Side
 ...........
+
 .. image:: ui/img/log_layout.png
    :align: center
    :with: 80%
@@ -2587,6 +2588,7 @@ Client Side
 .. ui/img/cache_req_fsm.png
 Backend Side
 ............
+
 .. image:: ui/img/cache_fetch.png
    :align: center
    :with: 80%
