@@ -842,28 +842,13 @@ Transaction Groups
 Example of Transaction Grouping
 ...............................
 
-vagrant@trusty-amd64:~$ varnishlog -g request -i Link,VCL_call,VCL_return -d
-*   << Request  >> 2
--   VCL_call       RECV
--   VCL_return     hash
--   VCL_call       HASH
--   VCL_return     lookup
--   VCL_call       MISS
--   VCL_return     fetch
--   Link           bereq 3 fetch
--   VCL_call       DELIVER
--   VCL_return     deliver
-**  << BeReq    >> 3
---  VCL_call       BACKEND_FETCH
---  VCL_return     fetch
---  VCL_call       BACKEND_RESPONSE
---  VCL_return     deliver
+.. image:: ui/img/cache_miss_request_grouping.png
 
 .. container:: handout
 
    The example shows a client request in a *cache miss* scenario.
-   Figure ## shows 
-   Figure ##+1 The command returns records grouped by request, and it shows only some tags for simplicity.
+   In figure ##, ``varnishlog`` returns records grouped by request.
+   The command requests only some tags for simplicity.
 
    To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
    You will learn the work flow of Varnish in detail in section ##.
