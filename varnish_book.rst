@@ -606,7 +606,7 @@ Relevant options for the course are:
         parameter on a running Varnish through the management interface to
         find the value you want.
 	Then store the parameter and value in a configuration file ``/etc/default/varnish``.
-	This file is read everytime you start Varnish.
+	This file is read every time you start Varnish.
 
 	.. TODO for the author: To consider to remove -S from the book
         The ``-S`` option specifies a file which contains a secret to be
@@ -641,7 +641,7 @@ by the operating system to start Varnish, and the other contains your VCL.
 |                              | arguments. When you change this, you           |
 |                              | need to run ``service varnish restart``        |
 |                              | for the changes to take effect.                |
-|                              | On RedHat-based OS's, the file location        |
+|                              | On Red Hat-based OS's, the file location        |
 |                              | is ``/etc/sysconfig/varnish``.                 |
 +------------------------------+------------------------------------------------+
 | ``/etc/varnish/default.vcl`` | Default VCL file location. You can change this |
@@ -705,11 +705,6 @@ Exercise: Fetch data through Varnish
 	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
         Therefore, it is useful to double-check web browsers requests with HTTPie.
 
-.. ############ Varnish Control Flow #############
-
-.. bookmark
-
-
 .. ################################################### Varnish log starts here #############################################
 
 The Varnish Log
@@ -719,7 +714,7 @@ In this chapter you will learn about:
 
 - Log data is in shared memory
 - Varnish logs everything (no debug switches)
-- Log layout
+- Processing States
 - Utilities to inspect the log: ``varnishlog`` and ``varnishstat``
 
 .. container:: handout
@@ -729,12 +724,10 @@ In this chapter you will learn about:
    If you look for logging data from Varnish you may discover that `/var/log/varnish/` is either non-existent or empty. 
    There's a reason for that.
 
+   .. logs everything
    Varnish logs all its information to a shared memory log which is overwritten repeatedly every time it's filled up.
    The downside is that you don't have historic data unless you set it up yourself, which is not covered in this chapter.
    The upside is that you get an abundance of information when you need it.
-
-   .. Log layout
-   .. TODO
 
    .. Utilities to inspect the log
    To use the log data, you need to use specific tools to parse the content.
@@ -743,8 +736,7 @@ In this chapter you will learn about:
    .. note::
 
       If you want to log to disk you should take a look at ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` (or under the ``/etc/syconfig/`` equivalents for Red Hat).
-      .. TODO for the author: What is "this"?
-      This will allow you to run ``varnishncsa`` or ``varnishlog`` as a service in the background that writes to disk.
+      You can configure those files to run ``varnishncsa`` or ``varnishlog`` as a service in the background that writes to disk.
 
       Keep in mind that ``varnishlog`` generates large amounts of data.
       You may not want to log all of it to disk.
@@ -756,7 +748,7 @@ Logging Goals for Varnish 4
 - Transactions and Transactions Groups
 - Query Language
 - Output control
-- API reorder of framents
+- API reorder of fragments
 
 .. container:: handout
 
@@ -766,7 +758,7 @@ Logging Goals for Varnish 4
 
     .. Output control
 
-    .. API reorder of framents
+    .. API reorder of fragments
 
 Log Data Tools
 --------------
@@ -785,15 +777,27 @@ In addition, the ``varnishncsa`` tool is often used to write Apache-like log fil
       This option is used to specify a name for ``varnishd``, or the location of the shared memory log. 
       On most installations ``-n`` is not used, but if you run multiple Varnish instances on a single machine, you need to use ``-n`` to distinguish one Varnish instance from another.
 
-
 Log Layout
 ----------
 
-- TODO: diagram of the shared memory log layout as page 4 and 5 of M. B. Grydeland, “Varnish 4 Logging API,” varnish-cache.org. [Online]. Available: https://www.varnish-cache.org/sites/default/files/Varnish%204%20Logging%20API.pdf. [Accessed: 13-Oct-2014].
+.. image:: ui/img/log_layout.png
+   :align: center
+   :width: 80%
+
+.. container:: handout
+   
+   .. TODO for the author: Add description
+
+Reordered Log Layout
+--------------------
+
+.. image:: ui/img/reordered_log_layout.png
+   :align: center
+   :width: 80%
 
 .. container:: handout
 
-    .. Shared memory log layout
+    .. TODO for the author: Add description
 
 Transactions
 ------------
@@ -846,7 +850,7 @@ Transaction Groups
 
 .. container:: handout
 
-   ..
+   .. TODO
 
    When grouping transactions, there is a hierarchy structure showing which transaction initiated what. 
    
@@ -855,7 +859,7 @@ Transaction Groups
    For example, a client request that triggers a backend request might trigger two more ESI subrequests, which in turn might trigger yet another ESI subrequest.
    After that, it comes the response from the backend to the client.
    All these requests together with the client response are arranged in the order they are initiated.
-   This arragement is easier to grasp than when grouping by VXID.
+   This arrangement is easier to grasp than when grouping by VXID.
 
    .. Levels and relationships of transactions
    .. TODO for the author: explain that levels are equal to relationships.
@@ -2462,6 +2466,8 @@ Exercise: Use `article.php` to test `Age`
 VCL Basics
 ==========
 
+.. TODO for the author: look at https://www.varnish-cache.org/docs/trunk/reference/vcl.html
+
 - VCL as a state engine
 - Basic syntax
 - VCL_recv and VCL_fetch
@@ -2555,6 +2561,33 @@ Syntax
    different return values. These return statements tell Varnish what to do
    next. Examples include "look this up in cache", "do not look this up in
    the cache" and "generate an error message".
+
+.. TODO for the author: "Varnish Processing States is updating the "VCL - request flow"
+
+Varnish Processing States
+-------------------------
+
+- Logging 
+- Client and backend requests are implemented as state machines
+- Figure # shows an overview of processing states at the client side, their transisions, and the most relevant functions in core code
+- Figure #+1 shows the overview at the backend side
+
+.. container:: handout
+
+.. TODO for the author
+
+Client Side
+...........
+.. image:: ui/img/cache_req_fsm.png
+   :align: center
+   .. :with: 80%
+
+Backend Side
+............
+.. iamge:: ui/img/cache_fetch.png
+   :align: center
+
+
 
 VCL - request flow
 ------------------
