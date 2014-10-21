@@ -130,8 +130,9 @@ Appendix D lists the Varnish Three Letter Acronyms.
 How to Use the Book
 -------------------
 
-- Most of the material in this book applies to Varnish Cache, parts that apply only to Varnish Cache Plus are clearly stated.
+- Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
 - The instructor guides you through the book
+- Use the *manual pages* and help options.
 - To practice the course, use the Fast Track in the following way:
   + Read the Review and Exercise parts of the Fast Track.
   + If you can complete the exercise(s), you remember the most important parts.
@@ -139,25 +140,36 @@ How to Use the Book
 
 .. container:: handout
 
+.. Varnish Cache Course
 The Varnish Book is designed to be used as training material under a Varnish Plus course taught by a certified instructor.
 Under a course, the instructor guides you and selects the relevant chapters to learn.
 If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
+.. Excercises
 There are almost always many ways to do an exercise.
 The solutions provided in this book or by your instructor are not necessarily better than your own.
 
+.. man pages and help commands
+Most commands contains a reference manual that is accessible through the manual page command ``man``.
+For example, you can issue ``man varnishd`` to get detailed information about the Varnish daemon command.
+Some commands have a help option to print the usage of the command.
+For example, ``varnishlog -h`` prints the usage of the command, and lists its options with a short description of them.
+
+.. Installation required
 To complete this book, you need the following installation:
 
 - Varnish Cache Plus  4.0 or later
 - TODO
 - TODO
 
+.. formats
 The book is written with different formatting conventions.
 Varnish Configuration Language (VCL) text is in verbatim mode.
 
 .. TODO
 Important notes and tips are stated inside boxes throughout the book.
 
+.. Ask for help
 This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
 If you find something unclear, don't be shy and blame yourself, ask your instructor for help.
 You can also contact the Varnish open source community at https://varnish-cache.org.
@@ -502,6 +514,45 @@ Finally, restart Varnish using ``service varnish restart``.
 
       You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
 
+The management interface
+------------------------
+
+Varnish offers a management interface to control a running Varnish instance.
+This interface implements a list of management commands in the ``varnishadm`` utility program.
+``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
+You can use ``varnishadm`` to:
+
+- start and stop Varnish
+- change configuration parameters without restarting Varnish
+- reload the Varnish Configuration Language (VCL) without restarting Varnish 
+- view the most up-to-date documentation for parameters
+
+You can read about other usages by issuing the ``help`` command after you connect to the management interface with ``varnishadm``.
+
+.. container:: handout
+
+   To connect to the management interface, issue the command ``varnishadm``.
+   If there are many Varnish instances running in one machine, specify the instance with the ``-n`` option.
+   Keep the following in mind when using the management interface:
+
+   1. Changes take effect on the running Varnish daemon instance without need to restart it.
+   2. Changes are not persistent across restarts of Varnish. 
+      If you change a parameter and you want the change to persist after you restart Varnish,
+      you need to store your changes in the configuration file of the boot script.
+      The location of the configuration file is ``/etc/default/varnish`` by default.
+
+   ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
+   You can now provide access to the interface on a user-by-user basis by adjusting the read permission on the secret file.
+   The location of the secret file is ``/etc/varnish/secret`` by default, but you can use the ``-S`` option to specify other location.
+   The content of the file is a shared secret, which is a string generated under Varnish installation.
+   
+   The management interface authenticates with a challenge-reponse mechanism.
+   Therefore, the shared secret is never transmitted, but a challenge and the response to the challenge.
+   This authentication mechanism offers a reasonably good access control, but it does not protect the data transmitted over the connection.
+   Therefore, it is very important to avoid eavesdroppers like in the man-in-the-middle attack.
+   The simplest way to avoid eavesdroppers is to configure the management interface listening address of ``varnishd`` to listen only on localhost (127.0.0.1).
+   You configure this address with the ``-T`` option of the ``varnishd`` command.
+
 More about Varnish Configuration
 --------------------------------
 
@@ -568,12 +619,11 @@ Command line configuration
 Type ``man varnishd`` to see all options of the Varnish daemon.
 Relevant options for the course are:
 
--a <[hostname]:port>      listen address
+-a <[hostname]:port>      listening address and port for client requests
 -f <filename>             VCL file
 -p <parameter=value>      set tunable parameters
-.. TODO for the author: Consider to remove -S
--S <secretfile>           secret for authorizing access to the management port
--T <hostname:port>        management interface
+-S <secretfile>           shared secret file for authorizing access to the management interface
+-T <hostname:port>        listening address and port for the management interface
 -s <storagetype,options>  where and how to store objects
 
 .. container:: handout
@@ -608,7 +658,6 @@ Relevant options for the course are:
 	Then store the parameter and value in a configuration file ``/etc/default/varnish``.
 	This file is read every time you start Varnish.
 
-	.. TODO for the author: To consider to remove -S from the book
         The ``-S`` option specifies a file which contains a secret to be
         used for authentication. This can be used to authenticate with
         ``varnishadm -S`` as long as ``varnishadm`` can read the same secret
@@ -785,6 +834,10 @@ Transactions
   - Client request
   - Backend request
   - Session
+- Transaction reasons. Examples:
+  - ESI request
+  - restart
+  - fetch
 
 .. container:: handout
 
@@ -799,6 +852,8 @@ Transactions
    When viewing a log for a simple cache miss, you’ll see the backend request, the client request and then the session.
    They are displayed in the order they end.
    Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
+
+   .. Transaction reasons
 
 Transaction Groups
 ------------------
@@ -848,11 +903,20 @@ Example of Transaction Grouping
 
    The example shows a client request in a *cache miss* scenario.
    In figure ##, ``varnishlog`` returns records grouped by request.
-   The command requests only some tags for simplicity.
-
-   To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
-   You will learn the work flow of Varnish in detail in section ##.
+   For simplicity, we use the ``-i`` option to include only the ``Session`` and ``Link`` tags.
+   For more information about the format and content of all Varnish shared memory logging (VSL) tags, see its man page by typing ``man vsl``.
+   You will learn more about the work flow of Varnish in detail in Section ##.
    
+   To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
+   The ``-d`` option processes all recorded entries in Varnish log.
+   To learn more about the available ``varnishlog`` options, enter ``varnishlog -h`` or see the man page of varnishlog.
+
+   .. warning::
+
+      ``varnishlog`` accepts all option that are syntactically correct.
+      The semantics of your use of options, however, might be different than what you think at first.
+      Therefore, you should ensure that your results  make sense.
+      You can verify the meaning of your restuls by double checking the filters, and by separating your results with the ``-b``and ``-c`` options.
 
 Query language
 --------------
@@ -867,13 +931,22 @@ Query language
   - parenthesis hierarchy
   - Negate using ``not``
 
-::
+Examples of Varnish log queries::
+
    varnishlog -q 'respstatus < 500'
+   varnishlog -g request -q 'ReqURL eq "/"'
+   varnishlog -g request -q 'Backend ~default'
 
 .. container:: handout
 
-    A query is run on a group of transactions.
+    .. Query Log Language
+    The ``-q`` option allows you to add a query to ``varnishlog``. 
+    Think of it as a sort of select filter for ``varnishlog``. 
+    It works together with the grouping so that if the query matches some part of any of the work items in the transaction group, the whole group matches and gets displayed.
+
     Query expressions can be combined using boolean functions.
+    There are many output control options, such as ``-i``.
+    Output controls are applied last, and they do not affect queries.
 
     .. tip::
 
@@ -883,405 +956,32 @@ Query language
        - Client requests connection closed ``ReqHeader:connection ~ close``
        - ESI miss (-g request) ``{3+}Begin ~ Bereq``
 
-Example of Log Output
----------------------
+More usages of varnishlog
+-------------------------
 
-``varnishlog -g request -q "ReqUrl eq '/'" -i Timestamp,Begin,ReqMethod,ReqUrl,ReqHeader -d``
+The grouping and the query log processing all happens in the Varnish logging API.
+This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
 
-TODO: Insert log snippet
+Utility programs that use ``varnishlog``:::
 
-.. TODO for the author: Insert image like page 10 \cite{LogginginVarnish:l86uMkk5}
-.. The figure is titled: "Cache miss with request grouping"
+- ``varnishstat``
+- ``varnishncsa``
+- ``varnishhist``
 
-.. container:: handout
-   
-    .. Query Log Language
-    The ``-q`` option allows you to add a query to ``varnishlog``. 
-    Think of it as a sort of select filter for ``varnishlog``. 
-    It works together with the grouping so that if the query matches some part of any of the work items in the transaction group, the whole group matches and gets displayed.
+.. container:: handout   
 
-    There are many output control options, such as ``-i``.
-    Output controls are applied last, and they do not affect queries.
-    .. -i
-    The example above showcases a couple of new items in addition to the grouping.
-    As you can see, we are using the ``-i`` to only show the log records that are listed.
-    One of these is ``Timestamp``.
-    Varnish timestamps the log at certain points, giving you detailed timing information as the request flows through Varnish.
-    You can customize timestamps with VCL function ``timestamp`` in the ``std`` module.
-    This function inserts a custom timestamp with a user provided label.
-
-    .. -q
-    The grouping and the query log processing all happens in the Varnish logging API. 
-    This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
-    For example, you can issue the ``varnishhist`` tool to only cover transactions delivering text/html that should be easy,
-
-    ::
-        $ varnishhist -q "RespHeader eq 'Content-Type: text/html'"
-   
-    or you can instruct ``varnishncsa`` to dump everything pointing to a certain domain and subdomains.
-
-    ::
-       $ varnishncsa -q "ReqHeader ~ '^Host: .*\.example.com'"
- 
+    The ``varnishstat`` utility displays statistics from a running ``varnishd`` instance.
+    ``varnishncsa`` dumps everything pointing to a certain domain and subdomains.
+    You can issue the ``varnishhist`` tool to show transactions delivering text/html.
+    .. TODO for the author: move "varnishstat" to an appropriate section.
+    You will learn more about ``varnishstat`` in Section ##.
     See the Appendix A for more information about ``varnishhist``, ``varnishncsa``, and other Varnish programs.
 
-.. .........................................................................................................
-
-varnishlog
-----------
-
-::
-
-   97 ReqStart     c 10.1.0.10 50866 117511506
-   97 RxRequest    c GET
-   97 RxURL        c /style.css
-   97 RxProtocol   c HTTP/1.1
-   97 RxHeader     c Host: www.example.com
-   97 VCL_call     c recv lookup
-   97 VCL_call     c hash hash
-   97 Hit          c 117505004
-   97 VCL_call     c hit deliver
-   97 Length       c 3218
-   97 VCL_call     c deliver deliver
-   97 TxProtocol   c HTTP/1.1
-   97 TxStatus     c 200
-   97 TxResponse   c OK
-   97 TxHeader     c Content-Length: 3218
-   97 TxHeader     c Date: Sat, 22 Aug 2008 01:10:10 GMT
-   97 TxHeader     c X-Varnish: 117511501 117505004
-   97 TxHeader     c Age: 2
-   97 TxHeader     c Via: 1.1 varnish
-   97 ReqEnd       c 117511501 1227316210.534358978 \
-        1227316210.535176039  0.035283089 0.000793934 0.000023127
-
-.. container:: handout
-
-   The above output is a single cache hit, as processed by Varnish. When
-   you are dealing with several thousand requests per second you need
-   filtering.
-
-   The displayed data is categorized as follows:
-
-   1. The number on the left is a semi-unique identifier of the request. It
-      is used to distinguish different requests.
-   2. Each piece of log information belongs to a tag, as seen on the second
-      left-most column. TxHeader, RxHeader, VCL_call etc. You can use
-      those tags for intelligent filtering.
-   3. Varnishlog will try to decipher if a request is related to a client
-      (c), backend (b) or "misc" (-). This can be used to filter the log.
-      The misc-category will contain data related to thread-collection,
-      object expiry and similar internal data.
-   4. The tag-specific content. E.g: the actual URL, the name and content
-      of a HTTP header and so on.
-
-   Since varnishlog displays all data in the log unless you filter it,
-   there is a lot of data that you can safely ignore, and some data you
-   should focus on. The following table demonstrates some tags and values
-   that are useful. Since the tags them self are somewhat generic, you do
-   not have a "Response header sent to a client"-header, but a "Sent
-   Header" (`TxHeader`) tag, and it's up to you to interpret if that means
-   it was sent to a client or a web server.
-
-
-Varnishlog tag examples
------------------------
-
-+---------------+---------------------------+----------------------------+
-| Tag           | Example value             | Description                |
-+===============+===========================+============================+
-| ``RxURL``     | ``/index.html``           | Varnish received a URL,    |
-|               |                           | the only scenario where    |
-|               |                           | Varnish receives a URL is  |
-|               |                           | from a client, thus: a     |
-|               |                           | client sent us this URL.   |
-+---------------+---------------------------+----------------------------+
-| ``TxURL``     | ``/index.html``           | Varnish sent a URL,        |
-|               |                           | the only scenario where    |
-|               |                           | Varnish sends a URL is     |
-|               |                           | to a backend, thus: this   |
-|               |                           | is part of a backend       |
-|               |                           | request.                   |
-+---------------+---------------------------+----------------------------+
-| ``RxHeader``  | ``Host: www.example.com`` | A received header.         |
-|               |                           | Either a request           |
-|               |                           | header or                  |
-|               |                           | a response header          |
-|               |                           | backend. Since we          |
-|               |                           | know the `Host`-header is  |
-|               |                           | a request header, we can   |
-|               |                           | assume it's from a client. |
-+---------------+---------------------------+----------------------------+
-| ``TxHeader``  | ``Host: example.com``     | A header Varnish sent.     |
-|               |                           | Either a request header    |
-|               |                           | or a  response header.     |
-|               |                           | Since we know the          |
-|               |                           | `Host`-header is a request |
-|               |                           | header we can assume it is |
-|               |                           | a header Varnish sent to a |
-|               |                           | backend.                   |
-+---------------+---------------------------+----------------------------+
-| ``RxRequest`` | ``GET``                   | Received request method.   |
-|               |                           | Varnish only receives      |
-|               |                           | requests from clients.     |
-+---------------+---------------------------+----------------------------+
-| ``TxStatus``  | ``200``                   | Status code Varnish sent.  |
-|               |                           | Only sent to clients.      |
-+---------------+---------------------------+----------------------------+
-| ``RxStatus``  | ``500``                   | Status code Varnish        |
-|               |                           | received from a backend.   |
-+---------------+---------------------------+----------------------------+
-| ``ReqEnd``    | 1048725851                | The "End of request" entry |
-|               | 1352290440.688310385      | has various timing details |
-|               | 1352290440.688468695      | for debugging. The first   |
-|               | 0.000107288 0.000083208   | number is the XID, the     |
-|               | 0.000075102               | second is the time the     |
-|               |                           | request started and the    |
-|               |                           | second is when it finished.|
-|               |                           | The fourth number is       |
-|               |                           | time from accepting the    |
-|               |                           | connection to processing   |
-|               |                           | of the request started.    |
-|               |                           | The fifth number is time   |
-|               |                           | from request processing    |
-|               |                           | started to delivery (e.g:  |
-|               |                           | VCL execution and backend  |
-|               |                           | fetching). The sixth and   |
-|               |                           | last number is how long    |
-|               |                           | the delivery itself took.  |
-+---------------+---------------------------+----------------------------+
-
-
-varnishlog options
-------------------
-
--b                Only show traffic to backend.
--c                Only show traffic to client.
--O                Do not group by request.
--m <tag:filter>   Show *requests* where the <tag> matches <filter>. Example:
-                  ``varnishlog -m TxStatus:500`` to show requests
-                  returned to a client with status code 500.
-
-.. container:: handout
-
-   -n <name>            The name of the Varnish instance, or path to the shmlog.
-                        Useful for running multiple instances of Varnish.
-   -i <tag[,tag][..]>   Only show the specified tags.
-   -I <regex>           Filter the tag provided by -i, using the regular expression for -I.
-
-
-   Some examples of useful command-combinations:
-
-   +--------------------------------+---------------------------------------------------+
-   | Command                        | Description                                       |
-   +================================+===================================================+
-   | ``varnishlog -c``              | Only show client-requests for the url             |
-   | ``-m RxURL:/specific/url/``    | `/specific/url`..                                 |
-   +--------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i ReqEnd``    | Only show the ReqEnd tag. Useful to spot sporadic |
-   |                                | slowdown. Watch the last three values of it.      |
-   +--------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i TxURL``     | Only show the URLs sent to backend servers. E.g:  |
-   |                                | Cache misses and content not cached.              |
-   +--------------------------------+---------------------------------------------------+
-   | ``varnishlog -O -i RxHeader``  | Show the Accept-Encoding request header.          |
-   | ``-I Accept-Encoding``         |                                                   |
-   +--------------------------------+---------------------------------------------------+
-   | ``varnishlog -b``              | Show backend requests using the POST method.      |
-   | ``-m TxRequest:POST``          |                                                   |
-   +--------------------------------+---------------------------------------------------+
-   | ``varnishlog -O``              | Only shows the URL sent to a backend server and   |
-   | ``-i TxURL,TxHeader``          | all headers sent, either to a client or backend.  |
-   +--------------------------------+---------------------------------------------------+
-
-   .. warning::
-
-      ``varnishlog`` sometimes accept arguments that are technically
-      incorrect, which can have surprising results on filtering. Make sure
-      you double-check the filter logic. You most likely want to specify -b
-      or -c too.
-
-varnishstat
------------
-
-::
-
-    0+00:44:50                                                   foobar
-    Hitrate ratio:       10      100      175
-    Hitrate avg:     0.9507   0.9530   0.9532
-
-          574660       241.00       213.63 Client connections accepted
-         2525317       937.00       938.78 Client requests received
-         2478794       931.00       921.48 Cache hits
-            7723         3.00         2.87 Cache hits for pass
-          140055        36.00        52.07 Cache misses
-           47974        12.00        17.83 Backend conn. success
-          109526        31.00        40.72 Backend conn. reuses
-           46676         5.00        17.35 Backend conn. was closed
-          156211        41.00        58.07 Backend conn. recycles
-          110500        34.00        41.08 Fetch with Length
-           46519         6.00        17.29 Fetch chunked
-             456         0.00         0.17 Fetch wanted close
-            5091          .            .   N struct sess_mem
-            3473          .            .   N struct sess
-           53570          .            .   N struct object
-           50070          .            .   N struct objecthead
-              20          .            .   N struct vbe_conn
-
-.. container:: handout
-
-   varnishstat gives a good representation of the general health of
-   Varnish, including cache hit rate, uptime, number of failed backend
-   connections and many other statistics.
-
-   There are over a hundred different counters available. To increase the
-   usefulness of varnishstat, only counters with a value different from
-   0 is shown by default.
-
-   varnishstat can be executed either as a one-shot tool which simply
-   prints the current values of all the counters, using the ``-1`` option,
-   or interactively. Both methods allow you to specify specific counters
-   using ``-f field1,field2,...`` to limit the list.
-
-   In interactive mode, varnishstat starts out by printing the uptime(45
-   minutes, in the example above) and hostname(foobar).
-
-   The `Hitrate ratio` and `Hitrate avg` are related. The Hitrate average
-   measures the cache hit rate for a period of time stated by `hitrate
-   ratio`. In the example above, the hitrate average for the last 10
-   seconds is 0.9507 (or 95.07%), 0.9530 for the last 100 seconds and
-   0.9532 for the last 175 seconds. When you start varnishstat, all of
-   these will start at 1 second, then grow to 10, 100 and 1000. This is
-   because varnishstat has to compute the average while it is running;
-   there is no historic data of counters available.
-
-   The bulk of varnishstat is the counters. The left column is the raw
-   value, the second column is change per second in real time and the
-   third column is change per second on average since Varnish started.
-   In the above example Varnish has served 574660 requests and is
-   currently serving roughly 241 requests per second.
-
-   Some counters do not have 'per second' data. These are counters which
-   both increase and decrease.
-
-   There are far too many counters to keep track of for non-developers, and
-   many of the counters are only there for debugging purposes. This allows
-   you to provide the developers of Varnish with real and detailed data
-   whenever you run into a performance issue or bug. It allows the
-   developers to test ideas and get feedback on how it works in production
-   environments without creating special test versions of Varnish. In
-   short: It allows Varnish to be developed according to how it is used.
-
-   In addition to some obviously interesting counters, like `cache_hit` and
-   `client_conn`, some counters of note are:
-
-   +-----------------+------------------------------------------------+
-   | Counter         | Description                                    |
-   +=================+================================================+
-   | `client_drop`   | This counts clients Varnish had to drop due to |
-   |                 | resource shortage. It should be 0.             |
-   +-----------------+------------------------------------------------+
-   | `cache_hitpass` | Hitpass is a special type of cache miss.       |
-   |                 | It will be covered in the VCL chapters, but    |
-   |                 | it can often be used to indicate if something  |
-   |                 | the backend sent has triggered cache misses.   |
-   +-----------------+------------------------------------------------+
-   | `backend_fail`  | Counts the number of requests to backends that |
-   |                 | fail. Should have a low number, ideally 0, but |
-   |                 | it's not unnatural to have backend failures    |
-   |                 | once in a while. Just make sure it doesn't     |
-   |                 | become the normal state of operation.          |
-   +-----------------+------------------------------------------------+
-   | `n_object`      | Counts the number of objects in cache.         |
-   |                 | You can have multiple variants of the same     |
-   |                 | object depending on your setup.                |
-   +-----------------+------------------------------------------------+
-   | `n_wrk`,        | Thread counters. During normal operation,      |
-   | `n_wrk_queued`, | the `n_wrk_queued` counter should not grow.    |
-   | `n_wrk_drop`    | Once Varnish is out of threads, it will queue  |
-   |                 | up requests and `n_wrk_queued` counts how many |
-   |                 | times this has happened. Once the queue is     |
-   |                 | full, Varnish starts dropping requests without |
-   |                 | answering. `n_wrk_drop` counts how many times  |
-   |                 | a request has been dropped. It should be 0.    |
-   +-----------------+------------------------------------------------+
-   | `n_lru_nuked`   | Counts the number of objects Varnish has had   |
-   |                 | to evict from cache before they expired to     |
-   |                 | make room for other content. If it is always   |
-   |                 | 0, there is no point increasing the size of    |
-   |                 | the cache since the cache isn't full. If it's  |
-   |                 | climbing steadily a bigger cache could improve |
-   |                 | cache efficiency.                              |
-   +-----------------+------------------------------------------------+
-   | `esi_errors`,   | If you use Edge Side Includes (ESI), these     |
-   | `esi_warnings`  | somewhat hidden counters can be helpful to     |
-   |                 | determine if the ESI syntax the web server is  |
-   |                 | sending is valid.                              |
-   +-----------------+------------------------------------------------+
-   | `uptime`        | Varnish' uptime. Useful to spot if Varnish has |
-   |                 | been restarted, either manually or by bugs.    |
-   |                 | Particularly useful if a monitor tool uses it. |
-   +-----------------+------------------------------------------------+
-
-
-The management interface
-------------------------
-
-Varnish offers a management interface (Historically called the Telnet
-interface.), assuming it was started with a ``-T`` option. You can use the
-management interface to:
-
-- Change parameters without restarting varnish
-- Reload VCL
-- View the most up-to-date documentation for parameters
-
-There are a few other uses too which you can read about using the
-``help``-command after you connect to the management interface with
-``varnishadm``.
-
-The ``service varnish reload`` command uses the management interface to
-reload VCL without restarting Varnish.
-
-.. container:: handout
-
-   Keep the following in mind when using the management interface:
-
-   1. Any changes you make are done immediately on the running Varnish
-      instance.
-   2. Changes are not persistent across restarts of Varnish. If you change
-      a parameter and you want the change to apply if you restart Varnish,
-      you need to also store it in the regular configuration for the boot
-      script.
-
-   Because the management interface is not encrypted, only has limited
-   authentication and still allows almost total control over Varnish, it is
-   important to protect it. Using the ``-S`` option offers reasonably good
-   access control, but does not protect against more elaborate attacks,
-   like man in the middle attacks -- the interface is not encrypted.
-
-   The simplest way to protect the management interface is to only have it
-   listen on localhost (127.0.0.1). Combined with the secret file, you can
-   now offer access to the interface on a user-by-user basis by adjusting
-   the read permission on the secret file. The secret file usually lives in
-   ``/etc/varnish/secret``. The content is not a password, but a shared
-   secret (it is never transmitted over the interface).
-
-   .. note::
-
-      Newer Varnish-versions will automatically detect the correct
-      arguments for ``varnishadm`` using the shared memory log. For older
-      versions, you always had to specify at least the ``-T``-option when
-      using varnishadm.
-
-      This automatic detection relies on the ``-n`` option since
-      ``varnishadm`` needs to find the shared memory log.
-
-      For remote access you will always specify ``-T`` and ``-S`` since a
-      remote ``varnishadm`` can't read the shared memory log.
-
-Exercise: Try out the tools
+Exercise: Try out 
 ---------------------------
-
+.
 #. Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
+.. bookmark
 #. Make ``varnishlog`` only print client-requests where the `RxURL`-tag
    contains ``/favicon.ico``.
 #. Use ``varnishadm`` to determine the default value for the
@@ -1298,7 +998,6 @@ Exercise: Try out the tools
    find exactly what you want, and filter out the noise. On production
    traffic, the amount of log data that Varnish produces is staggering, and
    filtering is a requirement for using ``varnishlog`` effectively.
-
 
 Tuning
 ======
@@ -1812,6 +1511,166 @@ cli_timeout             |def_cli_timeout|           Management thread->child Man
            An other use-case for increasing ``connect_timeout`` occurs when
            virtual machines are involved in the stack, as they can increase
            the connection time significantly.
+
+
+.. TODO for the author: Makesure that this the right location for varnishstat.
+varnishstat
+-----------
+
+::
+
+Uptime mgt:   0+03:22:01              Hitrate n:       10       28       28
+Uptime child: 0+03:21:59                 avg(n):   0.0000   0.0000   0.0000
+
+  NAME                        CURRENT       CHANGE      AVERAGE
+MAIN.uptime                     12119         1.00         1.00
+MAIN.sess_conn                      1         0.00          .
+MAIN.client_req                     1         0.00          .
+MAIN.cache_miss                     1         0.00          .
+MAIN.backend_conn                   1         0.00          .
+MAIN.backend_recycle                1         0.00          .
+MAIN.fetch_length                   1         0.00          .
+MAIN.pools                          2         0.00          .
+MAIN.threads                      200         0.00          .
+MAIN.threads_created              200         0.00          .
+MAIN.n_backend                      1         0.00          .
+MAIN.n_expired                      1         0.00          .
+MAIN.s_sess                         1         0.00          .
+MAIN.s_req                          1         0.00          .
+MAIN.s_fetch                        1         0.00          .
+MAIN.s_req_hdrbytes               116         0.00          .
+MAIN.s_resp_hdrbytes              349         0.00          .
+MAIN.s_resp_bodybytes            3256         0.00          .
+MAIN.backend_req                    1         0.00          .
+MAIN.n_vcl                          1         0.00          .
+MAIN.bans                           1         0.00          .
+MAIN.n_gunzip                       1         0.00          .
+MGT.uptime                      12121         1.00         1.00
+SMA.s0.c_req                        2         0.00          .
+SMA.s0.c_bytes                   3992         0.00          .
+SMA.s0.c_freed                   3992         0.00          .
+SMA.s0.g_space              268435456         0.00          .
+VBE.default(127.0.0.1...          133         0.00          .
+VBE.default(127.0.0.1...          282         0.00          .
+VBE.default(127.0.0.1...         3256         0.00          .
+
+::
+
+    0+00:44:50                                                   foobar
+    Hitrate ratio:       10      100      175
+    Hitrate avg:     0.9507   0.9530   0.9532
+
+          574660       241.00       213.63 Client connections accepted
+         2525317       937.00       938.78 Client requests received
+         2478794       931.00       921.48 Cache hits
+            7723         3.00         2.87 Cache hits for pass
+          140055        36.00        52.07 Cache misses
+           47974        12.00        17.83 Backend conn. success
+          109526        31.00        40.72 Backend conn. reuses
+           46676         5.00        17.35 Backend conn. was closed
+          156211        41.00        58.07 Backend conn. recycles
+          110500        34.00        41.08 Fetch with Length
+           46519         6.00        17.29 Fetch chunked
+             456         0.00         0.17 Fetch wanted close
+            5091          .            .   N struct sess_mem
+            3473          .            .   N struct sess
+           53570          .            .   N struct object
+           50070          .            .   N struct objecthead
+              20          .            .   N struct vbe_conn
+
+.. container:: handout
+
+   ``varnishstat`` gives a good representation of the general health of Varnish.
+   Statistics include cache hit rate, uptime, number of failed backend connections and many other statistics.
+
+   There are over a hundred different counters available.
+   To increase the usefulness of ``varnishstat``, only counters with a value different from 0 is shown by default.
+
+   ``varnishstat`` can be executed either as a one-shot tool which simply
+   prints the current values of all the counters, using the ``-1`` option,
+   or interactively. Both methods allow you to specify specific counters
+   using ``-f field1,field2,...`` to limit the list.
+
+   In interactive mode, varnishstat starts out by printing the uptime(45
+   minutes, in the example above) and hostname(foobar).
+
+   The `Hitrate ratio` and `Hitrate avg` are related. The Hitrate average
+   measures the cache hit rate for a period of time stated by `hitrate
+   ratio`. In the example above, the hitrate average for the last 10
+   seconds is 0.9507 (or 95.07%), 0.9530 for the last 100 seconds and
+   0.9532 for the last 175 seconds. When you start varnishstat, all of
+   these will start at 1 second, then grow to 10, 100 and 1000. This is
+   because varnishstat has to compute the average while it is running;
+   there is no historic data of counters available.
+
+   The bulk of varnishstat is the counters. The left column is the raw
+   value, the second column is change per second in real time and the
+   third column is change per second on average since Varnish started.
+   In the above example Varnish has served 574660 requests and is
+   currently serving roughly 241 requests per second.
+
+   Some counters do not have 'per second' data. These are counters which
+   both increase and decrease.
+
+   There are far too many counters to keep track of for non-developers, and
+   many of the counters are only there for debugging purposes. This allows
+   you to provide the developers of Varnish with real and detailed data
+   whenever you run into a performance issue or bug. It allows the
+   developers to test ideas and get feedback on how it works in production
+   environments without creating special test versions of Varnish. In
+   short: It allows Varnish to be developed according to how it is used.
+
+   In addition to some obviously interesting counters, like `cache_hit` and
+   `client_conn`, some counters of note are:
+
+   +-----------------+------------------------------------------------+
+   | Counter         | Description                                    |
+   +=================+================================================+
+   | `client_drop`   | This counts clients Varnish had to drop due to |
+   |                 | resource shortage. It should be 0.             |
+   +-----------------+------------------------------------------------+
+   | `cache_hitpass` | Hitpass is a special type of cache miss.       |
+   |                 | It will be covered in the VCL chapters, but    |
+   |                 | it can often be used to indicate if something  |
+   |                 | the backend sent has triggered cache misses.   |
+   +-----------------+------------------------------------------------+
+   | `backend_fail`  | Counts the number of requests to backends that |
+   |                 | fail. Should have a low number, ideally 0, but |
+   |                 | it's not unnatural to have backend failures    |
+   |                 | once in a while. Just make sure it doesn't     |
+   |                 | become the normal state of operation.          |
+   +-----------------+------------------------------------------------+
+   | `n_object`      | Counts the number of objects in cache.         |
+   |                 | You can have multiple variants of the same     |
+   |                 | object depending on your setup.                |
+   +-----------------+------------------------------------------------+
+   | `n_wrk`,        | Thread counters. During normal operation,      |
+   | `n_wrk_queued`, | the `n_wrk_queued` counter should not grow.    |
+   | `n_wrk_drop`    | Once Varnish is out of threads, it will queue  |
+   |                 | up requests and `n_wrk_queued` counts how many |
+   |                 | times this has happened. Once the queue is     |
+   |                 | full, Varnish starts dropping requests without |
+   |                 | answering. `n_wrk_drop` counts how many times  |
+   |                 | a request has been dropped. It should be 0.    |
+   +-----------------+------------------------------------------------+
+   | `n_lru_nuked`   | Counts the number of objects Varnish has had   |
+   |                 | to evict from cache before they expired to     |
+   |                 | make room for other content. If it is always   |
+   |                 | 0, there is no point increasing the size of    |
+   |                 | the cache since the cache isn't full. If it's  |
+   |                 | climbing steadily a bigger cache could improve |
+   |                 | cache efficiency.                              |
+   +-----------------+------------------------------------------------+
+   | `esi_errors`,   | If you use Edge Side Includes (ESI), these     |
+   | `esi_warnings`  | somewhat hidden counters can be helpful to     |
+   |                 | determine if the ESI syntax the web server is  |
+   |                 | sending is valid.                              |
+   +-----------------+------------------------------------------------+
+   | `uptime`        | Varnish' uptime. Useful to spot if Varnish has |
+   |                 | been restarted, either manually or by bugs.    |
+   |                 | Particularly useful if a monitor tool uses it. |
+   +-----------------+------------------------------------------------+
+
 
 Exercise: Tune first_byte_timeout
 ---------------------------------
