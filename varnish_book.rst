@@ -1087,15 +1087,26 @@ varnishstat
 
    Some counters to note are:
 
-+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|        Counter        |                                                                                                                       Description                                                                                                                       |
-+=======================+=========================================================================================================================================================================================================================================================+
-| MAIN.threads_limited  | Counts how many times ``varnishd`` hits the maximum allowed number of threads. The maximum number of threads is given by the parameter `thread_pool_max`. Look at this counter to consider whether you should increase the `thread_pool_max` parameter. |
-| MAIN.threads_failed   | Increases every time ``pthread_create()`` fails. You can avoid this situation by increasing ``/proc/sys/kernel/threads-max``.                                                                                                                           |
-| MAIN.thread_queue_len | Shows the current number of sessions waiting for a worker. This counter is first introduced in Varnish 4.                                                                                                                                               |
-| MAIN.sess_queued      | Contains the number of sessions that were queued because there were no available threads immediately. Consider to increase the ``thread_pool_min`` parameter.                                                                                           |
-| MAIN.sess_dropped     | Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length. You can fix this situation by increasing the ``thread_queue_limit`` parameter.                                                                    |
-+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+|        Counter        |  Description                                                                                                                       |
++=======================+====================================================================================================================================+
+| MAIN.threads_limited  | Counts how many times ``varnishd`` hits the maximum allowed number of threads.                                                     |
+|                       | The maximum number of threads is given by the parameter `thread_pool_max`.                                                         |
+|                       | Look at this counter to consider whether you should increase the `thread_pool_max` parameter.                                      |
++-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+| MAIN.threads_failed   | Increases every time ``pthread_create()`` fails.                                                                                   |
+|                       | You can avoid this situation by tuning the maximum number of processes available with the ``ulimit -u`` command.                   |
+|                       | You may also look at the thread-max Linux parameter in ``/proc/sys/kernel/threads-max``.                                           |
++-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+| MAIN.thread_queue_len | Shows the current number of sessions waiting for a thread.                                                                         |
+|                       | This counter is first introduced in Varnish 4.                                                                                     |
++-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+| MAIN.sess_queued      | Contains the number of sessions that were queued because there were no available threads immediately.                              |
+|                       | Consider to increase the ``thread_pool_min`` parameter.                                                                            |
++-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+| MAIN.sess_dropped     | Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length.                              |
+|                       | You can fix this situation by increasing the ``thread_queue_limit`` parameter.                                                     |
++-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
 .. bokmark
 
 Exercise: Try out 
