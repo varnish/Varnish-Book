@@ -761,7 +761,6 @@ In this chapter you will learn about:
 
 - Log data is in shared memory
 - Varnish logs everything (no debug switches)
-- Utilities to inspect the log: ``varnishlog`` and ``varnishstat``
 
 .. container:: handout
    
@@ -782,27 +781,38 @@ In this chapter you will learn about:
    .. note::
 
       If you want to log to disk you should take a look at ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` (or under the ``/etc/syconfig/`` equivalents for Red Hat).
-      You can configure those files to run ``varnishncsa`` or ``varnishlog`` as a service in the background that writes to disk.
+      .. TODO for the author: recall this note when introducing ``varnishncsa``.
+      You can configure those files to run ``varnishlog`` or ``varnishncsa`` as a service in the background that writes to disk.
 
       Keep in mind that ``varnishlog`` generates large amounts of data.
       You may not want to log all of it to disk.
 
 Log Data Tools
 --------------
-The two most important tools to process that log data are:
+Tools to display detailed log records:
 
-- ``varnishlog``, used to access request-specific data: An extended access log, provides information about specific clients and requests.
-- ``varnishstat``, used to access global counters: Provides overall statistics, e.g the number of total requests, number of objects and more.
+- ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
+- ``varnishncsa`` displays Varnish logs in Apache / NCSA combined log format.
+
+Statistical tools:
+
+- ``varnishstat`` is used to **access global counters**. It provides overall statistics, e.g the number of total requests, number of objects and more.
+- ``varnishtop`` reads the Varnish log and presents a continuously updated list of the most commonly occurring log entries.
+- ``varnishhist`` reads the Varnish log and presents a continuously updated histogram showing the distribution of the last *N* requests by their processing.
+
 - If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when starting the corresponding tools.
-
-In addition, the ``varnishncsa`` tool is often used to write Apache-like log files.
 
 .. container:: handout
 
-      All log tools (and ``varnishadm``) takes a ``-n`` option. 
-      The Varnish daemon ``varnishd`` itself also takes a ``-n`` option. 
-      This option is used to specify a name for ``varnishd``, or the location of the shared memory log. 
-      On most installations ``-n`` is not used, but if you run multiple Varnish instances on a single machine, you need to use ``-n`` to distinguish one Varnish instance from another.
+   All log tools (including ``varnishadm``) take a ``-n`` option. 
+   The Varnish daemon ``varnishd`` itself also takes a ``-n`` option. 
+   This option is used to specify the instance of ``varnishd``, or the location of the shared memory log. 
+   On most installations ``-n`` is not used, but if you run multiple Varnish instances on a single machine, you need to use ``-n`` to distinguish one Varnish instance from another.
+
+   In this course, we will focus on the two  most important tools: ``varnishlog`` and ``varnishstat``.
+   Unlike all other tools, ``varnishstat`` does not read from entries from Varnish log, but global counters.
+   We include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
+   You will find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in Appendix ##.
 
 Log Layout
 ----------
@@ -894,8 +904,8 @@ Transaction Groups
    This statement contains the VXID of the parent request.
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
 
-Example of Transaction Grouping
-...............................
+Example of Transaction Grouping with ``varnishlog``
+...................................................
 
 .. image:: ui/img/cache_miss_request_grouping.png
 
@@ -948,6 +958,10 @@ Examples of Varnish log queries::
     There are many output control options, such as ``-i``.
     Output controls are applied last, and they do not affect queries.
 
+    .. Benefits for others
+    The grouping and the query log processing all happens in the Varnish logging API.
+    This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
+
     .. tip::
 
        Other useful tricks:
@@ -956,31 +970,137 @@ Examples of Varnish log queries::
        - Client requests connection closed ``ReqHeader:connection ~ close``
        - ESI miss (-g request) ``{3+}Begin ~ Bereq``
 
-More usages of varnishlog
--------------------------
+varnishstat
+-----------
 
-The grouping and the query log processing all happens in the Varnish logging API.
-This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
+::
 
-Utility programs that use ``varnishlog``:::
+   Uptime mgt:   1+23:38:08                                                                Hitrate n:       10      100      438
+   Uptime child: 1+23:38:08                                                                   avg(n):   0.9967   0.5686   0.3870
 
-- ``varnishstat``
-- ``varnishncsa``
-- ``varnishhist``
+   NAME                                               CURRENT       CHANGE      AVERAGE       AVG_10      AVG_100     AVG_1000
+   MAIN.uptime                                           171488         1.00         1.00         1.00         1.00         1.00
+   MAIN.sess_conn                                          1055         7.98          .           8.35         4.49         2.11
+   MAIN.client_req                                         1055         7.98          .           8.35         4.49         2.11
+   MAIN.cache_hit                                          1052         7.98          .           8.35         4.49         2.10
+   MAIN.cache_miss                                            3         0.00          .           0.00         0.00         0.00
+   MAIN.backend_conn                                          4         0.00          .           0.00         0.00         0.01
+   MAIN.backend_toolate                                       3         0.00          .           0.00         0.00         0.01
+   MAIN.backend_recycle                                       4         0.00          .           0.00         0.00         0.01
+   MAIN.fetch_length                                          4         0.00          .           0.00         0.00         0.01
+   MAIN.pools                                                 2         0.00          .           2.00         2.00         2.00
+   MAIN.threads                                             200         0.00          .         200.00       200.00       200.00
+   MAIN.threads_created                                     200         0.00          .           0.00         0.00         0.00
+   MAIN.n_object                                              1         0.00          .           1.00         0.85         0.81
+   MAIN.n_objectcore                                          3         0.00          .           3.00         2.85         2.81
+   MAIN.n_objecthead                                          4         0.00          .           4.00         3.89         3.83
+   MAIN.n_backend                                             1         0.00          .           1.00         1.00         1.00
+   MAIN.n_expired                                             2         0.00          .           2.00         1.76         1.33
+   MAIN.s_sess                                             1055         7.98          .           8.35         4.49         2.11
+   MAIN.s_req                                              1055         7.98          .           8.35         4.49         2.11
+   MAIN.s_fetch                                               3         0.00          .           0.00         0.00         0.00
+   MAIN.s_req_hdrbytes                                   122380       926.07          .         968.24       520.74       244.35
+   MAIN.s_resp_hdrbytes                                  376249      2854.04         2.00      2982.17      1602.59       751.87
+   MAIN.s_resp_bodybytes                                3435094     25993.71        20.00     27177.59     14616.67      6858.74
+   MAIN.backend_req                                           4         0.00          .           0.00         0.00         0.01
+   MAIN.n_vcl                                                 1         0.00          .           0.00         0.00         0.00
+   MAIN.bans                                                  1         0.00          .           1.00         1.00         1.00
+   MAIN.n_gunzip                                              4         0.00          .           0.00         0.00         0.01
+   MGT.uptime                                            171488         1.00         1.00         1.00         1.00         1.00
+   SMA.s0.c_req                                               8         0.00          .           0.00         0.01         0.01
+   SMA.s0.c_bytes                                         15968         0.00          .           0.01        18.98        27.33
+   SMA.s0.c_freed                                         11976         0.00          .           0.00        12.17        18.56
+   SMA.s0.g_alloc                                             2         0.00          .           2.00         1.70         1.62
+   SMA.s0.g_bytes                                          3992         0.00          .        3991.87      3398.82      3235.53
+   SMA.s0.g_space                                     268431464         0.00          .   268431464.13 268432057.18 268432220.47
+   VBE.default(127.0.0.1,,8080).bereq_hdrbytes              630         0.00          .           0.00         0.70         1.13
+   VBE.default(127.0.0.1,,8080).beresp_hdrbytes            1128         0.00          .           0.00         1.34         1.93
+   VBE.default(127.0.0.1,,8080).beresp_bodybytes          13024         0.00          .           0.01        15.48        22.29
 
-.. container:: handout   
+   MAIN.cache_hit                                                                                                         INFO
+   Cache hits:
+   Count of cache hits.   A cache hit indicates that an object has been delivered to a  client without fetching it from a backend server.
 
-    The ``varnishstat`` utility displays statistics from a running ``varnishd`` instance.
-    ``varnishncsa`` dumps everything pointing to a certain domain and subdomains.
-    You can issue the ``varnishhist`` tool to show transactions delivering text/html.
-    .. TODO for the author: move "varnishstat" to an appropriate section.
-    You will learn more about ``varnishstat`` in Section ##.
-    See the Appendix A for more information about ``varnishhist``, ``varnishncsa``, and other Varnish programs.
+
+.. container:: handout
+
+   ``varnishstat`` gives a good representation of the general health of Varnish.
+   Unlike all other tools, ``varnishstat`` does not read log entries, but counters that Varnish update in real-time.   
+   It can be used to determine your request rate, memory usage, thread usage, number of failed backend connections, and more.
+   ``varnishstat`` gives you information just about anything that is not related to a specific request.
+
+   There are over a hundred different counters available.
+   To increase the usefulness of ``varnishstat``, only counters with a value different from 0 is shown by default.
+
+   ``varnishstat`` can be used interactively with its text user interface, or it can prints the current values of all the counters with the ``-1`` option.
+   Both methods allow you to specify specific counters using ``-f field1,field2,...`` to limit the list.
+
+   In interactive mode, ``varnishstat`` has three areas.
+   The top area shows process uptime and hitrate information.
+   The center area shows a list of counter values.
+   The bottom area shows the description of the currently selected counter.
+
+   .. intervals
+   `Hitrate n` and `avg(n)` are related, where `n` is the number intervals.
+   `avg(n)`  measures the cache hit rate within `n` intervals.
+   The default interval time is one second.
+   You can configure the interval time with the ``-w`` option.
+
+   Since there is no historical data of counters changes, ``varnishstat`` has to compute the average while it is running.
+   Therefore, when you start ``varnishstat``, `Hitrate` values start at 1, then they increase to 10, 100 and 1000.
+   In the example above, the interval is one second.
+   The hitrate average ``avg(n)`` show data for the last 10, 100, and 438 seconds.
+   The average hitrate is 0.9967 (or 99.67%) for the last 10 seconds, 0.5686 for the last 100 seconds and 0.3870 for the last 438 seconds.
+
+   .. TODO for author: update the reference of Table ##
+   Table ## describes the columns displayed in the center area.
+
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Column          | Description                                                                                                            |
+   +=================+========================================================================================================================+
+   | Name            | The name of the counter                                                                                                |
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Current         | The current value of the counter.                                                                                      |
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Change          | The average per second change over the last update interval.                                                           |
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Average         | The average value of this counter over the runtime of the Varnish daemon, or a period if the counter can't be averaged.|
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Avg_10          | The moving average over the last 10 update intervals.                                                                  |
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Avg_100         | The moving average over the last 100 update intervals.                                                                 |
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   | Avg_1000        | The moving average over the last 1000 update intervals.                                                                |
+   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+
+   In the above example Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
+   Some counters do not have "per interval" data.
+   These are counters which both increase and decrease.
+
+   There are far too many counters to keep track of for non-developers, and
+   many of the counters are only there for debugging purposes. This allows
+   you to provide the developers of Varnish with real and detailed data
+   whenever you run into a performance issue or bug. It allows the
+   developers to test ideas and get feedback on how it works in production
+   environments without creating special test versions of Varnish. In
+   short: It allows Varnish to be developed according to how it is used.
+
+   Some counters to note are:
+
++-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|        Counter        |                                                                                                                       Description                                                                                                                       |
++=======================+=========================================================================================================================================================================================================================================================+
+| MAIN.threads_limited  | Counts how many times ``varnishd`` hits the maximum allowed number of threads. The maximum number of threads is given by the parameter `thread_pool_max`. Look at this counter to consider whether you should increase the `thread_pool_max` parameter. |
+| MAIN.threads_failed   | Increases every time ``pthread_create()`` fails. You can avoid this situation by increasing ``/proc/sys/kernel/threads-max``.                                                                                                                           |
+| MAIN.thread_queue_len | Shows the current number of sessions waiting for a worker. This counter is first introduced in Varnish 4.                                                                                                                                               |
+| MAIN.sess_queued      | Contains the number of sessions that were queued because there were no available threads immediately. Consider to increase the ``thread_pool_min`` parameter.                                                                                           |
+| MAIN.sess_dropped     | Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length. You can fix this situation by increasing the ``thread_queue_limit`` parameter.                                                                    |
++-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+.. bokmark
 
 Exercise: Try out 
 ---------------------------
-.
-#. Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
+
 .. bookmark
 #. Make ``varnishlog`` only print client-requests where the `RxURL`-tag
    contains ``/favicon.ico``.
@@ -998,6 +1118,7 @@ Exercise: Try out
    find exactly what you want, and filter out the noise. On production
    traffic, the amount of log data that Varnish produces is staggering, and
    filtering is a requirement for using ``varnishlog`` effectively.
+
 
 Tuning
 ======
@@ -1512,168 +1633,11 @@ cli_timeout             |def_cli_timeout|           Management thread->child Man
            virtual machines are involved in the stack, as they can increase
            the connection time significantly.
 
-
-.. TODO for the author: Makesure that this the right location for varnishstat.
-varnishstat
------------
-
-::
-
-Uptime mgt:   0+03:22:01              Hitrate n:       10       28       28
-Uptime child: 0+03:21:59                 avg(n):   0.0000   0.0000   0.0000
-
-  NAME                        CURRENT       CHANGE      AVERAGE
-MAIN.uptime                     12119         1.00         1.00
-MAIN.sess_conn                      1         0.00          .
-MAIN.client_req                     1         0.00          .
-MAIN.cache_miss                     1         0.00          .
-MAIN.backend_conn                   1         0.00          .
-MAIN.backend_recycle                1         0.00          .
-MAIN.fetch_length                   1         0.00          .
-MAIN.pools                          2         0.00          .
-MAIN.threads                      200         0.00          .
-MAIN.threads_created              200         0.00          .
-MAIN.n_backend                      1         0.00          .
-MAIN.n_expired                      1         0.00          .
-MAIN.s_sess                         1         0.00          .
-MAIN.s_req                          1         0.00          .
-MAIN.s_fetch                        1         0.00          .
-MAIN.s_req_hdrbytes               116         0.00          .
-MAIN.s_resp_hdrbytes              349         0.00          .
-MAIN.s_resp_bodybytes            3256         0.00          .
-MAIN.backend_req                    1         0.00          .
-MAIN.n_vcl                          1         0.00          .
-MAIN.bans                           1         0.00          .
-MAIN.n_gunzip                       1         0.00          .
-MGT.uptime                      12121         1.00         1.00
-SMA.s0.c_req                        2         0.00          .
-SMA.s0.c_bytes                   3992         0.00          .
-SMA.s0.c_freed                   3992         0.00          .
-SMA.s0.g_space              268435456         0.00          .
-VBE.default(127.0.0.1...          133         0.00          .
-VBE.default(127.0.0.1...          282         0.00          .
-VBE.default(127.0.0.1...         3256         0.00          .
-
-::
-
-    0+00:44:50                                                   foobar
-    Hitrate ratio:       10      100      175
-    Hitrate avg:     0.9507   0.9530   0.9532
-
-          574660       241.00       213.63 Client connections accepted
-         2525317       937.00       938.78 Client requests received
-         2478794       931.00       921.48 Cache hits
-            7723         3.00         2.87 Cache hits for pass
-          140055        36.00        52.07 Cache misses
-           47974        12.00        17.83 Backend conn. success
-          109526        31.00        40.72 Backend conn. reuses
-           46676         5.00        17.35 Backend conn. was closed
-          156211        41.00        58.07 Backend conn. recycles
-          110500        34.00        41.08 Fetch with Length
-           46519         6.00        17.29 Fetch chunked
-             456         0.00         0.17 Fetch wanted close
-            5091          .            .   N struct sess_mem
-            3473          .            .   N struct sess
-           53570          .            .   N struct object
-           50070          .            .   N struct objecthead
-              20          .            .   N struct vbe_conn
-
-.. container:: handout
-
-   ``varnishstat`` gives a good representation of the general health of Varnish.
-   Statistics include cache hit rate, uptime, number of failed backend connections and many other statistics.
-
-   There are over a hundred different counters available.
-   To increase the usefulness of ``varnishstat``, only counters with a value different from 0 is shown by default.
-
-   ``varnishstat`` can be executed either as a one-shot tool which simply
-   prints the current values of all the counters, using the ``-1`` option,
-   or interactively. Both methods allow you to specify specific counters
-   using ``-f field1,field2,...`` to limit the list.
-
-   In interactive mode, varnishstat starts out by printing the uptime(45
-   minutes, in the example above) and hostname(foobar).
-
-   The `Hitrate ratio` and `Hitrate avg` are related. The Hitrate average
-   measures the cache hit rate for a period of time stated by `hitrate
-   ratio`. In the example above, the hitrate average for the last 10
-   seconds is 0.9507 (or 95.07%), 0.9530 for the last 100 seconds and
-   0.9532 for the last 175 seconds. When you start varnishstat, all of
-   these will start at 1 second, then grow to 10, 100 and 1000. This is
-   because varnishstat has to compute the average while it is running;
-   there is no historic data of counters available.
-
-   The bulk of varnishstat is the counters. The left column is the raw
-   value, the second column is change per second in real time and the
-   third column is change per second on average since Varnish started.
-   In the above example Varnish has served 574660 requests and is
-   currently serving roughly 241 requests per second.
-
-   Some counters do not have 'per second' data. These are counters which
-   both increase and decrease.
-
-   There are far too many counters to keep track of for non-developers, and
-   many of the counters are only there for debugging purposes. This allows
-   you to provide the developers of Varnish with real and detailed data
-   whenever you run into a performance issue or bug. It allows the
-   developers to test ideas and get feedback on how it works in production
-   environments without creating special test versions of Varnish. In
-   short: It allows Varnish to be developed according to how it is used.
-
-   In addition to some obviously interesting counters, like `cache_hit` and
-   `client_conn`, some counters of note are:
-
-   +-----------------+------------------------------------------------+
-   | Counter         | Description                                    |
-   +=================+================================================+
-   | `client_drop`   | This counts clients Varnish had to drop due to |
-   |                 | resource shortage. It should be 0.             |
-   +-----------------+------------------------------------------------+
-   | `cache_hitpass` | Hitpass is a special type of cache miss.       |
-   |                 | It will be covered in the VCL chapters, but    |
-   |                 | it can often be used to indicate if something  |
-   |                 | the backend sent has triggered cache misses.   |
-   +-----------------+------------------------------------------------+
-   | `backend_fail`  | Counts the number of requests to backends that |
-   |                 | fail. Should have a low number, ideally 0, but |
-   |                 | it's not unnatural to have backend failures    |
-   |                 | once in a while. Just make sure it doesn't     |
-   |                 | become the normal state of operation.          |
-   +-----------------+------------------------------------------------+
-   | `n_object`      | Counts the number of objects in cache.         |
-   |                 | You can have multiple variants of the same     |
-   |                 | object depending on your setup.                |
-   +-----------------+------------------------------------------------+
-   | `n_wrk`,        | Thread counters. During normal operation,      |
-   | `n_wrk_queued`, | the `n_wrk_queued` counter should not grow.    |
-   | `n_wrk_drop`    | Once Varnish is out of threads, it will queue  |
-   |                 | up requests and `n_wrk_queued` counts how many |
-   |                 | times this has happened. Once the queue is     |
-   |                 | full, Varnish starts dropping requests without |
-   |                 | answering. `n_wrk_drop` counts how many times  |
-   |                 | a request has been dropped. It should be 0.    |
-   +-----------------+------------------------------------------------+
-   | `n_lru_nuked`   | Counts the number of objects Varnish has had   |
-   |                 | to evict from cache before they expired to     |
-   |                 | make room for other content. If it is always   |
-   |                 | 0, there is no point increasing the size of    |
-   |                 | the cache since the cache isn't full. If it's  |
-   |                 | climbing steadily a bigger cache could improve |
-   |                 | cache efficiency.                              |
-   +-----------------+------------------------------------------------+
-   | `esi_errors`,   | If you use Edge Side Includes (ESI), these     |
-   | `esi_warnings`  | somewhat hidden counters can be helpful to     |
-   |                 | determine if the ESI syntax the web server is  |
-   |                 | sending is valid.                              |
-   +-----------------+------------------------------------------------+
-   | `uptime`        | Varnish' uptime. Useful to spot if Varnish has |
-   |                 | been restarted, either manually or by bugs.    |
-   |                 | Particularly useful if a monitor tool uses it. |
-   +-----------------+------------------------------------------------+
-
-
 Exercise: Tune first_byte_timeout
 ---------------------------------
+
+.. This line was before inside Varnishlog
+#. Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
 
 #. Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing::
 
@@ -4499,6 +4463,9 @@ varnishncsa
 
    Filtering works similar to varnishlog.
 
+    ``varnishncsa`` dumps everything pointing to a certain domain and subdomains.
+
+
 varnishhist
 -----------
 
@@ -4524,6 +4491,7 @@ varnishhist
         +-------+-------+-------+-------+-------+-------+-------+-------+-------
         |1e-6   |1e-5   |1e-4   |1e-3   |1e-2   |1e-1   |1e0    |1e1    |1e2
 
+    You can issue the ``varnishhist`` tool to show transactions delivering text/html.
 
 
 Exercise: Try the tools
