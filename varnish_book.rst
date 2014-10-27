@@ -1166,7 +1166,7 @@ This chapter covers:
 Varnish Architecture
 --------------------
 
-.. image:: ui/img/architecture.png
+.. image:: ui/img/architecture.svg
    :align: center
 
 .. class:: handout
