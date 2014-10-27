@@ -738,6 +738,12 @@ Defining a backend in VCL
    The real default backend that Varnish will use is the first backend you specify.
    You can specify many backends at the same time, but for now, we will only specify one to get started.
 
+Exercise: Use the administration interface to learn, review and set Varnish parameters
+--------------------------------------------------------------------------------------
+#. Use ``varnishadm`` to see the default value for the ``default_ttl`` parameter, and what it does.
+
+.. TODO for the author: This exercise is too short and simple. Consider to remove it or elaborate it.
+
 Exercise: Fetch data through Varnish
 ------------------------------------
 
@@ -970,8 +976,17 @@ Examples of Varnish log queries::
        - Client requests connection closed ``ReqHeader:connection ~ close``
        - ESI miss (-g request) ``{3+}Begin ~ Bereq``
 
+Exercise
+--------
+
+#. Make ``varnishlog`` only print client-requests where the `ReqURL` tag contains ``/favicon.ico``.
+
+.. TODO for the author: Elaborate more this exercise.
+
 varnishstat
 -----------
+
+.. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
 
 ::
 
@@ -1087,36 +1102,31 @@ varnishstat
 
    Some counters to note are:
 
-+-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
-|        Counter        |  Description                                                                                                                       |
-+=======================+====================================================================================================================================+
-| MAIN.threads_limited  | Counts how many times ``varnishd`` hits the maximum allowed number of threads.                                                     |
-|                       | The maximum number of threads is given by the parameter `thread_pool_max`.                                                         |
-|                       | Look at this counter to consider whether you should increase the `thread_pool_max` parameter.                                      |
-+-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
-| MAIN.threads_failed   | Increases every time ``pthread_create()`` fails.                                                                                   |
-|                       | You can avoid this situation by tuning the maximum number of processes available with the ``ulimit -u`` command.                   |
-|                       | You may also look at the thread-max Linux parameter in ``/proc/sys/kernel/threads-max``.                                           |
-+-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
-| MAIN.thread_queue_len | Shows the current number of sessions waiting for a thread.                                                                         |
-|                       | This counter is first introduced in Varnish 4.                                                                                     |
-+-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
-| MAIN.sess_queued      | Contains the number of sessions that were queued because there were no available threads immediately.                              |
-|                       | Consider to increase the ``thread_pool_min`` parameter.                                                                            |
-+-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
-| MAIN.sess_dropped     | Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length.                              |
-|                       | You can fix this situation by increasing the ``thread_queue_limit`` parameter.                                                     |
-+-----------------------+------------------------------------------------------------------------------------------------------------------------------------+
-.. bokmark
++-----------------------+------------------------------------------------------------------------------------------------------------------+
+|        Counter        |  Description                                                                                                     |
++=======================+==================================================================================================================+
+| MAIN.threads_limited  | Counts how many times ``varnishd`` hits the maximum allowed number of threads.                                   |
+|                       | The maximum number of Varnish threads is given by the parameter `thread_pool_max`.                               |
+|                       | Issue the command ``varnishadm param.show thread_pool_max`` to see this parameter.                               |
++-----------------------+------------------------------------------------------------------------------------------------------------------+
+| MAIN.threads_failed   | Increases every time ``pthread_create()`` fails.                                                                 |
+|                       | You can avoid this situation by tuning the maximum number of processes available with the ``ulimit -u`` command. |
+|                       | You may also look at the thread-max Linux parameter in ``/proc/sys/kernel/threads-max``.                         |
++-----------------------+------------------------------------------------------------------------------------------------------------------+
+| MAIN.thread_queue_len | Shows the current number of sessions waiting for a thread.                                                       |
+|                       | This counter is first introduced in Varnish 4.                                                                   |
++-----------------------+------------------------------------------------------------------------------------------------------------------+
+| MAIN.sess_queued      | Contains the number of sessions that were queued because there were no available threads immediately.            |
+|                       | Consider to increase the ``thread_pool_min`` parameter.                                                          |
++-----------------------+------------------------------------------------------------------------------------------------------------------+
+| MAIN.sess_dropped     | Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length.            |
+|                       | You may consider to increase the ``thread_queue_limit`` Varnish parameter as a solution to drop less sessions.   |
++-----------------------+------------------------------------------------------------------------------------------------------------------+
 
-Exercise: Try out 
----------------------------
+Exercise: Try ``varnishstat`` and ``varnishlog`` together
+---------------------------------------------------------
 
-.. bookmark
-#. Make ``varnishlog`` only print client-requests where the `RxURL`-tag
-   contains ``/favicon.ico``.
-#. Use ``varnishadm`` to determine the default value for the
-   ``default_ttl``-parameter, and what it does.
+#. Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
 
 .. container:: handout
 
@@ -1130,13 +1140,12 @@ Exercise: Try out
    traffic, the amount of log data that Varnish produces is staggering, and
    filtering is a requirement for using ``varnishlog`` effectively.
 
-
 Tuning
 ======
 
-*This chapter is for the system administration course only*
+*This chapter is for the System Administration Course only*
 
-This chapter will cover:
+This chapter covers:
 
 - Architecture
 - Best practices
@@ -1144,79 +1153,61 @@ This chapter will cover:
 
 .. container:: handout
 
-   Tuning Varnish is two-fold. Perhaps the most important aspect of it is
-   is getting your VCL straight. For now, though, we will focus on tuning
-   Varnish for your hardware, operating system and network.
+   Perhaps the most important aspect of tuning Varnish is writting effective VCL code.
+   For now, however, we will focus on tuning Varnish for your hardware, operating system and network.
+   To be able to do that, knowledge of Varnish architecture is helpful.
 
-   To be able to do that, knowledge of the process- and thread-architecture
-   is helpful.
+   It is important to know the internal architecture of Varnish for two reasons.
+   First, the architecture is chiefly responsible for the performance, and second, it influences how you integrate Varnish in your own architecture.
 
-   The internal architecture of Varnish is of some interest, both because
-   it is chiefly responsible for the performance you will be able to
-   achieve with Varnish, and because it affects how you integrate Varnish
-   in your own architecture.
+   There are several aspects of the design that were unique to Varnish when it was originally implemented.
+   Truly good solutions, regardless of reusing ancient ideas or coming up with something radically different, is the aim of Varnish.
 
-   There are several aspects of the design that was unique to Varnish when
-   it was originally implemented. Truly good solutions is the aim of
-   Varnish, regardless of whether that means reusing ancient ideas or
-   coming up with something radically different.
-
-Process Architecture
+Varnish Architecture
 --------------------
-
-The multi-process architecture:
 
 .. image:: ui/img/architecture.png
    :align: center
-   :width: 80%
 
 .. class:: handout
 
 The management process
 ......................
 
+.. bookmark
 Varnish has two main processes: the management process and the child
-process.  The management process apply configuration changes (VCL and
-parameters), compile VCL, monitor Varnish, initialize Varnish and provides
-a command line interface, accessible either directly on the terminal or
+process.  The management process applies configuration changes (from VCL files and
+parameters), compiles VCL, monitors Varnish, initializes Varnish and provides
+a command line interface (CLI), accessible either directly on the terminal or
 through a management interface.
 
-The management process polls the child process every few seconds to see if
-it's still there. If it doesn't get a reply within a reasonable time, the
-management process will kill the child and start it back up again. The same
-happens if the child unexpectedly exits, for example from a segmentation
-fault or assert error.
+The management process polls the child process every few seconds to see if it's still there. 
+If the management process does not get a reply within a reasonable time, the management process kills the child and starts it up again. 
+Automatic restart also happens if the child unexpectedly exits, for example, from a segmentation fault or assert error.
 
-This ensures that even if Varnish does contain a critical bug, it will
-start back up again fast. Usually within a few seconds, depending on the
-conditions.
+Automatic restart of child processes is a resilience property of Varnish.
+This property ensures that even if Varnish does contain a critical bug, it starts up again fast.
+Usually within a few seconds, depending on the conditions.
 
-All of this is logged to syslog. This makes it crucially important to
-monitor the syslog, otherwise you may never even know unless you look for
-them, because the perceived downtime is so short.
+Even if you do not perceive a lenghty service downtime, you should check whether the Varnish child is being restarted.
+This is important, because child restarts introduce extra loading time as ``varnishd`` is constantly emptying its cache.
+Automatic restarts are logged into ``/var/log/syslog``.
 
 .. note::
 
-   Varnish Software and the Varnish community at large occasionally get
-   requests for assistance in performance tuning Varnish that turn out to
-   be crash-issues. Because the Varnish management thread starts the child
-   up so fast, the users don't even notice the down time, only the extra
-   loading time as Varnish is constantly emptying its cache.
+   To verify that the child process is not being restarted, you can also check its lifetime with the ``MAIN.uptime`` counter in ``varnishstat``.
 
-   This is easily avoidable by paying attention to syslog and the `uptime`
-   counter in ``varnishstat``.
-
+   Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
 .. raw:: pdf
 
    PageBreak
 
 .. class:: handout
 
-The child process
+The Child Process
 .................
 
-The child process consist of several different types of threads, including,
-but not limited to:
+The child process consists of several different types of threads, including, but not limited to:
 
 - Acceptor thread to accept new connections and delegate them.
 - Worker threads - one per session. It's common to use hundreds of worker
