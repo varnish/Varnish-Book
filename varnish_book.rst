@@ -1170,31 +1170,53 @@ Varnish Architecture
    :align: center
    :width: 100%
 
+Figure #. Varnish Architecture
+
 .. class:: handout
 
-The management process
-......................
+Figure # shows a block diagram of the Varnish architecture.
+The diagram shows the dataflow between the principal parts of Varnish.
 
-.. bookmark
-Varnish has two main processes: the management process and the child
-process.  The management process applies configuration changes (from VCL files and
-parameters), compiles VCL, monitors Varnish, initializes Varnish and provides
-a command line interface (CLI), accessible either directly on the terminal or
-through a management interface.
+The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
+``varnishd`` creates a new child process mainly for security reasons.
+The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
-The management process polls the child process every few seconds to see if it's still there. 
-If the management process does not get a reply within a reasonable time, the management process kills the child and starts it up again. 
-Automatic restart also happens if the child unexpectedly exits, for example, from a segmentation fault or assert error.
+The Manager's CLI is accessible directly on the terminal, through ``varnishadm``, or through the Varnish Administration Console (VAC) via *agent2*.
+.. TODO for the author: update the Section #.
+You will learn more VAC and *agent2* in Section #.
+
+.. C-compiler
+
+.. Shared object
+
+.. Shared memory
+
+.. varnishlog, etc.
+
+The Parent Process: The Manager
+...............................
+
+The *Manager* process is owened by the root user, and its main functions are:
+
+- apply configuration changes (from VCL files and parameters)
+- compile VCL
+- monitor Varnish
+- provide a command line interface (CLI)
+- initialize the *Cacher*
+
+The *Manager*  checks every few seconds whether the *Cacher* is still there.
+If the *Manager* does not get a reply within a given interval defined in ``ping_interval``, the *Manager* kills the *Cacher* and starts it up again. 
+This automatic restart also happens if the *Cacher* exits unexpectedly, for example, from a segmentation fault or assert error.
 
 Automatic restart of child processes is a resilience property of Varnish.
-This property ensures that even if Varnish does contain a critical bug, it starts up again fast.
-Usually within a few seconds, depending on the conditions.
-
-Even if you do not perceive a lenghty service downtime, you should check whether the Varnish child is being restarted.
-This is important, because child restarts introduce extra loading time as ``varnishd`` is constantly emptying its cache.
-Automatic restarts are logged into ``/var/log/syslog``.
+This property ensures that even if Varnish contains a critical bug that crashes the child, the child starts up again usually within a few seconds.
+You can toggle this property using the ``auto_restart`` parameter.
 
 .. note::
+
+   Even if you do not perceive a lenghty service downtime, you should check whether the Varnish child is being restarted.
+   This is important, because child restarts introduce extra loading time as ``varnishd`` is constantly emptying its cache.
+   Automatic restarts are logged into ``/var/log/syslog``.
 
    To verify that the child process is not being restarted, you can also check its lifetime with the ``MAIN.uptime`` counter in ``varnishstat``.
 
@@ -1205,14 +1227,24 @@ Automatic restarts are logged into ``/var/log/syslog``.
 
 .. class:: handout
 
-The Child Process
-.................
+The Child Process: The Cacher
+.............................
 
-The child process consists of several different types of threads, including, but not limited to:
+Since the *Cacher* listes on public IP addresses and known ports, it is exposed to evil clients.
+Therefore, for security reasons, this child process is owned by the *nobody* user, and it has no backwards communication to its parent, the *Manager*.
+
+The main functions of the *Cacher* are:
+
+- listen for client requests
+- manage worker threads
+- store caches
+- log traffic
+- update counters for statistics
+
+The *Cacher* consists of several different types of threads, including, but not limited to:
 
 - Acceptor thread to accept new connections and delegate them.
-- Worker threads - one per session. It's common to use hundreds of worker
-  threads.
+- Worker threads - one per client request (session). It's common to use hundreds of worker threads.
 - Expiry thread, to evict old content from the cache.
 
 Varnish uses workspaces to reduce the contention between each thread when
@@ -1230,13 +1262,13 @@ keep track of what you actually use.
 
 To communicate with the rest of the system, the child process uses a shared
 memory log accessible from the file system. This means that if a thread
-needs to log something, all it has to do is grab a lock, write to a memory
+needs to log something, all it has to do is to grab a lock, write to a memory
 area and then free the lock. In addition to that, each worker thread has a
-cache for log data to reduce lock contention.
+cache for log-data to reduce lock contention.
 
 The log file is usually about 80MB, and split in two. The first part is
 counters, the second part is request data. To view the actual data, a
-number of tools exist that parses the shared memory log. Because the
+number of tools exist that parses the shared memory log. Since the
 log-data is not meant to be written to disk in its raw form, Varnish can
 afford to be very verbose. You then use one of the log-parsing tools to
 extract the piece of information you want - either to store it permanently
@@ -1247,91 +1279,85 @@ or to monitor Varnish in real-time.
 VCL compilation
 ................
 
-Configuring the caching policies of Varnish is done in the Varnish
-Configuration Language (VCL). Your VCL is then interpreted by the
-management process into to C and then compiled by a normal C compiler -
-typically gcc. Lastly, it is linked into the running Varnish instance.
+Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL). 
+Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically gcc, and linked into the running Varnish instance.
+Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formated VCL.
 
-As a result of this, changing configuration while Varnish is running is
-very cheap. Varnish may want to keep the old configuration around for a bit
-in case it still has references to it, but the policies of the new VCL
-takes effect immediately.
+As a result of this, changing configuration while running Varnish is very cheap. 
+Policies of the new VCL takes effect immediately.
+However, objects created with an older configuration may persist until they have no more old references or the  new configuration acts on them.
 
-Because the compilation is done outside of the child process, there is
-no risk of affecting the running Varnish by accidentally loading an
-ill-formated VCL.
-
-A compiled VCL file is kept around until you restart Varnish completely, or
-until you issue ``vcl.discard`` from the management interface. You can only
-discard compiled VCL files after all references to them are gone, and the
-amount of references left is part of the output of ``vcl.list``.
+A compiled VCL file is kept around until you restart Varnish completely, or until you issue ``vcl.discard`` from the management interface.
+You can only discard compiled VCL files after all references to them are gone.
+You can see the amount of VCL references by reading the parameter ``vcl.list``.
 
 Storage backends
 ----------------
 
-Varnish supports different methods of allocating space for the
-cache, and you choose which one you want with the ``-s`` argument.
+Varnish supports different methods to allocate space for the cache.
+You can select one method with the ``-s`` option of ``varnishd``.
 
-- file
 - malloc
-- persistent (experimental)
+- file
+  + persistent (deprecated in Varnish 4, but supported in Varnish Plus 3)
+- Varnish Massive Storage Engine (MSE)
 
 .. note::
 
-    As a Rule of thumb use: malloc if it fits in memory, file if it doesn't.
+    As a rule of thumb use: malloc if it fits in memory, file if it doesn't.
     Expect around 1kB of overhead per object cached.
 
 .. container:: handout
 
-        They approach the same basic problem from two different angles.
-        With the `malloc`-method, Varnish will request the entire size of
+        .. malloc
+        They approach the same basic problem from different angles.
+        With the `malloc` method, Varnish will request the entire size of
         the cache with a malloc() (memory allocation) library call. The
         operating system divides the cache between memory and disk by
         swapping out what it can't fit in memory.
 
-        The alternative is to use the `file` storage backend, which instead
+	.. file
+        Another possibility is to use the `file` storage backend, which instead
         creates a file on a filesystem to contain the entire cache, then
         tell the operating system through the mmap() (memory map) system
         call to map the entire file into memory if possible.
 
-        The `file` storage method does not retain data when you stop or
-        restart Varnish! This is what persistent storage is for. When ``-s
-        file`` is used, Varnish does not keep track of what is written to
-        disk and what is not. As a result, it's impossible to know whether
-        the cache on disk can be used or not — it's just random data.
-        Varnish will not (and can not) re-use old cache if you use ``-s
-        file``.
+	.. persistence
+        The `file` storage method does not retain data when you stop or restart Varnish!
+	This is what persistent storage is for.
+	When ``-s file`` is used, Varnish does not keep track of what is written to disk and what is not. 
+        Varnish will not, because it cannot, re-use old cache with the ``-s file`` option.
 
-        While `malloc` will use swap to store data to disk, `file` will use
-        memory to cache the data instead. Varnish allow you to choose
-        between the two because the performance of the two approaches have
-        varied historically.
+	The persistent feature is experimental, and it is only supported in Varnish Plus 3.x series.
+	This feature is deprecated in Varnish Cache 4.
 
-        The persistent storage backend is similar to file, but
-        experimental. It does not yet gracefully
-        handle situations where you run out of space. We only recommend
-        using persistent if you have a large amount of data that you must
-        cache and are prepared to work with us to track down bugs.
+	.. MSE
+	The Varnish Massive Storage Engine (MSE) is an improved storage backend for Varnish Plus only.
+	Its main improvements are decreased disk IO load and lower storage fragmentation.
+	MSE is designed and tested with storage sizes up to 10 TB.
 
-        When choosing storage backend, the rule of thumb is to use malloc
-        if your cache will be contained entirely or mostly in memory, while
-        the file storage backend performs far better when you need a large
-        cache that exceeds the physical memory available. This might vary
-        based on the kernel you use, but seems to be the case for 2.6.18
-        and later Linux kernel, in addition to FreeBSD.
+        While `malloc` is used swap to store data to disk, `file` and MSE use memory to cache the data instead. 
+        
+	.. Choosing the storage backend
+        When choosing storage backend, use `malloc` if your cache will be contained entirely or mostly in memory.
+	If your cache will exceed the available physical memory, you have two options: `file` or MSE.
+	We recommend you to use MSE because it performs much better than `file` storage backend.
 
         It is important to keep in mind that the size you specify with the
-        ``-s`` argument is the size for the actual cache. Varnish has an
+        ``-s`` option is the size for the actual cache. Varnish has an
         overhead on top of this for keeping track of the cache, so the
         actual memory footprint of Varnish will exceed what the '-s'
         argument specifies if the cache is full. The current estimate
         (subject to change on individual Varnish-versions) is that about
-        1kB of overhead needed for each object. For 1 million objects, that
+        .. TODO for the author: update the overhead size
+	1kB of overhead needed for each object. For 1 million objects, that
         means 1GB extra memory usage.
 
         In addition to the per-object overhead, there is also a fairly
         static overhead which you can calculate by starting Varnish without
         any objects. Typically around 100MB.
+
+.. bookmark
 
 The shared memory log
 ---------------------
