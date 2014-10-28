@@ -1168,6 +1168,7 @@ Varnish Architecture
 
 .. image:: ui/img/architecture.svg
    :align: center
+   :width: 100%
 
 .. class:: handout
 
