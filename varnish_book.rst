@@ -145,7 +145,7 @@ The Varnish Book is designed to be used as training material under a Varnish Plu
 Under a course, the instructor guides you and selects the relevant chapters to learn.
 If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
-.. Excercises
+.. Exercises
 There are almost always many ways to do an exercise.
 The solutions provided in this book or by your instructor are not necessarily better than your own.
 
@@ -546,7 +546,7 @@ You can read about other usages by issuing the ``help`` command after you connec
    The location of the secret file is ``/etc/varnish/secret`` by default, but you can use the ``-S`` option to specify other location.
    The content of the file is a shared secret, which is a string generated under Varnish installation.
    
-   The management interface authenticates with a challenge-reponse mechanism.
+   The management interface authenticates with a challenge-response mechanism.
    Therefore, the shared secret is never transmitted, but a challenge and the response to the challenge.
    This authentication mechanism offers a reasonably good access control, but it does not protect the data transmitted over the connection.
    Therefore, it is very important to avoid eavesdroppers like in the man-in-the-middle attack.
@@ -798,7 +798,7 @@ Log Data Tools
 Tools to display detailed log records:
 
 - ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
-- ``varnishncsa`` displays Varnish logs in Apache / NCSA combined log format.
+- ``varnishncsa`` displays Varnish logs in Apache/NCSA combined log format.
 
 Statistical tools:
 
@@ -863,7 +863,7 @@ Transactions
    A unique VXID is assigned to each type of transaction.
    You can use the VXID when you view the log through varnishlog. 
    
-   .. More aobut VXID
+   .. More about VXID
    The default is to group the log on VXID, which basically makes ``varnishlog`` act more or less the way it does in Varnish 3.0.
    When viewing a log for a simple cache miss, you’ll see the backend request, the client request and then the session.
    They are displayed in the order they end.
@@ -932,7 +932,7 @@ Example of Transaction Grouping with ``varnishlog``
       ``varnishlog`` accepts all option that are syntactically correct.
       The semantics of your use of options, however, might be different than what you think at first.
       Therefore, you should ensure that your results  make sense.
-      You can verify the meaning of your restuls by double checking the filters, and by separating your results with the ``-b``and ``-c`` options.
+      You can verify the meaning of your results by double checking the filters, and by separating your results with the ``-b``and ``-c`` options.
 
 Query language
 --------------
@@ -1153,7 +1153,7 @@ This chapter covers:
 
 .. container:: handout
 
-   Perhaps the most important aspect of tuning Varnish is writting effective VCL code.
+   Perhaps the most important aspect of tuning Varnish is writing effective VCL code.
    For now, however, we will focus on tuning Varnish for your hardware, operating system and network.
    To be able to do that, knowledge of Varnish architecture is helpful.
 
@@ -1175,7 +1175,7 @@ Figure #. Varnish Architecture
 .. class:: handout
 
 Figure # shows a block diagram of the Varnish architecture.
-The diagram shows the dataflow between the principal parts of Varnish.
+The diagram shows the data flow between the principal parts of Varnish.
 
 The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
 ``varnishd`` creates a new child process mainly for security reasons.
@@ -1196,7 +1196,7 @@ You will learn more VAC and *agent2* in Section #.
 The Parent Process: The Manager
 ...............................
 
-The *Manager* process is owened by the root user, and its main functions are:
+The *Manager* process is owned by the root user, and its main functions are:
 
 - apply configuration changes (from VCL files and parameters)
 - compile VCL
@@ -1214,7 +1214,7 @@ You can toggle this property using the ``auto_restart`` parameter.
 
 .. note::
 
-   Even if you do not perceive a lenghty service downtime, you should check whether the Varnish child is being restarted.
+   Even if you do not perceive a lengthy service downtime, you should check whether the Varnish child is being restarted.
    This is important, because child restarts introduce extra loading time as ``varnishd`` is constantly emptying its cache.
    Automatic restarts are logged into ``/var/log/syslog``.
 
@@ -1230,7 +1230,7 @@ You can toggle this property using the ``auto_restart`` parameter.
 The Child Process: The Cacher
 .............................
 
-Since the *Cacher* listes on public IP addresses and known ports, it is exposed to evil clients.
+Since the *Cacher* listens on public IP addresses and known ports, it is exposed to evil clients.
 Therefore, for security reasons, this child process is owned by the *nobody* user, and it has no backwards communication to its parent, the *Manager*.
 
 The main functions of the *Cacher* are:
@@ -1280,8 +1280,8 @@ VCL compilation
 ................
 
 Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL). 
-Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically gcc, and linked into the running Varnish instance.
-Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formated VCL.
+Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
+Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formatted VCL.
 
 As a result of this, changing configuration while running Varnish is very cheap. 
 Policies of the new VCL takes effect immediately.
@@ -1357,36 +1357,35 @@ You can select one method with the ``-s`` option of ``varnishd``.
         static overhead which you can calculate by starting Varnish without
         any objects. Typically around 100MB.
 
-.. bookmark
-
 The shared memory log
 ---------------------
 
-Varnish' shared memory log is used to log most data. It's sometimes called
-a shm-log, and operates on a round-robin capacity.
-
-There's not much you have to do with the shared memory log, except ensure
-that it does not cause I/O. This is easily accomplished by putting it on a
-tmpfs.
+- Avoid I/O operations. 
+- Mount the shared memory log as `tmpfs`.
+- `shm-log` is not persistent.
 
 .. container:: handout
 
-   This is typically done in '/etc/fstab', and the shmlog is normally kept
-   in '/var/lib/varnish' or equivalent locations. All the content in that
-   directory is safe to delete.
+   Varnish' shared memory log is used to log most data. 
+   It's sometimes called a `shm-log`, and operates on a circular buffer.
 
-   The shared memory log is not persistent, so do not expect it to contain
-   any real history.
+   .. I/O operations
+   There's not much you have to do with the shared memory log, except ensure that it does not cause I/O operations.
+   You can avoid I/O by mounting the shared memory log as a temporary file storage (`tmpfs`).
+   This is typically configured in ``/etc/fstab``, and the `shm-log` is normally kept under ``/var/lib/varnish/`` or equivalent locations.
+   You need to restart ``varnishd`` after mounting it as `tmpfs`.
 
-   The typical size of the shared memory log is 80MB. If you want to see
-   old log entries, not just real-time, you can use the ``-d`` argument for
-   `varnishlog`: ``varnishlog -d``.
+   .. no persistent
+   The shared memory log is not persistent.    
+   You can issue ``varnishlog -d`` to see old log entries.
+   The typical size of the shared memory log is 80MB. 
+   All the content under ``/var/lib/varnish/`` directory is safe to delete.
 
    .. warning::
 
-      Some packages will use ``-s file`` by default with a path that puts
-      the storage file in the same directory as the shmlog. You want to
-      avoid this.
+      Some Varnish distribution setup the `file` storage backend option ``-s file`` by default.
+      Those distribution set a path that puts the storage file in the same directory as the shm-log.
+      We discourage this practice.
 
 Tunable parameters
 ------------------
@@ -1403,23 +1402,113 @@ Tunable parameters
         Varnish has many different parameters which can be adjusted to make
         Varnish act better under specific workloads or with specific software and
         hardware setups. They can all be viewed with ``param.show`` in the
-        management interface and set with the ``-p`` option passed to
-        Varnish - or directly in the management interface.
+        management interface ``varnishadm``.
 
-        Remember that changes made in the management interface are not stored
-        anywhere, so unless you store your changes in a startup script, they will
-        be lost when Varnish restarts.
+	You can set up parameters in two different ways.
+	In ``varnishadm``, use the command ``param.set <param> <value>``.
+	Alternatively, you can issue the command ``varnishd -p param=value``.
 
-        The general advice with regards to parameters is to keep it simple. Most
-        of the defaults are very good, and even though they might give a small
-        boost to performance, it's generally better to use safe defaults if you
-        don't have a very specific need.
+        Remember that changes made in the management interface are not persistent.
+	Therefore, unless you store your changes in a startup script, they will be lost when Varnish restarts.
 
-        A few hidden commands exist in the CLI, which can be revealed with
-        ``help -d``. These are meant exclusively for development or
-        testing, and many of them are downright dangerous. They are hidden
-        for a reason, and the only exception is perhaps ``debug.health``,
-        which is somewhat common to use.
+        The general advice with regards to parameters is to keep it simple. 
+	Most of the defaults are optimal.
+	If you don't have a very specific need, it's generally better to use safe defaults.
+
+        A few hidden debug commands exist in the CLI, which can be revealed with ``help -d``. 
+	These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
+	They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
+
+Varnish Tuner
+-------------
+
+- Command ``varnishtuner``
+- Suggested values for system variables and Varnish parameters are **installation specific**
+- With our without user input
+- Available for Varnish Plus only
+
+.. container:: handout
+
+   .. outside Varnish
+   The biggest potential for improvement is outside Varnish. 
+   First and foremost in tuning the network stack and the TCP/IP connection handling.
+   
+   .. history
+   Varnish Tuner is a program toolkit based on the experience and documentation we have built.
+   The toolkit tries to gather as much information as possible from your installation and decides which parameters need tuning.
+
+   .. Specific per system
+   The tuning advice that the toolkit gives is specific to that system.  
+   The Varnish Tuner gathers information from the system it is running in.
+   Based on that information, it suggests values for systems variables of your OS and parameters for your Varnish installation that can be beneficial to tune.
+   Varnish Tuner includes the following information for each suggested system variable or parameter:
+
+   - current value
+   - suggested value
+   - text explaining why it is advised to be changed
+
+   .. user interaction
+   ``varnishturner`` requires by default user input to produce its output.
+   If you are not sure about the requested input, you can instruct ``varnishturner`` to do not suggest parameters that require user input.
+   For this, you issue ``varnishturner -n``.
+
+   .. varnish plus
+   Varnish Tuner is valuable to both experts and non-experts.
+   Varnish Tuner is available for Varnish Plus series only.
+
+   .. warning::
+          Copying Varnish Tuner suggestions to other systems might not be a good idea.
+
+Varnish Tuner Persistence
+.........................
+
+The output of ``varnishturner`` updates every time you introduce a new input or execute a suggested command.
+However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
+To make the tuning persistent, you can add do the following:
+
+- Specify the Varnish parameters in ``/etc/default/varnish``.
+- Specify the ``sysctl`` system variables in ``/etc/sysctl.conf`` or in ``/etc/sysctl.d/varnishtuner.conf`` (if ``/etc/sysctl.d/`` is included).
+
+To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
+
+Install Varnish Tuner
+.....................
+
+Below are the installation instructions for getting the tuner from our repositories.
+Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
+If you don't know them, please send an email to our support email to recover them. 
+
+**Ubuntu Trusty 14.04**
+
+Packages in our repositories are signed and distributed via https.
+You need to enable https support in the package manager and install our public key first::
+
+  apt-get install -y apt-transport-https
+  curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt | apt-key add -
+
+You add the Varnish Plus repository to ``/etc/apt/sources.list.d/varnish-plus.list``::
+
+  # Varnish Tuner
+  deb https://<username>:<password>@repo.varnish-software.com/ubuntu <distribution_codename> non-free
+
+Where ``<distribution_codename>`` is the codename of  your Linux distribution, for example: trusty, debian, or wheezy.
+
+Then::
+
+  apt-get update
+  apt-get install varnishtuner 
+
+**Red Hat Enterprise Linux 6**
+
+To install Varnish Plus on RHEL6, put the following lines into ``/etc/yum.repos.d/varnish-plus.repo``::
+
+  [varnishtuner]
+  name=Varnishtuner
+  baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/varnishtuner/el6
+  enabled=1
+  gpgcheck=0
+
+.. bookmark
 
 Threading model
 ---------------
