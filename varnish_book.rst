@@ -124,6 +124,7 @@ In Appendix A of the book, you will find the **Varnish Book Reference**.
 The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
 Appendix B and C contain special purpose Varnish programs and supporting material respectively.
 Appendix D lists the Varnish Three Letter Acronyms.
+Appendix E describes what is new since Varnish 3.0.
 .. https://www.varnish-cache.org/trac/wiki/VTLA
 
 
@@ -1508,22 +1509,18 @@ To install Varnish Plus on RHEL6, put the following lines into ``/etc/yum.repos.
   enabled=1
   gpgcheck=0
 
-.. bookmark
-
 Threading model
 ---------------
 
-- The child process runs multiple threads
+- The child process runs multiple threads in two tread pools
 - Worker threads are the bread and butter of the Varnish architecture
 - Utility-threads
-- Balance
 
 .. container:: handout
 
-   The child process of Varnish is where the magic takes place. It consists
-   of several distinct threads performing different tasks. The following
-   table lists some interesting threads, to give you an idea of what goes
-   on. The table is not complete.
+   The child process runs multiple threads in two thread pools.
+   The threads of these pools are called worker threads.
+   The following table lists some relevant threads, to give you an idea of what goes on.
 
    +---------------+---------------------------+------------------------+
    | Thread-name   | Amount of threads         | Task                   |
@@ -1543,31 +1540,28 @@ Threading model
    | backend poll  | One per backend poll      | Health checks          |
    +---------------+---------------------------+------------------------+
 
-   Most of the time, we only deal with the cache-worker threads when
-   configuring Varnish. With the exception of the amount of thread pools,
-   all the other threads are not configurable.
+   For tuning Varnish, you need to think about your expected traffic. 
+   The most important thread setting is the number of cache-worker threads.
+   You may configure ``thread_pool_min`` and ``thread_pool_max``.
+   These parameters are per thread pool.
 
-   For tuning Varnish, you need to think about your expected traffic. The
-   thread model allows you to use multiple thread pools, but time and
-   experience has shown that as long as you have 2 thread pools, adding
-   more will not increase performance.
-
-   The most important thread setting is the number of worker threads.
+   Although Varnish threading model allows you to use multiple thread pools, we recommend you to do not modify this parameter.
+   Time and experience shows that 2 thread pools are enough.
+   Adding more pools will not increase performance.
 
    .. note::
 
-      If you run across tuning advice that suggests running one thread pool
-      for each CPU core, rest assured that this is old advice. Experiments
-      and data from production environments have revealed that as long as
-      you have two thread pools (which is the default), there is nothing to
-      gain by increasing the number of thread pools.
+      If you run across tuning advice that suggests running one thread pool for each CPU core, rest assured that this is old advice. 
+      Experiments and data from production environments have revealed that as long as you have two thread pools (which is the default), there is nothing to gain by increasing the number of thread pools.
+      Still, you may increase the number of threads per pool.
 
+      All other thread variables are not configurable.
 
 Threading parameters
 --------------------
 
 - Thread pools can safely be ignored
-- Maximum: Roughly 5000 (total)
+- Maximum: roughly 5000 (total)
 - Start them sooner rather than later
 - Maximum and minimum values are per thread pool
 
@@ -1576,12 +1570,9 @@ Threading parameters
 Details of threading parameters
 ...............................
 
-While most parameters can be left to the defaults, the exception
-is the number of threads.
+While most parameters can be left to the defaults, the exception is the number of threads.
 
-Varnish will use one thread for each session and the number of
-threads you let Varnish use is directly proportional to how many
-requests Varnish can serve concurrently.
+Varnish will use one thread for each session and the number of threads you let Varnish use is directly proportional to how many requests Varnish can serve concurrently.
 
 The available parameters directly related to threads are:
 
@@ -1589,176 +1580,144 @@ The available parameters directly related to threads are:
 Parameter                  Default value
 =========================  ====================================
 thread_pool_add_delay      |def_thread_pool_add_delay|
-thread_pool_add_threshold  |def_thread_pool_add_threshold|
 thread_pool_fail_delay     |def_thread_pool_fail_delay|
 thread_pool_max            |def_thread_pool_max|
 thread_pool_min            |def_thread_pool_min|
-thread_pool_purge_delay    |def_thread_pool_purge_delay|
 thread_pool_stack          |def_thread_pool_stack|
 thread_pool_timeout        |def_thread_pool_timeout|
 thread_pools               |def_thread_pools|
 thread_stats_rate          |def_thread_stats_rate|
 =========================  ====================================
 
-Among these, ``thread_pool_min`` and ``thread_pool_max`` are most
-important. The ``thread_pools`` parameter is also of some importance, but
-mainly because it is used to calculate the final number of threads.
+Among these, ``thread_pool_min`` and ``thread_pool_max`` are the most important parameters.
+Values of these parameters are per thread pool.
+The ``thread_pools`` parameter is mainly used to calculate the total number of threads.
+For the sake of keeping things simple, the current best practice is to leave thread_pools at the default |def_thread_pools|.
 
-Varnish operates with multiple pools of threads. When a connection is
-accepted, the connection is delegated to one of these thread pools. The
-thread pool will further delegate the connection to available thread if one
-is available, put the connection on a queue if there are no available
-threads or drop the connection if the queue is full. By default, Varnish
-uses 2 thread pools, and this has proven sufficient for even the most busy
-Varnish server.
-
-For the sake of keeping things simple, the current best practice is to
-leave thread_pools at the default |def_thread_pools|.
+Varnish operates with multiple pools of threads. 
+When a connection is accepted, the connection is delegated to one of these thread pools.
+Afterwards, the thread pool either delegates the connection request to an available thread, queue the request otherwise, or drop the connection if the queue is full. 
+By default, Varnish uses 2 thread pools, and this has proven sufficient for even the most busy Varnish server.
 
 .. class:: handout
 
 Number of threads
 .................
 
-Varnish has the ability to spawn new worker threads on demand, and remove
-them once the load is reduced. This is mainly intended for traffic spikes.
-It's a better approach to try to always keep a few threads idle during
-regular traffic than it is to run on a minimum amount of threads and
-constantly spawn and destroy threads as demand changes. As long as you are
-on a 64-bit system, the cost of running a few hundred threads extra is very
-limited.
+Varnish has the ability to spawn new worker threads on demand, and remove them once the load is reduced. 
+This is mainly intended for traffic spikes.
+It's a better approach to try to always keep a few threads idle during regular traffic than it is to run on a minimum amount of threads and constantly spawn and destroy threads as demand changes.
+As long as you are on a 64-bit system, the cost of running a few hundred threads extra is very low.
 
-The ``thread_pool_min`` parameter defines how many threads will be running
-for each thread pool even when there is no load. ``thread_pool_max``
-defines the maximum amount of threads that will be used per thread pool.
+The ``thread_pool_min`` parameter defines how many threads will be running for each thread pool even when there is no load. 
+``thread_pool_max`` defines the maximum amount of threads that will be used per thread pool.
+That means that with the minimum defaults |def_thread_pool_min| and |def_thread_pool_max| of minimum and maximums theads per pool respectively, you have:
 
-The defaults of a minimum of |def_thread_pool_min| and maximum
-|def_thread_pool_max| threads per thread pool and
-|def_thread_pools| will result in:
+- at least |def_thread_pool_min| * |def_thread_pools| worker threads at any given time
+- no more than |def_thread_pool_max| * |def_thread_pools| worker threads ever
 
-- At any given time, at least |def_thread_pool_min| *
-  |def_thread_pools| worker threads will be running
-- No more than |def_thread_pool_max| * |def_thread_pools| threads
-  will run.
+We rarely recommend running with more than 5000 threads.
+If you seem to need more than 5000 threads, it's very likely that there is something wrong in your setup.
+Therefore, you should investigate elsewhere before you increase the maximum value.
 
-We rarely recommend running with more than 5000 threads. If you seem to
-need more than 5000 threads, it's very likely that there is something not
-quite right about your setup, and you should investigate elsewhere before
-you increase the maximum value.
-
-For minimum, it's common to operate with 500 to 1000 threads minimum
-(total). You can observe if this is enough through varnishstat, by looking
-at the `N queued work requests` (``n_wrk_queued``) counter over time. It
-should be fairly static after startup.
+For minimum, it's common to operate with 500 to 1000 threads minimum (total).
+You can observe if those values are enough by looking at ``MAIN.sess_queued`` through ``varnishstat``.
+Look at the counter over time, because it is fairly static right after startup.
 
 .. class:: handout
+
+.. warning::
+
+   New threads use preallocated workespace.
+   If threads have not enough workspace, the child process is unable to process the task and it terminates.
+   The workspace needed depends on the task that the thread handles.
+   This is normallly defined in your VCL.
+   To avoid that the child terminates, evaluate your VCL code and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
 
 Timing thread growth
 ....................
 
-Varnish can use several thousand threads, and has had this capability from
-the very beginning. Not all operating system kernels were prepared to deal
-with this, though, so the parameter ``thread_pool_add_delay`` was added
-which ensures that there is a small delay between each thread that spawns.
-As operating systems have matured, this has become less important and the
-default value of ``thread_pool_add_delay`` has been reduced dramatically,
+Varnish can use several thousand threads, and has had this capability from the very beginning. 
+However, not all operating system kernels were prepared to deal with this capability.
+Therefore the parameter ``thread_pool_add_delay`` was added to ensure that there is a small delay between each thread that spawns.
+As operating systems have matured, this has become less important and the default value of ``thread_pool_add_delay`` has been reduced dramatically,
 from 20ms to 2ms.
 
-There are a few, less important parameters related to thread timing. The
-``thread_pool_timeout`` is how long a thread is kept around when there is
-no work for it before it is removed. This only applies if you have more
-threads than the minimum, and is rarely changed.
+There are a few, less important parameters related to thread timing. 
+The ``thread_pool_timeout`` is how long a thread is kept around when there is no work for it before it is removed.
+This only applies if you have more threads than the minimum, and is rarely changed.
 
-Another less important parameter is the ``thread_pool_fail_delay``, which defines how long to wait
-after the operating system denied us a new thread before we try again.
+Another less important parameter is the ``thread_pool_fail_delay``.
+After the operating system fails to create a new thread, ``thread_pool_fail_delay`` defines how long to wait for a retrial.
 
 System parameters
 -----------------
 
-As Varnish has matured, fewer and fewer parameters require tuning. The
-``sess_workspace`` is one of the parameters that could still pose a
-problem.
+As Varnish has matured, fewer and fewer parameters require tuning.
+The ``workspace_client`` and ``workspace_backend`` are parameters that could still be relevant.
 
-- ``sess_workspace`` - incoming HTTP header workspace (from client)
-- Common values range from the default of |def_sess_workspace| to 10MB
+- ``workspace_client`` – incoming HTTP header workspace from the client
+- ``workspace_backend`` – bytes of HTTP protocol workspace for backend HTTP req/resp
 - ESI typically requires exponential growth
-- Remember: It's all virtual - not physical memory.
-
+- Remember: it is virtual, not physical memory
 
 .. container:: handout
 
-        Workspaces are some of the things you can change with parameters. The
-        session workspace is how much memory is allocated to each HTTP session for
-        tasks like string manipulation of incoming headers. It is also
-        used to modify the object returned from a web server before the
-        precise size is allocated and the object is stored read-only.
+        Workspaces are some of the things you can change with parameters. 
+        Some times you may have to increase them to avoid running out of workspace.
 
-        Some times you may have to increase the session workspace to avoid
-        running out of workspace.
+	The ``workspace_client`` parameter states how much memory can be allocated for each HTTP session.
+	This space is used for tasks like string manipulation of incoming headers.
+	The ``workspace_backend`` parameter indicates how much memory can be allocated to modify objects returned from the backend.
+	After an object is modified, its exact size is allocated and the object is stored read-only.
 
-        As most of the parameters can be left unchanged, we will not go through
-        all of them, but take a look at the list ``param.show`` gives you
-        to get an impression of what they can do.
-
-        .. note:::
-
-           Varnish 2.0 had a ``obj_workspace`` which you may see references
-           to in older documentation. This was the workspace for
-           manipulating an object. Manipulation of an object is now done on
-           the session workspace in ``vcl_fetch``, then a precise amount of
-           memory is allocated for the object, thus removing the need for a
-           tunable obj_workspace.
+        As most of the parameters can be left unchanged, we will not go through all of them.
+	You can take a look at the list of parameter by issuing ``varnishadm param.show -l`` to get information about what they can do.
 
 Timers
 ------
 
-======================= =========================== ======================== ===========
-Parameter               Default                     Description              Scope
-======================= =========================== ======================== ===========
-connect_timeout         |def_connect_timeout|       OS/network latency       Backend
-first_byte_timeout      |def_first_byte_timeout|    Page generation?         Backend
-between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?               Backend
-send_timeout            |def_send_timeout|          Client-in-tunnel         Client
-sess_timeout            |def_sess_timeout|          keep-alive timeout       Client
-cli_timeout             |def_cli_timeout|           Management thread->child Management
-======================= =========================== ======================== ===========
+======================= =========================== ============================================= ===========
+Parameter               Default                     Description                                   Scope
+======================= =========================== ============================================= ===========
+connect_timeout         |def_connect_timeout|       OS/network latency                            Backend
+first_byte_timeout      |def_first_byte_timeout|    Webpage generation?                           Backend
+between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?                                    Backend
+send_timeout            |def_send_timeout|          Client-in-tunnel                              Client
+timeout_idle            |def_timeout_idle|          keep-alive timeout                            Client
+timeout_req             |def_timeout_req|           deadline to receive a complete request header Client
+cli_timeout             |def_cli_timeout|           Management thread->child                      Management
+======================= =========================== ============================================= ===========
 
 .. container:: handout
 
-        The timeout-parameters are generally set to pretty good defaults, but
-        you might have to adjust them for unusual applications. The connection
-        timeout is tuned for a geographically close web server, and might have to
-        be increased if your Varnish server and web server are not close.
+        The timeout-parameters are generally set to pretty good defaults, but you might have to adjust them for unusual applications.
+	The default value of ``connect_timeout`` is |def_connect_timeout|.
+	This value is more than enough when having the Varnish server and the backend in the same server room.
+	Consider to increase the ``connect_timeout`` value if your Varnish server and backend have a higher network latency.
 
-        Keep in mind that the session timeout affects how long sessions are kept
-        around, which in turn affects file descriptors left open. It is not wise to
-        increase the session timeout without taking this into consideration.
+        Keep in mind that the session timeout affects how long sessions are kept around, which in turn affects file descriptors left open. 
+	It is not wise to increase the session timeout without taking this into consideration.
 
-        The ``cli_timeout`` is how long the management thread waits for the worker
-        thread to reply before it assumes it is dead, kills it and starts it back
-        up. The default value seems to do the trick for most users today.
+        The ``cli_timeout`` is how long the management thread waits for the worker thread to reply before it assumes it is dead, kills it and starts it back up. 
+	The default value seems to do the trick for most users today.
 
-        .. note::
+        .. wawrning::
 
-           The ``connect_timeout`` is |def_connect_timeout| by default.
-           This is more than enough time for the typical setup where
-           Varnish talks to a backend in the same server room - but it may
-           be too short if Varnish is using a remote backend which may have
-           more latency. If this is set too high, it will not let Varnish
-           handle errors gracefully.
+	   If ``connect_timeout`` is set too high, it will not let Varnish handle errors gracefully.
 
-           An other use-case for increasing ``connect_timeout`` occurs when
-           virtual machines are involved in the stack, as they can increase
-           the connection time significantly.
+	.. note::
+
+           Another use-case for increasing ``connect_timeout`` occurs when virtual machines are involved, as they can increase the connection time significantly.
 
 Exercise: Tune first_byte_timeout
 ---------------------------------
 
 .. This line was before inside Varnishlog
 #. Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
+ - See, analyze and understand how counters in ``varnishstat`` and parameters in ``varnishlog`` change.
 
 #. Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing::
-
         #! /bin/sh
         sleep 5
         echo "Content-type: text/plain"
@@ -1768,39 +1727,31 @@ Exercise: Tune first_byte_timeout
 	date
 
 #. Make it executable.
-#. Test that it works outside of Varnish.
-#. Start Varnish, test that it works through Varnish.
+#. Test that it works without involving of Varnish.
+#. Test it through Varnish.
 #. Set ``first_byte_timeout`` to 2s.
-#. Check that it doesn't work.
+#. Check how Varnish times out the request to the backend.
 
 Exercise: Configure threading
 -----------------------------
 
-While performing this exercise, watch the `n_wrk` counter in
-``varnishstat`` to determine the number of threads that are running.
+While performing this exercise, watch the `MAIN.threads` counter in ``varnishstat`` to know how many threads are running.
 
-#. Start Varnish.
-#. Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get.
-   100 threads running at any given time, but never more than 400.
+#. Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 100 threads running at any given time, but never more than 400.
 #. Make the changes work across restarts of Varnish.
 
-Extra: Experiment with ``thread_pool_add_delay`` and
-``thread_pool_timeout`` while watching ``varnishstat`` to see how thread
-creation and destruction is affected. Does ``thread_pool_timeout`` affect
-already running threads?
+Extra: Experiment with ``thread_pool_add_delay`` and ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread creation and destruction is affected.
+Does ``thread_pool_timeout`` affect already running threads?
 
 .. container:: handout
 
-   You can also try changing the ``thread_pool_stack`` variable to a low
-   value. This will only affect new threads, but try to find out how low
-   you can set it, and what happens if it's too low.
+   You can also try changing the ``thread_pool_stack`` variable to a lower value. 
+   This will only affect new threads, but try to find out how low you can set it, and what happens if it's too low.
 
    .. note::
 
-      It's not common to modify ``thread_pool_stack``,
-      ``thread_pool_add_delay`` or ``thread_pool_timeout``. These extra
-      assignments are for educational purposes, and not intended as an
-      encouragement to change the values.
+      It's not common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
+      These extra assignments are for educational purposes, and not intended as an encouragement to change the values.
 
 HTTP
 ====
@@ -4681,5 +4632,9 @@ set-cookie.php
 .. include:: material/webdev/set-cookie.php
    :literal:
 
+What is new since Varnish 3
+---------------------------
+
+.. TODO for the author: TODO
 
 PageBreak
