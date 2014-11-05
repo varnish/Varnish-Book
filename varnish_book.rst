@@ -151,9 +151,11 @@ There are almost always many ways to do an exercise.
 The solutions provided in this book or by your instructor are not necessarily better than your own.
 
 .. man pages and help commands
-Most commands contains a reference manual that is accessible through the manual page command ``man``.
-For example, you can issue ``man varnishd`` to get detailed information about the Varnish daemon command.
-Some commands have a help option to print the usage of the command.
+Varnish installs several reference manuals that are accessible through the manual page command ``man``.
+You can issue the command ``man -k varnish`` to list the manual pages related to Varnish.
+The command ``man varnishd``, for example, retrieves the manual page from the Varnish HTTP accelerator daemon.
+
+Also, some commands have a help option to print the usage of the command.
 For example, ``varnishlog -h`` prints the usage of the command, and lists its options with a short description of them.
 
 .. Installation required
@@ -471,7 +473,7 @@ For Red Hat, use ``yum install <package>``.
 .. Install Apache
 To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
 Install the *HTTPie* utility with the command: ``apt-get install httpie``.
-HTTPie allows you to issue arbitrary HTTP requests in command line interface (CLI).
+HTTPie allows you to issue arbitrary HTTP requests in the terminal.
 Next:
 
 #. Verify that Apache works by typing ``http -p h localhost``.
@@ -518,7 +520,7 @@ Finally, restart Varnish using ``service varnish restart``.
 The management interface
 ------------------------
 
-Varnish offers a management interface to control a running Varnish instance.
+Varnish offers a management command line interface (CLI) to control a running Varnish instance.
 This interface implements a list of management commands in the ``varnishadm`` utility program.
 ``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
 You can use ``varnishadm`` to:
@@ -553,6 +555,11 @@ You can read about other usages by issuing the ``help`` command after you connec
    Therefore, it is very important to avoid eavesdroppers like in the man-in-the-middle attack.
    The simplest way to avoid eavesdroppers is to configure the management interface listening address of ``varnishd`` to listen only on localhost (127.0.0.1).
    You configure this address with the ``-T`` option of the ``varnishd`` command.
+
+   .. tip::
+      Varnish provides many on-line reference manuals.
+      To learn more about ``varnishadm``, issue ``man varnishadm``.
+      To check the Varnish CLI manual page, issue ``man varnish-cli``.
 
 More about Varnish Configuration
 --------------------------------
@@ -617,7 +624,6 @@ Using the ``service`` commands is recommended. It's safe and fast.
 Command line configuration
 --------------------------
 
-Type ``man varnishd`` to see all options of the Varnish daemon.
 Relevant options for the course are:
 
 -a <[hostname]:port>      listening address and port for client requests
@@ -677,6 +683,9 @@ Relevant options for the course are:
            option, we will only use the ``-f`` option. You can use ``-b``
            if you do not intend to specify any VCL and only have a single
            backend server.
+
+	.. tip::
+	   Type ``man varnishd`` to see all options of the Varnish daemon.
 
 Configuration files
 -------------------
@@ -794,6 +803,9 @@ In this chapter you will learn about:
       Keep in mind that ``varnishlog`` generates large amounts of data.
       You may not want to log all of it to disk.
 
+   .. tip::
+      Issue ``man varnishlog`` to retrieve the reference manual of ``varnishlog``.
+
 Log Data Tools
 --------------
 Tools to display detailed log records:
@@ -820,6 +832,10 @@ Statistical tools:
    Unlike all other tools, ``varnishstat`` does not read from entries from Varnish log, but global counters.
    We include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
    You will find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in Appendix ##.
+
+   .. tip::
+      All tool programas of Varnish log have installed reference manuals.
+      Remember to use the ``man`` command to retrieve their manual pages.
 
 Log Layout
 ----------
@@ -1124,6 +1140,11 @@ varnishstat
 |                       | You may consider to increase the ``thread_queue_limit`` Varnish parameter as a solution to drop less sessions.   |
 +-----------------------+------------------------------------------------------------------------------------------------------------------+
 
+   .. tip::
+      Remember that Varnish provides many on-line reference manuals.
+      To see all Varnish counter field definitions, issue ``man varnish-counters``.
+
+
 Exercise: Try ``varnishstat`` and ``varnishlog`` together
 ---------------------------------------------------------
 
@@ -1202,7 +1223,7 @@ The *Manager* process is owned by the root user, and its main functions are:
 - apply configuration changes (from VCL files and parameters)
 - compile VCL
 - monitor Varnish
-- provide a command line interface (CLI)
+- provide a Varnish command line interface (CLI)
 - initialize the *Cacher*
 
 The *Manager*  checks every few seconds whether the *Cacher* is still there.
@@ -1324,6 +1345,7 @@ You can select one method with the ``-s`` option of ``varnishd``.
         call to map the entire file into memory if possible.
 
 	.. persistence
+	.. TODO: update according to varnish-cache/docs/phinx/phk/persistent.rst
         The `file` storage method does not retain data when you stop or restart Varnish!
 	This is what persistent storage is for.
 	When ``-s file`` is used, Varnish does not keep track of what is written to disk and what is not. 
@@ -1702,7 +1724,7 @@ cli_timeout             |def_cli_timeout|           Management thread->child    
         The ``cli_timeout`` is how long the management thread waits for the worker thread to reply before it assumes it is dead, kills it and starts it back up. 
 	The default value seems to do the trick for most users today.
 
-        .. wawrning::
+        .. warning::
 
 	   If ``connect_timeout`` is set too high, it will not let Varnish handle errors gracefully.
 
@@ -1729,7 +1751,7 @@ Exercise: Tune first_byte_timeout
 #. Make it executable.
 #. Test that it works without involving of Varnish.
 #. Test it through Varnish.
-#. Set ``first_byte_timeout`` to 2s.
+#. Set ``first_byte_timeout`` to 2 seconds.
 #. Check how Varnish times out the request to the backend.
 
 Exercise: Configure threading
@@ -1751,10 +1773,12 @@ Does ``thread_pool_timeout`` affect already running threads?
    .. note::
 
       It's not common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
-      These extra assignments are for educational purposes, and not intended as an encouragement to change the values.
+      These assignments are for educational purposes, and not intended as an encouragement to change the values.
 
 HTTP
 ====
+
+.. TODO for the author: Since this chapter is (only) a summary of the important parts of HTTP for Varnish, it will be updated at a later stage.
 
 *This chapter is for the webdeveloper course only*
 
@@ -1772,7 +1796,6 @@ This chapter covers:
 
    This chapter will cover the basics of HTTP as a protocol, how it's used
    in the wild, and delve into caching as it applies to HTTP.
-
 
 Protocol basics
 ---------------
@@ -1823,7 +1846,6 @@ Requests
 
    Similarly, a web server can not attach a request body to a response to a
    `HEAD` body.
-
 
 Request example
 ---------------
@@ -2344,69 +2366,111 @@ Exercise: Use `article.php` to test `Age`
 VCL Basics
 ==========
 
-.. TODO for the author: look at https://www.varnish-cache.org/docs/trunk/reference/vcl.html
-
-- VCL as a state engine
-- Basic syntax
-- VCL_recv and VCL_fetch
-- Regular expressions
+- The Varnish Configuration Language (VCL) is a domain-specific language
+- VCL as a state machine
+- VCL subroutines
+- Built-in subroutines
 
 .. container:: handout
 
-   The Varnish Configuration Language allows you to define your caching
-   policy. You write VCL code which Varnish will parse, translate to C
-   code, compile and link to.
+   .. Definition of VCL
+   The Varnish Configuration Language (VCL) is a domain-specific language designed to describe request handling and document caching policies for Varnish Cache.
+   When a new configuration is loaded, the ``varnishd`` manager process translates the VCL code to C and compiles it to a shared object.
+   This shared object is then loaded into the cacher process.
 
-   The following chapter focuses on the most important tasks you will do in
-   VCL. Varnish has a number of states that you can hook into with VCL, but
-   if you master the ``vcl_fetch`` and ``vcl_recv`` methods, you will be
-   have covered the vast majority of the actual work you need to do.
+   .. State machine
+   VCL is also often described as a state machine.
+   Each state has available only certain parameters that you can use in your VCL code.
+   For example: you can not access response HTTP headers in states previous to fetching data from the backend.   
+   States in VCL are conceptualized as subroutines.
 
-   VCL is often described as domain specific or a state engine. The domain
-   specific part of it is that some data is only available in certain
-   states. For example: You can not access response headers before you've
-   actually started working on a response.
+   .. Subroutines
+   A subroutine is used to group code for legibility or reusability.
+   For example::
+   
+     sub pipe_if_local {
+       if (client.ip ~ local) {
+         return (pipe);
+       }
+     }
 
-The VCL State Engine
---------------------
+   Subroutines in VCL take neither arguments nor return values.
+   To call a subroutine, use the call keyword followed by the subroutine's name::
+
+     call pipe_if_local;
+
+   .. Built in subroutines
+   Varnish has built-in subroutines that are hook into the Varnish workflow.
+   These builtin subroutines are all named ``vcl_*``.
+   Your own subroutines cannot start their name with ``vcl_``.
+
+   .. Buil-in subroutines as states
+   Built-in subroutines represent states of the Varnish state machine.
+   .. TODO for the author: to update the reference for the figure
+   Figure # shows a state machine to represent the Varnish request flow.
+   Each state is handled by a special VCL subroutine.
+   
+   Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
+   Subroutines instruct how requests are handled. 
+   Each subroutine terminates by calling a keyword, which indicates the desired outcome.
+
+   .. Chapter ovewview
+   This chapter focuses on the most important tasks to write effective VCL code.
+   For this, you will learn the basic syntax of VCL, and the most important VCL subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
+
+   .. tip::
+      Remember that Varnish has many reference manuals.
+      For more details about VCL, check its manual page by issuing ``man vcl``.
+
+Varnish request flow for the client worker thread
+.................................................
+
+.. TODO for the author: Double check that "client worker thread" has been introduced at this point.
+.. TODO for the author: Remove the name of funtions "cnt_*"
+.. image:: ui/img/cache_req_fsm.png
+   :align: center
+   :width: 80%
+
+Varnish request flow for the backend worker thread
+..................................................
+.. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
+
+.. image:: ui/img/cache_fetch.png
+   :align: center
+   :width: 80%
+
+The VCL State Machine
+---------------------
 
 - Each request is processed separately.
-- Each request is independent of any others going on at the same time,
-  previously or later.
+- Each request is independent from others at any given time.
 - States are related, but isolated.
-- ``return(x);`` exits one state and instructs Varnish to proceed to the
-  next state.
+- ``return(keyword);`` exits one state and instructs Varnish to proceed to the next state.
 - Default VCL code is always present, appended below your own VCL.
 
 .. container:: handout
 
-   Before we begin looking at VCL code, it's worth trying to understand the
-   fundamental concepts behind VCL.
+   Before we begin looking at VCL code, it's worth trying to understand the fundamental concepts behind VCL.
+   When Varnish processes a request, it starts by parsing the request itself.
+   Next, Varnish separates the request method from headers, verifying that it's a valid HTTP request and so on.
 
-   When Varnish processes a request, it starts by parsing the request
-   itself, separating the request method from headers, verifying that it's
-   a valid HTTP request and so on. When this basic parsing has completed,
-   the very first policy decisions can be done: Should Varnish even attempt
-   to find this resource in the cache? This decision is left to VCL, more
-   specifically the ``vcl_recv`` method.
+   When the basic parsing has completed, the very first policies are checked to make decisions.
+   Policies are a set of rules that the the VCL code uses to make a decision.
+   Policies help to answer questions such as: should Varnish even attempt to find the requested resource in the cache?
+   In this example, the policies are in the ``vcl_recv`` subroutine.
 
-   If you do not provide any ``vcl_recv`` function, the default VCL
-   function for ``vcl_recv`` is executed. But even if you do specify your
-   own ``vcl_recv`` function, the default is still present. Whether it is
-   executed or not depends on whether your own VCL code terminates that
-   specific state or not.
+   If you do not implement the ``vcl_recv`` subroutine, the default implementation of ``vcl_recv`` is executed. 
+   Nevertheless, even if you implement your own ``vcl_recv`` subroutine, the default is still present. 
+   Whether it is executed or not depends on whether your own VCL code terminates that specific state or not.
 
    .. tip::
 
-      It is strongly advised to let the default VCL run whenever possible.
-      It is designed with safety in mind, which often means it'll handle
-      any flaws in your VCL in a reasonable manner. It may not cache as
-      much, but often it's better to not cache some content instead of
-      delivering the wrong content to the wrong user.
+      It is strongly advised to let the default buil-in subroutines whenever is possible.
+      The built-in subroutines are designed with safety in mind, which often means that they handle any flaws in your VCL code in a reasonable manner.
+      The default ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
+      There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
 
-      There are exceptions, of course, but if you can not understand why
-      the default VCL does not let you cache some content, it is almost
-      always worth it to investigate why instead of overriding it.
+.. bookmark
 
 Syntax
 ------
@@ -2454,37 +2518,6 @@ Varnish Processing States
 
 .. TODO for the author
 
-Client Side
-...........
-
-.. image:: ui/img/cache_req_fsm.png
-   :align: center
-   :width: 80%
-
-
-
-Backend Side
-............
-
-.. image:: ui/img/cache_fetch.png
-   :align: center
-   :width: 80%
-
-
-VCL - request flow
-------------------
-
-.. class:: handout
-
-.. image:: ui/img/vcl.png
-   :align: center
-   :height: 2235px
-
-.. raw:: pdf
-
-    PageBreak
-
-.. class:: handout
 
 Detailed request flow
 .....................
@@ -4636,5 +4669,6 @@ What is new since Varnish 3
 ---------------------------
 
 .. TODO for the author: TODO
+.. https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 
 PageBreak
