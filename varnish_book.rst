@@ -2395,7 +2395,7 @@ VCL Basics
      }
 
    Subroutines in VCL take neither arguments nor return values.
-   To call a subroutine, use the call keyword followed by the subroutine's name::
+   To call a subroutine, use the ``call`` keyword followed by the subroutine's name::
 
      call pipe_if_local;
 
@@ -2412,11 +2412,12 @@ VCL Basics
    
    Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
    Subroutines instruct how requests are handled. 
-   Each subroutine terminates by calling a keyword, which indicates the desired outcome.
+   Each subroutine terminates by calling ``return(action)``, which indicates the desired outcome.
 
    .. Chapter ovewview
    This chapter focuses on the most important tasks to write effective VCL code.
-   For this, you will learn the basic syntax of VCL, and the most important VCL subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
+   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
+   All other built-in subroutines are thaught in the next chapter.
 
    .. tip::
       Remember that Varnish has many reference manuals.
@@ -2445,7 +2446,7 @@ The VCL State Machine
 - Each request is processed separately.
 - Each request is independent from others at any given time.
 - States are related, but isolated.
-- ``return(keyword);`` exits one state and instructs Varnish to proceed to the next state.
+- ``return(action);`` exits one state and instructs Varnish to proceed to the next state.
 - Default VCL code is always present, appended below your own VCL.
 
 .. container:: handout
@@ -2470,114 +2471,95 @@ The VCL State Machine
       The default ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
       There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
 
-.. bookmark
-
-Syntax
-------
+VCL Syntax
+----------
 
 - //, # and /\* foo \*/ for comments
-- sub $name functions
-- No loops, limited variables
-- Terminating statements, no return values
+- Subroutines must start with ``sub``, and names cannot start with ``vcl_``.
+- No loops, state-limited variables
+- Terminating statements with a keyword for next action, no return values: ``return(action)``.
 - Domain-specific
 - Add as little or as much as you want
 
 .. container:: handout
 
-   If you have worked with a programing language or two before, the basic
-   syntax of Varnish should be reasonably straight forward. It is inspired
-   mainly by C and Perl.
+   .. comments
+   Starting with Varnish 4.0, each VCL file must start by declaring its version with a special "vcl 4.0;" marker at the top of the file.
+   If you have worked with a programing language or two before, the basic syntax of Varnish should be reasonably straight forward.
+   VCL is inspired mainly by C and Perl.
+   Blocks are delimited by curly braces, statements end with semicolons, and comments may be written as in C, C++ or Perl according to your own preferences.
 
-   The functions of VCL are not true functions in the sense that they
-   accept variables and return values. To send data inside of VCL, you will
-   have to hide it inside of HTTP headers.
+   .. subroutines
+   Subroutines in VCL neither take arguments, nor return values.
+   Subroutines in VCL can exchange data only through HTTP headers.
 
-   The "return" statement of VCL returns control from the VCL state engine
-   to Varnish. If you define your own function and call it from one of the
-   default functions, typing "return(foo)" will not return execution from
-   your custom function to the default function, but return execution from
-   VCL to Varnish. That is why we say that VCL has terminating statements,
-   not traditional return values.
-
-   For each domain, you can return control to Varnish using one or more
-   different return values. These return statements tell Varnish what to do
-   next. Examples include "look this up in cache", "do not look this up in
-   the cache" and "generate an error message".
-
-.. TODO for the author: "Varnish Processing States is updating the "VCL - request flow"
-
-Varnish Processing States
--------------------------
-
-- Logging 
-- Client and backend requests are implemented as state machines
-- Figure # shows an overview of processing states at the client side, their transisions, and the most relevant functions in core code
-- Figure #+1 shows the overview at the backend side
-
-.. container:: handout
-
-.. TODO for the author
-
-
-Detailed request flow
-.....................
-
-.. image:: ui/img/request.png
-   :align: center
-   :height: 2235px
-
-
-VCL - functions
----------------
-
-- regsub(str, regex, sub)
-- regsuball(str, regex, sub)
-- ban_url(regex)
-- ban(expression)
-- purge;
-- return(restart)
-- return()
-- hash_data()
-
-.. container:: handout
-
-   VCL offers a handful of simple functions that allow you to modify
-   strings, add bans, restart the VCL state engine and return control
-   from the VCL Run Time (VRT) environment to Varnish.
-
-   You will get to test all of these in detail, so the description is
-   brief.
-
-   regsub() and regsuball() has the same syntax and does the same thing:
-   They both take a string as input, search it with a regular expression
-   and replace it with another string. The difference between regsub() and
-   regsuball() is that the latter changes all occurrences while the former
-   only affects the first match.
-
-   ``ban_url`` is one of the original ban functions provided, and are
-   generally not used much. The more flexible `ban()` function can perform
-   the same task. ``ban_url(foo)`` is the equivalent of ``ban("req.url ~ "
-   foo)``: Add a URL, host name excluded, to the ban list. We will go
-   through purging in detail in later chapters.
-
-   ``return(restart)`` offers a way to re-run the VCL logic, starting at
-   ``vcl_recv``.  All changes made up until that point are kept and the
-   ``req.restarts`` variable is incremented. The `max_restarts` parameter
-   defines the maximum number of restarts that can be issued in VCL before
-   an error is triggered, thus avoiding infinite looping.
-
-   ``return()`` is used when execution of a VCL domain (for example
-   ``vcl_recv``) is completed and control is returned to Varnish with a
-   single instruction as to what should happen next. Return values are
-   `lookup`, `pass`, `pipe`, `hit_for_pass`, `fetch`, `deliver` and `hash`,
-   but only a limited number of them are available in each VCL domain.
+   VCL has terminating statements, not traditional return values.
+   Subroutines end execution when a ``return(*action*)`` statement is made.
+   The *action* tells Varnish what to do next.
+   For example, "look this up in cache", "do not look this up in the cache", or "generate an error message".
+   .. TODO for the author: Double check that 'context' is defined.
+   To check which actions are available for the built-in subroutines, you can look at Figure # or see the manual page of VCL.
 
    .. warning::
+   
+      If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
 
-      ``ban_url()`` uses a regular expression instead of actual string
-      matching. It will be removed in Varnish 4. You should use ``ban()``
-      instead.
 
+VCL built-in functions
+----------------------
+
+The following built-in functions are available.
+
+- ``regsub(str, regex, sub)``
+- ``regsuball(str, regex, sub)``
+- ``ban(exp)``
+- ``return(action)``
+- ``hash_data(input)``
+- ``call(subroutine)``
+- ``new()``
+- ``rollback()``
+- ``synthetic(str)``
+     
+.. container:: handout
+
+   VCL offers a handful of simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control from the VCL Run Time (VRT) environment to Varnish.
+   You will get to test all of these in detail, so the description is brief.
+
+   .. regsub and regsuball
+   ``regsub()`` and ``regsuball()`` have the same syntax and does the almost same thing:
+   They both take a string ``str`` as input, search it with a regular expression ``regex`` and replace it with another string.
+   The difference between ``regsub()`` and ``regsuball()`` is that the latter changes all occurrences while the former only affects the first match.
+
+   .. ban
+   The ``ban()`` function invalidates all objects in cache that match the expression ``exp`` with the ban mechanism.
+   .. TODO for the author: update the chapter reference.
+   You will learn more aobut *banning* when studying *purging* in Chapter #.
+
+
+Actions
+.......
+   
+   .. return
+   ``return()`` is a built-in function that ends execution of the current VCL subroutine, and continue to the next ``action`` step in the request handling state machine.
+   Return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `hit_for_pass`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
+
+   An special *action* is ``restart``.
+   This action restarts the processing of a whole transaction.
+   Nevertheless, changes to the ``req.*`` variables are retained.
+
+   Therefore, ``return(restart)`` offers a way to re-run the VCL logic, starting at ``vcl_recv``.
+   All changes made up until that point are kept and the ``req.restarts`` variable is incremented.
+   The ``max_restarts`` parameter defines the maximum number of restarts that can be issued in VCL before an error is triggered, thus avoiding infinite looping.
+
+   .. note::
+      In Varnish 3, the action `purge` is a function, but not an action.
+   
+   .. warning::
+
+      Restarts are likely to cause a hit against the backend, so don't increase the ``max_restarts`` thoughtlessly.
+
+.. bookmark
+      
 VCL - ``vcl_recv``
 ------------------
 
@@ -4004,6 +3986,8 @@ is considered a rather dirty hack that works.
 
 Access Control Lists
 --------------------
+
+.. TODO for the author: Update based on https://www.varnish-cache.org/docs/4.0/users-guide/vcl-syntax.html?highlight=syntax#access-control-lists-acls
 
 - An ACL is a list of IPs or IP ranges.
 - Compare with ``client.ip`` or ``server.ip``
