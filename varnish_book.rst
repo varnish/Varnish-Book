@@ -697,10 +697,12 @@ by the operating system to start Varnish, and the other contains your VCL.
 | File                         | Usage                                          |
 +==============================+================================================+
 | ``/etc/default/varnish``     | Used for parameters and command line           |
-|                              | arguments. When you change this, you           |
+|                              | arguments.                                     |
+|                              | You specify the location of your VCL file here.|
+|                              | When you change this file, you                 |
 |                              | need to run ``service varnish restart``        |
 |                              | for the changes to take effect.                |
-|                              | On Red Hat-based OS's, the file location        |
+|                              | On Red Hat-based OS's, the file location       |
 |                              | is ``/etc/sysconfig/varnish``.                 |
 +------------------------------+------------------------------------------------+
 | ``/etc/varnish/default.vcl`` | Default VCL file location. You can change this |
@@ -992,6 +994,7 @@ Examples of Varnish log queries::
        - Response time exceeds 1⁄2 second ``ReqEnd[5] >= 0.5``
        - Client requests connection closed ``ReqHeader:connection ~ close``
        - ESI miss (-g request) ``{3+}Begin ~ Bereq``
+	 .. TODO for the author: double check {3+}
 
 Exercise
 --------
@@ -1196,24 +1199,26 @@ Figure #. Varnish Architecture
 
 .. class:: handout
 
-Figure # shows a block diagram of the Varnish architecture.
-The diagram shows the data flow between the principal parts of Varnish.
+   .. TODO for the author: Add some of the description from https://www.varnish-cache.org/docs/trunk/phk/barriers.html
 
-The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
-``varnishd`` creates a new child process mainly for security reasons.
-The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
+   Figure # shows a block diagram of the Varnish architecture.
+   The diagram shows the data flow between the principal parts of Varnish.
 
-The Manager's CLI is accessible directly on the terminal, through ``varnishadm``, or through the Varnish Administration Console (VAC) via *agent2*.
-.. TODO for the author: update the Section #.
-You will learn more VAC and *agent2* in Section #.
+   The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
+   ``varnishd`` creates a new child process mainly for security reasons.
+   The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
-.. C-compiler
+   The Manager's CLI is accessible directly on the terminal, through ``varnishadm``, or through the Varnish Administration Console (VAC) via *agent2*.
+   .. TODO for the author: update the Section #.
+   You will learn more VAC and *agent2* in Section #.
 
-.. Shared object
+   .. C-compiler
 
-.. Shared memory
+   .. Shared object
 
-.. varnishlog, etc.
+   .. Shared memory
+
+   .. varnishlog, etc.
 
 The Parent Process: The Manager
 ...............................
@@ -2484,7 +2489,7 @@ VCL Syntax
 .. container:: handout
 
    .. comments
-   Starting with Varnish 4.0, each VCL file must start by declaring its version with a special "vcl 4.0;" marker at the top of the file.
+   Starting with Varnish 4.0, each VCL file must start by declaring its version with a special ``vcl 4.0;`` marker at the top of the file.
    If you have worked with a programing language or two before, the basic syntax of Varnish should be reasonably straight forward.
    VCL is inspired mainly by C and Perl.
    Blocks are delimited by curly braces, statements end with semicolons, and comments may be written as in C, C++ or Perl according to your own preferences.
@@ -2558,8 +2563,6 @@ Actions
 
       Restarts are likely to cause a hit against the backend, so don't increase the ``max_restarts`` thoughtlessly.
 
-.. bookmark
-      
 VCL - ``vcl_recv``
 ------------------
 
@@ -2567,79 +2570,72 @@ VCL - ``vcl_recv``
 - Pick a backend web server
 - Re-write client-data for web applications
 - Decide caching policy based on client-input
-- Access control
-- Security barriers
-- Fixing mistakes (e.g: ``index.htlm`` -> ``index.html``)
+- Access control lists.
+- Security barriers, e.g., SQL injection attacks
+- Fixing mistakes, e.g., ``index.htlm`` -> ``index.html``
 
 .. container:: handout
 
-   ``vcl_recv`` is the first VCL function executed, right after Varnish has
-   decoded the request into its basic data structure. It has four main uses:
+   ``vcl_recv`` is the first VCL subroutine executed, right after Varnish has parsed the client request into its basic data structure. 
+   ``vcl_recv`` has four main uses:
 
-   #. Modifying the client data to reduce cache diversity. E.g., removing any
-      leading "www." in a URL.
-   #. Deciding caching policy based on client data. E.g., Not caching POST
-      requests, only caching specific URLs, etc
+   #. Modifying the client data to reduce cache diversity. E.g., removing any leading "www." in a URL.
+   #. Deciding which web server to use.
+   #. Deciding caching policy based on client data. E.g., not caching POST requests, only caching specific URLs, etc.
    #. Executing re-write rules needed for specific web applications.
-   #. Deciding which Web server to use.
 
-   In ``vcl_recv`` you can perform the following terminating statements:
+   In ``vcl_recv`` you can perform the following terminating actions:
 
-   `pass` the cache, executing the rest of the Varnish processing as
-   normal, but not looking up the content in cache or storing it to cache.
+   `pass`: It passes over the cache *lookup* and *purge* subroutines, but it executes the rest of the Varnish request flow.
+   It does not stores the response from the backend in the cache.
 
-   `pipe` the request, telling Varnish to shuffle byte between the selected
-   backend and the connected client without looking at the content. Because
-   Varnish no longer tries to map the content to a request, any subsequent
-   request sent over the same keep-alive connection will also be piped, and
-   not appear in any log.
+   `pipe`: This action creates a full-duplex pipe that forwards the client request to the backend without looking at the content.
+   Backend replies are forwarded back to the client without caching the content.
+   Since Varnish does no longer try to map the content to a request, any subsequent request sent over the same keep-alive connection will also be piped.
+   Piped requests do not appear in any log.
 
-   `lookup` the request in cache, possibly entering the data in cache if it
-   is not already present.
-
-   `error` - Generate a synthetic response from Varnish. Typically an error
-   message, redirect message or response to a health check from a load
-   balancer.
+   `lookup`: It looks up the request in cache.
+   
+   `error` - Generate a synthetic response from Varnish. 
+   Typically web page with an error message, redirect message or response to a health check from a load balancer.
 
    It's also common to use ``vcl_recv`` to apply some security measures.
-   Varnish is not a replacement for Intrusion Detection Systems, but can
-   still be used to stop some typical attacks early. Simple access control
-   lists can be applied in ``vcl_recv`` too. For further discussion about
-   security in VCL, take a look at the Security.vcl project, found at
-   https://github.com/comotion/security.vcl.
+   Varnish is not a replacement for intrusion detection systems, but can still be used to stop some typical attacks early. 
+   Simple access control lists can be applied in ``vcl_recv`` too.
+
+   For further discussion about security in VCL, take a look at the Varnish Security Firewall (VSF) application at https://github.com/comotion/VSF.
+   The VSF supports Varnish 3 and above.
+   You may also be interested to look at the Security.vcl project at https://github.com/comotion/security.vcl.
+   The Security.vcl project, however, supports only Varnish 3.x.
 
 Default: ``vcl_recv``
----------------------
+.....................
 
 .. include:: vcl/default-vcl_recv.vcl
    :literal:
 
 .. container:: handout
 
-   The default VCL for ``vcl_recv`` is designed to ensure a safe caching
-   policy even with no modifications in VCL. It has two main uses:
+   The default VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
+   It has two main uses:
 
-   #. Only handle recognized HTTP methods and cache GET and HEAD
-   #. Do not cache data that is likely to be user-specific.
+   #. Only handle recognized HTTP methods.
+   #. Cache GET and HEAD. Policies for no caching data is to be defined in your VCL.
 
-   It is executed right after any user-specified VCL, and is always
-   present. You can not remove it. However, if you terminate the
-   ``vcl_recv`` function using one of the terminating statements (pass,
-   pipe, lookup, error), the default VCL will not execute, as control is
-   handed back from the VRT (VCL Run-Time) to Varnish.
+   Built-in VCL code is executed right after any user-defined VCL code, and is always present. 
+   You can not remove it.
+   However, the default VCL code will not execute if you use one of the terminating actions: pass, pipe, lookup, or error.
+   These terminating actions return control from the VRT (VCL Run-Time) to Varnish.
 
-   Most of the logic in the default VCL is needed for a well-behaving
-   Varnish server, and care should be taken when ``vcl_recv`` is terminated
-   before reaching the default VCL. Consider either replicating all the
-   logic in your own VCL, or letting Varnish fall through to the default
-   VCL.
+   For a well-behaving Varnish server, most of the logic in the default VCL is needed, and care should be taken when ``vcl_recv`` is terminated.
+   Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
 
 Example: Basic Device Detection
 -------------------------------
 
-One way of serving different content for mobile devices and desktop
-browsers is to run some simple parsing on the `User-Agent` header to create
-your own custom-header for mobile devices:
+One way of serving different content for mobile devices and desktop browsers is to run some simple parsing on the `User-Agent` header.
+The following VCL code is an example to create custom headers.
+These custom headers differentiate mobile devices from desktop computers.
 
 .. include:: vcl/example-normalize_user_agent.vcl
    :literal:
@@ -2649,30 +2645,106 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
 
 .. container:: handout
 
-   This simple VCL will create a request header called `X-Device` which
-   will contain either ``mobile`` or ``desktop``. The Web server can then
-   use this header to determine what page to serve, and inform Varnish
-   about it through ``Vary: X-Device``.
+   This simple VCL will create a request header called `X-Device` which will contain either ``mobile`` or ``desktop``. 
+   The web server can then use this header to determine what page to serve, and inform Varnish about it through ``Vary: X-Device``.
 
-   It might be tempting to just send ``Vary: User-Agent``, but that would
-   either require you to normalize the `User-Agent` header itself and
-   losing the detailed information on the browser, or it would drastically
-   inflate the cache size by keeping possibly hundreds of different
-   variants for each object just because there are tiny variations of the
-   `User-Agent` header.
+   It might be tempting to just send ``Vary: User-Agent``, but that requires you to normalize the `User-Agent` header itself because there are many tiny variations in the description of *similar* `User-Agents`.
+   This normalization, however, leads to loss of detailed information of the browser.
+   If you pass the `User-Agent` header without normalization, the cache size may drastically inflate because Varnish would keep possibly hundreds of different variants per object and per tiny `User-Agent` variants.
 
    For more information on the `Vary`-header, see the HTTP chapter.
 
    .. note::
 
-      If you do use ``Vary: X-Device``, you might want to send ``Vary:
-      User-Agent`` to the users `after` Varnish has used it. Otherwise,
-      intermediary caches will not know that the page looks different for
-      different devices.
+      If you do use ``Vary: X-Device``, you might want to send ``Vary: User-Agent`` to the users `after` Varnish has used it.
+      Otherwise, intermediary caches will not know that the page looks different for different devices.
+
+Exercise: Rewrite URLs and Host headers
+---------------------------------------
+
+#. Copy the original `Host`-header (``req.http.Host``) and URL
+   (``req.url``) to two new request header of your choice. E.g:
+   ``req.http.x-host`` and ``req.http.x-url``.
+#. Ensure that `www.example.com` and `example.com` are cached as one, using
+   ``regsub()``.
+#. Rewrite all URLs under `http://sport.example.com` to
+   `http://example.com/sport/`. For example:
+   `http://sport.example.com/article1.html` to
+   `http://example.com/sport/article1.html`.
+#. Use varnishlog to verify the result.
+
+Extra: Make sure `/` and `/index.html` is cached as one object. How can you
+verify that it is, without changing the content?
+
+Extra 2: Make the redirection work for any domain with `sport.` at the
+front. E.g: `sport.example.com`, `sport.foobar.example.net`,
+`sport.blatti`, etc.
 
 
-.. include:: build/exercises/complete-rewrite_urls_and_headers.rst
+.. container:: handout
 
+   For the first point, use ``set req.http.headername = "value";`` or ``set req.http.headername = regsub(...);``.
+
+   In point 2, change ``req.http.host`` by calling the function ``regsub(str, regex, sub)``.
+   `str` is the input string, in this case, ``req.http.host``.
+   `regex` is the regular expression matching whatever content you need to change.
+   Use ``^`` to match all what begins with *www*, and ``.\`` to finish the regular expression, i.e. `^www\.`.
+   `sub` is what you desire to change it with, an empty string ``""`` can be used to remove what matches `regex`.
+
+   In point 3, you can check for host headers with a specific domain name: ``if (req.http.host == "sport.example.com")``.
+   An alternative is to check for all hosts that start with *sport*, regardless the domain name: ``if (req.http.host ~ "^sport\.")``.
+   In the first case, setting the host header is straight forward: ``set req.http.host = "example.com"``.
+   In the second case, you can set the host header by removing the string that precedes the domain name ``set req.http.host = regsub(req.http.host,"^sport\.", "");``
+   Finally, you rewrite the URL in this way: ``set req.url = regsub(req.url, "^", "/sport");``.
+
+   To simulate client requests, you can issue the following command::
+
+     http -p hH --proxy=http:http://localhost sport.example.com/article1.html
+
+   To verify your result, you can issue the following command::
+
+     ``varnishlog -i ReqHeader,ReqURL``.
+
+   .. tip::
+      Remember that ``man vcl`` contains a reference manual with the syntax and details of functions such as ``regsub(str, regex, sub)``.
+
+Solution: Rewrite URLs and Host headers
+.......................................
+
+``http -p hH --proxy=http:http://localhost sport.example.com/index.html``
+
+``varnishlog -i ReqHeader,ReqURL``
+
+::
+
+ vcl 4.0;
+
+ backend default {
+     .host = "127.0.0.1";
+     .port = "8080";
+ }
+
+ sub vcl_recv {
+
+     set req.http.x-host = req.http.host;
+     set req.http.x-url = req.url;
+
+     set req.http.host = regsub(req.http.host, "^www\.", "");
+
+     /* Alternative 1 */
+     if (req.http.host == "sport.example.com") {
+         set req.http.host = "example.com";
+         set req.url = regsub(req.url, "^", "/sport");
+      }
+
+      /* Alternative 2 */
+      if (req.http.host ~ "^sport\.") {
+        set req.http.host = regsub(req.http.host,"^sport\.", "");
+        set req.url = regsub(req.url, "^", "/sport");
+      }
+ }
+
+.. bookmark
 
 VCL - ``vcl_fetch``
 -------------------
@@ -3764,7 +3836,8 @@ Directors
 - Contains 1 or more backends
 - All backends must be known
 - Multiple selection methods
-- random, round-robin, hash, client and dns
+- random, round-robin, hash, client and DNS
+.. TODO for the author: Check this blog http://kly.no/posts/2010_08_02__Varnish_backend_selection_through_DNS__.html
 
 .. include:: vcl/director_example.vcl
    :literal:
