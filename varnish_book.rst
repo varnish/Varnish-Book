@@ -2440,7 +2440,7 @@ Varnish request flow for the client worker thread
 Varnish request flow for the backend worker thread
 ..................................................
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
-
+.. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
 .. image:: ui/img/cache_fetch.png
    :align: center
    :width: 80%
@@ -2546,7 +2546,7 @@ Actions
    
    .. return
    ``return()`` is a built-in function that ends execution of the current VCL subroutine, and continue to the next ``action`` step in the request handling state machine.
-   Return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `hit_for_pass`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
+   Return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
 
    An special *action* is ``restart``.
    This action restarts the processing of a whole transaction.
@@ -2631,7 +2631,7 @@ Default: ``vcl_recv``
    Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
 
 Example: Basic Device Detection
--------------------------------
+...............................
 
 One way of serving different content for mobile devices and desktop browsers is to run some simple parsing on the `User-Agent` header.
 The following VCL code is an example to create custom headers.
@@ -2660,7 +2660,7 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
       Otherwise, intermediary caches will not know that the page looks different for different devices.
 
 Exercise: Rewrite URLs and Host headers
----------------------------------------
+.......................................
 
 #. Copy the original `Host`-header (``req.http.Host``) and URL
    (``req.url``) to two new request header of your choice. E.g:
@@ -2707,7 +2707,9 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
 
    .. tip::
       Remember that ``man vcl`` contains a reference manual with the syntax and details of functions such as ``regsub(str, regex, sub)``.
-
+      We recommend you to leave the default VCL file untouched, and create a new file for your VCL code.
+      Remember to update the location of the VCL file in ``/etc/default/varnish``, and restart Varnish.
+      
 Solution: Rewrite URLs and Host headers
 .......................................
 
@@ -2744,59 +2746,90 @@ Solution: Rewrite URLs and Host headers
       }
  }
 
-.. bookmark
+.. TOVERIFY: Solutoin was in a separate file. To verify why and if not needed, remove it from the repository.
 
-VCL - ``vcl_fetch``
--------------------
+VCL - ``vcl_pass``
+------------------
+
+The ``vcl_pass`` subroutine can be called in two scenarios: One scenario is when a previous subroutine returns the *pass* action.
+The other scenario is when Varnish performs a lookup operation and it finds a *hit-for-pass* object.
+The lookup operation is performed when ``vcl_hash`` returns.
+
+``vcl_pass`` may return three different actions: *fetch*, *synth*, or *restart*.
+When returning the *fetch* action, the ongoing request proceeds in *pass* mode.
+Fetched objects from requests in *pass* mode are not cached, but passed to the client.
+The *synth* and *restart* return actions call their corresponding subroutines.
+
+hit-for-pass
+............
+
+Some requested objects should not be cached.
+A typical example is when a requested page contains  a ``Set-Cookie`` response header, and therefore it must be delivered only to the client that requests it.
+In this case, you can tell Varnish to create a *hit-for-pass* object and stores it in the cache, instead of storing the fetched object.
+Subsequen requests will be processed in *pass* mode.
+
+When an object should not be cached, the ``beresp.uncacheable`` variable is set to *true*.
+As a result, the `cacher process` keeps a hash reference to the *hit-for-pass* object.
+In this way, the lookup operation for requests translating to that hash find a *hit-for-pass* object.
+Such requests are handed over to the ``vcl_pass`` subroutine, and proceed in *pass* mode.
+
+As any other cached object, *hit-for-pass* objects have a TTL.
+Once the object's TTL has elapsed, the object is removed from the cache.
+
+VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
+--------------------------------------------------------
 
 - Sanitize server-response
 - Override cache duration
 
+.. image:: ui/img/cache_fetch.png
+
 .. container:: handout
 
-   The ``vcl_fetch`` function is the backend-counterpart to ``vcl_recv``.
-   In ``vcl_recv`` you can use information provided by the client to decide
-   on caching policy, while you use information provided by the server to
-   further decide on a caching policy in ``vcl_fetch``.
+   The ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines are the backend-counterparts to ``vcl_recv``.
+   In ``vcl_recv`` you can use information provided by the client to decide on caching policy.
+   Likewise, you can use information provided by the server to further decide on the caching policy in ``vcl_backend_fetch``.
 
-   If you chose to `pass` the request in an earlier VCL function (e.g.:
-   ``vcl_recv``), you will still execute the logic of ``vcl_fetch``, but
-   the object will not enter the cache even if you supply a cache time.
+   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
+   If ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object is cached.
+   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if the ``obj.ttl`` or ``obj.keep`` variables are greather than zero.
 
-   You have multiple tools available in ``vcl_fetch``. First and foremost
-   you have the ``beresp.ttl`` variable, which defines how long an object
-   is kept.
+   In the ``vcl_backend_fetch`` subroutine, you may alter the request before it is sent to the backend.
+   ``vcl_backend_fetch`` has access to ``bereq.*`` variables.
+   
+   A relevant variable is ``bereq.uncacheable``.
+   This variable indicates whether the object requested from the backend is going to be cached or not.
+   However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
 
-   .. warning::
+   ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
+   The *fetch* action sends the request to the back end, whereas the *abandon* action calls the ``vcl_synth`` rutine.
 
-           If the request was not passed *before* reaching ``vcl_fetch``, the
-           ``beresp.ttl`` is still used even when you perform a
-           ``hit_for_pass`` in ``vcl_fetch``. This is an important detail
-           that is important to remember: When you perform a pass in
-           ``vcl_fetch`` *you cache the decision you made*. In other words:
-           If ``beresp.ttl`` is 10 hours and you issue a pass, an object
-           will be entered into the cache and remain there for 10 hours,
-           telling Varnish not to cache. If you decide not to cache a page
-           that returns a "500 Internal Server Error", for example, this is
-           critically important, as a temporary glitch on a page can cause
-           it to not be cached for a potentially long time.
+   The response of the backend is processed by the ``vcl_backend_response`` subroutine.
+   Figure # shows taht this subroutine may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
 
-           Always set ``beresp.ttl`` when you issue a pass in ``vcl_fetch``.
+   The *delivery* terminating action may or may not insert the object into the cache depending on several variables.   
+   Two typicall cases when the objects are not cached are: when coming from requests via the ``vcl_pass`` subroutine, or when having the ``beresp.uncacheable`` variable set to 1.
 
-   Returning ``deliver`` in ``vcl_fetch`` tells Varnish to cache, if
-   possible.  Returning ``hit_for_pass`` tells it not to cache, but does
-   *not* run the ``vcl_pass`` function of VCL for this specific client. The
-   next client asking for the same resource will hit the `hitpass`-object
-   and go through ``vcl_pass``.
+   Figure # shows to alternatives for the *deliver* terminating action.
+   One alternative occurs when the server replies with a HTTP 304 response code.
+   This server response happens when the requested object has not been modified since the time specified in the `If-Modified-Since` HTTP header request field.
+   Since 304 responses do not contain a message-body, Varnish tries to *steal* the body from the cache, merge it with the header response and deliver it.
+   This process also updates the attributes of the cached object.
+   The *deliver* alternative handles all other responses from the server.
 
-   Typical tasks performed in ``vcl_fetch`` include:
+   Typical tasks performed in ``vcl_backend_fetch`` or ``vcl_backend_response`` include:
 
    - Overriding cache time for certain URLs
    - Stripping Set-Cookie headers that are not needed
    - Stripping bugged Vary headers
-   - Adding helper-headers to the object for use in banning (more
-     information in later chapters)
+   - Adding helper-headers to the object for use in banning (more information in later chapters)
    - Applying other caching policies
+
+   .. note::
+      Varnish 3.x has a *hit_for_pass* return action.
+      This action is replaced in Varnish 4 with the variable ``beresp.uncacheable``.
+
+.. bookmark
 
 Default: ``vcl_fetch``
 ----------------------
