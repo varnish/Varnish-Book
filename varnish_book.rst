@@ -2829,29 +2829,33 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
       Varnish 3.x has a *hit_for_pass* return action.
       This action is replaced in Varnish 4 with the variable ``beresp.uncacheable``.
 
-.. bookmark
+Built-in: ``vcl_backend_response``
+---------------------------------
 
-Default: ``vcl_fetch``
-----------------------
-
-.. include:: vcl/default-vcl_fetch.vcl
+.. include:: vcl/default-vcl_backend_response.vcl
    :literal:
 
 .. container:: handout
 
-   The default VCL for ``vcl_fetch`` is designed to avoid caching anything
-   with a set-cookie header. There are very few situations where caching
-   content with a set-cookie header is desirable.
+   The built-in ``vcl_backend_response`` subroutine is designed to avoid caching in many conditions.
+   Notable is the case when the ``Set-cookie`` HTTP header field, because there are very few situations where caching content with a set-cookie header is desirable.
+   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
+
+.. Tip::
+   Looking at the code of all other built-in subroutines can help you to understand how to build your own.
+   Built-in subroutines are in the file ``/usr/share/doc/varnish/examples/builtin.vcl.gz``.
+   This location may change depending on your distro.
+   Alternatively, you can find the subroutines in the file ``/bin/varnishd/builtin.vcl`` in the Varnish source code .
 
 The initial value of ``beresp.ttl``
 -----------------------------------
 
-Before Varnish runs ``vcl_fetch``, the ``beresp.ttl`` variable has already
-been set to a value. It will use the first value it finds among:
+Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has already been set to a value. 
+``beresp.ttl`` is initialized with the first value it finds among:
 
-- The ``s-maxage`` variable in the ``Cache-Control`` response header
-- The ``max-age`` variable in the ``Cache-Control`` response header
-- The ``Expires`` response header
+- The ``s-maxage`` variable in the ``Cache-Control`` response header field
+- The ``max-age`` variable in the ``Cache-Control`` response header field
+- The ``Expires`` response header field
 - The ``default_ttl`` parameter.
 
 Only the following status codes will be cached by default:
@@ -2861,43 +2865,42 @@ Only the following status codes will be cached by default:
 - 300: Multiple Choices
 - 301: Moved Permanently
 - 302: Moved Temporarily
+- 304: Not modified
 - 307: Temporary Redirect
 - 410: Gone
 - 404: Not Found
 
 .. container:: handout
 
-        You can still cache other status codes, but you will have to set
-        the ``beresp.ttl`` to a positive value in ``vcl_fetch`` yourself.
+        You can still cache other status codes, but you will have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response`` yourself.
+        Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
+	``Cache-Control`` directives are defined in RFC7234 Section 5.2.	
 
-        Since all this is done before ``vcl_fetch`` is executed, you can
-        modify the Cache-Control headers without affecting ``beresp.ttl``,
-        and vice versa.
+	A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
+	This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
+	This means that if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
+	This also means that responses with ``Age`` values between 301 and 3600 seconds are not cached by the clients' web browser, because ``Age`` is greater than ``max-age``.
 
-        A sensible approach is to use the ``s-maxage`` variable in the
-        ``Cache-Control`` header to instruct Varnish to cache, then have
-        Varnish remove that variable before sending it to clients using
-        ``regsub()`` in ``vcl_fetch``. That way, you can safely set max-age
-        to what cache duration the clients should use and s-maxage for
-        Varnish without affecting intermediary caches.
+        A sensible approach is to use the ``s-maxage`` directive to instruct Varnish to cache the response.
+	Then, remove that directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
+	In this way, you can safely set ``max-age`` as cache duration for clients, and use ``s-maxage`` for Varnish without affecting intermediary caches.
+	
+	Building up the aforedmentioned example;
+	If you want that clients' web browsers also cache responses with ``Age`` values between 301 and 3600 seconds, then you need to remove the ``Age`` response header field.
+	You can remove the ``Age`` field in ``vcl_backend_response``.
 
         .. warning::
 
-                Varnish, browsers and intermediary will parse the ``Age``
-                response header. If you stack multiple Varnish servers in
-                front of each other, this means that setting
-                ``s-maxage=300`` will mean that the object really will be
-                cached for only 300 seconds throughout all Varnish servers.
+	   Bear in mind that removing or altering the ``Age`` response header field may affect how responses are handled downstream.
+	   The impact of removing the ``Age`` field depends on the HTTP implementation of downstream intermediaries or clients.
 
-                On the other hand, if your web server sends
-                ``Cache-Control: max-age=300, s-maxage=3600`` and you do
-                not remove the ``Age`` response header, Varnish will send
-                an ``Age``-header that exceeds the ``max-age`` of the
-                objects, which will cause browsers to not cache the
-                content.
+	   For example, imagine that you have a three Varnish-server serial setup.
+	   If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume that the value of ``Age`` is ``0``.
+	   In this case, you might inadvertently be delivering stale objects to your client.
 
+.. bookmark
 
-Example: Enforce caching of .jpg urls for 60 seconds
+Example: Enforce caching of .jpg URLs for 60 seconds
 ----------------------------------------------------
 
 .. include:: vcl/cache_jpg.vcl
