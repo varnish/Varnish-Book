@@ -1,4 +1,4 @@
-sub vcl_fetch {
+sub vcl_backend_response {
 	if (beresp.http.cache-control !~ "s-maxage") {
 		if (req.url ~ "\.jpg(\?|$)") {
 			set beresp.ttl = 30s;

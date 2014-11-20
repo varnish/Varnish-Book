@@ -62,7 +62,7 @@ The System Administration (Admin) course provides attendees with the necessary k
 The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
 
 .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
-.. The Vmod course shows how to ???.
+.. The VMOD course shows how to ???.
 Other courses may also be taught with this book.
 
 Necessary Background
@@ -327,7 +327,7 @@ Varnish is designed to:
 - run on modern hardware (64-bit multi-core architectures),
 - work with the kernel, not against it,
 - to translate Varnish Configuration Language (VCL) to C programming language,
-- be extendible via Varnish Modules (Vmods), and
+- be extendible via Varnish Modules (VMODs), and
 - reduce lock-contention via its workspace-oriented shared memory model.
 .. - Innovation, not regurgitation
 
@@ -373,8 +373,8 @@ Varnish is designed to:
 	You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
 	In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
 
-	.. Vmods
-        With Varnish 3 you also have Varnish Modules or simply Vmods.
+	.. VMODs
+        With Varnish 3 you also have Varnish Modules or simply VMODs.
 	These modules let you extend the functionality of the VCL language by
         pulling in custom-written features. Some examples include
         non-standard header manipulation, access to *memcached* or complex
@@ -836,7 +836,7 @@ Statistical tools:
    You will find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in Appendix ##.
 
    .. tip::
-      All tool programas of Varnish log have installed reference manuals.
+      All tool programs of Varnish log have installed reference manuals.
       Remember to use the ``man`` command to retrieve their manual pages.
 
 Log Layout
@@ -884,7 +884,7 @@ Transactions
    
    .. More about VXID
    The default is to group the log on VXID, which basically makes ``varnishlog`` act more or less the way it does in Varnish 3.0.
-   When viewing a log for a simple cache miss, you’ll see the backend request, the client request and then the session.
+   When viewing a log for a simple cache miss, you can see the backend request, the client request and then the session.
    They are displayed in the order they end.
    Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
 
@@ -893,7 +893,7 @@ Transactions
 Transaction Groups
 ------------------
 
-.. the vsl-query man page describes the grouping modes and the transaction hierarchy
+.. the VSL-query man page describes the grouping modes and the transaction hierarchy
 .. https://www.varnish-cache.org/docs/trunk/reference/vsl-query.html
 
 - ``varnishlog -g <session | request | vxid | raw>`` groups together transactions
@@ -1638,7 +1638,7 @@ As long as you are on a 64-bit system, the cost of running a few hundred threads
 
 The ``thread_pool_min`` parameter defines how many threads will be running for each thread pool even when there is no load. 
 ``thread_pool_max`` defines the maximum amount of threads that will be used per thread pool.
-That means that with the minimum defaults |def_thread_pool_min| and |def_thread_pool_max| of minimum and maximums theads per pool respectively, you have:
+That means that with the minimum defaults |def_thread_pool_min| and |def_thread_pool_max| of minimum and maximums threads per pool respectively, you have:
 
 - at least |def_thread_pool_min| * |def_thread_pools| worker threads at any given time
 - no more than |def_thread_pool_max| * |def_thread_pools| worker threads ever
@@ -1658,7 +1658,7 @@ Look at the counter over time, because it is fairly static right after startup.
    New threads use preallocated workespace.
    If threads have not enough workspace, the child process is unable to process the task and it terminates.
    The workspace needed depends on the task that the thread handles.
-   This is normallly defined in your VCL.
+   This is normally defined in your VCL.
    To avoid that the child terminates, evaluate your VCL code and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
 
 Timing thread growth
@@ -1668,14 +1668,14 @@ Varnish can use several thousand threads, and has had this capability from the v
 However, not all operating system kernels were prepared to deal with this capability.
 Therefore the parameter ``thread_pool_add_delay`` was added to ensure that there is a small delay between each thread that spawns.
 As operating systems have matured, this has become less important and the default value of ``thread_pool_add_delay`` has been reduced dramatically,
-from 20ms to 2ms.
+from 20 ms to 2 ms.
 
 There are a few, less important parameters related to thread timing. 
 The ``thread_pool_timeout`` is how long a thread is kept around when there is no work for it before it is removed.
 This only applies if you have more threads than the minimum, and is rarely changed.
 
 Another less important parameter is the ``thread_pool_fail_delay``.
-After the operating system fails to create a new thread, ``thread_pool_fail_delay`` defines how long to wait for a retrial.
+After the operating system fails to create a new thread, ``thread_pool_fail_delay`` defines how long to wait for a re-trial.
 
 System parameters
 -----------------
@@ -1708,7 +1708,7 @@ Timers
 Parameter               Default                     Description                                   Scope
 ======================= =========================== ============================================= ===========
 connect_timeout         |def_connect_timeout|       OS/network latency                            Backend
-first_byte_timeout      |def_first_byte_timeout|    Webpage generation?                           Backend
+first_byte_timeout      |def_first_byte_timeout|    Web page generation?                           Backend
 between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?                                    Backend
 send_timeout            |def_send_timeout|          Client-in-tunnel                              Client
 timeout_idle            |def_timeout_idle|          keep-alive timeout                            Client
@@ -2289,7 +2289,7 @@ Age
 Header availability summary
 ---------------------------
 
-The table below lists HTTP headers seen above and wether they are a request
+The table below lists HTTP headers seen above and whether they are a request
 header or a response one.
 
 +-------------------+---------+----------+
@@ -2390,7 +2390,7 @@ VCL Basics
    States in VCL are conceptualized as subroutines.
 
    .. Subroutines
-   A subroutine is used to group code for legibility or reusability.
+   A subroutine is used to group code for legibility or re-usability.
    For example::
    
      sub pipe_if_local {
@@ -2406,10 +2406,10 @@ VCL Basics
 
    .. Built in subroutines
    Varnish has built-in subroutines that are hook into the Varnish workflow.
-   These builtin subroutines are all named ``vcl_*``.
+   These built-in subroutines are all named ``vcl_*``.
    Your own subroutines cannot start their name with ``vcl_``.
 
-   .. Buil-in subroutines as states
+   .. Built-in subroutines as states
    Built-in subroutines represent states of the Varnish state machine.
    .. TODO for the author: to update the reference for the figure
    Figure # shows a state machine to represent the Varnish request flow.
@@ -2419,10 +2419,10 @@ VCL Basics
    Subroutines instruct how requests are handled. 
    Each subroutine terminates by calling ``return(action)``, which indicates the desired outcome.
 
-   .. Chapter ovewview
+   .. Chapter overview
    This chapter focuses on the most important tasks to write effective VCL code.
    For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
-   All other built-in subroutines are thaught in the next chapter.
+   All other built-in subroutines are taught in the next chapter.
 
    .. tip::
       Remember that Varnish has many reference manuals.
@@ -2432,7 +2432,7 @@ Varnish request flow for the client worker thread
 .................................................
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
-.. TODO for the author: Remove the name of funtions "cnt_*"
+.. TODO for the author: Remove the name of functions "cnt_*"
 .. image:: ui/img/cache_req_fsm.png
    :align: center
    :width: 80%
@@ -2471,7 +2471,7 @@ The VCL State Machine
 
    .. tip::
 
-      It is strongly advised to let the default buil-in subroutines whenever is possible.
+      It is strongly advised to let the default built-in subroutines whenever is possible.
       The built-in subroutines are designed with safety in mind, which often means that they handle any flaws in your VCL code in a reasonable manner.
       The default ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
       There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
@@ -2490,7 +2490,7 @@ VCL Syntax
 
    .. comments
    Starting with Varnish 4.0, each VCL file must start by declaring its version with a special ``vcl 4.0;`` marker at the top of the file.
-   If you have worked with a programing language or two before, the basic syntax of Varnish should be reasonably straight forward.
+   If you have worked with a programming language or two before, the basic syntax of Varnish should be reasonably straight forward.
    VCL is inspired mainly by C and Perl.
    Blocks are delimited by curly braces, statements end with semicolons, and comments may be written as in C, C++ or Perl according to your own preferences.
 
@@ -2538,7 +2538,7 @@ The following built-in functions are available.
    .. ban
    The ``ban()`` function invalidates all objects in cache that match the expression ``exp`` with the ban mechanism.
    .. TODO for the author: update the chapter reference.
-   You will learn more aobut *banning* when studying *purging* in Chapter #.
+   You will learn more about *banning* when studying *purging* in Chapter #.
 
 
 Actions
@@ -2572,7 +2572,7 @@ VCL - ``vcl_recv``
 - Decide caching policy based on client-input
 - Access control lists.
 - Security barriers, e.g., SQL injection attacks
-- Fixing mistakes, e.g., ``index.htlm`` -> ``index.html``
+- Fixing mistakes, e.g., ``index.html`` -> ``index.html``
 
 .. container:: handout
 
@@ -2746,7 +2746,7 @@ Solution: Rewrite URLs and Host headers
       }
  }
 
-.. TOVERIFY: Solutoin was in a separate file. To verify why and if not needed, remove it from the repository.
+.. TOVERIFY: Solution was in a separate file. To verify why and if not needed, remove it from the repository.
 
 VCL - ``vcl_pass``
 ------------------
@@ -2766,7 +2766,7 @@ hit-for-pass
 Some requested objects should not be cached.
 A typical example is when a requested page contains  a ``Set-Cookie`` response header, and therefore it must be delivered only to the client that requests it.
 In this case, you can tell Varnish to create a *hit-for-pass* object and stores it in the cache, instead of storing the fetched object.
-Subsequen requests will be processed in *pass* mode.
+Subsequent requests will be processed in *pass* mode.
 
 When an object should not be cached, the ``beresp.uncacheable`` variable is set to *true*.
 As a result, the `cacher process` keeps a hash reference to the *hit-for-pass* object.
@@ -2792,7 +2792,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
    ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
    If ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object is cached.
-   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if the ``obj.ttl`` or ``obj.keep`` variables are greather than zero.
+   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if the ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
 
    In the ``vcl_backend_fetch`` subroutine, you may alter the request before it is sent to the backend.
    ``vcl_backend_fetch`` has access to ``bereq.*`` variables.
@@ -2802,13 +2802,13 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
 
    ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
-   The *fetch* action sends the request to the back end, whereas the *abandon* action calls the ``vcl_synth`` rutine.
+   The *fetch* action sends the request to the back end, whereas the *abandon* action calls the ``vcl_synth`` routine.
 
    The response of the backend is processed by the ``vcl_backend_response`` subroutine.
-   Figure # shows taht this subroutine may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   Figure # shows that this subroutine may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
 
    The *delivery* terminating action may or may not insert the object into the cache depending on several variables.   
-   Two typicall cases when the objects are not cached are: when coming from requests via the ``vcl_pass`` subroutine, or when having the ``beresp.uncacheable`` variable set to 1.
+   Two typically cases when the objects are not cached are: when coming from requests via the ``vcl_pass`` subroutine, or when having the ``beresp.uncacheable`` variable set to 1.
 
    Figure # shows to alternatives for the *deliver* terminating action.
    One alternative occurs when the server replies with a HTTP 304 response code.
@@ -2872,35 +2872,29 @@ Only the following status codes will be cached by default:
 
 .. container:: handout
 
-        You can still cache other status codes, but you will have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response`` yourself.
+        You can cache other status codes than the ones listed above, but you have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response``.
         Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
 	``Cache-Control`` directives are defined in RFC7234 Section 5.2.	
 
 	A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
 	This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
-	This means that if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
+	For example, if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
 	This also means that responses with ``Age`` values between 301 and 3600 seconds are not cached by the clients' web browser, because ``Age`` is greater than ``max-age``.
 
         A sensible approach is to use the ``s-maxage`` directive to instruct Varnish to cache the response.
-	Then, remove that directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
-	In this way, you can safely set ``max-age`` as cache duration for clients, and use ``s-maxage`` for Varnish without affecting intermediary caches.
+	Then, remove the ``s-maxage`` directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
+	In this way, you can safely use ``s-maxage`` as the cache duration for Varnish servers, and set ``max-age`` as the cache duration for clients.
 	
-	Building up the aforedmentioned example;
-	If you want that clients' web browsers also cache responses with ``Age`` values between 301 and 3600 seconds, then you need to remove the ``Age`` response header field.
-	You can remove the ``Age`` field in ``vcl_backend_response``.
-
         .. warning::
 
 	   Bear in mind that removing or altering the ``Age`` response header field may affect how responses are handled downstream.
 	   The impact of removing the ``Age`` field depends on the HTTP implementation of downstream intermediaries or clients.
 
 	   For example, imagine that you have a three Varnish-server serial setup.
-	   If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume that the value of ``Age`` is ``0``.
+	   If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume ``Age=0``.
 	   In this case, you might inadvertently be delivering stale objects to your client.
 
-.. bookmark
-
-Example: Enforce caching of .jpg URLs for 60 seconds
+Example: Setting TTL of .jpg URLs to 60 seconds
 ----------------------------------------------------
 
 .. include:: vcl/cache_jpg.vcl
@@ -2908,12 +2902,9 @@ Example: Enforce caching of .jpg URLs for 60 seconds
 
 .. container:: handout
 
-   The above example is typical for a site migrating to Varnish. Setting
-   ``beresp.ttl`` ensures it's cached.
-
-   Keep in mind that the default VCL will still be executed, which means
-   that an image with a Set-Cookie header will not be cached.
-
+   The above example caches all URLs ending with .jpg for 60 seconds.
+   Keep in mind that the built-in VCL is still executed.
+   That means that images with a ``Set-Cookie`` field are not cached.
 
 Example: Cache .jpg for 60 only if s-maxage isn't present
 ---------------------------------------------------------
@@ -2923,47 +2914,47 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
 
 .. container:: handout
 
-        The Cache-Control header can contain a number of headers. Varnish evaluates
-        it and looks for s-maxage and max-age. It will set the TTL to the value of
-        s-maxage if found. If s-maxage isn't found, it will use max-age. If neither
-        exist, it will use the Expires header to set the ttl. If none of those
-        headers exist, it will use the default TTL.
+	The purpose of the above example is to allow a gradual migration to using a backend-controlled caching policy.
+	If the backend does not supply ``s-maxage``, and the URL is a jpg file, then Varnish sets ``beresp.ttl`` to 60 seconds.
+	
+        The ``Cache-Control`` response header field can contain a number of directives.
+	Varnish parses this field and looks for ``s-maxage`` and ``max-age``.
 
-        This is done before ``vcl_fetch`` is executed and the process can
-        be seen by looking at the TTL tag of varnishlog.
+	By default, Varnish sets ``beresp.ttl`` to the value of ``s-maxage`` if found.
+	If ``s-maxage`` is not found, Varnish uses the value ``max-age``.
+	If neither exists, Varnish uses the ``Expires`` response header field to set the TTL.
+	If none of those header fields exist, Varnish uses the default TTL, which is 120 seconds.
 
-        The purpose of the above example is to allow a gradual migration to
-        using a backend-controlled caching policy. If the backend supplies
-        s-maxage, it will be used, but if it is missing, a forced TTL is
-        set.
+        The default parsing and TTL assignment are done before ``vcl_backend_response`` is executed.
+	The TTL changing process is recorded in the ``TTL`` tag of ``varnishlog``.
+
+   .. TODO for the author: Find this rst file and update it
+   .. also, ask why some files are in include and under build.
 
 .. include:: build/exercises/complete-avoid_caching_a_page.rst
 
-Exercise: Either use s-maxage or set ttl by file type
+Exercise: Either use s-maxage or set TTL by file type
 -----------------------------------------------------
 
 Write a VCL that:
 
-- Uses ``Cache-Control: s-maxage`` where present
-- Caches ``.jpg`` for 30 seconds if s-maxage isn't present
-- Caches ``.html`` for 10 seconds if s-maxage isn't present
-- Removes the Set-Cookie header if s-maxage OR the above rules indicates
-  that Varnish should cache.
+- Uses ``Cache-Control: s-maxage`` when present
+- Caches ``.jpg`` for 30 seconds if ``s-maxage`` is not present
+- Caches ``.html`` for 10 seconds if ``s-maxage`` isn't present
+- Removes the ``Set-Cookie`` header field if ``s-maxage`` OR the above rules indicate that Varnish should cache.
 
 .. container:: handout
 
    .. tip::
 
-      Try solving each part of the exercise by itself first. Most somewhat
-      complex VCL tasks are easily solved when you divide the tasks into
-      smaller bits and solve them individually.
+      Divide and conquer!
+      Most somewhat complex VCL tasks are easily solved when you divide the tasks into smaller problems and solve them individually.
+      Try solving each part of the exercise by itself first.
 
    .. note::
 
-      Varnish automatically reads s-maxage for you, so you only need to
-      check if it is there or not - if it's present, Varnish has already
-      used it to set ``beresp.ttl``.
-
+      Varnish automatically parses ``s-maxage`` for you, so you only need to check if it is there or not.
+      Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
 
 Solution: Either use s-maxage or set ttl by file type
 -----------------------------------------------------
@@ -2973,12 +2964,11 @@ Solution: Either use s-maxage or set ttl by file type
 
 .. container:: handout
 
-        There are many ways to solve this exercise, and this solution is
-        only one of them. The first part checks that s-maxage is /not/
-        present, then handles .jpg and .html files - including cookie
-        removal. The second part checks if s-maxage caused Varnish to set a
-        positive ttl and consider it cacheable.
-
+        There are many ways to solve this exercise, and this solution is only one of them.
+	The first part checks that ``s-maxage`` is /not/ present, then handles .jpg and .html files - including cookie removal.
+	The second part checks if ``s-maxage`` caused Varnish to set a positive TTL and consider it cacheable.
+	Then, we remove the ``Set-Cookie`` header field.
+	
 Summary of VCL - Part 1
 -----------------------
 
@@ -2992,8 +2982,8 @@ Summary of VCL - Part 1
         hook into, VCL allows you to affect the handling of any single
         request almost anywhere in the execution chain.
 
-        This provides both the pros and cons of any other programming
-        language. There isn't going to be any complete reference guide to
+        This provides pros and cons as any other programming language.
+	This book is not a complete reference guide to
         how you can deal with every possible scenario in VCL, but on the
         other hand, if you master the basics of VCL you can solve complex
         problems that nobody has thought about before. And you can usually
@@ -3002,15 +2992,15 @@ Summary of VCL - Part 1
 
         Whenever you are working on VCL, you should think of what that
         exact line you are writing has to do. The best VCL is built by
-        having many independent sections that don't interfere with each
-        other more than they have to.
+        having many independent sections that do not interfere with each
+        other more than what they have to.
 
-        This is made easier by the fact that VCL also has a default - which
-        is always present. If you just need to modify one little thing in
-        ``vcl_recv``, you can do just that. You don't have to copy the
-        default VCL, because it will be executed after your own - assuming
-        you don't have any `return` statements.
+        Remember that there is a default VCL.
+	If your own VCL code does not have a return statement, the default VCL is always executed after yours.	
+        If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
 
+.. bookmark
+	
 VCL functions
 =============
 
