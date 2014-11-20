@@ -2998,33 +2998,32 @@ Summary of VCL - Part 1
         Remember that there is a default VCL.
 	If your own VCL code does not have a return statement, the default VCL is always executed after yours.	
         If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
-
-.. bookmark
 	
-VCL functions
-=============
+VCL built-in subroutines
+========================
 
 - Start off with a cheat-sheet for variables
-- Go through the remaining vcl functions: hash, pipe, miss, pass, hit,
-  error and deliver.
+- Go through the the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_pass``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vck_synth`` and ``vcl_deliver``.
+.. TODO for the author: consisder to add ``vcl_init``, and ``vcl_init``.
 - Add some "features" with VCL.
 
 .. container:: handout
 
-   The following chapter will cover the parts of VCL where you typically
-   venture to customize the behavior of Varnish and not define caching
-   policy.
+   This chapter covers VCL subroutines where you customize the behavior of Varnish.
+   This chapter does not define caching policies.
 
-   These functions can be used to add custom headers, change the appearance
+   These subroutines can be used to: add custom headers, change the appearance
    of the Varnish error message, add HTTP redirect features in Varnish,
-   purge content and define what parts of a cached object is unique.
+   purge content, and define what parts of a cached object is unique.
 
-   After this chapter, you should know what all the VCL functions can be
-   used for, and you'll be ready to dive into more advanced features of
-   Varnish and VCL.
+   After this chapter, you should know what all the VCL subroutines can be used for.
+   You should also be ready to dive into more advanced features of Varnish and VCL.
 
 Variable availability in VCL
 ----------------------------
+
+.. bookmark
+TODO: To update according to: https://www.varnish-cache.org/docs/trunk/reference/vcl.html#variables
 
 +----------+------+-------+------+------+-----+-------+---------+------+------+
 | Variable | recv | fetch | pass | miss | hit | error | deliver | pipe | hash |
@@ -3048,8 +3047,8 @@ Variable availability in VCL
 
 .. container:: handout
 
-   The above is a map of the most important variables and where you can
-   read (R) from them and write (W) to them.
+   The table above is a map of the most important variables.
+   Read (R) and write (W) privileges are shown per subroutine.
 
    Some variables are left out: ``client.*`` and ``server.*`` are by and
    large accessible everywhere, as is the ``now`` variable.
