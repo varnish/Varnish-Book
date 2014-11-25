@@ -3003,8 +3003,8 @@ VCL built-in subroutines
 ========================
 
 - Start off with a cheat-sheet for variables
-- Go through the the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_pass``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vck_synth`` and ``vcl_deliver``.
-.. TODO for the author: consisder to add ``vcl_init``, and ``vcl_init``.
+- Go through the the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_pass``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
+.. TODO for the author: consider to add ``vcl_init``, and ``vcl_init``.
 - Add some "features" with VCL.
 
 .. container:: handout
@@ -3022,50 +3022,62 @@ VCL built-in subroutines
 Variable availability in VCL
 ----------------------------
 
-.. bookmark
-TODO: To update according to: https://www.varnish-cache.org/docs/trunk/reference/vcl.html#variables
+Table # - Availability of variables in different states of the Varnish state machine
++------------------+------------+------------+------------+------------+------------+
+| State / Variables| bereq.     | req.       | obj.       | resp.      |  beresp.   |
++==================+============+============+============+============+============+
+| backend          | R/W        |            |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| backend_response | R/W        |            |            |            | R/W        |
++------------------+------------+------------+------------+------------+------------+
+| backend_error    | R/W        |            |            |            | R/W        |
++------------------+------------+------------+------------+------------+------------+
+| recv             |            | R/W        |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| pipe             | R/W        |            |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| pass             |            | R/W        |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| hash             |            | R/W        |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| purge            |            | R/W        |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| miss             |            | R/W        |            |            |            |
++------------------+------------+------------+------------+------------+------------+
+| hit              |            | R/W        | R          |            |            |
++------------------+------------+------------+------------+------------+------------+
+| deliver          |            | R/W        | R          | R/W        |            |
++------------------+------------+------------+------------+------------+------------+
+| synth            |            | R/W        |            | R/W        |            |
++------------------+------------+------------+------------+------------+------------+
 
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| Variable | recv | fetch | pass | miss | hit | error | deliver | pipe | hash |
-+==========+======+=======+======+======+=====+=======+=========+======+======+
-| req.*    | R/W  | R/W   | R/W  | R/W  | R/W | R/W   | R/W     | R/W  | R/W  |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| bereq.*  |      | R/W   | R/W  | R/W  |     |       |         | R/W  |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| obj.hits |      |       |      |      | R   |       | R       |      |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| obj.ttl  |      |       |      |      | R/W | R/W   |         |      |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| obj.grace|      |       |      |      | R/W |       |         |      |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| obj.*    |      |       |      |      | R   | R/W   |         |      |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| beresp.* |      | R/W   |      |      |     |       |         |      |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
-| resp.*   |      |       |      |      |     | R/W   | R/W     |      |      |
-+----------+------+-------+------+------+-----+-------+---------+------+------+
+The *State* column lists the different states in a request work-flow.
+States are handled by subroutines, which have a leading ``vcl_`` prefix name.
+
+The *Variables* columns list the prefix of the available variables.
+Most but not all of the prefixed variables are readable (R) or writable (W) at the given state.
+To have a detailed availability of each variable, refer to the VCL man page by typing: ``man vcl``.
 
 .. container:: handout
 
-   The table above is a map of the most important variables.
-   Read (R) and write (W) privileges are shown per subroutine.
+   There are more variables not belonging to the prefixes in Table #.
+   ``client.``, ``server.``, and ``storage.`` are prefixes of variables that are accessible almost every where, as it is the ``now`` variable.
 
-   Some variables are left out: ``client.*`` and ``server.*`` are by and
-   large accessible everywhere, as is the ``now`` variable.
+   Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
+   And the ``resp.`` variables are copies of what is about to be returned to the client.
+   The values of ``resp.`` variables come possibly from ``obj.``. 
 
-   Remember that changes made to ``beresp`` are stored in ``obj``
-   afterwards. And the ``resp.*`` variables are copies of what's about to
-   be returned - possibly of ``obj``. A change to ``beresp`` will, in other
-   words, affect future ``obj.*`` and ``resp.*`` variables. Similar
-   semantics apply to ``req.*`` and ``bereq.*``. ``bereq.*`` is the
-   "backend request" as created from the original request. It may differ
-   slightly - Varnish can convert HEAD requests to GET for example.
+   A change to ``beresp.`` variables, in other words, affects ``obj.`` and ``resp.`` variables. 
+   Similar semantics apply to ``bereq.`` and  ``req.`` variables. 
+   
+   Variables belonging to the backend request (``bereq.``) are assigned with values from the original request (``req.``).
+   However, their values may slightly differ, because Varnish may modify HTTP requests methods.
+   For example, requests with HEAD methods may be converted to GET methods.
 
-   .. note::
+   Many but not all of the variables are self-explanatory.
+   To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
 
-      Many of these variables will be self-explaining during while you're
-      working through these exercises, but we'll explain all of them
-      towards the end of the chapter to make sure there's no confusion.
+.. bookmark
 
 VCL - ``vcl_hash``
 ------------------
@@ -3132,7 +3144,7 @@ VCL - ``vcl_miss``
    ``unset bereq.http.x-varnish;``.
 
 
-VCl - ``vcl_pass``
+VCL - ``vcl_pass``
 ------------------
 
 - Run after a pass in ``vcl_recv`` OR after a lookup that returned a hitpass
