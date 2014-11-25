@@ -2433,6 +2433,7 @@ Varnish request flow for the client worker thread
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
+.. TODO for the author: Doble check taht the available variables are correct and not confusing.
 .. image:: ui/img/cache_req_fsm.png
    :align: center
    :width: 80%
@@ -2441,6 +2442,7 @@ Varnish request flow for the backend worker thread
 ..................................................
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
 .. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
+.. TODO for the author: Doble check taht the available variables are correct and not confusing.
 .. image:: ui/img/cache_fetch.png
    :align: center
    :width: 80%
