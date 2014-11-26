@@ -231,7 +231,7 @@ Varnish Cache and Varnish Cache Plus
    Varnish Software is the company behind Varnish Cache.
    Varnish Software and the Varnish community maintain a package repository of Varnish Cache for several common GNU/Linux distributions.
    .. Varnish Plus:
-v   Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
+   Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
    This edition is proprietary and it is called *Varnish Cache Plus*.
    
@@ -2400,7 +2400,7 @@ VCL Basics
      }
 
    Subroutines in VCL take neither arguments nor return values.
-   To call a subroutine, use the ``call`` keyword followed by the subroutine's name::
+   To call a subroutine, use the ``call`` instruction followed by the subroutine's name::
 
      call pipe_if_local;
 
@@ -3079,75 +3079,80 @@ To have a detailed availability of each variable, refer to the VCL man page by t
    Many but not all of the variables are self-explanatory.
    To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
 
-.. bookmark
-
 VCL - ``vcl_hash``
 ------------------
 
 - Defines what is unique about a request.
-- Executed directly after ``vcl_recv``
+- Executed after ``vcl_recv`` returns a ``hash`` action keyword.
 
 .. include:: vcl/default-vcl_hash.vcl
    :literal:
 
 .. container:: handout
 
-   ``vcl_hash`` defines the hash key to be used for a cached object. Or in
-   other words: What separates one cached object from the next.
+   .. definition
+   ``vcl_hash`` defines the hash key to be used for a cached object. 
+   Hash keys differentiate one cached object from another.
+   The default VCL for ``vcl_hash`` adds the hostname or IP address, and the requested URL to the cache hash.
 
-   One usage of ``vcl_hash`` could be to add a user-name in the cache hash
-   to cache user-specific data. However, be warned that caching user-data
-   should only be done cautiously. A better alternative might be to cache
-   differently based on whether a user is logged in or not, but not
-   necessarily what user it is.
+   .. Use of
+   One usage of ``vcl_hash`` is to add a user-name in the cache hash to identify user-specific data.
+   However, be warned that caching user-data should only be done cautiously.
+   A better alternative might be to hash cache objects per session instead.
 
-   The default VCL for ``vcl_hash`` adds the hostname (or IP) and the URL
-   to the cache hash.
+   .. return
+   The ``vcl_hash`` subroutine returns the ``lookup`` action keyword.
+   Unlike other action keywords, ``lookup`` is an operation, not a subroutine.
+   Depending on what ``lookup`` finds in the cache, it has five possible outcomes:
+   ``hit``, ``miss``, ``hit-for-pass``, ``busy``, or ``purge``.
+
+   The following subsections discuss the actions taken based on the outcome of the ``lookup`` operation.
+   Subsection # describes the ``hit-for-pass`` action.
+   .. TODO for the author: update the reference for Subsection #.
 
    .. note::
-
-      The handling of the `Vary`-header is separate from the cache hash.
+      One cache hash my refer to one or many object variations.
+      Object variations are created based on the ``Vary`` header field.
+      It is a good practice to keep several variations under one cache hash, than creating one hash per variation.
 
 VCL - ``vcl_hit``
 -----------------
 
-- Right after an object has been found (hit) in the cache
-- You can change the TTL or issue ``purge;``
-- Often used to throw out an old object
+- Executed after an object is found (hit) in the cache.
 
 .. include:: vcl/default-vcl_hit.vcl
    :literal:
+.. bookmark
+.. container:: handout
+   .. TODO for the author: explain fetch -> miss, and fetch -> pass.
+
+
+.. note::
+   This subroutine is not executed if the lookup function finds a *hit-for-pass* object.
+   For more information about *hit-for-pass* objects, refer to Section #.
+   .. TODO for the author: update reference to Section #.
 
 VCL - ``vcl_miss``
 ------------------
 
-- Right after an object was looked up and not found in cache
-- Mostly used to issue ``purge;``
-- Can also be used to modify backend request headers
+- Subroutine called if a requested object is not found by the lookup operation.
+- Contains policies to decide whether or not to attempt to retrieve the document from the backend, and which backend to use.
 
 .. include:: vcl/default-vcl_miss.vcl
    :literal:
 
-
 .. container:: handout
 
-   The subroutines ``vcl_hit`` and ``vcl_miss`` are closely related. It's
-   rare that you can use them, and when you do, it's typically related to
-   internal Varnish tricks - not debug-feedback or backend modification.
-
-   One example is using ``purge;`` to invalidate an object (more on this
-   later), another is to rewrite a backend request when you want the ESI
-   fragments to get the unmodified data.
-
-   You can also modify the backend request headers in ``vcl_miss``. This is
-   very uncommon, as you've likely done this in ``vcl_recv`` already.
-   However, if you do not wish to send an `X-Varnish` header to the backend
-   server, you need to remove it in in ``vcl_miss`` and ``vcl_pass`` using
-   ``unset bereq.http.x-varnish;``.
-
+   The subroutines ``vcl_hit`` and ``vcl_miss`` are closely related.
+   It is rare that you customize them.
+   Modification of HTTP request headers is typically done in ``vcl_recv``.
+   However, if you do not wish to send an `X-Varnish` header to the backend server, you can remove it in in ``vcl_miss`` and ``vcl_pass``.
+   For that purpose, use ``unset bereq.http.x-varnish;``.
 
 VCL - ``vcl_pass``
 ------------------
+
+.. TODO for the author: verify that vcl_pass is not described before. I think so!
 
 - Run after a pass in ``vcl_recv`` OR after a lookup that returned a hitpass
 - Not run after ``vcl_fetch``.
@@ -3168,6 +3173,11 @@ VCL - ``vcl_pass``
         method, where you want to avoid sending a PURGE request to a
         backend.
 
+busy
+----
+
+purge
+-----
 
 VCL - ``vcl_deliver``
 ---------------------
@@ -3376,6 +3386,8 @@ Example: ``purge;``
 
 .. container:: handout
 
+	       .. TODO for the author: mention that purge purges a whole list of variances.
+
    The PURGE example above is fairly complete and deals with a non-standard
    method. Using ``purge;`` will remove all ``Vary:``-variants of the
    object, unlike the older method of using ``obj.ttl = 0s;`` which had to
@@ -3438,6 +3450,8 @@ Banning
 - In VCL: ``ban("req.url ~ /foo");``
 
 .. container:: handout
+
+   .. TODO for the author: remember that bans applie to objects.
 
    Banning in the context of Varnish refers to adding a ban to the
    ban-list. It can be done both through the command line interface,
