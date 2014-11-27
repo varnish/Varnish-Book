@@ -1944,8 +1944,6 @@ Response
    - 5xx: Server Error - The server failed to fulfill an apparently valid
      request
 
-
-
 Response example
 ----------------
 
@@ -2416,7 +2414,7 @@ VCL Basics
    Each state is handled by a special VCL subroutine.
    
    Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
-   Subroutines instruct how requests are handled. 
+   Subroutines instruct how requests are handled.
    Each subroutine terminates by calling ``return(action)``, which indicates the desired outcome.
 
    .. Chapter overview
@@ -2753,14 +2751,21 @@ Solution: Rewrite URLs and Host headers
 VCL - ``vcl_pass``
 ------------------
 
-The ``vcl_pass`` subroutine can be called in two scenarios: One scenario is when a previous subroutine returns the *pass* action.
-The other scenario is when Varnish performs a lookup operation and it finds a *hit-for-pass* object.
-The lookup operation is performed when ``vcl_hash`` returns.
+- Called upon entering *pass* mode
 
-``vcl_pass`` may return three different actions: *fetch*, *synth*, or *restart*.
-When returning the *fetch* action, the ongoing request proceeds in *pass* mode.
-Fetched objects from requests in *pass* mode are not cached, but passed to the client.
-The *synth* and *restart* return actions call their corresponding subroutines.
+.. include:: vcl/default-vcl_pass.vcl
+   :literal:
+
+.. container:: handout
+
+   The ``vcl_pass`` subroutine is called after a previous subroutine returns the *pass* action.
+   This actions sets the request in *pass* mode.
+   ``vcl_pass`` typically serves as an important *catch-all* for features you have implemented in ``vcl_hit`` and ``vcl_miss``.
+   
+   ``vcl_pass`` may return three different actions: *fetch*, *synth*, or *restart*.
+   When returning the *fetch* action, the ongoing request proceeds in *pass* mode.
+   Fetched objects from requests in *pass* mode are not cached, but passed to the client.
+   The *synth* and *restart* return actions call their corresponding subroutines.
 
 hit-for-pass
 ............
@@ -3118,19 +3123,37 @@ VCL - ``vcl_hash``
 VCL - ``vcl_hit``
 -----------------
 
-- Executed after an object is found (hit) in the cache.
+- Executed after the lookup operation, called by ``vcl_hash``, finds (hits) an object in the cache.
 
 .. include:: vcl/default-vcl_hit.vcl
    :literal:
-.. bookmark
+
 .. container:: handout
-   .. TODO for the author: explain fetch -> miss, and fetch -> pass.
 
-
-.. note::
-   This subroutine is not executed if the lookup function finds a *hit-for-pass* object.
-   For more information about *hit-for-pass* objects, refer to Section #.
+   The ``vcl_hit`` subroutine typically terminate by calling ``return()`` with one of the following keywords:
+   ``deliver``, ``restart``, ``synth``, or ``pass``.
+   .. XXX ``fetch`` and ``pass`` are other possible action returns inside ``vcl_hit``.
+   .. The ``fetch`` return action typicall returns control to the ``vcl_miss`` or ``vcl_pass`` subroutines.
+   .. ``fetch`` may return control to the ``vcl_miss`` or ``vcl_pass`` subroutine.
+   .. If the requested object has a *busy* state, it is handled by ``vcl_miss``, because ...
+   .. Otherwise, the client request is handled by ``vcl_pass``, because ...
+   .. The second case happens when ..
+   .. .. note:
+   .. Although ``vcl_hit`` can return control to ``vcl_pass``, the semantics are **not** the same as the *hit-for-pass* concept.
+   .. ``vcl_hit`` subroutine is not executed if the lookup function finds a *hit-for-pass* object.
+   .. For more information about *hit-for-pass* objects, refer to Section #.
    .. TODO for the author: update reference to Section #.
+
+   ``deliver`` returns control to ``vcl_deliver`` if ``reference time for TTL + TTL + grace time`` has not elapsed.
+   If the elapsed time is more than ``reference time for TTL + TTL``, and less than ``reference time for TTL + TTL + grace time``, then ``deliver`` calls background fetch in parallel.
+   The background fetch is an asynchronous call that inserts a *fresher* requested object in the cache.
+
+   ``restart`` starts again the transaction, and increases the restart counter.
+   If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru* meditation error.
+
+   ``synth(status code, reason)`` returns the specified status code to the client and abandon the request.
+
+   .. TODO for the author: consider s/sm/fsm/g.
 
 VCL - ``vcl_miss``
 ------------------
@@ -3149,35 +3172,9 @@ VCL - ``vcl_miss``
    However, if you do not wish to send an `X-Varnish` header to the backend server, you can remove it in in ``vcl_miss`` and ``vcl_pass``.
    For that purpose, use ``unset bereq.http.x-varnish;``.
 
-VCL - ``vcl_pass``
-------------------
+.. bookmark
 
-.. TODO for the author: verify that vcl_pass is not described before. I think so!
-
-- Run after a pass in ``vcl_recv`` OR after a lookup that returned a hitpass
-- Not run after ``vcl_fetch``.
-
-.. include:: vcl/default-vcl_pass.vcl
-   :literal:
-
-.. container:: handout
-
-        The ``vcl_pass`` function belongs in the same group as ``vcl_hit``
-        and ``vcl_miss``. It is run right after either a cache lookup or
-        ``vcl_recv`` determined that this isn't a cached item and it's not
-        going to be cached.
-
-        The usefulness of ``vcl_pass`` is limited, but it typically serves as
-        an important catch-all for features you've implemented in
-        ``vcl_hit`` and ``vcl_miss``. The prime example is the PURGE
-        method, where you want to avoid sending a PURGE request to a
-        backend.
-
-busy
-----
-
-purge
------
+.. TODO for the author: Consider to include a description of the busy object and waitinglist()
 
 VCL - ``vcl_deliver``
 ---------------------
@@ -3377,6 +3374,20 @@ Removing a single object
    from cache before you know if Varnish can fetch a new copy from a web
    server. If the web server is down, Varnish has no old copy of the
    content.
+
+VCL – ``vcl_purge``
+-------------------
+
+- Called after the purge has been executed and all its variants have been evited.
+
+.. include:: vcl/default-vcl_purge.vcl
+   :literal:
+
+.. note::
+
+   Cache invalidation with purges is now done via ``return(purge)`` from ``vcl_recv``.
+   The ``purge;`` keyword has been retired.
+
 
 Example: ``purge;``
 -------------------
