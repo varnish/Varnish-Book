@@ -3011,7 +3011,8 @@ VCL built-in subroutines
 ========================
 
 - Start off with a cheat-sheet for variables
-- Go through the the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_pass``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
+.. TODO for the author: double check that the subroutines list is congruent with the chapter.
+- Go through the the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
 .. TODO for the author: consider to add ``vcl_init``, and ``vcl_init``.
 - Add some "features" with VCL.
 
@@ -3132,9 +3133,10 @@ VCL - ``vcl_hit``
 .. container:: handout
 
    The ``vcl_hit`` subroutine typically terminate by calling ``return()`` with one of the following keywords:
-   ``deliver``, ``restart``, ``synth``, or ``pass``.
+   ``deliver``, ``restart``, or ``synth``.
+   .. <<, or ``pass``.
    .. XXX ``fetch`` and ``pass`` are other possible action returns inside ``vcl_hit``.
-   .. The ``fetch`` return action typicall returns control to the ``vcl_miss`` or ``vcl_pass`` subroutines.
+   .. The ``fetch`` return action typically returns control to the ``vcl_miss`` or ``vcl_pass`` subroutines.
    .. ``fetch`` may return control to the ``vcl_miss`` or ``vcl_pass`` subroutine.
    .. If the requested object has a *busy* state, it is handled by ``vcl_miss``, because ...
    .. Otherwise, the client request is handled by ``vcl_pass``, because ...
@@ -3145,8 +3147,8 @@ VCL - ``vcl_hit``
    .. For more information about *hit-for-pass* objects, refer to Section #.
    .. TODO for the author: update reference to Section #.
 
-   ``deliver`` returns control to ``vcl_deliver`` if ``reference time for TTL + TTL + grace time`` has not elapsed.
-   If the elapsed time is more than ``reference time for TTL + TTL``, and less than ``reference time for TTL + TTL + grace time``, then ``deliver`` calls background fetch in parallel.
+   ``deliver`` returns control to ``vcl_deliver`` if the ``TTL + grace time`` of the object has not elapsed.
+   If the elapsed time is more than the ``TTL``, and less than the ``TTL + grace time``, then ``deliver`` calls for *background fetch* in parallel to ``vcl_deliver``.
    The background fetch is an asynchronous call that inserts a *fresher* requested object in the cache.
 
    ``restart`` starts again the transaction, and increases the restart counter.
@@ -3168,19 +3170,16 @@ VCL - ``vcl_miss``
 .. container:: handout
 
    The subroutines ``vcl_hit`` and ``vcl_miss`` are closely related.
-   It is rare that you customize them.
-   Modification of HTTP request headers is typically done in ``vcl_recv``.
-   However, if you do not wish to send an `X-Varnish` header to the backend server, you can remove it in in ``vcl_miss`` and ``vcl_pass``.
-   For that purpose, use ``unset bereq.http.x-varnish;``.
+   It is rare that you customize them, because odification of HTTP request headers is typically done in ``vcl_recv``.
+   However, if you do not wish to send a `X-Varnish` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
+   For that case, you can use ``unset bereq.http.x-varnish;``.
 
-.. bookmark
-
-.. TODO for the author: Consider to include a description of the busy object and waitinglist()
+.. TODO for the author: Consider to include a subsection that describes the busy object and waitinglist()
 
 VCL - ``vcl_deliver``
 ---------------------
 
-- Common last exit point for all (except ``vcl_pipe``) code paths
+- Common last exit point for all request workflows, except requests through ``vcl_pipe``
 - Often used to add and remove debug-headers
 
 .. include:: vcl/default-vcl_deliver.vcl
@@ -3188,99 +3187,118 @@ VCL - ``vcl_deliver``
 
 .. container:: handout
 
-   While the ``vcl_deliver`` function is simple, it is also very useful for
-   modifying the output of Varnish. If you need to remove a header, or add
-   one that isn't supposed to be stored in the cache, ``vcl_deliver`` is the
-   place to do it.
+   The ``vcl_deliver`` subroutine is simple, and it is also very useful to modify the output of Varnish. 
+   If you need to remove a header, or add one that is not supposed to be stored in the cache, ``vcl_deliver`` is the place to do it.
 
-   The main building blocks of ``vcl_deliver`` are:
+   The variables most useful and common to modify in ``vcl_deliver`` are:
 
    ``resp.http.*``
-        Headers that will be sent to the client. They can be set and unset.
+        Headers that are sent to the client. They can be set and unset.
 
    ``resp.status``
        The status code (200, 404, 503, etc).
 
-   ``resp.response``
-       The response message ("OK", "File not found", "Service
-       Unavailable").
+   ``resp.reason``
+       The HTTP status message that is returned to the client.
 
    ``obj.hits``
-        The number of hits a cached object has made. This can be evaluated
-        and sued as a string to easily reveal if a request was a cache hit
-        or miss.
+       The count of cache-hits on this object.
+       Therefore, a value of ``0`` indicates a miss.
+       This variable can be evaluated to easily reveal whether a response comes from a cache hit or miss.
 
    ``req.restarts``
         The number of restarts issued in VCL - 0 if none were made.
 
-VCL - ``vcl_error``
+VCL - ``vcl_synth``
 -------------------
 
-- Used to generate content from within Varnish, without talking to a web
-  server
+- Used to generate content from within Varnish, without talking to a web server
 - Error messages go here by default
-- Other use cases: Redirecting users (301/302 Redirects)
+- Other use cases: Redirecting users (301/302 redirects)
 
-.. include:: vcl/default-vcl_error.vcl
+.. include:: vcl/default-vcl_synth.vcl
    :literal:
+
+.. TODO for the author: Create a title and numeration for the code.
 
 .. container:: handout
 
+   To make a distinction between VCL synthetic responses and internally generated errors (when trying to fetch an object), there are two subroutines that handle errors in Varnish.
+   One is ``vcl_synth``, and the other is ``vcl_backend_error``.
+
+   Subroutines that return control to ``vcl_synth`` must state ``synth()`` as a function with arguments.
+   That is: ``return (synth(code, "message"));
+   In other words, the syntax for the ``synth`` return action is not a keyword, but a function with arguments.
+  
+   You must explicitly return the ``status code`` and ``reason`` arguments for ``vcl_synth``, i.e., ``return (synth(status code, reason));``.
+   Setting headers on synthetic response bodies are done on ``resp.http``.
+
    .. note::
+      Note how you can use {" and "} to make multi-line strings. 
+      This is not limited to synthetic, but can be used anywhere.
 
-      Note how you can use {" and "} to make multi-line strings. This is
-      not limited to synthetic, but can be used anywhere.
+   .. note::
+      A ``vcl_synth`` defined object never enters the cache, contrary to a ``vcl_backend_error`` defined object, which may end up in cache.
+      ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.      
 
-Example: Redirecting users with ``vcl_error``
+Example: Redirecting requests with ``vcl_synth``
 ---------------------------------------------
+.. TODO for the rst editor: remove obsolete vcl files from the git repository.
 
 .. include:: vcl/redirect.vcl
    :literal:
 
+Example #. Using Varnish to redirect requests.
+
 .. container:: handout
 
-   Redirecting with VCL is fairly easy - and fast. If you know a pattern,
-   it's even easier.
+   Redirecting with VCL is fairly easy – and fast.
+   Basic HTTP redirects work when the HTTP response is either *301 Moved Permanently* or *302 Found*.
+   These response have a Location header field telling the web browser where to redirect.
+   
+   .. note:: 
+      
+      The *301* response can affect how browsers prioritize history and how search engines treat the content.
+      *302* responses are temporary and do not affect search engines as *301* responses do.   
 
-   Basic redirects in HTTP work by having the server return either 301
-   "Permanently moved" or 302 "Found", with a Location header telling the
-   web browser where to look. The 301 can affect how browser prioritize
-   history and how search engines treat the content. 302 are more temporary
-   and will not affect search engines as greatly.
+Exercise #: Modify the HTTP response header fields
+--------------------------------------------------
 
-   The above example illustrates how you can use Varnish to generate
-   meta-content.
-
-Exercise: Modify the error message and headers
-----------------------------------------------
-
-- Make the default error message more friendly.
-- Add a header saying either HIT or MISS
+- Add a header stating either HIT or MISS
 - "Rename" the Age header to X-Age.
 
-Solution: Modify the error message and headers
-----------------------------------------------
+Solution #: Modify the error message and headers
+..............................................
 
-.. include:: vcl/error_and_headers.vcl
+.. include:: vcl/modify_headers.vcl
    :literal:
 
 .. container:: handout
 
-   The solution doesn't use the "long-string" syntax that the default uses,
-   but regular strings. This is all up to you.
+      It is safer to make sure a variable has a sensible value before using it to make a string.
+      Therefore, we check that ``obj.hits > 0`` (and not just ``obj.hits != 0``) before using it. 
 
-   .. note::
+      There have been bugs in string-conversion.
+      Those bugs happened when the variable to be converted to string had an unexpected value.
+      This applies to all variables – and all languages for that matter.
 
-      It's safer to make sure a variable has a sensible value before using
-      it to make a string. That's why it's better to always check that
-      ``obj.hits > 0`` (and not just != 0) before you try using it.  While
-      there are no known bugs with ``obj.hits`` at the moment,
-      string-conversion has been an area where there have been some bugs in
-      the past when the variable to be converted had an unexpected value
-      (for example if you tried using ``obj.hits`` after a pass in
-      ``vcl_recv``).
+.. TODO for the author: Double check the format that rst requires for em and en dash (rule).
 
-      This applies to all variables - and all languages for that matter
+Exercise #: Modify the error message
+----------------------------------
+
+- Make the default error message more friendly.
+
+Solution #: Modify the error message
+..................................
+
+.. include:: vcl/customized_error.vcl
+   :literal:
+
+.. container:: handout
+   .. TODO for the author: to elaborate this section when tests show that the VCL code is correct.
+
+.. bookmark
 
 Cache invalidation
 ==================
