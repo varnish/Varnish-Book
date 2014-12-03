@@ -67,7 +67,7 @@ The Web Developer (Webdev) course teaches how to adapt web applications so that 
 Other courses may also be taught with this book.
 
 Necessary Background
--------------------
+--------------------
 
 .. TODO for instructor: tailor this slide!
 
@@ -3298,228 +3298,170 @@ Solution #: Modify the error message
 .. container:: handout
    .. TODO for the author: to elaborate this section when tests show that the VCL code is correct.
 
-.. bookmark
-
 Cache invalidation
 ==================
 
-- Explicit invalidation of cache
-- ``purge;`` removes all variants of an object from cache, freeing up
-  memory
-- ``set req.hash_always_miss = true;`` can refresh content explicitly
-- ``ban();`` can be used to invalidate objects based on regular
-  expressions, but does not necessarily free up memory any time soon.
-- Which to use when?
-- What about this ban lurker?
-- ``obj.ttl = 0s;`` is obsolete.
+There are three mechanism to invalidate caches in Varnish:
+
+1) HTTP purging
+  - Use the ``vcl_purge`` subroutine
+  - Invalidate caches explicitly
+  - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
+  - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
+
+2) Baning
+  - Use the built-in function ``ban(expression)``
+  - Invalidates objects in cache that match the regular expression
+  - Does not necessarily free up memory at once
+
+3) Force cache misses
+  - Use ``req.hash_always_miss`` in ``vcl_recv``
+  - If set to true, Varnish disregards any existing objects and always (re)fetches from the backend
+  - May create multiple objects as side effect
+  - Does not necessarily free up memory at once
+
+
+  - Which to use when?
 
 .. container:: handout
 
-   Whenever you deal with a cache, you will eventually have to deal with
-   the challenge of cache invalidation, or refreshing content. There are
-   many motives behind such a task, and Varnish addresses the problem
-   in several slightly different ways.
+     Whenever you deal with a cache, you have to eventually deal with the challenge of cache invalidation, or refreshing content. 
+     There are many motives behind such a task.
+     Varnish addresses the problem in several slightly different ways.
 
-   Some questions you need to ask whenever the topic of cache invalidation
-   comes up are:
+     To decide which cache invalidation mechanism to use, answer the following questions:
 
-   - Am I invalidating one specific object, or many?
-   - Do I need to free up memory, or just replace the content?
-   - Does it take a long time to replace the content?
-   - Is this a regular task, or a one-off task?
+     - Am I invalidating one specific object, or many?
+     - Do I need to free up memory, or just replace the content?
+     - How long time does it take to replace the content?
+     - Is this a regular task, or a one-off task?
 
-   The rest of the chapter will hopefully give you the knowledge you need
-   to know which solution to pick when.
+     The rest of the chapter gives you the information to pickup the most suitable mechanism.
 
-Naming confusion
-----------------
+HTTP purge
+----------
 
-- The course material uses Varnish 3-terminology if nothing else is stated.
-- Varnish 3 uses the term `ban` and `banning` for what was known as
-  `purge` and `purging` in Varnish 2. They are the same.
-- Varnish 3 has a new function called ``purge;`` that did not exist in VCL
-  in Varnish 2.
-- ``purge;`` is a much improved way of doing what was in Varnish 2 done
-  using ``set obj.ttl = 0s;``.
-- Sorry about the confusion!
-
-.. container:: handout
-
-   With Varnish 3, an attempt was made to clean up some terminology.
-   Unfortunately, this might have made things slightly worse, until people
-   forget everything about Varnish 2.
-
-   The function called ``purge()`` in Varnish 2 is known as ``ban()`` in
-   Varnish 3. This course material will use that terminology, but you are
-   likely to run across material that refers to ``purge()`` where you
-   should read it as ``ban()``.
-
-   On top of that, Varnish 3 introduced the ``purge;`` function that's
-   accessible in ``vcl_hit`` and ``vcl_miss``. This replaces the usage of
-   ``set obj.ttl = 0s;``, which was common in Varnish 2, though the latter
-   is still valid in Varnish 3.
-
-   All the terms will be discussed in more detail, of course. This is just
-   a heads-up about possible naming confusion.
-
-Removing a single object
-------------------------
-
-- If you know exactly what to remove, use ``purge;``.
-- It must be used in both ``vcl_hit`` and ``vcl_miss``
+- If you know exactly what to remove, use HTTP purge.
 - Frees up memory, removes all ``Vary:``-variants of the object.
 - Leaves it to the next client to refresh the content
 - Often combined with ``return(restart);``
 
 .. container:: handout
 
-   The ``purge;`` keyword is the simplest manner of removing content from
-   the cache explicitly.
+   A purge is what happens when you pick out an object from the cache and discard it along with its variants.
+   A resource can exist in multiple ``Vary:``-variants.
+   For example, you could have a desktop version, a tablet version and a smartphone version of your site, and use the ``Vary`` HTTP header field in combination with device detection to store different variants of the same resource.
 
-   A resource can exist in multiple ``Vary:``-variants. For example you
-   could have a desktop version, a tablet version and a smartphone version of
-   your site and use ``Vary`` in combination with device detection to store
-   different variants of the same resource.
+   Usually a purge is invoked through HTTP with the method PURGE.
+   An HTTP PURGE is another request method just as HTTP GET.
+   Actually, you can call the PURGE method whatever you like, but most people refer to it as purging.
+   Squid, for example, uses the PURGE method name for the same purpose.
 
-   If you update your content you can use ``purge;`` to evict all variants
-   of that content from the cache. This is done in both ``vcl_hit`` and
-   ``vcl_miss``. This is typically done by letting your content management
-   system send a special HTTP request to Varnish. Since the content
-   management system doesn't necessarily hit a variant of the object that
-   is cached, you have to issue ``purge;`` in ``vcl_miss`` too. This
-   ensures that all variants of that resource are evicted from cache.
-
-   The biggest down-side of using ``purge;`` is that you evict the content
-   from cache before you know if Varnish can fetch a new copy from a web
-   server. If the web server is down, Varnish has no old copy of the
-   content.
+   The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
+   That means that if the backend is down, Varnish does not have a copy of the content.
 
 VCL – ``vcl_purge``
--------------------
+...................
 
-- Called after the purge has been executed and all its variants have been evited.
+- You may add actions to be executed once the object and its variants is purged
+- Called after the purge has been executed
 
 .. include:: vcl/default-vcl_purge.vcl
    :literal:
 
 .. note::
 
-   Cache invalidation with purges is now done via ``return(purge)`` from ``vcl_recv``.
-   The ``purge;`` keyword has been retired.
+   Cache invalidation with purges is done via ``return(purge)`` from ``vcl_recv`` in Varnish 4.
+   The ``purge;`` keyword has been retired from Varnish 3.
 
+Example: ``PURGE``
+...................
 
-Example: ``purge;``
--------------------
+In order to support purging in Varnish, you need the following VCL in place.
 
 .. include:: vcl/PURGE.vcl
    :literal:
 
-.. container:: handout
+.. TODO for the author: Assign a Figure # and title.
 
-	       .. TODO for the author: mention that purge purges a whole list of variances.
-
-   The PURGE example above is fairly complete and deals with a non-standard
-   method. Using ``purge;`` will remove all ``Vary:``-variants of the
-   object, unlike the older method of using ``obj.ttl = 0s;`` which had to
-   be issued for each variants of an object.
-
-   .. note::
-
-      ACLs have not been explained yet, but will be explained in detail in
-      later chapters.
-
-The lookup that always misses
------------------------------
-
-- ``req.hash_always_miss = true;`` in ``vcl_recv`` will cause Varnish to
-  look the object up in cache, but ignore any copy it finds.
-- Useful way to do a controlled refresh of a specific object, for instance
-  if you use a script to refresh some slowly generated content.
-- Depending on Varnish-version, it may leave extra copies in the cache
-- If the server is down, the old content is left untouched
+Test your VCL by issuing::
+   http -p hH --proxy=http:http://localhost PURGE www.example.com
 
 .. container:: handout
 
-   Using ``return (pass);`` in ``vcl_recv``, you will always ask a backend
-   for content, but this will never put it into the cache. Using ``purge;``
-   will remove old content, but what if the web server is down?
+   ``acl`` is a reserved keyword that is used to create access control lists.
+   The access control list is used to control which client IP address are allowed to purge cached objects.
+   For more details about ``acl``, look at Chapter #.
+   .. TODO for the author: update chapter reference.
 
-   Using ``req.has_always_miss = true;`` tells Varnish to look the content
-   up but, as the name indicates, always miss. This means that Varnish will
-   first hit ``vcl_miss`` then (presumably) fetch the content from the
-   web server, run ``vcl_fetch`` and (again, presumably) cache the updated
-   copy of the content. If the backend server is down or unresponsive, the
-   current copy of the content is untouched and any client that does not
-   use ``req.hash_always_miss=true;`` will keep getting the old content as
-   long as this goes on.
+   Note the ``purge`` return action in ``vcl_recv``.
+   This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
+   When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
 
-   The two use-cases for this is controlling who takes the penalty for
-   waiting around for the updated content, and ensuring that content isn't
-   evicted until it's safe.
-
-   .. warning::
-
-      Varnish up until 3.0.2 does not do anything to evict old content
-      after you have used ``req.hash_always_miss`` to update it. This means
-      that you will have multiple copies of the content in cache. The
-      newest copy will always be used, but if you cache your content for a
-      long period of time, the memory usage will gradually increase.
-
-      This is a known bug, and hopefully fixed by the time you read this
-      warning.
+.. bookmark
 
 Banning
 -------
 
-- Ban on anything
+- Use ``ban`` to prevent Varnish from caching any object
 - Does not free up memory
-- ``ban req.url ~ "/foo"``
-- ``ban req.http.host ~ "example.com" &&
-  obj.http.content-type ~ "text"``
-- ``ban.list``
-- In VCL: ``ban("req.url ~ /foo");``
+- Exmples in CLI:
+  - ``ban req.url ~ "/foo"``
+  - ``ban req.http.host ~ "example.com" && obj.http.content-type ~ "text"``
+  - ``ban.list``
+- Example in VCL: 
+  - ``ban("req.url ~ /foo");``
 
 .. container:: handout
 
    .. TODO for the author: remember that bans applie to objects.
 
-   Banning in the context of Varnish refers to adding a ban to the
-   ban-list. It can be done both through the command line interface,
-   and through VCL, and the syntax is almost the same.
+   .. ban rule
+   Banning in the context of Varnish refers to adding a *ban rule* to the ban-list. 
+   It can be done both through the command line interface, or through VCL.
+   The syntax is almost the same for both cases.
 
-   A ban is one or more statements in VCL-like syntax that will be tested
-   against objects in the cache when they are looked up in the cache hash.
-   A ban statement might be "the url starts with /sport" or "the object has
-   a Server-header matching lighttpd".
+   .. ban as a statement
+   A ban is one or more statements in VCL-like syntax that are tested against objects in the cache when they are looked up in the cache hash.
+   A ban statement is of the kind; "the url starts with /sport", or "the object has a Server-header matching lighttpd".
 
-   Each object in the cache always points to an entry on the ban-list. This
-   is the entry that they were last checked against. Whenever Varnish
-   retrieves something from the cache, it checks if the objects pointer to
-   the ban list is point to the top of the list. If it does not point to
-   the top of the list, it will test the object against all new entries on
-   the ban list and, if the object did not match any of them, update the
-   pointer of the ban list.
+   .. ban-list entry
+   Each object in the cache always points to a ban-list entry.
+   This is the last entry that the object checked against.
+   The ban-list pointer of an object points to the ban-list entry.
 
-   There are pros and cons to this approach. The most obvious con is that
-   no memory is freed: Objects are only tested once a client asks for them.
-   A second con is that the ban list can get fairly large if there are
-   objects in the cache that are rarely, if ever, accessed. To remedy this,
-   Varnish tries to remove duplicate bans by marking them as "gone"
-   (indicated by a G on the ban list). Gone bans are left on the list
-   because an object is pointing to them, but are never again tested
-   against, as there is a newer ban that superseeds it.
+   .. ban-list pointer update
+   Whenever Varnish retrieves something from the cache, it checks whether the ban-list pointer of the object is pointing to the top of the ban-list.
+   If it does not point to the top of the list, Varnish tests the object against all new entries on the ban-list.
+   Then, if the object does not match any of them, Varnish updates the the ban-list pointer of the object.
 
-   The biggest pro of the ban-list approach is that Varnish can add bans to
-   the ban-list in constant time. Even if you have three million objects in
-   your cache, adding a ban is instantaneous. The load is spread over time
-   as the objects are requested, and they will never need to be tested if
-   they expire first.
+   .. ban lurker
+      Description
 
-   .. tip::
+   .. pros and cons
+   There are advantages and disadvantages when using bans as a cache invalidation approach. 
 
-      If the cache is completely empty, bans you add will not show up in
-      the ban list. This can often happen when testing your VCL code during
-      debugging.
+   .. disadvantages
+   One disadvantage is that no memory is freed: objects are only tested once a client asks for them.
+   A second con is that the ban-list can become fairly large if there are objects in the cache that are rarely, if ever, accessed.
+   .. duplicated ban rules
+   To remedy this situation, Varnish tries to remove duplicate bans by marking them as "gone" (indicated by a G on the ban list). 
+   Gone bans are left on the list because an object is pointing to them, but are never again tested against, as there is a newer ban that superseeds it.
+
+   .. advantages
+   The biggest advantage is that even if you have three million objects in your cache, adding a ban is instantaneous.
+   The overhead for checking objects against bans is spread over time as the objects are either requested or scanned by the ban lurker.
+   Ban rules are not tested again after they expire first.
+   .. TODO for the author: Who expires? The ban or the object? Can a ban expire?
+
+
+   .. req. bans vs. obj. bans
+      .. todo
+
+   .. note::
+
+      If the cache is completely empty, bans you add are not displayed in the ban list. 
+      This can often happen when testing your VCL code during debugging.
 
 VCL contexts when adding bans
 -----------------------------
@@ -3676,6 +3618,46 @@ Solution : PURGE an article from the backend
 
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
+
+The lookup that always misses
+-----------------------------
+
+- ``req.hash_always_miss = true;`` in ``vcl_recv`` will cause Varnish to look the object up in cache, but ignore any copy it finds.
+- Useful way to do a controlled refresh of a specific object, for instance
+  if you use a script to refresh some slowly generated content.
+- Depending on Varnish-version, it may leave extra copies in the cache
+- If the server is down, the old content is left untouched
+
+.. container:: handout
+
+   Using ``return (pass);`` in ``vcl_recv``, you will always ask a backend
+   for content, but this will never put it into the cache. Using ``purge;``
+   will remove old content, but what if the web server is down?
+
+   Using ``req.has_always_miss = true;`` tells Varnish to look the content
+   up but, as the name indicates, always miss. This means that Varnish will
+   first hit ``vcl_miss`` then (presumably) fetch the content from the
+   web server, run ``vcl_fetch`` and (again, presumably) cache the updated
+   copy of the content. If the backend server is down or unresponsive, the
+   current copy of the content is untouched and any client that does not
+   use ``req.hash_always_miss=true;`` will keep getting the old content as
+   long as this goes on.
+
+   The two use-cases for this is controlling who takes the penalty for
+   waiting around for the updated content, and ensuring that content isn't
+   evicted until it's safe.
+
+   .. warning::
+
+      Varnish up until 3.0.2 does not do anything to evict old content
+      after you have used ``req.hash_always_miss`` to update it. This means
+      that you will have multiple copies of the content in cache. The
+      newest copy will always be used, but if you cache your content for a
+      long period of time, the memory usage will gradually increase.
+
+      This is a known bug, and hopefully fixed by the time you read this
+      warning.
+
 
 Saving a request
 ================

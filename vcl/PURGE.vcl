@@ -4,28 +4,12 @@ acl purgers {
 }
 
 sub vcl_recv {
-	if (req.request == "PURGE") {
-		if (!client.ip ~ purgers) {
-			error 405 "Method not allowed";
-		}
-		return (lookup);
-	}
-}
+    # allow PURGE from localhost and 192.168.55...
 
-sub vcl_hit {
-	if (req.request == "PURGE") {
-		purge;
-		error 200 "Purged";
-	}
-}
-sub vcl_miss {
-	if (req.request == "PURGE") {
-		purge;
-		error 404 "Not in cache";
-	}
-}
-sub vcl_pass {
-	if (req.request == "PURGE") {
-		error 502 "PURGE on a passed object";
-	}
+    if (req.method == "PURGE") {
+    if (!client.ip ~ purge) {
+           return(synth(405,"Not allowed."));
+         }
+         return (purge);
+     }
 }
