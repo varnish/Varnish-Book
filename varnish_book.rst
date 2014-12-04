@@ -2432,7 +2432,7 @@ Varnish request flow for the client worker thread
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
-.. TODO for the author: Doble check taht the available variables are correct and not confusing.
+.. TODO for the author: Double check that the available variables are correct and not confusing.
 .. image:: ui/img/cache_req_fsm.png
    :align: center
    :width: 80%
@@ -2441,7 +2441,7 @@ Varnish request flow for the backend worker thread
 ..................................................
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
 .. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
-.. TODO for the author: Doble check taht the available variables are correct and not confusing.
+.. TODO for the author: Double check that the available variables are correct and not confusing.
 .. image:: ui/img/cache_fetch.png
    :align: center
    :width: 80%
@@ -3170,7 +3170,7 @@ VCL - ``vcl_miss``
 .. container:: handout
 
    The subroutines ``vcl_hit`` and ``vcl_miss`` are closely related.
-   It is rare that you customize them, because odification of HTTP request headers is typically done in ``vcl_recv``.
+   It is rare that you customize them, because modification of HTTP request headers is typically done in ``vcl_recv``.
    However, if you do not wish to send a `X-Varnish` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
    For that case, you can use ``unset bereq.http.x-varnish;``.
 
@@ -3309,7 +3309,7 @@ There are three mechanism to invalidate caches in Varnish:
   - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
   - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
 
-2) Baning
+2) Banning
   - Use the built-in function ``ban(expression)``
   - Invalidates objects in cache that match the regular expression
   - Does not necessarily free up memory at once
@@ -3398,70 +3398,90 @@ Test your VCL by issuing::
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
 
-.. bookmark
-
 Banning
 -------
 
-- Use ``ban`` to prevent Varnish from caching any object
+- Use ``ban`` to prevent Varnish from serving a cached object
 - Does not free up memory
-- Exmples in CLI:
+- Examples in CLI:
   - ``ban req.url ~ "/foo"``
   - ``ban req.http.host ~ "example.com" && obj.http.content-type ~ "text"``
   - ``ban.list``
-- Example in VCL: 
+- Example in VCL:
   - ``ban("req.url ~ /foo");``
+- Example of VCL code to catch the ``HTTP BAN`` request method::
+    sub vcl_recv {
+        if (req.method == "BAN") {
+            ban("req.http.host == " + req.http.host + " && req.url == " + req.url);
+            # Throw a synthetic page so the request won't go to the backend.
+            return(synth(200, "Ban added"));
+        }
+    }
 
 .. container:: handout
 
-   .. TODO for the author: remember that bans applie to objects.
+   .. ban regexps
+   Banning in the context of Varnish refers to adding a *ban expression* that prohibits Varnish to serve certain objects from the cache.
+   Ban expressions are more useful when using regular expressions.
+   
+   .. making cached objects obsolete
+   Bans work on objects already in the cache, i.e., it does not prevent new content from entering the cache or being served.
+   Cached objects that match a ban are marked as obsolete. 
+   Obsolete objects are expunged by the expiry thread like any other object with ``obj.ttl == 0``.
 
-   .. ban rule
-   Banning in the context of Varnish refers to adding a *ban rule* to the ban-list. 
-   It can be done both through the command line interface, or through VCL.
-   The syntax is almost the same for both cases.
+   .. ban expressions
+   Ban expressions match against ``req.*`` or ``obj.*`` variables.
+   Think about a ban expression as; "the requested URL starts with /sport", or "the cached object has a Server-header matching lighttpd".
+   You can add ban expressions in VCL syntax via VCL code, HTTP request method, or CLI.
 
-   .. ban as a statement
-   A ban is one or more statements in VCL-like syntax that are tested against objects in the cache when they are looked up in the cache hash.
-   A ban statement is of the kind; "the url starts with /sport", or "the object has a Server-header matching lighttpd".
+   .. ban-list
+   Ban expressions are inserted into a ban-list.
+   The ban-list contains:
+      - ID of the ban,
+      - timestamp when the ban entered the ban list,
+      - counter of objects that have matched the ban expression,
+      - a ``C`` flag for *completed* that indicates whether a ban is invalid because it is duplicated,
+      - the ban expression.
+
+   To inspect the current ban-list, issue the ``ban.list`` command in the CLI::
+
+     0xb75096d0 1318329475.377475    10      obj.http.x-url ~ test0
+     0xb7509610 1318329470.785875    20C     obj.http.x-url ~ test1
 
    .. ban-list entry
-   Each object in the cache always points to a ban-list entry.
-   This is the last entry that the object checked against.
-   The ban-list pointer of an object points to the ban-list entry.
+   .. TODO for the author: To consider to include, clarify and elaborate this paragraph.
+   .. Every single object in the cache always points to a ban-list entry.
+   .. This ban-list entry is the last entry that the object is checked against.
 
    .. ban-list pointer update
-   Whenever Varnish retrieves something from the cache, it checks whether the ban-list pointer of the object is pointing to the top of the ban-list.
-   If it does not point to the top of the list, Varnish tests the object against all new entries on the ban-list.
-   Then, if the object does not match any of them, Varnish updates the the ban-list pointer of the object.
+   .. TODO for the author: In order to include this paragraph, explain "top of list", and clarify whether bans previous to the current pointed ban are ever checked on again.
+   .. Whenever Varnish retrieves something from the cache, it checks whether the ban-list pointer of the object is pointing to the top of the ban-list.
+   .. If it does not point to the top of the list, Varnish tests the object against all new entries on the ban-list.
+   .. Then, if the object does not match any of them, Varnish updates the ban-list pointer of the object.
+
+   Varnish tests bans whenever a request hits a cached object.
+   A cached object is checked only against newer bans.
+   That means that each object checks against a ban expression only once.
 
    .. ban lurker
-      Description
+   Bans that match only against ``obj.*`` are also checked by a background thread called the *ban lurker*.
+   The parameter ``ban_lurker_sleep`` controls how often the *ban lurker* tests ``obj.*`` bans.
+   The ban lurker can be disabled by setting ``ban_lurker_sleep`` to 0.
 
-   .. pros and cons
-   There are advantages and disadvantages when using bans as a cache invalidation approach. 
-
-   .. disadvantages
-   One disadvantage is that no memory is freed: objects are only tested once a client asks for them.
-   A second con is that the ban-list can become fairly large if there are objects in the cache that are rarely, if ever, accessed.
-   .. duplicated ban rules
-   To remedy this situation, Varnish tries to remove duplicate bans by marking them as "gone" (indicated by a G on the ban list). 
-   Gone bans are left on the list because an object is pointing to them, but are never again tested against, as there is a newer ban that superseeds it.
-
-   .. advantages
-   The biggest advantage is that even if you have three million objects in your cache, adding a ban is instantaneous.
-   The overhead for checking objects against bans is spread over time as the objects are either requested or scanned by the ban lurker.
-   Ban rules are not tested again after they expire first.
-   .. TODO for the author: Who expires? The ban or the object? Can a ban expire?
-
-
-   .. req. bans vs. obj. bans
-      .. todo
+   The ban lurker can help you keep the ban list at a manageable size.
+   Therefore, we recommend that you avoid using ``req.*`` in your bans, as the request object is not available in the ban lurker thread.
 
    .. note::
 
-      If the cache is completely empty, bans you add are not displayed in the ban list. 
-      This can often happen when testing your VCL code during debugging.
+      You may accumulate a lot of ban expressions based in ``req.*`` variables if you have many objects with long TTL that are seldom accessed.
+      This accumulation occurs because bans are kept until all cached objects have been checked against them.
+      This might impact CPU usage and thereby performance.
+
+   .. note::
+
+      If the cache is completely empty, only the last added ban stays in the ban-list.
+
+.. bookmark
 
 VCL contexts when adding bans
 -----------------------------
@@ -3494,8 +3514,7 @@ VCL contexts when adding bans
 Smart bans
 ----------
 
-- When Varnish tests bans, any ``req.*``-reference has to come from whatever
-  client triggered the test.
+- When Varnish tests bans, any ``req.*``-reference has to come from whatever client triggered the test.
 - A "ban lurker" thread runs in the background to test bans on less
   accessed objects
 - The ban lurker has no ``req.*``-structure. It has no URL or Hostname.
