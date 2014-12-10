@@ -3303,7 +3303,7 @@ Cache invalidation
 
 There are three mechanism to invalidate caches in Varnish:
 
-1) HTTP purging
+1) HTTP PURGE
   - Use the ``vcl_purge`` subroutine
   - Invalidate caches explicitly
   - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
@@ -3314,12 +3314,15 @@ There are three mechanism to invalidate caches in Varnish:
   - Invalidates objects in cache that match the regular expression
   - Does not necessarily free up memory at once
 
-3) Force cache misses
+3) Hashtwo -> Varnish Plus only!
+  - For websites with the need for cache invalidation at a very large scale 
+  -
+
+4) Force Cache Misses
   - Use ``req.hash_always_miss`` in ``vcl_recv``
   - If set to true, Varnish disregards any existing objects and always (re)fetches from the backend
   - May create multiple objects as side effect
   - Does not necessarily free up memory at once
-
 
   - Which to use when?
 
@@ -3338,10 +3341,10 @@ There are three mechanism to invalidate caches in Varnish:
 
      The rest of the chapter gives you the information to pickup the most suitable mechanism.
 
-HTTP purge
-----------
+1) HTTP PURGE
+-------------
 
-- If you know exactly what to remove, use HTTP purge.
+- If you know exactly what to remove, use ``HTTP PURGE``.
 - Frees up memory, removes all ``Vary:``-variants of the object.
 - Leaves it to the next client to refresh the content
 - Often combined with ``return(restart);``
@@ -3398,8 +3401,8 @@ Test your VCL by issuing::
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
 
-Banning
--------
+2) Banning
+----------
 
 - Use ``ban`` to prevent Varnish from serving a cached object
 - Does not free up memory
@@ -3464,12 +3467,9 @@ Banning
    That means that each object checks against a ban expression only once.
 
    .. ban lurker
-   Bans that match only against ``obj.*`` are also checked by a background thread called the *ban lurker*.
+   Bans that match only against ``obj.*`` are also checked by a background worker thread called the *ban lurker*.
    The parameter ``ban_lurker_sleep`` controls how often the *ban lurker* tests ``obj.*`` bans.
    The ban lurker can be disabled by setting ``ban_lurker_sleep`` to 0.
-
-   The ban lurker can help you keep the ban list at a manageable size.
-   Therefore, we recommend that you avoid using ``req.*`` in your bans, as the request object is not available in the ban lurker thread.
 
    .. note::
 
@@ -3477,101 +3477,122 @@ Banning
       This accumulation occurs because bans are kept until all cached objects have been checked against them.
       This might impact CPU usage and thereby performance.
 
+      Therefore, we recommend you to avoid ``req.*`` variables in your ban expressions, and to use ``obj.*`` variables instead.
+      Ban expressions using only ``obj.*`` are called *lurker friendly bans*.
+
    .. note::
 
       If the cache is completely empty, only the last added ban stays in the ban-list.
 
+
+Lurker Friendly Bans
+....................
+
+- ban expressions that match only against ``obj.*``
+
+.. container:: handout
+
+   Ban expressions are checked in two cases: 1) when a request hits a cached object, or 2) when the ban lurker  *wakes up*.
+   The first case is efficient only if you know that the cached objects to be banned are frequently accessed.
+   Otherwise, you might accumulate a lot of ban expressions in the ban-list that are never checked.
+   The second case is a better alternative because the ban lurker can help you keep the ban list at a manageable size.
+   Therefore, we recommend you to create ban expressions that are checked by the ban lurker.
+   Such ban expressions are called *lurker friendly bans*.
+
+   *Lurker friendly ban* expressions are those that use only ``obj.*``, but not ``req.*`` variables.
+   Since *lurker friendly ban* expressions lack of ``req.*``, you might need to copy some of the ``req.*`` variables into the ``obj`` structure.
+   In fact, this copy operation is a mechanism to preserve the context of client request in the cached object.
+   For example, a useful part of the client context is the requested URL.
+
+   The following snippet shows an example on how to preserve the context of a client request in the cached object.
+   The snippet also shows how to insert a *lurker friendly ban* expression into the ban-list in the ``vcl_recv`` subroutine::
+
+     sub vcl_backend_response {
+        set beresp.http.x-url = bereq.url;
+     }
+
+     sub vcl_deliver {
+        unset resp.http.x-url; # Optional
+     }
+
+     sub vcl_recv {
+        if (req.method == "PURGE") {
+           if (client.ip !~ purge) {
+              return(synth(403, "Not allowed"));
+           }
+        ban("obj.http.x-url ~ " + req.url); # Assumes req.url is a regex. This might be a bit too simple
+        }
+     }
+
+
 .. bookmark
 
-VCL contexts when adding bans
------------------------------
+3) Hashtwo -> Varnish Plus only!
+---------------------------------------------------------------
 
-- The context is that of the client present when testing, not the client
-  that initiated the request that resulted in the fetch from the backend.
-- In VCL, there is also the context of the client adding the item to the
-  ban list. This is the context used when no quotation marks are present.
-
-``ban("req.url == " + req.http.x-url);``
-
-- ``req.url`` from the future client that will trigger the test against the
-  object is used.
-- ``req.http.x-url`` is the x-url header of the client that puts the ban on
-  the ban list.
+- Cache invalidation based on cache tags
+- Adds easily patters to be matched against
+- Highly scalable
 
 .. container:: handout
 
-   One of the typical examples of purging reads ``ban("req.url == " +
-   req.url)``, which looks fairly strange. The important thing to remember
-   is that in VCL, you are essentially just creating one big string.
+.. TODO for the author: update this paragraph after I have a clear description of differences between PURGE and Bans.
+So far, we have discussed *purges* and *bans* as mechanisms for cache invalidation.
+Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching regular expressions against objects.
+However, there are other cases where none of these mechanisms are not optimal.
 
-   .. tip::
+*Hashtwo* maintains a second hash key to link cached objects.
+This hash key is created out from cache tags, hence called hashtags.
+We call this process as *hashtagging objects*.
 
-      To avoid confusion in VCL, keep as much as possible within quotation
-      marks, then verify that it works the way you planned by reviewing the
-      ban list through the cli, using ``ban.list``.
+Hashtags provide the means to purge immediately objects with common cache tags.
+In practice, hashtags extends the functionality of *purging* by adding pattern-based cache invalidation as *bans* do.
+
+As an example, *Hashtwo* is useful when a content presentation system lists articles' IDs in as a HTTP header field, like this::
+
+  X-Article-IDs: 39474, 39232,38223,32958
+
+In this case, ``X-Article-IDs`` acts as cache tag.
+Then you can easily create a HTTP method similar to HTTP PURGE that takes an article ID as input, and invalidates all the objects that reference that article ID.
+
+You can use cache tags as a mean to create cache invalidation patters.
+Thus, *bans* are also one way to invalidate such objects.
+However, the main difference between *bans* and *hashtwo* is the scalability.
+Namely that the *hashtwo* does not need to traverse lists as the banning mechanism does for the ban-lists.
 
 
-Smart bans
-----------
+ Then you can issue a ban matching on the article ID and it will invalidate every object that references the matching IDs.
 
-- When Varnish tests bans, any ``req.*``-reference has to come from whatever client triggered the test.
-- A "ban lurker" thread runs in the background to test bans on less
-  accessed objects
-- The ban lurker has no ``req.*``-structure. It has no URL or Hostname.
-- Smart bans are bans that only references ``obj.*``
-- Store the URL and Hostname on the object
-- ``set beresp.http.x-url = req.url;``
-- ``set beresp.http.x-host = req.http.host;``
-- ``ban obj.http.x-url ~ /something/.*``
+ban obj.http.x-article-id ~ “[ ,]$ID\D”
+Very nice and very powerful. However, there is a flip side to the bans in Varnish. They are quite expensive. Every ban you issue will be matched against every object in the cache that is older than the ban itself. This will either happen at the time of delivery or will be done by a background worker thread commonly referred to as the ban lurker. So, in terms of scalability we're looking at N x M, where N is the number of objects in memory and M is the number of bans.
 
-.. container:: handout
 
-      Varnish now has a ban lurker thread, which will test old objects
-      against bans periodically, without a client. For it to work, your
-      bans can not refer to anything starting with `req`, as the ban lurker
-      doesn't have any request data structure.
 
-      If you wish to ban on url, it can be a good idea to store the URL
-      to the object, in ``vcl_fetch``::
+.. TODO for the author: Hashtwo example!
 
-         set beresp.http.x-url = req.url;
+.. TODO for the author: Elaborate more about VMODs after I have defined them.
+.. Hashtwo is a VMOD.
 
-      Then use that instead of ``req.url`` in your bans, in ``vcl_recv``::
-
-         ban("obj.http.x-url == " +  req.url);
-
-      This will allow Varnish to test the bans against less frequently
-      accessed objects, so they do not linger in your cache just because
-      no client asks for them just to discover they have been banned.
-
+.. below this bookmark, are the comparison between PURGE and BANs
+.. ........................................................................
 ``ban()`` or ``purge;``?
 ------------------------
 
-- Banning is more flexible than ``purge;``, but also slightly more complex
-- Banning can be done from CLI and VCL, while ``purge;`` is only possible
-  in VCL.
-- Smart bans require that your VCL stores ``req.url`` (or any other fields
-  you intend to ban on) ahead of time, even though banning on ``req.url``
-  directly will still work.
-- Banning is not designed to free up memory, but smart bans using the ban
-  lurker will still do this.
+TODO: Table here!
 
 .. container:: handout
 
-   There is rarely a need to pick either bans or purges in Varnish, as you
-   can have both. Some guidelines for selection, though:
+   There is rarely a need to pick either bans or purges in Varnish, as you can have both. 
+   Some guidelines for selection, though:
 
-   - Any frequent automated or semi-automated cache invalidation will
-     likely require VCL changes for the best effect, be it ``purge;`` or
-     setting up smart bans.
-   - If you are invalidating more than one item at a time, you will either
-     need a whole list, or need to use bans.
-   - If it takes a long time to pull content into Varnish, it's often a
-     good idea to use ``req.hash_always_miss`` to control which client ends
+   - Any frequent automated or semi-automated cache invalidation most likely require VCL changes for the best effect.
+   - If you need invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
+   .. TODO for the author:
+   - If it takes a long time to pull content into Varnish, it's often a good idea to use ``req.hash_always_miss`` to control which client ends
      up waiting for the new copy. E.g: a script you control.
 
 Exercise: Write a VCL for bans and purges
------------------------------------------
+.........................................
 
 Write a VCL implementing a `PURGE` and `BAN` request method, which issues
 ``purge;`` and ``ban();`` respectively. The ban method should use the
@@ -3595,13 +3616,13 @@ new content, using ``req.hash_always_miss``.
    and response headers.
 
 Solution: Write a VCL for bans and purges
------------------------------------------
+.........................................
 
 .. include:: vcl/solution-bans-etc.vcl
    :literal:
 
 Exercise : PURGE an article from the backend
---------------------------------------------
+............................................
 
 - Send a PURGE request to Varnish from your backend server after an article
   is published. The publication part will be simulated.
@@ -3613,7 +3634,7 @@ In order to help you have access to the file `article.php` which fakes an
 article. It is recommended to create a new page called `purgearticle.php`.
 
 Solution : PURGE an article from the backend
---------------------------------------------
+............................................
 
 **article.php**
 
@@ -3638,8 +3659,11 @@ Solution : PURGE an article from the backend
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
 
-The lookup that always misses
------------------------------
+.. above this comment are the comparisons between PURGE and BANs.
+
+
+4) Force Cache Misses
+---------------------
 
 - ``req.hash_always_miss = true;`` in ``vcl_recv`` will cause Varnish to look the object up in cache, but ignore any copy it finds.
 - Useful way to do a controlled refresh of a specific object, for instance
@@ -3676,6 +3700,8 @@ The lookup that always misses
 
       This is a known bug, and hopefully fixed by the time you read this
       warning.
+
+
 
 
 Saving a request
