@@ -481,12 +481,12 @@ Next:
 #. Verify that Apache works by typing ``http -p h localhost``.
    You should see a ``200 OK`` response from Apache.
    .. You probably want to change ``localhost`` with whatever the hostname of the machine you're working is.
-#. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default`.
+#. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
 #. Restart Apache: ``service apache2 restart``.
 
 .. Install Varnish
-.. TODO for the author: Update this instructions to install Varnish Plus
-Varnish is distributed in the Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
+.. TODO for the author: Update this instructions to install Varnish Plus once packabes are available for Ubuntu.
+Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
 We generally recommend you to use the packages provided by varnish-cache.org.
 Please be advised that we only provide packages for Ubuntu's LTS releases, not all the intermediate releases.
 However, these packages might still work fine on newer releases.
@@ -3538,84 +3538,166 @@ Lurker Friendly Bans
 
 The idea is that you can use any arbitrary string for cache invalidation.
 You can then key your cached objects on, for example, product ID or article ID.
-In this way, when you update the price of a certain product or a specific article, you have a key to evict all those pages from the cache.
+In this way, when you update the price of a certain product or a specific article, you have a key to evict all those objects from the cache.
 
-.. TODO for the author: update this paragraph after I have a clear description of differences between PURGE and Bans.
 So far, we have discussed *purges* and *bans* as mechanisms for cache invalidation.
 Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching regular expressions.
-However, there are cases where none of these mechanisms are not optimal.
+However, there are cases where none of these mechanisms are optimal.
 
 *Hashtwo* creates a second hash key to link cached objects based on cache tags.
-This hash key is called hashtags.
-Hashtags provide the means to invalidate cached objects with common cache tags.
+This hash keys provide the means to invalidate cached objects with common cache tags.
 
 In practice, *Hashtwo* create cache invalidation patters, which can be tested and invalidated immediately just as *purges* do.
 In addition, *Hashtwo* is much more efficient than *bans* because of two reasons:
 1) looking up *hash keys* is much more efficient than traversing ban-lists, and
 2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
-As an example, *Hashtwo* is useful when a content presentation system lists articles' IDs in a HTTP header field, like this::
-
-  X-Article-IDs: 39474, 39232,38223,32958
-
-In this case, ``X-Article-IDs`` acts as cache tag.
-Then you can easily create a HTTP method similar to HTTP PURGE that takes an article ID as input, and invalidates all the objects that reference that article ID.
-Next subsection shows the VCL code for this example.
+.. TODO for the author: Elaborate more about VMODs after I have defined them.
 
 VCL example using Hashtwo
 .........................
-.. This example is based on the information from the man page of vmod_hashtwo: man vmod_hashtwo.
- 
-.. TODO for the author: 
 
-VCL example code::
+.. The content of this side comes from ``man vmod_hashtwo``.
 
+On an e-commerce site the backend application issues a ``X-HashTwo`` HTTP header field for every product that is referenced on that
+page.
+The header for a certain page might look like this::
+
+  HTTP/1.1 OK
+  Server: Apache/2.2.15
+  X-HashTwo: 8155054
+  X-HashTwo: 166412
+  X-HashTwo: 234323
+
+The VCL example code::
+
+  import hashtwo;
+
+  # In this example the key to be purged is specified on the
+  # X-HashTwo-Purge header.
   sub vcl_recv {
-     if (req.http.x-hashtwo-purge) {
-          if (hashtwo.purge(req.http.x-hashtwo-purge) != 0) {
-               return (purge);
-          } else {
-               return (synth(404, "Key not found"));
-          }
-     }
+    if (req.http.X-HashTwo-Purge) {
+      if (hashtwo.purge(req.http.X-HashTwo-Purge) != 0) {
+         return (purge);
+      } else {
+        return (synth(404, "Key not found"));
+      }
+    }
   }
 
-  # Normally the backend is responsible for setting response headers.
-  # We hardcode the X-HashTwo header
+  # Normally the backend is responsible for setting the header.
+  # If you were to do it in VCL it will look something like this:
   sub vcl_backend_response {
-     set beresp.http.X-HashTwo = "166412";
+    set beresp.http.X-HashTwo = "secondary_hash_key";
   }
 
-Example of HTTP request towards the Varnish server, clearing out every object with the matching X-HashTwo header::
+In order to keep the web pages in sync with the database, a trigger is set up in the database.
+When an stock keeping unit (SKU) is updated, a HTTP request towards the Varnish server is triggered.
+This request invalidates every cached object with the matching ``X-HashTwo`` header::
 
   GET / HTTP/1.1
   Host: www.example.com
   X-HashTwo-Purge: 166412
 
-.. TODO for the author: Elaborate more about VMODs after I have defined them.
-.. Hashtwo is a VMOD.
+Note the ``X-HashTwo-Purge`` HTTP header field.
 
-.. below this bookmark, are the comparison between PURGE and BANs
-.. ........................................................................
+Based on the VCL code above, Varnish finds the objects and purge them.
+After that, Varnish responds with::
 
-``ban()`` or ``purge;``?
-------------------------
+  HTTP/1.1 200 Purged
+  Date: Thu, 24 Apr 2014 17:08:28 GMT
+  X-Varnish: 1990228115
+  Via: 1.1 Varnish
 
-TODO: Table here!
+The objects are now cleared.
+
+.. warning::
+
+   You should protect purges with ACLs from unauthorized hosts.
+
+4) Force Cache Misses
+---------------------
+
+- ``req.hash_always_miss = true;`` in ``vcl_recv`` causes Varnish to look the object up in cache, but ignore any copy it finds
+- Useful way to do a controlled refresh of a specific object
+- If the server is down, the cached object is left untouched
+- Depending on Varnish-version, it may leave extra copies in the cache
+- Useful to refresh slowly generated content
 
 .. container:: handout
 
-   There is rarely a need to pick either bans or purges in Varnish, as you can have both. 
+   Setting a request in *pass* mode instructs Varnish to always ask a backend for content, without storing the fetched object into cache.
+   The ``vcl_purge`` removes removes old content, but what if the web server is down?
+
+   Using ``req.has_always_miss = true;`` tells Varnish to look up the content in cache, but always miss a hit.
+   This means that Varnish first calls ``vcl_miss``, then (presumably) fetches the content from the backend, cache the updated object, and deliver the updated content.
+
+   The distinctive behavior of ``hash_always_miss`` occurs when the backend server is down or unresponsive.
+   In this case, the current cached object is untouched.
+   Therefore, client requests that do not send ``req.hash_always_miss=true;`` keep getting the old and untouched cached content.
+
+   .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
+
+   Two important use-cases for using ``req.hash_always_miss`` are:
+   1) control who takes the penalty for waiting around for the updated content (e.g. a script you control), and 
+   2) ensure that content is not evicted before there it is updated.
+
+   .. note::
+
+      Forcing cache misses do not evict old content.
+      This means that causes Varnish to have  multiple copies of the content in cache. 
+      The newest copy is always used.
+      If you cache your content for a long period of time, the memory usage increases gradually.
+
+Purge vs. Bans vs. Hashtwo vs. Cache Misses
+-------------------------------------------
+
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+|                       | Ban expressions    | Purge              | Hashtwo --         | Force Cache Misses |
+|                       |                    |                    | Surrogate keys     |                    |
++=======================+====================+====================+====================+====================+
+| Targets               | Objects matching   | One specific object| All objects with a | One specific object|
+|                       | patters            | (with all its      | common hashtwo key |                    |
+|                       |                    | variants)          |                    |                    |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| Type of invalidation  | Implicit           | Explicit           | Explicit           | None               |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| Frees memory          | Not designed to    | Immediately        | Immediately        | No                 |
+|                       | free memory, but   |                    |                    |                    |
+|                       | it does it after a |                    |                    |                    |
+|                       | object is invali-  |                    |                    |                    |
+|                       | dated by a request |                    |                    |                    |
+|                       | or the ban lurker  |                    |                    |                    |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| Scalability           | High only w3en     | High               | High               | No. Memory usage   |
+|                       | using lurker       |                    |                    | increases because  |
+|                       | friendly bans,     |                    |                    | old objects are    |
+|                       | or having few      |                    |                    | not invalidated.   |
+|                       | objects, or a short|                    |                    |                    |
+|                       | ban-list           |                    |                    |                    |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| Flexibility           | High               | Low                | High               | Low                |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| CLI                   | Yes                | No                 | No                 | No                 |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| VCL                   | Yes                | Yes                | Yes                | Yes                |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+| Availability          | Varnish Cache      | Varnish Cache      | Varnish Plus only  | Varnish Cache      |
++-----------------------+--------------------+--------------------+--------------------+--------------------+
+
+.. container:: handout
+
+   There is rarely a need to pick only one solution, as you can implement many of them.
    Some guidelines for selection, though:
 
    - Any frequent automated or semi-automated cache invalidation most likely require VCL changes for the best effect.
-   - If you need invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
-   .. TODO for the author:
-   - If it takes a long time to pull content into Varnish, it's often a good idea to use ``req.hash_always_miss`` to control which client ends
-     up waiting for the new copy. E.g: a script you control.
+   - If you need to invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
+   - If it takes a long time to pull content from the backend into Varnish, consider to use ``req.hash_always_miss``. 
+
+.. bookmark!
 
 Exercise: Write a VCL for bans and purges
-.........................................
+-----------------------------------------
 
 Write a VCL implementing a `PURGE` and `BAN` request method, which issues
 ``purge;`` and ``ban();`` respectively. The ban method should use the
@@ -3682,93 +3764,6 @@ Solution : PURGE an article from the backend
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
 
-.. above this comment are the comparisons between PURGE and BANs.
-
-
-4) Force Cache Misses
----------------------
-
-- ``req.hash_always_miss = true;`` in ``vcl_recv`` causes Varnish to look the object up in cache, but ignore any copy it finds
-- Useful way to do a controlled refresh of a specific object
-- If the server is down, the cached object is left untouched
-- Depending on Varnish-version, it may leave extra copies in the cache
-- Useful to refresh slowly generated content
-
-.. container:: handout
-
-   Setting a request in *pass* mode instructs Varnish to always ask a backend for content, without storing the fetched object into cache.
-   The ``vcl_purge`` removes removes old content, but what if the web server is down?
-
-   Using ``req.has_always_miss = true;`` tells Varnish to look up the content in cache, but always miss a hit.
-   This means that Varnish first calls ``vcl_miss``, then (presumably) fetches the content from the backend, cache the updated object, and deliver the updated content.
-
-   The distinctive behaviour of ``hash_always_miss`` occurs when the backend server is down or unresponsive.
-   In this case, the current cached object is untouched.
-   Therefore, client requests that do not send ``req.hash_always_miss=true;`` keep getting the old and untouched cached content.
-
-   .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
-
-   Two important use-cases for using ``req.hash_always_miss`` are:
-   1) control who takes the penalty for waiting around for the updated content, and 
-   2) ensure that content is not evicted before there it is updated.
-
-.. bookmark
-
-   .. warning::
-
-      Varnish up until 3.0.2 does not do anything to evict old content
-      after you have used ``req.hash_always_miss`` to update it. This means
-      that you will have multiple copies of the content in cache. The
-      newest copy will always be used, but if you cache your content for a
-      long period of time, the memory usage will gradually increase.
-
-      This is a known bug, and hopefully fixed by the time you read this
-      warning.
-
-Purge vs. Bans vs. Hashtwo vs. Cache Misses
--------------------------------------------
-
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-|                       | Ban expressions    | Purge              | Hashtwo --         | Force Cache Misses |
-|                       |                    |                    | Surrogate keys     |                    |
-+=======================+====================+====================+====================+====================+
-| Targets               | Objects matching   | One specific object| All objects with a |                    |
-|                       | patters            | (with all its      | common hashtwo key |                    |
-|                       |                    | variants)          |                    |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| Type of invalidation  | Implicit           | Explicit           | Explicit           |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| Frees memory          | Not designed to    | Immediately        | Immediately        |                    |
-|                       | free memory, but   |                    |                    |                    |
-|                       | it does it after a |                    |                    |                    |
-|                       | object is invali-  |                    |                    |                    |
-|                       | dated by a request |                    |                    |                    |
-|                       | or the ban lurker  |                    |                    |                    |
-|                       |                    |                    |                    |                    |
-|                       |                    |                    |                    |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| Scalability           | High only when     | High               | High               |                    |
-|                       | using lurker       |                    |                    |                    |
-|                       | friendly bans,     |                    |                    |                    |
-|                       | or having few      |                    |                    |                    |
-|                       | objects, or a short|                    |                    |                    |
-|                       | ban-list           |                    |                    |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| Flexibility           | High               | Low                | High               |                    |
-|                       |                    |                    |                    |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| CLI                   | Yes                | No                 | No                 |                    |
-|                       |                    |                    |                    |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| VCL                   | Yes                | Yes                | Yes                |                    |
-|                       |                    |                    |                    |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-| Availability          | Varnish Cache      | Varnish Cache      | Varnish Plus only  |                    |
-+-----------------------+--------------------+--------------------+--------------------+--------------------+
-
-.. container:: handout
-
-   .. TODO for the author: Exåplain "type of invalidation"
 
 Saving a request
 ================
