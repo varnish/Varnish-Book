@@ -19,18 +19,15 @@ RST HANDOUT
 
 .. container:: handout
 
-   When trying this out, remember that Varnish keeps the `Host`-header in
-   ``req.http.host`` and the part after the hostname in ``req.url``.
+   When trying this out, remember that Varnish keeps the `Host`-header in ``req.http.host`` and the part after the hostname in `\
+`req.url``.
+   For `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, but ``req.http.host`` has the valu\
+e of `www.example.com` and ``req.url`` the value of `/index.html`.
+   Note how the leading `/` is included in ``req.url``.
 
-   For `http://www.example.com/index.html`, the `http://` part is not seen
-   by Varnish at all, but ``req.http.host`` will have the value of
-   `www.example.com` and ``req.url`` the value of `/index.html`. Note how
-   the leading `/` is included in ``req.url``.
-
-   Varnish only obeys the first header it finds of "s-maxage" in
-   Cache-Control, "max-age" in Cache-Control or the Expire header.
-   However, it is often necessary to check the values of other
-   headers too - ``vcl_fetch`` is the place to do that.
+   Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`\
+` or the ``Expire`` header.
+   However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
 
 VARNISHTEST
 ===========
@@ -86,23 +83,28 @@ VARNISHTEST
         } -start
 
         varnish v1 -vcl+backend {
-		sub vcl_recv {
-			if (req.url ~ "^/index\.html" ||
-			    req.url ~ "^/$") { return(pass); }
-		}
-		// Or:
-		sub vcl_fetch {
-			if (req.url ~ "^/index\.html" ||
-			    req.url ~ "^/$") { return(hit_for_pass); }
-		}
 
-		// Second part of exercise
-		sub vcl_fetch {
-			if (beresp.http.cache-control ~ "(no-cache|private)" ||
-			    beresp.http.pragma ~ "no-cache") {
-				set beresp.ttl = 0s;
-			}
+	   // Suggested solution A for exercise 1
+	   sub vcl_recv {
+	 	if (req.url ~ "^/index\.html" || req.url ~ "^/$") {
+			return(pass);
 		}
+	   }
+	   // Suggested solution B for exercise 1
+	   sub vcl_backend_fetch {
+	       if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
+	       	  set bereq.uncacheable = true;
+		  return(fetch);
+               }
+	   }
+
+	   // Second part of exercise
+	   sub vcl_backend_response {
+	       if (beresp.http.Cache-Control ~ "(no-cache|private)" || beresp.http.Pragma ~ "no-cache") {
+	       	  set beresp.ttl = 0s;
+	       }
+	   }
+
 	} -start
 
 	client c1 {
@@ -180,13 +182,8 @@ SOLUTION EXTRA
 
 .. container:: handout
 
-   The above examples are both valid.
-
-   It is usually most convenient to do as much as possible in ``vcl_recv``,
-   and this is no exception. Even though using pass in ``vcl_fetch`` is
-   reasonable, it creates a hitpass object, which can create unnecessary
-   complexity. Whenever you do use pass in ``vcl_fetch``, you should also
-   make it a habit to set the ``beresp.ttl`` to a short duration, to avoid
-   accidentally adding a hitpass object that prevents caching for a long
-   time.
-
+   Usually it is most convenient to do as much as possible in ``vcl_recv``.
+   Even though using ``bereq.uncacheable`` in ``vcl_backend_fetch`` is reasonable, it creates a *hit-for-pass* object, which can\
+ create unnecessary complexity.
+   Whenever you use *hit-for-pass* objects, you should set the ``beresp.ttl`` to a short duration.
+   Short TTLs avoid accidentally adding long living *hit-for-pass* objects that prevent caching for a long time.

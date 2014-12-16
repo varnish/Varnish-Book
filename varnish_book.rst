@@ -1762,6 +1762,11 @@ Exercise: Tune first_byte_timeout
 #. Set ``first_byte_timeout`` to 2 seconds.
 #. Check how Varnish times out the request to the backend.
 
+.. tip::
+
+   You may need to enable the cgi module in apache.
+   One way to do that, is by issuing the commands: ``a2enmod cgi``, and then ``service apache2 restart``.
+
 Exercise: Configure threading
 -----------------------------
 
@@ -3269,8 +3274,8 @@ Exercise #: Modify the HTTP response header fields
 - Add a header stating either HIT or MISS
 - "Rename" the Age header to X-Age.
 
-Solution #: Modify the error message and headers
-..............................................
+Solution #: Modify the HTTP response header fields
+..................................................
 
 .. include:: vcl/modify_headers.vcl
    :literal:
@@ -3292,7 +3297,7 @@ Exercise #: Modify the error message
 - Make the default error message more friendly.
 
 Solution #: Modify the error message
-..................................
+....................................
 
 .. include:: vcl/customized_error.vcl
    :literal:

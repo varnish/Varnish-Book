@@ -12,10 +12,11 @@ which git &> /dev/null || exit 1
 v="$(git describe --always --dirty)"
 
 cat <<__EOF__
-:Authors: Tollef Fog Heen (\`Varnish Software\`_),
+:Authors: Francisco Velázquez (\`Varnish Software\`_),
           Kristian Lyngstøl (\`Varnish Software\`_),
+          Tollef Fog Heen (\`Varnish Software\`_),
 	  Jérôme Renard (\`39Web\`_)
-:Copyright: Varnish Software AS 2010-2013, Redpill Linpro AS 2008-2009
+:Copyright: Varnish Software AS 2010-2014, Redpill Linpro AS 2008-2009
 :Versions: Documentation ${v} / Tested for Varnish ${varnishversion}
 :Date: $(date +%Y-%m-%d)
 :License: The material is available under a CC-BY-NC-SA license. See
