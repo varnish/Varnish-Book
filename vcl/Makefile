@@ -6,7 +6,7 @@ objs = $(addsuffix .done,$(basename $(notdir $(wildcard *vcl))))
 
 %.done: %.vcl
 	@if egrep -q '^(backend|director)' $<; then \
-		foo=`varnishd -n $$PWD/../build/ -C -f $< 2>&1 > /dev/null` ;\
+		foo=`varnishd -n $$PWD/../build/ -C -f $< > /dev/null 2>&1` ;\
 		if [ -z "$$foo" ]; then \
 			echo "VCL OK: $<"; \
 		 else \
@@ -15,9 +15,10 @@ objs = $(addsuffix .done,$(basename $(notdir $(wildcard *vcl))))
 			exit 1; \
 		 fi;\
 	else \
+		echo "in else"; \
 		test -e $<.tmp && exit 2;\
 		cat backend.vcl $< > $<.tmp; \
-		foo=`varnishd -C -n $$PWD/../build/ -f $<.tmp 2>&1 > /dev/null` ;\
+		foo=`varnishd -C -n $$PWD/../build/ -f $<.tmp > /dev/null 2>&1` ;\
 		rm $<.tmp ; \
 		if [ -z "$$foo" ]; then \
 			echo "VCL OK: $<"; \
@@ -26,11 +27,9 @@ objs = $(addsuffix .done,$(basename $(notdir $(wildcard *vcl))))
 			echo "$$foo"; \
 			exit 1;\
 		 fi; \
-	fi;\
-	
+	fi;
 
 check: $(objs)
-	
 
 .PHONY: check
 
