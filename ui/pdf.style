@@ -16,7 +16,7 @@
         "frames": [
             ["0cm", "0cm", "100%", "100%"]
           ],
-        "background" : "ui/img/request.pdf",
+        "background" : "ui/img/cache_req_fsm.pdf",
         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0

@@ -1,0 +1,4 @@
+Server ;Result ;Configuration file
+Varnish ;Listens on port 80 ;/etc/default/varnish
+Varnish ;Uses Apache as backend on localhost:8080;/etc/varnish/default.vcl
+Apache ;Listens on port 8080 ;/etc/apache2/ports.conf and /etc/apache2/sites-enabled/000-default 

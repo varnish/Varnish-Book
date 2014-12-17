@@ -26,17 +26,16 @@ this structure in mind.
 Thanks
 ------
 
-In addition to the authors, the following deserve special thanks (in no
-particular order):
+In addition to the authors, the following deserve special thanks (in no particular order):
 
 - Rubén Romero
+- Dag Haavi Finstad
 - Sevan Janiyan
 - Kacper Wysocki
 - Magnus Hagander
 - Martin Blix Grydeland
 - Poul-Henning Kamp
 - Everyone who has participated on the training courses
-
 
 Index
 -----

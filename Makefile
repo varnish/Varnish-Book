@@ -28,7 +28,7 @@ exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${ex
 bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
-images = ui/img/vcl.png ui/img/request.png
+images = ui/img/cache_fetch.png ui/img/cache_req_fsm.png
 mergedrst = ${BDIR}/merged_book.rst
 
 common = ${mergedrst} \
@@ -104,7 +104,7 @@ ui/img/%.svg: ui/img/%.dot
 	dot -Tsvg < $< > $@
 
 flowchartupdate:
-	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/request.dot
+	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/cache_req_fsm.dot
 
 ${BDIR}/ui:
 	@mkdir -p ${BDIR}
@@ -142,7 +142,7 @@ varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-
 	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
 	cp -r ${BDIR}/varnish_slide-$*.pdf $$target/pdf/varnish_slide_$*-v${version}.pdf;\
 	cp -r munin/ $${target};\
-	cp ui/img/vcl.png ui/img/request.png $${target}/img/; \
+	cp ui/img/cache_fetch.png ui/img/cache_req_fsm.png $${target}/img/; \
 	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
 	cp NEWS ${mergedrst} README.rst LICENSE $$target;\
 	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/

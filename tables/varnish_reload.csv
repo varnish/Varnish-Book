@@ -1,0 +1,5 @@
+Command ;Result 
+``service`` ``varnish`` ``restart``;Restarts Varnish using the operating system mechanisms. Caches are flushed. 
+``service`` ``varnish`` ``reload``;Only reloads the VCL. Caches are not affected. 
+``varnishadm vcl.load`` ``<configname>``  ``<filename>`` and ``varnishadm`` ``vcl.use`` ``<configname>``;Can be used to manually reload VCL. The ``service`` ``varnish`` ``reload`` command does this for you automatically.
+``varnishadm`` ``param.set`` ``<param>`` ``<value>``;Can be used to set parameters without restarting Varnish.

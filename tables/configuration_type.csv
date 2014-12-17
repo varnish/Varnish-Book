@@ -1,0 +1,4 @@
+Configuration Type ;Restart Required ;Persistence at next restart 
+Command line options ;Yes ;If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS``
+Tunable parameters ;No (if changed in varnishadm) ;If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` 
+Configuration in VCL ;No ;Yes 

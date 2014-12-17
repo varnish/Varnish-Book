@@ -21,12 +21,11 @@ Abstract
 
 .. container:: handout
 
-The Varnish Book is the training material of Varnish Plus.
-This book is used under training courses.
-The book teaches technical staff to use Varnish Cache and selected modules of Varnish Plus effectively.
+The Varnish Book is the training material for Varnish Plus courses.
+The book teaches technical staff to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
 
-The book explains how to get started with the Varnish Configuration Language (VCL).
-Covered are such procedures to effectively use VCL functions, cache invalidation, saving requests, and more.
+The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
+Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
 Also included are Varnish programs such as ``varnishtop``, and extra material.
 
 Preface
@@ -42,7 +41,7 @@ Preface
 .. container:: handout
 
 .. Common goal:
-**After finishing this course, you will be able to install and configure a Varnish server, and to write effective VCL code.**
+**After finishing this course, you will be able to install and configure the Varnish server, and write effective VCL code.**
 The Varnish Book is designed to teach attendees of Varnish Plus courses.
 Varnish Plus is the commercial suite including the enhanced commercial edition of Varnish Cache.
 This enhanced edition is called Varnish Cache Plus.
@@ -51,7 +50,7 @@ Most of the material presented in this book also applies to the open source Varn
 Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
 
 For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
-More information about differences between Varnish Cache and Varnish Cache Plus is stated in the Introduction section.
+There is more information about differences between Varnish Cache and Varnish Cache Plus in the Introduction section.
 
 The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish.
 The goal of the book is to make you confident when using Varnish.
@@ -61,10 +60,10 @@ Varnish courses are usually flexible enough to make room for it.
 In addition, you will learn the specific material for the course you take.
 The System Administration (Admin) course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
 The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
+Besides that, other courses may also be taught with this book.
 
 .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
 .. The VMOD course shows how to ???.
-Other courses may also be taught with this book.
 
 Necessary Background
 --------------------
@@ -126,19 +125,24 @@ The Varnish Book Reference is a complete listing, by chapter, of all the checkli
 Appendix B and C contain special purpose Varnish programs and supporting material respectively.
 Appendix D lists the Varnish Three Letter Acronyms.
 Appendix E describes what is new since Varnish 3.0.
+
+.. TODO for the author: include a glossary based on:
 .. https://www.varnish-cache.org/trac/wiki/VTLA
 
+.. TODO for the author: remove this comment when the organization has been completely implemented.
+Note: This organization is still not completely implemented.
 
 How to Use the Book
 -------------------
 
-- Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
-- The instructor guides you through the book
-- Use the *manual pages* and help options.
-- To practice the course, use the Fast Track in the following way:
-  + Read the Review and Exercise parts of the Fast Track.
-  + If you can complete the exercise(s), you remember the most important parts.
-  + If not, you should repeat the chapter.
+* Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
+* The instructor guides you through the book
+* Use the *manual pages* and help options.
+* To practice the course, use the Fast Track in the following way:
+
+  - Read the Review and Exercise parts of the Fast Track.
+  - If you can complete the exercise(s), you remember the most important parts.
+  - If not, you should repeat the chapter.
 
 .. container:: handout
 
@@ -154,7 +158,7 @@ The solutions provided in this book or by your instructor are not necessarily be
 .. man pages and help commands
 Varnish installs several reference manuals that are accessible through the manual page command ``man``.
 You can issue the command ``man -k varnish`` to list the manual pages related to Varnish.
-The command ``man varnishd``, for example, retrieves the manual page from the Varnish HTTP accelerator daemon.
+The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
 
 Also, some commands have a help option to print the usage of the command.
 For example, ``varnishlog -h`` prints the usage of the command, and lists its options with a short description of them.
@@ -169,13 +173,12 @@ To complete this book, you need the following installation:
 .. formats
 The book is written with different formatting conventions.
 Varnish Configuration Language (VCL) text is in verbatim mode.
-
-.. TODO
+.. TODO for the author: insert an example of VCL code here.
 Important notes and tips are stated inside boxes throughout the book.
 
 .. Ask for help
 This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
-If you find something unclear, don't be shy and blame yourself, ask your instructor for help.
+If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
 You can also contact the Varnish open source community at https://varnish-cache.org.
 To book training, please look at https://varnish-software.com/academy.
 
@@ -187,7 +190,6 @@ Introduction
 - Open source / Free software
 - Varnish Software: The company
 - What is Varnish Plus?
-  - What is Varnish Cache Plus?
 - Varnish: more than a cache server
 .. TODO Comparison of related software solutions such as: Apache mod_security, Squid, Nginx, and Apache Traffic Server (ATS) (reverse and forward proxy, generally comparable to Nginx and Squid).
 - History of Varnish
@@ -196,7 +198,7 @@ Introduction
 Varnish Cache and Varnish Cache Plus
 ------------------------------------
 - TODO: Here goes a diagram of Varnish as reverse HTTP proxy.
-- TODO: Here goes a diagram of Varnish Plus
+- TODO: Here goes a diagram showing the differences between Varnish Cache and  Varnish Plus
 
 .. container:: handout
 
@@ -208,11 +210,9 @@ Varnish Cache and Varnish Cache Plus
    It is designed for modern hardware, modern operating systems and modern work loads.
 
    .. Benefits:
-   At the same time, Varnish is flexible. The Varnish Configuration
-   Language is lightning fast and allows system administrators to express their
-   wanted policy rather than being constrained by what the Varnish
-   developers want to cater for or could think of. Varnish has shown itself
-   to work well both on large (and expensive) servers and tiny appliances.
+   At the same time, Varnish is flexible.
+   The Varnish Configuration Language (VCL) is lightning fast and allows system administrators to express their wanted policy rather than being constrained by what the Varnish developers want to cater for or could think of.
+   Varnish has shown itself to work well both on large (and expensive) servers and tiny appliances.
 
    .. Open Source / Free Software:
    Varnish Cache is an open source project, and free software. The
@@ -231,6 +231,7 @@ Varnish Cache and Varnish Cache Plus
    .. Varnish Software:
    Varnish Software is the company behind Varnish Cache.
    Varnish Software and the Varnish community maintain a package repository of Varnish Cache for several common GNU/Linux distributions.
+
    .. Varnish Plus:
    Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
@@ -242,8 +243,7 @@ Varnish Cache and Varnish Cache Plus
    - hashtwo (Varnish Software implementation of surrogate keys),
    - Varnish Administration Console (VAC),
    - Varnish Customer Statistics (VCS),
-   - Varnish Tuner,
-   - and more.
+   - Varnish Tuner, and more.
 
    .. Varnish use
    Varnish is more than a reverse HTTP proxy.
@@ -277,14 +277,11 @@ Varnish timeline:
 - 2012: The fifth Varnish User Group Meeting is held in Paris. Roughly 70
   people participate on the User-day and around 30 on the developer-day!
 
-- The Varnish Governance Board
-
 .. container:: handout
 
-   VG, a large Norwegian newspaper, initiated the Varnish-project in
-   cooperation with Linpro. The lead developer, Poul-Henning Kamp is
-   an experienced FreeBSD kernel hacker and continues to bring his
-   wisdom to Varnish in most areas where it counts.
+   VG, a large Norwegian newspaper, initiated the Varnish project in cooperation with Linpro. 
+   The lead developer of the Varnish project, Poul-Henning Kamp, is an experienced FreeBSD kernel hacker. 
+   Poul-Henning Kamp continues to bring his wisdom to Varnish in most areas where it counts.
 
    From 2006 throughout 2008, most of the development was sponsored by
    VG, API, Escenic and Aftenposten, with project management,
@@ -292,14 +289,10 @@ Varnish timeline:
    the time, Redpill Linpro had roughly 140 employees mostly centered
    around consulting services.
 
-   Today Varnish Software is able to fund the core development with
-   income from service agreements, in addition to offering development
-   of specific features on a case-by-case basis.
-
-   The interest in Varnish continue to increase on an almost daily
-   basis.  An informal study based on the list of most popular web
-   sites in Norway indicates that about 75% or more of the web traffic
-   that originates in Norway is served through Varnish.
+   Today Varnish Software is able to fund the core development with income from service agreements, in addition to offering development of specific features on a case-by-case basis.
+   The interest in Varnish continues to increase.
+   An informal study based on the list of most popular web sites in Norway indicates that about 75% or more of the web traffic that originates in Norway is served through Varnish.
+   .. TODO for the author: reference?
 
    .. VGB
    Varnish development is governed by the Varnish Governance Board (VGB),
@@ -308,17 +301,13 @@ Varnish timeline:
    Software.
    
    .. TODO for the editor: confirm the VGB positions
-   As of December 2014, the positions are filled by Poul-Henning
-   Kamp (Architect), Rogier Mulhuijzen (Community) and Kristian Lyngstøl
-   (Varnish Software). On a day-to-day basis, there is little need to
-   interfere with the general flow of development.
+   As of December 2014, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
+   On a day-to-day basis, there is little need to interfere with the general flow of development.
 
    .. TODO for the editor: is this still true?
-   For those interested in development, the developers arrange weekly bug
-   washes were recent tickets and development is discussed. This usually
-   takes place on Mondays around 12:00 CET on the IRC channel
-   `#varnish-hacking` on `irc.linpro.net`.
-	
+   For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
+   This usually takes place on Mondays around 12:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
+
 Design principles
 -----------------
 
@@ -327,7 +316,7 @@ Varnish is designed to:
 - solve real problems,
 - run on modern hardware (64-bit multi-core architectures),
 - work with the kernel, not against it,
-- to translate Varnish Configuration Language (VCL) to C programming language,
+- translate Varnish Configuration Language (VCL) to C programming language,
 - be extendible via Varnish Modules (VMODs), and
 - reduce lock-contention via its workspace-oriented shared memory model.
 .. - Innovation, not regurgitation
@@ -369,13 +358,13 @@ Varnish is designed to:
 	This has several advantages.
 	The most practical is the freedom you get as system administrator.
 	
-	You can use VCL to decide how you want to interface with Varnish, instead of having a developer trying to predict every possible caching scenario.
+	You can use VCL to decide how you want to interact with Varnish, instead of having a developer trying to predict every possible caching scenario.
 	The fact that VCL is translated to C code, gives Varnish a very high performance.
 	You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
 	In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
 
 	.. VMODs
-        With Varnish 3 you also have Varnish Modules or simply VMODs.
+        Varnish allows integration of Varnish Modules or simply VMODs.
 	These modules let you extend the functionality of the VCL language by
         pulling in custom-written features. Some examples include
         non-standard header manipulation, access to *memcached* or complex
@@ -390,18 +379,19 @@ Varnish is designed to:
         workspace-oriented memory-model instead of allocating the
         exact amount of space it needs at run-time.
 
+	.. TODO for the author: Move to fast track
         To summarize: Varnish is designed to run on modern hardware
         under real work-loads and to solve real problems. Varnish does not
         cater to the "I want to make Varnish run on my 486 just
         because"-crowd. If it does work on your 486, then that's fine, but
         that's not where you will see our focus. Nor will you see us
         sacrifice performance or simplicity for the sake of niche use-cases
-        that can easily be solved by other means - like using a 64-bit OS.
+        that can easily be solved by other means -- like using a 64-bit OS.
 
 How objects are stored
 ----------------------
 
-- Objects in Varnish are stored in a hash
+- Objects in Varnish are stored in memory and adressed by hash keys
 - You can control the hashing
 - Multiple objects can have the same hash key
 
@@ -414,11 +404,11 @@ How objects are stored
 	.. Cache control
 	A rather unique feature of Varnish is that it allows you to control the input of the hashing algorithm.
 	The key is by default made out of the HTTP Host header and the URL, which is sufficient and recommended for typical cases.
-	However, you're able to create the key from something else.
+	However, you are able to create the key from something else.
 	For example, you can use cookies or the user-agent of a client request to create a hash key.
 
 	.. multiple objects
-	The HTTP protocol specifies that multiple objects can be served from the same URL, depending on the preferences of the client.
+	HTTP specifies that multiple objects can be served from the same URL, depending on the preferences of the client.
 	For instance, content in *gzip* format is sent only to clients that indicate *gzip* support.
 	Varnish stores various objects under one key.
 	Upon a client request, Varnish selects the object that matches the client preferences.
@@ -445,32 +435,25 @@ In this chapter, you will:
    In Varnish terminology, a backend server is whatever server Varnish talks to fetch content.
    This can be any sort of service as long as it understands HTTP. 
    Most of the time, Varnish talks to a web server or an application frontend server.
-   In this book, we use the terms interchangeably.
+   In this book, we use backend, web server or application frontend server interchangeably.
 
 Install Varnish and Apache as backend
 -------------------------------------
 
 - Use packages provided by varnish-cache.org
 
-+------------+---------------------------+--------------------------------------------+
-| Service    | Result                    | Configuration file                         |
-+============+===========================+============================================+
-| Varnish    | Listens on port `80`      | ``/etc/default/varnish``                   |
-+------------+---------------------------+--------------------------------------------+
-| Varnish    | Uses Apache as backend on | ``/etc/varnish/default.vcl``               |
-|            | `localhost:8080`          |                                            |
-+------------+---------------------------+--------------------------------------------+
-| Apache     | Listens on port `8080`    | ``/etc/apache2/ports.conf`` and            |
-|            |                           | ``/etc/apache2/sites-enabled/000-default`` |
-+------------+---------------------------+--------------------------------------------+
-Table I. Varnish and Apache configuration
+.. csv-table:: Varnish and Apache configuration
+   :name: varnish_apache
+   :delim: ;
+   :widths: 20, 30, 50 
+   :header-rows: 1
+   :file: tables/varnish_apache.csv
 
 .. container:: handout
 
-.. Introduction to apt-get and yum
-To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``.
-E.g: ``apt-get install varnish``. 
-For Red Hat, use ``yum install <package>``.
+   .. Introduction to apt-get and yum
+   To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
+   For Red Hat, use ``yum install <package>``.
 
 .. Install Apache
 To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
@@ -480,7 +463,6 @@ Next:
 
 #. Verify that Apache works by typing ``http -p h localhost``.
    You should see a ``200 OK`` response from Apache.
-   .. You probably want to change ``localhost`` with whatever the hostname of the machine you're working is.
 #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
 #. Restart Apache: ``service apache2 restart``.
 
@@ -495,20 +477,23 @@ To use the varnish-cache.org repository and install Varnish on Ubuntu 14.04 trus
 
   1. apt-get install apt-transport-https
   2. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-  3. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> /etc/apt/sources.list.d/varnish-cache.list
+  3. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+     /etc/apt/sources.list.d/varnish-cache.list
   4. apt-get update
   5. apt-get install varnish
 
 For Ubuntu 12.04 (precise) replace ``trusty`` with ``precise`` in instruction 3.
-If you want to install the older version 3.0, replace ``varnish-4.0`` with ``varnish-3.0`` in instruction 3.
+If you want to install Varnish version 3.0, replace ``varnish-4.0`` with ``varnish-3.0`` in instruction 3.
 
 .. Configure Varnish
 Next, you edit the Varnish configuration file ``/etc/default/varnish`` to listen on port `80` and have a management interface on port `1234`.
 This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
+
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
 Edit the configuration file ``/etc/varnish/default.vcl`` to use Apache as backend::
+
   backend default {
     .host = "127.0.0.1";
     .port = "8080";
@@ -533,7 +518,7 @@ You can use ``varnishadm`` to:
 - reload the Varnish Configuration Language (VCL) without restarting Varnish 
 - view the most up-to-date documentation for parameters
 
-You can read about other usages by issuing the ``help`` command after you connect to the management interface with ``varnishadm``.
+You can read about other usages by issuing the ``help`` command after you connect to the management interface (``varnishadm``).
 
 .. container:: handout
 
@@ -548,7 +533,7 @@ You can read about other usages by issuing the ``help`` command after you connec
       The location of the configuration file is ``/etc/default/varnish`` by default.
 
    ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
-   You can now provide access to the interface on a user-by-user basis by adjusting the read permission on the secret file.
+   You can now provide access to the interface on a per user basis by adjusting the read permission on the secret file.
    The location of the secret file is ``/etc/varnish/secret`` by default, but you can use the ``-S`` option to specify other location.
    The content of the file is a shared secret, which is a string generated under Varnish installation.
    
@@ -567,39 +552,22 @@ You can read about other usages by issuing the ``help`` command after you connec
 More about Varnish Configuration
 --------------------------------
 
-Varnish has three categories of configuration.
+.. csv-table:: Varnish Configuration Types
+   :name: configuration_types
+   :delim: ;
+   :widths: 25, 25, 50
+   :header-rows: 1
+   :file: tables/configuration_type.csv
 
-+-------------------------------+-----------------------------------+------------------------------------------------------------------+
-| Configuration Type            | Restart Required                  | Persistence at next restart                                      |
-+===============================+===================================+==================================================================+
-| 1. Command line options       | Yes                               | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
-+-------------------------------+-----------------------------------+------------------------------------------------------------------+
-| 2. Tunable parameters         | No (if changed in ``varnishadm``) | If stored in ``/etc/default/varnish`` as part of ``DAEMON_OPTS`` |
-+-------------------------------+-----------------------------------+------------------------------------------------------------------+
-| 3. Configuration in VCL       | No                                | Yes                                                              |
-+-------------------------------+-----------------------------------+------------------------------------------------------------------+
+.. csv-table:: How to reload Varnish
+   :name: varnish_reload
+   :delim: ;
+   :widths: 40, 60
+   :header-rows: 1
+   :file: tables/varnish_reload.csv
 
-To reload Varnish configuration, you have several commands:
-
-+-------------------------------------------------+-----------------------------------------+
-| Command                                         | Result                                  |
-+=================================================+=========================================+
-| ``service varnish restart``                     | Restarts Varnish using the              |
-|                                                 | operating system mechanisms. Caches     |
-|                                                 | are flushed.                            |
-+-------------------------------------------------+-----------------------------------------+
-| ``service varnish reload``                      | Only reloads the VCL.                   |
-|                                                 | Caches are not affected.                |
-+-------------------------------------------------+-----------------------------------------+
-| ``varnishadm vcl.load <configname> <filename>`` | Can be used to manually reload VCL. The |
-| and ``varnishadm vcl.use <configname>``         | ``service varnish reload`` command does |
-|                                                 | this for you automatically.             |
-+-------------------------------------------------+-----------------------------------------+
-| ``varnishadm param.set <param> <value>``        | Can be used to set parameters without   |
-|                                                 | restarting Varnish.                     |
-+-------------------------------------------------+-----------------------------------------+
-
-Using the ``service`` commands is recommended. It's safe and fast.
+Using the ``service`` commands is recommended. 
+It is safe and fast.
 
 .. container:: handout
 
@@ -671,7 +639,7 @@ Relevant options for the course are:
         The ``-S`` option specifies a file which contains a secret to be
         used for authentication. This can be used to authenticate with
         ``varnishadm -S`` as long as ``varnishadm`` can read the same secret
-        file - or rather the same content: The content of the file can be
+        file -- or rather the same content: The content of the file can be
         copied to another machine to allow ``varnishadm`` to access the
         management interface remotely.
 
@@ -683,18 +651,20 @@ Relevant options for the course are:
 	   However, it is possible to start Varnish without a VCL file by specifying the backend server with the ``-b <hostname:port>`` option instead.
 
            Since the ``-b`` option is mutually exclusive with the ``-f``
-           option, we will only use the ``-f`` option. You can use ``-b``
+        option, we use only the ``-f`` option. You can use ``-b``
            if you do not intend to specify any VCL and only have a single
            backend server.
 
 	.. tip::
 	   Type ``man varnishd`` to see all options of the Varnish daemon.
 
+.. review bookmark
+
 Configuration files
 -------------------
 
-Most Varnish-installations use two configuration-files. One of them is used
-by the operating system to start Varnish, and the other contains your VCL.
+Most Varnish-installations use two configuration-files. 
+One of them is used by the operating system to start Varnish, and the other contains your VCL.
 
 +------------------------------+------------------------------------------------+
 | File                         | Usage                                          |
@@ -709,7 +679,7 @@ by the operating system to start Varnish, and the other contains your VCL.
 |                              | is ``/etc/sysconfig/varnish``.                 |
 +------------------------------+------------------------------------------------+
 | ``/etc/varnish/default.vcl`` | Default VCL file location. You can change this |
-|                              | location by editing `/etc/default/varnish`.    |
+|                              | location by editing ``/etc/default/varnish``.  |
 |                              | The VCL file contains your                     |
 |                              | VCL and backend definitions. After             |
 |                              | changing this file, you can run                |
@@ -719,10 +689,8 @@ by the operating system to start Varnish, and the other contains your VCL.
 
 .. container:: handout
 
-   There are other ways to reload VCL and make parameter-changes take
-   effect, mostly using the ``varnishadm`` tool. However, using the
-   ``service varnish reload`` and ``service varnish restart`` commands is a
-   good habit.
+   There are other ways to reload VCL and make parameter-changes take effect, mostly using the ``varnishadm`` tool. 
+   However, using the ``service varnish reload`` and ``service varnish restart`` commands is a good habit.
 
    .. note::
 
@@ -933,7 +901,7 @@ Transaction Groups
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
 
 Example of Transaction Grouping with ``varnishlog``
-...................................................
+---------------------------------------------------
 
 .. image:: ui/img/cache_miss_request_grouping.png
 
@@ -1006,12 +974,17 @@ Exercise
 
 .. TODO for the author: Elaborate more this exercise.
 
+.. TODO for the author: Fix this proposed solution:
+
+.. varnishlog -I ReqURL:favicon\.ico$ -d
+
 varnishstat
 -----------
 
 .. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
 
 ::
+   :width: 50%
 
    Uptime mgt:   1+23:38:08                                                                Hitrate n:       10      100      438
    Uptime child: 1+23:38:08                                                                   avg(n):   0.9967   0.5686   0.3870
@@ -1058,7 +1031,6 @@ varnishstat
    MAIN.cache_hit                                                                                                         INFO
    Cache hits:
    Count of cache hits.   A cache hit indicates that an object has been delivered to a  client without fetching it from a backend server.
-
 
 .. container:: handout
 
@@ -1224,7 +1196,7 @@ Figure #. Varnish Architecture
    .. varnishlog, etc.
 
 The Parent Process: The Manager
-...............................
+-------------------------------
 
 The *Manager* process is owned by the root user, and its main functions are:
 
@@ -1258,7 +1230,7 @@ You can toggle this property using the ``auto_restart`` parameter.
 .. class:: handout
 
 The Child Process: The Cacher
-.............................
+-----------------------------
 
 Since the *Cacher* listens on public IP addresses and known ports, it is exposed to evil clients.
 Therefore, for security reasons, this child process is owned by the *nobody* user, and it has no backwards communication to its parent, the *Manager*.
@@ -1491,7 +1463,7 @@ Varnish Tuner
           Copying Varnish Tuner suggestions to other systems might not be a good idea.
 
 Varnish Tuner Persistence
-.........................
+-------------------------
 
 The output of ``varnishturner`` updates every time you introduce a new input or execute a suggested command.
 However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
@@ -1503,7 +1475,7 @@ To make the tuning persistent, you can add do the following:
 To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
 
 Install Varnish Tuner
-.....................
+---------------------
 
 Below are the installation instructions for getting the tuner from our repositories.
 Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
@@ -1598,7 +1570,7 @@ Threading parameters
 .. class:: handout
 
 Details of threading parameters
-...............................
+-------------------------------
 
 While most parameters can be left to the defaults, the exception is the number of threads.
 
@@ -2435,7 +2407,7 @@ VCL Basics
       For more details about VCL, check its manual page by issuing ``man vcl``.
 
 Varnish request flow for the client worker thread
-.................................................
+-------------------------------------------------
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
@@ -2445,7 +2417,7 @@ Varnish request flow for the client worker thread
    :width: 80%
 
 Varnish request flow for the backend worker thread
-..................................................
+--------------------------------------------------
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
 .. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
 .. TODO for the author: Double check that the available variables are correct and not confusing.
@@ -2845,7 +2817,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
       This action is replaced in Varnish 4 with the variable ``beresp.uncacheable``.
 
 Built-in: ``vcl_backend_response``
----------------------------------
+----------------------------------
 
 .. include:: vcl/default-vcl_backend_response.vcl
    :literal:
@@ -3249,7 +3221,7 @@ VCL - ``vcl_synth``
       ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.      
 
 Example: Redirecting requests with ``vcl_synth``
----------------------------------------------
+------------------------------------------------
 .. TODO for the rst editor: remove obsolete vcl files from the git repository.
 
 .. include:: vcl/redirect.vcl
@@ -3292,7 +3264,7 @@ Solution #: Modify the HTTP response header fields
 .. TODO for the author: Double check the format that rst requires for em and en dash (rule).
 
 Exercise #: Modify the error message
-----------------------------------
+------------------------------------
 
 - Make the default error message more friendly.
 
