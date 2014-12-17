@@ -1,11 +1,11 @@
 Training material and related tools
 ===================================
 
-This Github branch holds work in progress to update The Varnish Book for Varnish cache version 4.
+This Github branch holds work in progress to update The Varnish Book for Varnish Plus.
 
 This repository contains:
 
-* The training material used for our Varnish training (the source for the
+* Training material used for our Varnish training (the source for the
   slides and printed version)
 * A snapshot of munin graphs for use by instructors.
 * PHP example-code for testing Varnish
@@ -64,7 +64,7 @@ Index
 Building the material
 ---------------------
 
-The following tools are needed:
+The work in progress is being compiled on Ubuntu trusty 14.04 with the following tools:
 
 - rst2pdf
 - gawk (old awk is not sufficient)
@@ -75,8 +75,7 @@ The following tools are needed:
 - varnishd
 - php5
 
-All build-stuff is handled by make. The following is an incomplete list of
-targets:
+All build-stuff is handled by make. The following is an incomplete list of targets:
 
 ``make check``
         Does syntax-checking on VCL and php-files. Ensures that they are
