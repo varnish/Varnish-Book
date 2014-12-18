@@ -11,7 +11,9 @@ PICK = "./util/pickchapter2.igawk"
 # the pdfs you can now build.
 
 book = "*"
-#sysadmin = "Introduction,Getting started,Tuning,VCL Basics,VCL functions,Cache invalidation,Saving a request,Varnish Programs,Finishing words"
+# TOFIX: the sysadmin target is not compiling as expected.
+sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"
+
 #webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
 exercises = $(basename $(notdir $(wildcard exercises/*test)))
@@ -24,7 +26,7 @@ exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${ex
 
 
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
-#sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
+sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
@@ -47,7 +49,7 @@ common = ${mergedrst} \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = book
+targets = book sysadmin
 #webdev book sysadmin
 
 all: ${common} ${targets}
