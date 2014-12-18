@@ -21,12 +21,12 @@ Abstract
 
 .. container:: handout
 
-The Varnish Book is the training material for Varnish Plus courses.
-The book teaches technical staff to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
+   The Varnish Book is the training material for Varnish Plus courses.
+   The book teaches technical staff to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
 
-The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
-Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
-Also included are Varnish programs such as ``varnishtop``, and extra material.
+   The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
+   Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
+   Also included are Varnish programs such as ``varnishtop``, and extra material.
 
 Preface
 =======
@@ -40,30 +40,30 @@ Preface
 
 .. container:: handout
 
-.. Common goal:
-**After finishing this course, you will be able to install and configure the Varnish server, and write effective VCL code.**
-The Varnish Book is designed to teach attendees of Varnish Plus courses.
-Varnish Plus is the commercial suite including the enhanced commercial edition of Varnish Cache.
-This enhanced edition is called Varnish Cache Plus.
+   .. Common goal:
+   **After finishing this course, you will be able to install and configure the Varnish server, and write effective VCL code.**
+   The Varnish Book is designed to teach attendees of Varnish Plus courses.
+   Varnish Plus is the commercial suite including the enhanced commercial edition of Varnish Cache.
+   This enhanced edition is called Varnish Cache Plus.
 
-Most of the material presented in this book also applies to the open source Varnish Cache.
-Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
+   Most of the material presented in this book also applies to the open source Varnish Cache.
+   Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
 
-For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
-There is more information about differences between Varnish Cache and Varnish Cache Plus in the Introduction section.
+   For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
+   There is more information about differences between Varnish Cache and Varnish Cache Plus in the Introduction section.
 
-The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish.
-The goal of the book is to make you confident when using Varnish.
-Varnish instructors focus on your area, needs or interest.
-Varnish courses are usually flexible enough to make room for it.
+   The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish.
+   The goal of the book is to make you confident when using Varnish.
+   Varnish instructors focus on your area, needs or interest.
+   Varnish courses are usually flexible enough to make room for it.
 
-In addition, you will learn the specific material for the course you take.
-The System Administration (Admin) course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
-The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
-Besides that, other courses may also be taught with this book.
+   In addition, you will learn the specific material for the course you take.
+   The System Administration (Admin) course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
+   The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
+   Besides that, other courses may also be taught with this book.
 
-.. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
-.. The VMOD course shows how to ???.
+   .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
+   .. The VMOD course shows how to ???.
 
 Necessary Background
 --------------------
@@ -83,13 +83,13 @@ The Webdev course requires that you:
 
 .. container:: handout
 
-You need have no background in theory or application behind Varnish to complete this course.
-However, it is assumed that you have experience and expertise in basic UNIX commands.
-More specific prerequisite skills depend the course you take.
+   You need have no background in theory or application behind Varnish to complete this course.
+   However, it is assumed that you have experience and expertise in basic UNIX commands.
+   More specific prerequisite skills depend the course you take.
 
-The book starts with the installation of Varnish and navigation of some of the common configuration files.
-This part is perhaps the most UNIX-centric part of the course.
-If you are taking a Varnish course, do not hesitate to ask your instructor for help.
+   The book starts with the installation of Varnish and navigation of some of the common configuration files.
+   This part is perhaps the most UNIX-centric part of the course.
+   If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
 Organization of the Book and Course
 -----------------------------------
@@ -103,34 +103,34 @@ At the end of each chapter there is a **Fast Track** section, and it contains th
 
 .. container:: handout
 
-.. TODO presentation of outline
-The introduction presents background information of the relevant technologies behind Varnish.
-It presents the history and main design principles needed to understand Varnish.
+   .. TODO presentation of outline
+   The introduction presents background information of the relevant technologies behind Varnish.
+   It presents the history and main design principles needed to understand Varnish.
 
-.. TODO for the author:
-.. complete this paragraph
+   .. TODO for the author:
+   .. complete this paragraph
 
-.. Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
-.. The format of each sub-objective is of a five-part **lesson** including:
-The Fast Track can be used for various purposes:
+   .. Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
+   .. The format of each sub-objective is of a five-part **lesson** including:
+   The Fast Track can be used for various purposes:
 
-- As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
-- As a test. If you can perform the exercises in the Fast Track, you have learned the important skills taught in the chapter.
-- As a express lesson. If you don't have the time to complete the entire chapter, you can use the Fast Track instead.
-- As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
-- As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
+   - As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
+   - As a test. If you can perform the exercises in the Fast Track, you have learned the important skills taught in the chapter.
+   - As a express lesson. If you don't have the time to complete the entire chapter, you can use the Fast Track instead.
+   - As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
+   - As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
 
-In Appendix A of the book, you will find the **Varnish Book Reference**.
-The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
-Appendix B and C contain special purpose Varnish programs and supporting material respectively.
-Appendix D lists the Varnish Three Letter Acronyms.
-Appendix E describes what is new since Varnish 3.0.
+   In Appendix A of the book, you will find the **Varnish Book Reference**.
+   The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
+   Appendix B and C contain special purpose Varnish programs and supporting material respectively.
+   Appendix D lists the Varnish Three Letter Acronyms.
+   Appendix E describes what is new since Varnish 3.0.
 
-.. TODO for the author: include a glossary based on:
-.. https://www.varnish-cache.org/trac/wiki/VTLA
+   .. TODO for the author: include a glossary based on:
+   .. https://www.varnish-cache.org/trac/wiki/VTLA
 
-.. TODO for the author: remove this comment when the organization has been completely implemented.
-Note: This organization is still not completely implemented.
+   .. TODO for the author: remove this comment when the organization has been completely implemented.
+   Note: This organization is still not completely implemented.
 
 How to Use the Book
 -------------------
@@ -146,41 +146,41 @@ How to Use the Book
 
 .. container:: handout
 
-.. Varnish Cache Course
-The Varnish Book is designed to be used as training material under a Varnish Plus course taught by a certified instructor.
-Under a course, the instructor guides you and selects the relevant chapters to learn.
-If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
+   .. Varnish Cache Course
+   The Varnish Book is designed to be used as training material under a Varnish Plus course taught by a certified instructor.
+   Under a course, the instructor guides you and selects the relevant chapters to learn.
+   If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
-.. Exercises
-There are almost always many ways to do an exercise.
-The solutions provided in this book or by your instructor are not necessarily better than your own.
+   .. Exercises
+   There are almost always many ways to do an exercise.
+   The solutions provided in this book or by your instructor are not necessarily better than your own.
 
-.. man pages and help commands
-Varnish installs several reference manuals that are accessible through the manual page command ``man``.
-You can issue the command ``man -k varnish`` to list the manual pages related to Varnish.
-The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
+   .. man pages and help commands
+   Varnish installs several reference manuals that are accessible through the manual page command ``man``.
+   You can issue the command ``man -k varnish`` to list the manual pages related to Varnish.
+   The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
 
-Also, some commands have a help option to print the usage of the command.
-For example, ``varnishlog -h`` prints the usage of the command, and lists its options with a short description of them.
+   Also, some commands have a help option to print the usage of the command.
+   For example, ``varnishlog -h`` prints the usage of the command, and lists its options with a short description of them.
 
-.. Installation required
-To complete this book, you need the following installation:
+   .. Installation required
+   To complete this book, you need the following installation:
 
-- Varnish Cache Plus  4.0 or later
-- TODO
-- TODO
+   - Varnish Cache Plus  4.0 or later
+   - TODO
+   - TODO
 
-.. formats
-The book is written with different formatting conventions.
-Varnish Configuration Language (VCL) text is in verbatim mode.
-.. TODO for the author: insert an example of VCL code here.
-Important notes and tips are stated inside boxes throughout the book.
+   .. formats
+   The book is written with different formatting conventions.
+   Varnish Configuration Language (VCL) text is in verbatim mode.
+   .. TODO for the author: insert an example of VCL code here.
+   Important notes and tips are stated inside boxes throughout the book.
 
-.. Ask for help
-This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
-If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
-You can also contact the Varnish open source community at https://varnish-cache.org.
-To book training, please look at https://varnish-software.com/academy.
+   .. Ask for help
+   This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
+   If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
+   You can also contact the Varnish open source community at https://varnish-cache.org.
+   To book training, please look at https://varnish-software.com/academy.
 
 Introduction
 ============
@@ -982,9 +982,9 @@ varnishstat
 -----------
 
 .. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
+TOFIX: To resize the font of this example.
 
 ::
-   :width: 50%
 
    Uptime mgt:   1+23:38:08                                                                Hitrate n:       10      100      438
    Uptime child: 1+23:38:08                                                                   avg(n):   0.9967   0.5686   0.3870
@@ -1711,6 +1711,9 @@ cli_timeout             |def_cli_timeout|           Management thread->child    
 	.. note::
 
            Another use-case for increasing ``connect_timeout`` occurs when virtual machines are involved, as they can increase the connection time significantly.
+
+	.. tip::
+	   More information in https://www.varnish-software.com/blog/understanding-timeouts-varnish-cache.
 
 Exercise: Tune first_byte_timeout
 ---------------------------------
@@ -3275,7 +3278,9 @@ Solution #: Modify the error message
    :literal:
 
 .. container:: handout
+
    .. TODO for the author: to elaborate this section when tests show that the VCL code is correct.
+   TODO: To elaborate
 
 Cache invalidation
 ==================
@@ -3386,12 +3391,17 @@ Test your VCL by issuing::
 - Use ``ban`` to prevent Varnish from serving a cached object
 - Does not free up memory
 - Examples in CLI:
+
   - ``ban req.url ~ "/foo"``
   - ``ban req.http.host ~ "example.com" && obj.http.content-type ~ "text"``
   - ``ban.list``
+
 - Example in VCL:
+
   - ``ban("req.url ~ /foo");``
+
 - Example of VCL code to catch the ``HTTP BAN`` request method::
+
     sub vcl_recv {
         if (req.method == "BAN") {
             ban("req.http.host == " + req.http.host + " && req.url == " + req.url);
@@ -3419,11 +3429,12 @@ Test your VCL by issuing::
    .. ban-list
    Ban expressions are inserted into a ban-list.
    The ban-list contains:
-      - ID of the ban,
-      - timestamp when the ban entered the ban list,
-      - counter of objects that have matched the ban expression,
-      - a ``C`` flag for *completed* that indicates whether a ban is invalid because it is duplicated,
-      - the ban expression.
+
+   - ID of the ban,
+   - timestamp when the ban entered the ban list,
+   - counter of objects that have matched the ban expression,
+   - a ``C`` flag for *completed* that indicates whether a ban is invalid because it is duplicated,
+   - the ban expression.
 
    To inspect the current ban-list, issue the ``ban.list`` command in the CLI::
 
@@ -3513,23 +3524,23 @@ Lurker Friendly Bans
 
 .. container:: handout
 
-The idea is that you can use any arbitrary string for cache invalidation.
-You can then key your cached objects on, for example, product ID or article ID.
-In this way, when you update the price of a certain product or a specific article, you have a key to evict all those objects from the cache.
+   The idea is that you can use any arbitrary string for cache invalidation.
+   You can then key your cached objects on, for example, product ID or article ID.
+   In this way, when you update the price of a certain product or a specific article, you have a key to evict all those objects from the cache.
 
-So far, we have discussed *purges* and *bans* as mechanisms for cache invalidation.
-Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching regular expressions.
-However, there are cases where none of these mechanisms are optimal.
+   So far, we have discussed *purges* and *bans* as mechanisms for cache invalidation.
+   Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching regular expressions.
+   However, there are cases where none of these mechanisms are optimal.
 
-*Hashtwo* creates a second hash key to link cached objects based on cache tags.
-This hash keys provide the means to invalidate cached objects with common cache tags.
+   *Hashtwo* creates a second hash key to link cached objects based on cache tags.
+   This hash keys provide the means to invalidate cached objects with common cache tags.
 
-In practice, *Hashtwo* create cache invalidation patters, which can be tested and invalidated immediately just as *purges* do.
-In addition, *Hashtwo* is much more efficient than *bans* because of two reasons:
-1) looking up *hash keys* is much more efficient than traversing ban-lists, and
-2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
+   In practice, *Hashtwo* create cache invalidation patters, which can be tested and invalidated immediately just as *purges* do.
+   In addition, *Hashtwo* is much more efficient than *bans* because of two reasons:
+   1) looking up *hash keys* is much more efficient than traversing ban-lists, and
+   2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
-.. TODO for the author: Elaborate more about VMODs after I have defined them.
+   .. TODO for the author: Elaborate more about VMODs after I have defined them.
 
 VCL example using Hashtwo
 .........................
