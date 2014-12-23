@@ -97,7 +97,8 @@ VARNISHTEST
 
 	   // Second part of exercise
 	   sub vcl_backend_response {
-	       if (beresp.http.Cache-Control ~ "(no-cache|private)" || beresp.http.Pragma ~ "no-cache") {
+	       if (beresp.http.Cache-Control ~ "(no-cache|private)" || \
+	           beresp.http.Pragma ~ "no-cache") {
 	       	  set beresp.ttl = 0s;
 	       }
 	   }

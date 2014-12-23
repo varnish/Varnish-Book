@@ -15,6 +15,8 @@
 
    PageBreak oneColumn
 
+.. TODO for the author: To make a simplified version of the Varnish workflow.
+
 
 Abstract
 ========
@@ -861,6 +863,8 @@ Log Layout
    
    .. TODO for the author: Add description
 
+   TODO: To update figure resolution and add description.
+
 Reordered Log Layout
 --------------------
 
@@ -871,6 +875,8 @@ Reordered Log Layout
 .. container:: handout
 
     .. TODO for the author: Add description
+
+   TODO: To update figure resolution and add description.
 
 Transactions
 ------------
@@ -948,6 +954,8 @@ Example of Transaction Grouping with ``varnishlog``
 ---------------------------------------------------
 
 .. image:: ui/img/cache_miss_request_grouping.png
+
+TODO: To update image resolution
 
 .. container:: handout
 
@@ -2498,9 +2506,11 @@ Varnish request flow for the client worker thread
 .. TODO for the author: Remove the name of functions "cnt_*"
 .. TODO for the author: Double check that the available variables are correct and not confusing.
 
+TODO: To simplify this diagram.
+
 .. image:: ui/img/cache_req_fsm.png
    :align: center
-   :width: 80%
+   :width: 75%
 
 Varnish request flow for the backend worker thread
 --------------------------------------------------
@@ -2508,12 +2518,16 @@ Varnish request flow for the backend worker thread
 .. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
 .. TODO for the author: Double check that the available variables are correct and not confusing.
 
+TODO: To simplify this diagram.
+
 .. image:: ui/img/cache_fetch.png
    :align: center
    :width: 80%
 
 The VCL State Machine
 ---------------------
+
+.. TODO for the author: Consider to call it: The VCL finite state machine
 
 - Each request is processed separately.
 - Each request is independent from others at any given time.
@@ -3049,8 +3063,8 @@ Solution: Either use s-maxage or set ttl by file type
 	The second part checks if ``s-maxage`` caused Varnish to set a positive TTL and consider it cacheable.
 	Then, we remove the ``Set-Cookie`` header field.
 	
-Summary of VCL - Part 1
------------------------
+Summary of VCL
+--------------
 
 - VCL provides a state machine for controlling Varnish.
 - Each request is handled independently.
@@ -3614,13 +3628,8 @@ Lurker Friendly Bans
      }
 
      sub vcl_recv {
-        if (req.method == "PURGE") {
-           if (client.ip !~ purge) {
-              return(synth(403, "Not allowed"));
-           }
         # Assumes req.url is a regex. This might be a bit too simple.
         ban("obj.http.x-url ~ " + req.url);
-        }
      }
 
 Hashtwo -> Varnish Plus only!
@@ -3769,34 +3778,30 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
 
 .. bookmark!
 
-Exercise: Write a VCL for bans and purges
------------------------------------------
+Exercise: Write a VCL program using *purge* and *ban*
+-----------------------------------------------------
 
 TODO: These exercises have not been updated yet.
 
-Write a VCL implementing a `PURGE` and `BAN` request method, which issues
-``purge;`` and ``ban();`` respectively. The ban method should use the
-request headers ``req.http.X-Ban-url`` and ``req.http.X-Ban-host``
-respectively. The VCL should use smart bans.
+Write a VCL program that implements both cache invalidation mechanisms: *purge* and *ban*.
+The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker friendly bans*.
 
 Do you get any artifacts from using smart bans, and can you avoid them?
 
-To build further on this, you can also have a `REFRESH` method that fetches
-new content, using ``req.hash_always_miss``.
+To build further on this, you can also have a ``REFRESH`` HTTP method that fetches new content, using ``req.hash_always_miss``.
 
 .. container:: handout
 
-   To test this exercise you can use lwp-request. Example commands::
+   To test this exercise, you can use *httpie*. Example commands::
 
-      lwp-request -f -m PURGE http://localhost/testpage
-      lwp-request -f -m BAN -H 'X-Ban-Url: .*html$' -H 'X-Ban-Host: .*\.example\.com' http://localhost/
-      lwp-request -f -m REFRESH http://localhost/testpage
-
-   You may want to add ``-USsed`` to those commands to see the request
-   and response headers.
+     http -p hH PURGE http://localhost/testpage
+     http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' 'X-Ban-Host: .*\.example\.com'
+     http -p hH REFRESH http://localhost/testpage
 
 Solution: Write a VCL for bans and purges
 .........................................
+
+.. TODO for the author: In the book v3, PURGE was checked also in vcl_miss. Do we need it?
 
 .. include:: vcl/solution-bans-etc.vcl
    :literal:
@@ -3804,14 +3809,16 @@ Solution: Write a VCL for bans and purges
 Exercise : PURGE an article from the backend
 ............................................
 
-- Send a PURGE request to Varnish from your backend server after an article
-  is published. The publication part will be simulated.
+- Send a PURGE request to Varnish from your backend server after an article is published. 
 
-- The result should be that the article must be purged in Varnish.
+  - Simulate the article publication.
+  - The result is that the article is evicted in Varnish.
 
-Now you know that purging can be as easy as sending a specific HTTP request
-In order to help you have access to the file `article.php` which fakes an
-article. It is recommended to create a new page called `purgearticle.php`.
+.. container:: handout
+
+   Now you know that purging can be as easy as sending a specific HTTP request.
+   `article.php` which fakes an article. 
+   It is recommended to create a new page called `purgearticle.php`.
 
 Solution : PURGE an article from the backend
 ............................................
@@ -4941,6 +4948,9 @@ What is new since Varnish 3
 ---------------------------
 
 .. TODO for the author: TODO
-.. https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
+
+TODO:
+
+https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 
 PageBreak
