@@ -7,9 +7,9 @@ sub vcl_recv {
     # allow PURGE from localhost and 192.168.55...
 
     if (req.method == "PURGE") {
-    if (!client.ip ~ purge) {
+      if (!client.ip ~ purge) {
            return(synth(405,"Not allowed."));
          }
          return (purge);
-     }
+       }
 }

@@ -1,0 +1,13 @@
+State / Variables ;bereq. ;req. ;obj. ;resp. ;beresp. 
+backend ;R/W ;;;;
+backend_response ;R/W ;;;;R/W 
+backend_error ;R/W ;;;;R/W 
+recv ;;R/W ;;;
+pipe ;R/W ;;;;
+pass ;;R/W ;;;
+hash ;;R/W ;;;
+purge ;;R/W ;;;
+miss ;;R/W ;;;
+hit ;;R/W ;R ;;
+deliver ;;R/W ;R ;R/W ;
+synth ;;R/W ;;R/W ;

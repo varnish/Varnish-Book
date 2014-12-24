@@ -17,7 +17,6 @@
 
 .. TODO for the author: To make a simplified version of the Varnish workflow.
 
-
 Abstract
 ========
 
@@ -122,7 +121,7 @@ At the end of each chapter there is a **Fast Track** section, and it contains th
 
    - As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
    - As a test. If you can perform the exercises in the Fast Track, you have learned the important skills taught in the chapter.
-   - As a express lesson. If you don't have the time to complete the entire chapter, you can use the Fast Track instead.
+   - As a express lesson. If you do not have the time to complete the entire chapter, you can use the Fast Track instead.
    - As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
    - As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
 
@@ -355,7 +354,7 @@ Varnish is designed to:
 	The focus of Varnish has always been performance and flexibility.
         Varnish is designed for hardware that you buy today, not the
         hardware you bought 15 years ago. Varnish is designed to run
-        on 64-bit architectures and will scale almost proportional to
+        on 64-bit architectures and scales almost proportional to
         the number of CPU cores you have available. Though CPU-power
         is rarely a problem.
 
@@ -364,13 +363,13 @@ Varnish is designed to:
         number of threads you can run and the size of your cache. This is a
         trade-off to gain a simpler design and reduce the amount of work
         Varnish needs to do. The 3GB limit depends on the operating system (OS)
-        kernel. The theoretical maximum is 4GB, but your OS will reserve
+        kernel. The theoretical maximum is 4GB, but your OS reserves
         some of that for the kernel. This is called the user/kernel  memory split.
 
 	.. work with the kernel
         
 	Varnish does not keep track of whether your cache is on disk or in
-        memory. Instead, Varnish will request a large chunk of memory and
+        memory. Instead, Varnish requests a large chunk of memory and
         leave it to the operating system to figure out where that memory
         really is. The operating system can generally do a better job than
         a user-space program.
@@ -630,7 +629,7 @@ It is safe and fast.
 	Changes to cache time-to-live (TTL), for instance, take effect only after the current cached objects expire.
 	In this example, the value of the TTL parameter is only applicable to caches fetched after the TTL modification.
 
-	Issuing ``param.show <parameter>`` will give you a description of the parameter.
+	``param.show <parameter>`` outputs a description of ``parameter``.
 	The description includes when and how modifications takes effect, and the default and current value of the parameter.
 
 Command line configuration
@@ -665,8 +664,8 @@ Relevant options for the course are:
 
         For both ``-T`` and ``-a``, you do not need to specify an IP, but
         can use ``:80`` to tell Varnish to listen to port 80 on all IPs
-        available. Make sure you don't forget the colon, as ``-a 80`` will
-        tell Varnish to listen to the IP with the decimal-representation
+        available. Make sure you do not forget the colon, as ``-a 80``
+        tells Varnish to listen to the IP with the decimal-representation
         "80", which is almost certainly not what you want. This is a result
         of the underlying function that accept this kind of syntax.
 
@@ -705,26 +704,12 @@ Configuration files
 Most Varnish-installations use two configuration-files. 
 One of them is used by the operating system to start Varnish, and the other contains your VCL.
 
-+------------------------------+------------------------------------------------+
-| File                         | Usage                                          |
-+==============================+================================================+
-| ``/etc/default/varnish``     | Used for parameters and command line           |
-|                              | arguments.                                     |
-|                              | You specify the location of your VCL file here.|
-|                              | When you change this file, you                 |
-|                              | need to run ``service varnish restart``        |
-|                              | for the changes to take effect.                |
-|                              | On Red Hat-based OS's, the file location       |
-|                              | is ``/etc/sysconfig/varnish``.                 |
-+------------------------------+------------------------------------------------+
-| ``/etc/varnish/default.vcl`` | Default VCL file location. You can change this |
-|                              | location by editing ``/etc/default/varnish``.  |
-|                              | The VCL file contains your                     |
-|                              | VCL and backend definitions. After             |
-|                              | changing this file, you can run                |
-|                              | ``service varnish reload``, which does         |
-|                              | not restart `varnishd`.                        |
-+------------------------------+------------------------------------------------+
+.. csv-table:: Varnish Configuration Files
+   :name: configuration_files
+   :delim: ;
+   :widths: 35, 65
+   :header-rows: 1
+   :file: tables/configuration_files.csv
 
 .. container:: handout
 
@@ -733,31 +718,28 @@ One of them is used by the operating system to start Varnish, and the other cont
 
    .. note::
 
-      If you want to know how the ``service varnish``-commands work, you
-      can always look at the script that runs behind the scenes. If you are
-      used to UNIX-like systems, it will come as no surprise that the
-      script can be found in ``/etc/init.d/varnish``.
+      If you want to know how the ``service varnish``-commands work, you can always look at the script that runs behind the scenes. 
+      The script is in ``/etc/init.d/varnish``.
 
    .. warning::
 
       The `varnish` script-configuration (located under `/etc/default/`
       or `/etc/sysconfig/`) is directly sourced as a shell script. Pay close
       attention to any backslashes (\\) and quotation marks that might move
-      around as you edit the DAEMON_OPTS environmental variable.
+      around as you edit the ``DAEMON_OPTS`` environmental variable.
 
 Defining a backend in VCL
 -------------------------
 
-/etc/varnish/default.vcl
+**/etc/varnish/default.vcl**
 
 .. include:: vcl/backend.vcl
    :literal:
 
 .. container:: handout
 
-   The above example defines a backend named ``default``.
-   The name `default` is not special.
-   The real default backend that Varnish will use is the first backend you specify.
+   The above example defines a backend named ``default``, where the name `default` is not special.
+   Varnish uses the first backend you specify as default.
    You can specify many backends at the same time, but for now, we will only specify one to get started.
 
 Exercise: Use the administration interface to learn, review and set Varnish parameters
@@ -801,7 +783,7 @@ In this chapter you will learn about:
    .. logs everything
 
    Varnish logs all its information to a shared memory log which is overwritten repeatedly every time it's filled up.
-   The downside is that you don't have historic data unless you set it up yourself, which is not covered in this chapter.
+   The downside is that you do not have historic data unless you set it up yourself, which is not covered in this chapter.
    The upside is that you get an abundance of information when you need it.
 
    .. Utilities to inspect the log
@@ -1119,27 +1101,12 @@ TOFIX: To resize the font of this example.
    The hitrate average ``avg(n)`` show data for the last 10, 100, and 438 seconds.
    The average hitrate is 0.9967 (or 99.67%) for the last 10 seconds, 0.5686 for the last 100 seconds and 0.3870 for the last 438 seconds.
 
-   .. TODO for author: update the reference of Table ##
-   
-   Table ## describes the columns displayed in the center area.
-
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Column          | Description                                                                                                            |
-   +=================+========================================================================================================================+
-   | Name            | The name of the counter                                                                                                |
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Current         | The current value of the counter.                                                                                      |
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Change          | The average per second change over the last update interval.                                                           |
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Average         | The average value of this counter over the runtime of the Varnish daemon, or a period if the counter can't be averaged.|
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Avg_10          | The moving average over the last 10 update intervals.                                                                  |
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Avg_100         | The moving average over the last 100 update intervals.                                                                 |
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
-   | Avg_1000        | The moving average over the last 1000 update intervals.                                                                |
-   +-----------------+------------------------------------------------------------------------------------------------------------------------+
+   .. csv-table:: Columns displayed in central area of ``varnishstat``
+      :name: columns_central_area
+      :delim: ;
+      :widths: 20, 80
+      :header-rows: 1
+      :file: tables/columns_central_area.csv
 
    In the above example Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
    Some counters do not have "per interval" data.
@@ -1155,26 +1122,12 @@ TOFIX: To resize the font of this example.
 
    Some counters to note are:
 
-+-----------------------+------------------------------------------------------------------------------------------------------------------+
-|        Counter        |  Description                                                                                                     |
-+=======================+==================================================================================================================+
-| MAIN.threads_limited  | Counts how many times ``varnishd`` hits the maximum allowed number of threads.                                   |
-|                       | The maximum number of Varnish threads is given by the parameter `thread_pool_max`.                               |
-|                       | Issue the command ``varnishadm param.show thread_pool_max`` to see this parameter.                               |
-+-----------------------+------------------------------------------------------------------------------------------------------------------+
-| MAIN.threads_failed   | Increases every time ``pthread_create()`` fails.                                                                 |
-|                       | You can avoid this situation by tuning the maximum number of processes available with the ``ulimit -u`` command. |
-|                       | You may also look at the thread-max Linux parameter in ``/proc/sys/kernel/threads-max``.                         |
-+-----------------------+------------------------------------------------------------------------------------------------------------------+
-| MAIN.thread_queue_len | Shows the current number of sessions waiting for a thread.                                                       |
-|                       | This counter is first introduced in Varnish 4.                                                                   |
-+-----------------------+------------------------------------------------------------------------------------------------------------------+
-| MAIN.sess_queued      | Contains the number of sessions that were queued because there were no available threads immediately.            |
-|                       | Consider to increase the ``thread_pool_min`` parameter.                                                          |
-+-----------------------+------------------------------------------------------------------------------------------------------------------+
-| MAIN.sess_dropped     | Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length.            |
-|                       | You may consider to increase the ``thread_queue_limit`` Varnish parameter as a solution to drop less sessions.   |
-+-----------------------+------------------------------------------------------------------------------------------------------------------+
+   .. csv-table:: Notable counters in ``varnishstat``
+      :name: notable_counters
+      :delim: ;
+      :widths: 20, 80
+      :header-rows: 1
+      :file: tables/notable_counters.csv
 
    .. tip::
       Remember that Varnish provides many on-line reference manuals.
@@ -1467,7 +1420,7 @@ Tunable parameters
 
         param.show -l
 
-- Don't fall for the copy/paste tips
+- Do not fall for the copy/paste tips
 - Test the parameters in CLI, then store them in the configuration file
 
 .. container:: handout
@@ -1486,7 +1439,7 @@ Tunable parameters
 
         The general advice with regards to parameters is to keep it simple. 
 	Most of the defaults are optimal.
-	If you don't have a very specific need, it's generally better to use safe defaults.
+	If you do not have a very specific need, it is generally better to use the default values.
 
         A few hidden debug commands exist in the CLI, which can be revealed with ``help -d``. 
 	These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
@@ -1554,7 +1507,7 @@ Install Varnish Tuner
 
 Below are the installation instructions for getting the tuner from our repositories.
 Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
-If you don't know them, please send an email to our support email to recover them. 
+If you do not know them, please send an email to our support email to recover them. 
 
 **Ubuntu Trusty 14.04**
 
@@ -1600,25 +1553,14 @@ Threading model
 
    The child process runs multiple threads in two thread pools.
    The threads of these pools are called worker threads.
-   The following table lists some relevant threads, to give you an idea of what goes on.
-
-   +---------------+---------------------------+------------------------+
-   | Thread-name   | Amount of threads         | Task                   |
-   +===============+===========================+========================+
-   | cache-worker  | One per active connection | Handle requests        |
-   +---------------+---------------------------+------------------------+
-   | cache-main    | One                       | Startup                |
-   +---------------+---------------------------+------------------------+
-   | ban lurker    | One                       | Clean bans             |
-   +---------------+---------------------------+------------------------+
-   | acceptor      | One                       | Accept new connections |
-   +---------------+---------------------------+------------------------+
-   | epoll/kqueue  | Configurable, default: 2  | Manage thread pools    |
-   +---------------+---------------------------+------------------------+
-   | expire        | One                       | Remove old content     |
-   +---------------+---------------------------+------------------------+
-   | backend poll  | One per backend poll      | Health checks          |
-   +---------------+---------------------------+------------------------+
+   The following table lists some relevant threads.
+   
+   .. csv-table:: Relevant threads in Varnish
+      :name: relevant_threads
+      :delim: ;
+      :widths: 20, 40, 40
+      :header-rows: 1
+      :file: tables/relevant_threads.csv
 
    For tuning Varnish, you need to think about your expected traffic. 
    The most important thread setting is the number of cache-worker threads.
@@ -1656,18 +1598,12 @@ Varnish will use one thread for each session and the number of threads you let V
 
 The available parameters directly related to threads are:
 
-=========================  ====================================
-Parameter                  Default value
-=========================  ====================================
-thread_pool_add_delay      |def_thread_pool_add_delay|
-thread_pool_fail_delay     |def_thread_pool_fail_delay|
-thread_pool_max            |def_thread_pool_max|
-thread_pool_min            |def_thread_pool_min|
-thread_pool_stack          |def_thread_pool_stack|
-thread_pool_timeout        |def_thread_pool_timeout|
-thread_pools               |def_thread_pools|
-thread_stats_rate          |def_thread_stats_rate|
-=========================  ====================================
+.. csv-table:: Thread parameters
+      :name: thread_parameters
+      :delim: ;
+      :widths: 50, 50
+      :header-rows: 1
+      :file: tables/thread_parameters.csv
 
 Among these, ``thread_pool_min`` and ``thread_pool_max`` are the most important parameters.
 Values of these parameters are per thread pool.
@@ -1757,17 +1693,12 @@ The ``workspace_client`` and ``workspace_backend`` are parameters that could sti
 Timers
 ------
 
-======================= =========================== ============================================= ===========
-Parameter               Default                     Description                                   Scope
-======================= =========================== ============================================= ===========
-connect_timeout         |def_connect_timeout|       OS/network latency                            Backend
-first_byte_timeout      |def_first_byte_timeout|    Web page generation?                           Backend
-between_bytes_timeout   |def_between_bytes_timeout| Hiccoughs?                                    Backend
-send_timeout            |def_send_timeout|          Client-in-tunnel                              Client
-timeout_idle            |def_timeout_idle|          keep-alive timeout                            Client
-timeout_req             |def_timeout_req|           deadline to receive a complete request header Client
-cli_timeout             |def_cli_timeout|           Management thread->child                      Management
-======================= =========================== ============================================= ===========
+.. csv-table:: Timers
+      :name: timers
+      :delim: ;
+      :widths: 20,20,40,20
+      :header-rows: 1
+      :file: tables/timers.csv
 
 .. container:: handout
 
@@ -1802,7 +1733,7 @@ Exercise: Tune first_byte_timeout
 
  - See, analyze and understand how counters in ``varnishstat`` and parameters in ``varnishlog`` change.
 
-#. Create a small CGI script in /usr/lib/cgi-bin/test.cgi containing::
+#. Create a small CGI script under ``/usr/lib/cgi-bin/`` containing::
         #! /bin/sh
         sleep 5
         echo "Content-type: text/plain"
@@ -2648,7 +2579,7 @@ Actions
    
    .. warning::
 
-      Restarts are likely to cause a hit against the backend, so don't increase the ``max_restarts`` thoughtlessly.
+      Restarts are likely to cause a hit against the backend, so do not increase the ``max_restarts`` thoughtlessly.
 
 VCL - ``vcl_recv``
 ------------------
@@ -3118,35 +3049,14 @@ VCL built-in subroutines
 Variable availability in VCL
 ----------------------------
 
-Table # - Availability of variables in different states of the Varnish state machine
+Table variable_availability_ - Availability of variables in different states of the Varnish state machine.
 
-+------------------+------------+------------+------------+------------+------------+
-| State / Variables| bereq.     | req.       | obj.       | resp.      |  beresp.   |
-+==================+============+============+============+============+============+
-| backend          | R/W        |            |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| backend_response | R/W        |            |            |            | R/W        |
-+------------------+------------+------------+------------+------------+------------+
-| backend_error    | R/W        |            |            |            | R/W        |
-+------------------+------------+------------+------------+------------+------------+
-| recv             |            | R/W        |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| pipe             | R/W        |            |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| pass             |            | R/W        |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| hash             |            | R/W        |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| purge            |            | R/W        |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| miss             |            | R/W        |            |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| hit              |            | R/W        | R          |            |            |
-+------------------+------------+------------+------------+------------+------------+
-| deliver          |            | R/W        | R          | R/W        |            |
-+------------------+------------+------------+------------+------------+------------+
-| synth            |            | R/W        |            | R/W        |            |
-+------------------+------------+------------+------------+------------+------------+
+.. csv-table:: Variable Availability
+   :name: variable_availability
+   :delim: ;
+   :widths: 25,15,15,15,15,15
+   :header-rows: 1
+   :file: tables/variable_availability.csv
 
 The *State* column lists the different states in a request work-flow.
 States are handled by subroutines, which have a leading ``vcl_`` prefix name.
@@ -3776,8 +3686,6 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
       Purge and Hashtwo work very similar.
       The main difference is that they have they act on different hash keys.
 
-.. bookmark!
-
 Exercise: Write a VCL program using *purge* and *ban*
 -----------------------------------------------------
 
@@ -3795,13 +3703,15 @@ To build further on this, you can also have a ``REFRESH`` HTTP method that fetch
    To test this exercise, you can use *httpie*. Example commands::
 
      http -p hH PURGE http://localhost/testpage
-     http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' 'X-Ban-Host: .*\.example\.com'
+     http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' \
+     'X-Ban-Host: .*\.example\.com'
      http -p hH REFRESH http://localhost/testpage
 
 Solution: Write a VCL for bans and purges
 .........................................
 
-.. TODO for the author: In the book v3, PURGE was checked also in vcl_miss. Do we need it?
+.. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
+.. This is not possible in v4. Should we comment about it?
 
 .. include:: vcl/solution-bans-etc.vcl
    :literal:
@@ -3817,16 +3727,19 @@ Exercise : PURGE an article from the backend
 .. container:: handout
 
    Now you know that purging can be as easy as sending a specific HTTP request.
-   `article.php` which fakes an article. 
-   It is recommended to create a new page called `purgearticle.php`.
+   You are provided with `article.php`, which fakes an article.
+   It is recommended to create a separate php file to implement purging.
+
+   **article.php**
+
+   .. include:: material/webdev/article.php
+      :literal:
+
+   .. tip::
+      Remember to place your php files under ``/var/www/html/``.
 
 Solution : PURGE an article from the backend
 ............................................
-
-**article.php**
-
-.. include:: material/webdev/article.php
-   :literal:
 
 .. raw:: pdf
 
@@ -3841,11 +3754,16 @@ Solution : PURGE an article from the backend
 
    PageBreak
 
-**default.vcl**
+**solution-purge-from-backend.vcl**
+
+.. TODO for the author: in v3, purge was called in vcl_hit and vcl_miss.
+.. purge is not available in those subroutines in v4.
+.. should we mention something about it?
 
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
 
+.. bookmark
 
 Saving a request
 ================
@@ -3944,7 +3862,7 @@ Core grace mechanisms
    .. tip::
 
       You can use ``set req.grace = 0s;`` to ensure that editorial staff
-      doesn't get older objects (assuming they also don't hit the cache).
+      doesn't get older objects (assuming they also do not hit the cache).
       The obvious downside of this is that you disable all grace
       functionality for these users, regardless of the reason.
 
@@ -3974,7 +3892,7 @@ When can grace happen
 Exercise: Grace
 ---------------
 
-1. Reuse the CGI script in /usr/lib/cgi-bin/test.cgi, but increase the
+1. Reuse the CGI script in ``/usr/lib/cgi-bin/test.cgi``, but increase the
    sleep time and allow it to cache::
 
         #! /bin/sh
@@ -4484,7 +4402,7 @@ Best practices for cookies
 - Once you have a URL scheme that works, add the req.http.cookie to the
   cache hash in `vcl_hash`: ``hash_data(req.http.cookie);``.
 - Never cache a `Set-Cookie` header. Either remove the header before
-  caching or don't cache the object at all.
+  caching or do not cache the object at all.
 - Avoid using ``return (deliver);`` more than once in `vcl_fetch`. Instead,
   finish up with something similar to::
 
@@ -4492,7 +4410,7 @@ Best practices for cookies
              unset beresp.http.set-cookie;
      }
 
-  This will ensure that all cached pages are stripped of set-cookie.
+  This ensures that all cached pages are stripped of set-cookie.
 
 .. container:: handout
 

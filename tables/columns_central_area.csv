@@ -1,0 +1,8 @@
+Column ;Description 
+Name ;The name of the counter 
+Current ;The current value of the counter. 
+Change ;The average per second change over the last update interval. 
+Average ;The average value of this counter over the runtime of the Varnish daemon, or a period if the counter can't be averaged. 
+Avg_10 ;The moving average over the last 10 update intervals. 
+Avg_100 ;The moving average over the last 100 update intervals. 
+Avg_1000 ;The moving average over the last 1000 update intervals. 

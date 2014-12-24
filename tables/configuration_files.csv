@@ -1,0 +1,3 @@
+File ;Usage 
+``/etc/default/varnish``;Used for parameters and command line arguments. You specify the location of your VCL file here. When you change this file, you need to run ``service varnish restart`` for the changes to take effect. On Red Hat-based OS's, the file location is ``/etc/sysconfig/varnish``. 
+``/etc/varnish/default.vcl``;Default VCL file location. You can change this location by editing ``/etc/default/varnish``. The VCL file contains your VCL and backend definitions. After changing this file, you can run ``service varnish reload``, which does not restart `varnishd`. 
