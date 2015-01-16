@@ -701,7 +701,7 @@ Relevant options for the course are:
 Configuration files
 -------------------
 
-Most Varnish-installations use two configuration-files. 
+Most Varnish-installations use two configuration-files.
 One of them is used by the operating system to start Varnish, and the other contains your VCL.
 
 .. csv-table:: Varnish Configuration Files
@@ -1777,8 +1777,6 @@ Does ``thread_pool_timeout`` affect already running threads?
 HTTP
 ====
 
-.. TODO for the author: Since this chapter is (only) a summary of the important parts of HTTP for Varnish, it will be updated at a later stage.
-
 TODO: This chapter has not been updated yet.
 
 *This chapter is for the webdeveloper course only*
@@ -2561,25 +2559,23 @@ The following built-in functions are available.
 Actions
 .......
    
-   .. return
-
    ``return()`` is a built-in function that ends execution of the current VCL subroutine, and continue to the next ``action`` step in the request handling state machine.
-   Return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
+   Legal return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
 
    An special *action* is ``restart``.
    This action restarts the processing of a whole transaction.
-   Nevertheless, changes to the ``req.*`` variables are retained.
+   Therefore, ``return (restart)`` offers a way to re-run the VCL logic, re-starting at ``vcl_recv``.
 
-   Therefore, ``return(restart)`` offers a way to re-run the VCL logic, starting at ``vcl_recv``.
    All changes made up until that point are kept and the ``req.restarts`` variable is incremented.
-   The ``max_restarts`` parameter defines the maximum number of restarts that can be issued in VCL before an error is triggered, thus avoiding infinite looping.
+   In order to avoid infinite loops, the ``max_restarts`` parameter defines the maximum number of restarts that can be issued in VCL before an error is triggered.
 
    .. note::
-      In Varnish 3, the action `purge` is a function, but not an action.
-   
+      Varnish 4 defines `purge` as an action.
+      This is contrary to Varnish 3, where `purge` is a function.
+
    .. warning::
 
-      Restarts are likely to cause a hit against the backend, so do not increase the ``max_restarts`` thoughtlessly.
+      Restarts are likely to cause a hit against the backend, so do not increase ``max_restarts`` thoughtlessly.
 
 VCL - ``vcl_recv``
 ------------------
@@ -3030,28 +3026,40 @@ VCL built-in subroutines
 .. TODO for the author: double check that the subroutines list is congruent with the chapter.
 .. TODO for the author: consider to add ``vcl_init``, and ``vcl_init``.
 
-- Start off with a cheat-sheet for variables
-- Go through the the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
+- Start off with a cheat-sheet for available variables and legal returns.
+- Go through the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
 - Add some "features" with VCL.
 
 .. container:: handout
 
-   This chapter covers VCL subroutines where you customize the behavior of Varnish.
-   This chapter does not define caching policies.
+   This chapter covers the VCL subroutines where you customize the behavior of Varnish.
+   However, this chapter does not define caching policies.
 
-   These subroutines can be used to: add custom headers, change the appearance
-   of the Varnish error message, add HTTP redirect features in Varnish,
-   purge content, and define what parts of a cached object is unique.
+   VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
 
    After this chapter, you should know what all the VCL subroutines can be used for.
    You should also be ready to dive into more advanced features of Varnish and VCL.
 
-Variable availability in VCL
-----------------------------
+Varnish built-in subroutines and their legal returns
+----------------------------------------------------
+The table below shows the VCL built-in subroutines and their legal returns.
 
-Table variable_availability_ - Availability of variables in different states of the Varnish state machine.
+.. TODO for the editor: scale or change the font size of this table.
 
-.. csv-table:: Variable Availability
+.. csv-table:: VCL built-in subroutines and their legal returns.
+   :name: subroutines_legal_returns
+   :delim: ,
+   :header-rows: 1
+   :file: tables/subroutine_legal_returns.csv
+
+.. Acknowledgment: Table layout by MatouÅ¡ Jan Fialka.
+
+Variable availability in VCL subroutines
+----------------------------------------
+
+The table below shows the availability of variables in different states of the Varnish finite state machine.
+
+.. csv-table:: Variable Availability in VCL subroutines
    :name: variable_availability
    :delim: ;
    :widths: 25,15,15,15,15,15
@@ -3689,8 +3697,6 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
 Exercise: Write a VCL program using *purge* and *ban*
 -----------------------------------------------------
 
-TODO: These exercises have not been updated yet.
-
 Write a VCL program that implements both cache invalidation mechanisms: *purge* and *ban*.
 The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker friendly bans*.
 
@@ -3768,7 +3774,8 @@ Solution : PURGE an article from the backend
 Saving a request
 ================
 
-TODO: This chapter has not been updated yet.
+TODO: To update this chapter.
+In the meantime, please refer to https://www.varnish-software.com/blog/grace-varnish-4-stale-while-revalidate-semantics-varnish.
 
 *This chapter is for the system administration course only*
 
@@ -3781,26 +3788,20 @@ TODO: This chapter has not been updated yet.
 
 .. container:: handout
 
-   Varnish has several mechanisms for recovering from problematic
-   situations. It can retry a request to a different server, it can perform
-   health checks, use an otherwise expired object and more.
-
-   This chapter discusses how these features interact with each other and
-   how you can combine them to make your Varnish setup far more robust.
+   Varnish has several mechanisms for recovering from problematic situations. 
+   It can retry a request to a different server, it can perform health checks, use an otherwise expired object and more.
+   This chapter discusses how these features interact with each other and how you can combine them to make your Varnish setup far more robust.
 
 Core grace mechanisms
 ---------------------
 
-- A `graced` object is an object that has expired, but is still kept in
-  cache
-- `Grace mode` is when Varnish uses a `graced` object
+- A `graced` object is an object that has expired, but is still kept in cache.
+- `Grace mode` is when Varnish uses a `graced` object.
 - There is more than one way Varnish can end up using a graced object.
-- ``req.grace`` defines how long overdue an object can be for Varnish to
-  still consider it for grace mode.
-- ``beresp.grace`` defines how long past the ``beresp.ttl``-time Varnish
-  will keep an object
-- ``req.grace`` is often modified in ``vcl_recv`` based on the state of the
-  backend.
+- ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
+
+- ``req.grace`` defines how long overdue an object can be for Varnish to still consider it for grace mode.
+- ``req.grace`` is often modified in ``vcl_recv`` based on the state of the backend.
 
 .. container:: handout
 
