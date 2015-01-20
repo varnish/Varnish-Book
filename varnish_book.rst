@@ -1715,7 +1715,7 @@ Timers
 
         .. warning::
 
-	   If ``connect_timeout`` is set too high, it will not let Varnish handle errors gracefully.
+	   If ``connect_timeout`` is set too high, it does not let Varnish handle errors gracefully.
 
 	.. note::
 
@@ -3769,13 +3769,10 @@ Solution : PURGE an article from the backend
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
 
-.. bookmark
-
 Saving a request
 ================
 
-TODO: To update this chapter.
-In the meantime, please refer to https://www.varnish-software.com/blog/grace-varnish-4-stale-while-revalidate-semantics-varnish.
+The update of this chapter is work in progress.
 
 *This chapter is for the system administration course only*
 
@@ -3792,49 +3789,43 @@ In the meantime, please refer to https://www.varnish-software.com/blog/grace-var
    It can retry a request to a different server, it can perform health checks, use an otherwise expired object and more.
    This chapter discusses how these features interact with each other and how you can combine them to make your Varnish setup far more robust.
 
+
+
 Core grace mechanisms
 ---------------------
 
 - A `graced` object is an object that has expired, but is still kept in cache.
 - `Grace mode` is when Varnish uses a `graced` object.
-- There is more than one way Varnish can end up using a graced object.
+- `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
+- There is more than one way Varnish can use a graced object.
 - ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
-
-- ``req.grace`` defines how long overdue an object can be for Varnish to still consider it for grace mode.
-- ``req.grace`` is often modified in ``vcl_recv`` based on the state of the backend.
 
 .. container:: handout
 
-   When Varnish is in grace mode, it uses an object that has already
-   expired as far as the TTL is concerned. There are several reasons this
-   might happen, one of them being if a backend is marked as bad by a
-   health probe.
+   When Varnish is in grace mode, Varnish is capable of delivering a stale object and issue an asynchronous refresh request.
+   When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
+   This procedure is also known as ``stale-while-revalidate``, however, it does not fully comply with the HTTP Cache-Control extension of RFC5861.
 
-  For Varnish to be able to use a graced object, two things need to
-   happen:
+   A request can be set due to several reasons, one of them is when a backend health probe returns ``FALSE``.
+   For Varnish to be able to use a graced object, there are two requirements:
 
-   - The object needs to still be kept around. This is affected by
-     ``beresp.grace`` in ``vcl_fetch``.
-   - The VCL has to allow Varnish to use an object as overdue as the one
-     kept around. This is affected by ``req.grace`` in ``vcl_recv``.
+   - The object needs to be stored.
+     This is affected by ``obj.grace``, which is assigned from the ``stale-while-revalidate`` HTTP Cache-Control field.
 
-   When setting up grace, you will need to modify both ``vcl_recv`` and
-   ``vcl_fetch`` to use grace effectively. The typical way to use grace is
-   to store an object for several hours past its TTL, but only use it a few
-   seconds after the TTL, except if the backend is sick. We will look more
-   at health checks in a moment, but for now, the following VCL can
-   illustrate a normal setup:
+   .. bookmark
+
+   The typical way to use grace is to store an object for several hours past its TTL, but only use it a few seconds after the TTL, except if the backend is sick. 
+   We will look more at health checks in a moment, but for now, the following VCL can illustrate a normal setup:
 
    .. include:: vcl/grace.vcl
       :literal:
 
-``req.grace`` and ``beresp.grace``
-----------------------------------
+``stale-while-revalidate``, ``obj.grace`` and ``beresp.grace``
+--------------------------------------------------------------
 
 ::
 
         set beresp.ttl=1m;
-        set req.grace = 30s;
         set beresp.grace = 1h;
 
 - 50s: Normal delivery
