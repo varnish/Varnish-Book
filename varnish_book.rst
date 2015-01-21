@@ -3769,151 +3769,138 @@ Solution : PURGE an article from the backend
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
 
-Saving a request
-================
-
-The update of this chapter is work in progress.
+Request handling when backends get sick
+========================================
 
 *This chapter is for the system administration course only*
 
-- Grace and grace mode
+- Directors: loadable VMOD!
 - Health checks
-- Saint mode
-- ``return (restart);``
-- Directors
+- ``return (retry);``
+- Grace mode
 - Using ACLs
 
 .. container:: handout
 
-   Varnish has several mechanisms for recovering from problematic situations. 
-   It can retry a request to a different server, it can perform health checks, use an otherwise expired object and more.
+   Varnish has several mechanisms to handle backends in problematic situations.
+   Varnish can retry a request to a different server, can perform health checks, use an otherwise expired object, and more.
    This chapter discusses how these features interact with each other and how you can combine them to make your Varnish setup far more robust.
 
+Directors
+---------
 
+- Contains 1 or more backends
+- All backends must be known
+- Selection methods: random, round-robin, hash, client and DNS
 
-Core grace mechanisms
----------------------
+.. TODO for the author: Check this blog http://kly.no/posts/2010_08_02__Varnish_backend_selection_through_DNS__.html
 
-- A `graced` object is an object that has expired, but is still kept in cache.
-- `Grace mode` is when Varnish uses a `graced` object.
-- `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
-- There is more than one way Varnish can use a graced object.
-- ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
+.. include:: vcl/director_example.vcl
+   :literal:
 
 .. container:: handout
 
-   When Varnish is in grace mode, Varnish is capable of delivering a stale object and issue an asynchronous refresh request.
-   When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
-   This procedure is also known as ``stale-while-revalidate``, however, it does not fully comply with the HTTP Cache-Control extension of RFC5861.
+   Varnish can have several backends defined, and it can set them together into clusters for load balancing purposes.
+   Backend directors, usually just called directors, provide logical groupings of similar web servers.
+   There are several different directors available, but they all share the same basic properties.
 
-   A request can be set due to several reasons, one of them is when a backend health probe returns ``FALSE``.
-   For Varnish to be able to use a graced object, there are two requirements:
+   First of all, anywhere in VCL where you can refer to a backend, you can also refer to a director.
 
-   - The object needs to be stored.
-     This is affected by ``obj.grace``, which is assigned from the ``stale-while-revalidate`` HTTP Cache-Control field.
-
-   .. bookmark
-
-   The typical way to use grace is to store an object for several hours past its TTL, but only use it a few seconds after the TTL, except if the backend is sick. 
-   We will look more at health checks in a moment, but for now, the following VCL can illustrate a normal setup:
-
-   .. include:: vcl/grace.vcl
+   .. include: vcl/director_references.vcl
       :literal:
 
-``stale-while-revalidate``, ``obj.grace`` and ``beresp.grace``
---------------------------------------------------------------
+   Directors allow you to re-use previously defined backends, or define "anonymous" backends within the director definition. 
+   If a backend is defined explicitly and referred to or from a director, Varnish records data such as number of connections. 
+   The definition of anonymous backends within a director also yields all the normal properties of a backend.
 
-::
+   And a director must have a name.
+   The simplest directors available are the round-robin director and the random director. 
 
-        set beresp.ttl=1m;
-        set beresp.grace = 1h;
+   A round-robin director takes only the backends as arguments.
+   This director type picks the first backend for the first request, then the second backend for the second request, and so on.
+   Once the last backend have been selected, backends are selected again from the top. 
+   If a health probe has marked a backend as sick, the round-robin director skip it.
 
-- 50s: Normal delivery
-- 62s: Normal cache miss, but grace mode possible
-- 80s: Normal cache miss, but grace mode possible
-- 92s: Normal cache miss, grace mode possible but not allowed
-- 3660s: (1h+1m) Object is removed from cache
+   The random director picks a backend randomly.
+   It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the traffic to the backends. 
+   It also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend and tries to find a healthy server.
+   .. TODO for the author: double check the purpose of the ``retries`` counter.
 
-.. container:: handout
+   .. include: vcl/random_example.vcl
+     :literal:
 
-   In this time-line example, everything except the first normal delivery
-   is assuming the object is never refreshed. If a cache miss happens at
-   62s and the object is refreshed, then 18 seconds later (80s) a request
-   for the same resource would of course just hit the new 18 second old
-   object.
+   The director of the above example selects ``localhost`` twice more than ``example.com``.
 
-   The flip-side to this time line is if you set ``req.grace`` to 1h but
-   leave ``beresp.grace`` to 30s instead. Even if grace is allowed for up
-   to an hour, it's not possible since the object will be removed long
-   before that.
+   .. note::
 
-   The lesson to learn from this is simple: There is no point in setting
-   ``req.grace`` to a value higher than ``beresp.grace``, but there could
-   be a point in setting ``beresp.grace`` higher than ``req.grace``.
+      Health probes are explain in the Health Probes Chapter.
 
-   .. tip::
+   .. note::
 
-      You can use ``set req.grace = 0s;`` to ensure that editorial staff
-      doesn't get older objects (assuming they also do not hit the cache).
-      The obvious downside of this is that you disable all grace
-      functionality for these users, regardless of the reason.
+      Directors are devined as loadable VMODs in Varnish 4.
+      This is different to Varnish 3.
+      
+.. TODO for the author: Update reference of Health Probes Chapter.
 
-When can grace happen
----------------------
+   .. bookmark: TODO: Add client.identity in the explanation of update from Varnish 3 to Varnish 4.
 
-- A request is already pending for some specific content (deliver old
-  content as long as fetching new content is in progress).
-- No healthy backend is available
-- You need health probes or saint mode for Varnish to consider the backend
-  as unhealthy.
 
-.. container:: handout
+Hash directors
+..............
 
-   The original purpose of grace mode was to avoid piling up clients
-   whenever a popular object expired from cache. So as long as a client is
-   waiting for the new content, Varnish will prefer delivering graced
-   objects over queuing up more clients to wait for this new content.
+- Random director:
+ 
+  - Hash directors
 
-   This is why setting ``req.grace`` to a low value is a good performance
-   gain. It ensures that no client will get *too* old content, but as long
-   as Varnish has a copy of the content and is in the progress of updating
-   it, the old content will be sent. You can disable this entirely by
-   setting ``req.grace=0s``, and still use graced objects for unhealthy
-   backends.
+  .. class:: handout
 
-Exercise: Grace
----------------
+  The *hash directors* is special variants of the random director.
+  The hash director uses the hashed requested URL to select a backend.
+  This means that the same URL request is always handled by the same web server.
+  The following VCL code shows how to initialize a hash director.
 
-1. Reuse the CGI script in ``/usr/lib/cgi-bin/test.cgi``, but increase the
-   sleep time and allow it to cache::
+  .. include: vcl/director_hash_example.vcl
+    :literal:
 
-        #! /bin/sh
-        sleep 15
-        echo "Content-type: text/plain"
-        echo "Cache-control: max-age=20"
-        echo
-        echo "Hello world"
-	date
+  *Hash directors* select the next backend available if the preferred one is unhealthy.
+  You will learn more about health probes for backends in the Health Probles Chapter.
 
-2. Make it executable
-3. Test that it works outside of Varnish
-4. Set up ``beresp.grace`` and ``req.grace`` to 10s in VCL
-5. Fire up a single request to warm the cache, it will take 15 seconds.
-6. Fire up two requests roughly in parallel
-7. Repeat until you can see how grace affects multiple clients
+  .. TODO for the author: Update reference of Health Probes Chapter.
 
-.. container:: handout
+.. TODO for the author: what is "multi-tiered caches".
+..  Hash directors are more relevant for multi-tiered caches.
 
-   With this exercise, you should see that as long as the content is within
-   the regular TTL, there is no difference. Once the TTL expires, the first
-   client that asks for the content should be stuck for 15 seconds, while
-   the second client should get the graced copy.
+  .. note::
 
-   Also try setting ``req.grace`` to 0s and 10s while leaving
-   ``beresp.grace`` intact, then do the opposite.
+     In Varnish 3 there is the concept of *client director*.
+     This director type is a special case of the *hash director*, therefore it has been removed.
 
-   Bonus: What happens to the `Age`-header when it takes 15 seconds to
-   generate a page?
+The DNS director
+................
+
+The DNS director uses the Host header sent by a client to find a backend
+among a list of possibles.  This allows dynamic scaling and changing of web
+server pools without modifying Varnish' configuration, but instead just
+waiting for Varnish to pick up on the DNS changes.
+
+As the DNS director is perhaps the most complex, some extra
+explanation might be useful. Consider the following example VCL.
+
+.. include:: vcl/dns_director.vcl
+   :literal:
+
+It defines 255 backends, all in the 192.168.0.0/24 range. The DNS director
+can also use the traditional (non-list) format of defining backends, and
+most options are supported in .list, as long as they are specified before
+the relevant backends.
+
+The TTL specified is for the DNS cache. In our example, the `mydirector`
+director will cache the DNS lookups for 5 minutes. When a client asks for
+``www.example.org``, Varnish will look up
+``www.example.org.internal.example.net``, and if it resolves to something,
+the DNS director will check if on of the backends in the 192.168.0.0./24
+range matches, then use that.
+
 
 Health checks
 -------------
@@ -3995,161 +3982,115 @@ Health checks and grace
    this to optionally increase ``req.grace`` just for requests to unhealthy
    backends.
 
-Directors
----------
 
-- Contains 1 or more backends
-- All backends must be known
-- Multiple selection methods
-- random, round-robin, hash, client and DNS
+Grace mode
+----------
 
-.. TODO for the author: Check this blog http://kly.no/posts/2010_08_02__Varnish_backend_selection_through_DNS__.html
-
-.. include:: vcl/director_example.vcl
-   :literal:
+- A `graced` object is an object that has expired, but is still kept in cache.
+- `Grace mode` is when Varnish uses a `graced` object.
+- `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
+- There is more than one way Varnish can use a graced object.
+- ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
 
 .. container:: handout
 
-        Backend directors, usually just called directors, provide logical
-        groupings of similar web servers. There are several different
-        directors available, but they all share the same basic properties.
+   When Varnish is in grace mode, Varnish is capable of delivering a stale object and issue an asynchronous refresh request.
+   When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
+   This procedure is also known as ``stale-while-revalidate``.
 
-        First of all, anywhere in VCL where you can refer to a backend, you
-        can also refer to a director.
+   The most common reason for Varnish to deliver a `graced object` is when a backend health-probe returns ``FALSE``.
+   Varnish reads the variable ``obj.grace`` to use a `graced object`.
+   The variable ``obj.grace`` can be assigned by two means:
+   1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend, or 
+   2) by setting the variable ``beresp.grace`` in VCL.
 
-        .. include: vcl/director_references.vcl
-           :literal:
+   In the first case, Varnish parses automatically the HTTP Cache-Control field, as in: ``"Cache-control: max-age=5, stale-while-revalidate=30"``.
+   In this example, the variables of the fetched object are: ``obj.ttl=5`` and ``obj.grace=30``.
+   The second case, setting ``beresp.grace``, overwrites the value of ``obj.grace``.
 
-        All directors also allow you to re-use previously defined backends,
-        or define "anonymous" backends within the director definition. If a
-        backend is defined explicitly and referred to both directly and
-        from a director, Varnish will correctly record data such as number
-        of connections (i.e.: max connections limiting) and saintmode
-        thresholds. Defining an anonymous backend within a director will
-        still give you all the normal properties of a backend.
+   The typical way to use grace is to store an object for several hours after its ``TTL`` has elapsed.
+   In this way, Varnish has always a copy to be delivered immediately, while fetching a new object asynchronously.
+   If the backend is healhty, a graced object does not get older than a few seconds (after its TTL has elapased).
+   If the backend is sick, Varnish may be delivering a graced object up to its maximum grace time.
+   The following VCL code illustrates a normal usage of grace.
 
-        And a director must have a name.
+   .. include:: vcl/grace.vcl
+      :literal:
 
-        The simplest directors available are the round-robin director and
-        the random director. The round-robin director takes no
-        additional arguments - only the backends. It will pick the first
-        backend for the first request, then the second backend for the
-        second request, and so on, and start again from the top. If a
-        health probe has marked a backend as sick, the round-robin director
-        will skip it.
+   .. note::
+      
+      ``obj.ttl`` and ``obj.grace`` are countdown timers.
+      Objects are valid in cache as long as they have a positive remaining time equal to ``obj.ttl`` + ``obj.grace``.
 
-        The random director picks a backend randomly. It has one
-        per-backend parameter called `weight`, which provides a mechanism
-        for balancing the traffic to the backends. It also provides a
-        director-wide parameter called `retries` - it will try this
-        many times to find a healthy backend.
 
-        .. include: vcl/random_example.vcl
-           :literal:
+Time-line example
+.................
 
-        The above example will result in twice as much traffic to
-        localhost.
+Backend response HTTP Cache-Control header field::
 
-.. class:: handout
+   "Cache-control: max-age=60, stale-while-revalidate=30"
 
-Client and hash directors
-.........................
+or set in VCL::
 
-The client and hash directors are both special variants of the random
-director. Instead of a random number, the client director uses the
-``client.identity``. The ``client.identity`` variable defaults to the
-client IP, but can be changed in VCL. The same client will be directed
-to the same backend, assuming that the ``client.identity`` is the same
-for all requests.
+   set req.ttl = 60s;
+   set beresp.grace = 30s;
 
-Similarly, the hash director uses the hash data, which means that the same
-URL will go to the same web server every time. This is most relevant for
-multi-tiered caches.
+- 50s: Normal delivery
+- 62s: Normal cache miss, but grace mode possible
+- 80s: Normal cache miss, but grace mode possible
+- 92s: Normal cache miss, object is removed from cache
 
-For both the client and the hash director, the director will pick the next
-backend available if the preferred one is unhealthy.
+.. container:: handout
 
-.. class:: handout
+   In this time-line example, it is assumed that the object is never refreshed.
 
-The DNS director
-................
+   If you do not want that objects with a negative ``TTL`` are delivered, set ``beresp.grace = 0``.
+   The downside of this is that all grace functionality is disabled, regardless any reason.
 
-The DNS director uses the Host header sent by a client to find a backend
-among a list of possibles.  This allows dynamic scaling and changing of web
-server pools without modifying Varnish' configuration, but instead just
-waiting for Varnish to pick up on the DNS changes.
+When can grace happen
+.....................
 
-As the DNS director is perhaps the most complex, some extra
-explanation might be useful. Consider the following example VCL.
+- A request is already pending for some specific content
+- No healthy backend is available
 
-.. include:: vcl/dns_director.vcl
-   :literal:
+.. container:: handout
 
-It defines 255 backends, all in the 192.168.0.0/24 range. The DNS director
-can also use the traditional (non-list) format of defining backends, and
-most options are supported in .list, as long as they are specified before
-the relevant backends.
+   The main goal of `grace mode` is to avoid requests to pile up whenever a popular object has expired in cache. 
+   As long as a request is waiting for new content, Varnish delivers graced objects instead of queuing incoming requests.
+   These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
 
-The TTL specified is for the DNS cache. In our example, the `mydirector`
-director will cache the DNS lookups for 5 minutes. When a client asks for
-``www.example.org``, Varnish will look up
-``www.example.org.internal.example.net``, and if it resolves to something,
-the DNS director will check if on of the backends in the 192.168.0.0./24
-range matches, then use that.
+Exercise: Grace
+...............
+
+1. Copy the following CGI script in ``/usr/lib/cgi-bin/test.cgi``::
+        #! /bin/sh
+        sleep 15
+        echo "Content-type: text/plain"
+        echo "Cache-control: max-age=15, stale-while-revalidate=30"
+        echo
+        echo "Hello world"
+	date
+
+2. Make the script executable.
+4. Issue ``varnishlog -g request -i VCL_call,VCL_return`` in one terminal.
+3. Test that the script works outside Varnish by typping ``http http://localhost:8080/cgi-bin/test.cgi`` in another terminal.
+4. Send a single request, this time via Varnish, to cache the reponse from the CGI script. This should take 15 seconds.
+6. Send three requests: one before the TTL (15 seconds) elapses, another after 15 seconds and before 30 seconds, and a last one after 30 seconds.
+7. Repeat until you understand the output of ``varnishlog``.
+8. Play with the values of ``max-age`` and ``stale-while-revalidate`` in the CGI script, and the ``beresp.grace`` value in the VCL code.
+
+.. container:: handout
+
+   With this exercise, you should see that as long as the cached object is within its TTL, Varnish delivers the cached object as normal.
+   Once the TTL expires, Varnish delivers the graced copy, and asynchronously fetches an object from the backend.
+   Therefore, after 15 seconds of triggering the asynchronous fetch, an updated object is available in the cache.
+
+.. bookmark
 
 Demo: Health probes and grace
 -----------------------------
-..
-  XXX: FIXME!!!
 
-Saint mode
-----------
-
-- Saint mode marks an object as sick for a specific backend for a period of
-  time
-- The rest of Varnish just sees a sick backend, be it for grace or backend
-  selection
-- Other content from the same backend can still be accessed
-- ... unless more than a set amount of objects are added to the saintmode
-  black list for a specific backend, then the entire backend is considered
-  sick.
-- Normal to restart after setting ``beresp.saintmode = 20s;`` in
-  ``vcl_fetch``
-
-.. container:: handout
-
-   Saint mode is meant to complement your regular health checks. Some times
-   you just can't spot a problem in a simple health probe, but it might be
-   obvious in ``vcl_fetch``.
-
-   An example could be a thumbnail generator. When it fails it might return
-   "200 OK", but no data. You can spot that the `Length`-header is 0 in
-   ``vcl_fetch``, but the health probes might not be able to pick up on
-   this.
-
-   In this situation you can set ``beresp.saintmode = 20s;``, and Varnish
-   will not attempt to access that object (aka: URL) from that specific
-   backend for the next 20 seconds. If you restart and attempt the same
-   request again, Varnish will either pick a different backend if one is
-   available, or try to use a graced object, or finally deliver an error
-   message.
-
-   If you have more than |def_saintmode_threshold| (default) objects
-   black listed for a specific backend, the entire backend is considered
-   sick. The rationale is that if 10 URLs already failed, there's probably
-   no reason to try an 11th.
-
-   There is no need to worry about recovering. The object will only be on
-   the saint list for as long as you specify, regardless of whether the
-   threshold is reached or not.
-
-   Use saint mode to complement your health checks. They are meant to
-   either help Varnish "fail fast" for a backend that has failed, until the
-   health probes can take over, or catch errors that are not possible to
-   spot with the health checks.
-
-   As such, it's advised to keep the saint period short. Typical suggestions
-   are 20 seconds, 30 seconds, etc.
+.. TODO for the author: To mention that saintmode is gone in Varnish 4?
 
 Restart in VCL
 --------------

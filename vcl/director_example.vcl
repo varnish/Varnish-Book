@@ -1,3 +1,4 @@
+import directors;    // load the directors
 
 backend one {
    .host = "localhost";
@@ -10,11 +11,11 @@ backend two {
 }
 
 director localhosts round-robin {
-	{ .backend = one; }
-	{ .backend = two; }
-	{ .backend = { .host = "localhost"; .port = "82"; } }
+   { .backend = one; }
+   { .backend = two; }
+   { .backend = { .host = "localhost"; .port = "82"; } }
 }
 
 sub vcl_recv {
-	set req.backend = localhosts;
+	set req.backend_hint = localhosts;
 }
