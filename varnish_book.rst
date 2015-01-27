@@ -423,7 +423,7 @@ Varnish is designed to:
 How objects are stored
 ......................
 
-- Objects in Varnish are stored in memory and adressed by hash keys
+- Objects in Varnish are stored in memory and addressed by hash keys
 - You can control the hashing
 - Multiple objects can have the same hash key
 
@@ -505,7 +505,7 @@ Install Varnish and Apache as backend
    #. Restart Apache: ``service apache2 restart``.
 
    .. Install Varnish
-   .. TODO for the author: Update this instructions to install Varnish Plus once packabes are available for Ubuntu.
+   .. TODO for the author: Update this instructions to install Varnish Plus once packages are available for Ubuntu.
 
    Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
    We generally recommend you to use the packages provided by varnish-cache.org.
@@ -3776,8 +3776,8 @@ Request handling when backends get sick
 
 - Directors: loadable VMOD!
 - Health checks
-- ``return (retry);``
 - Grace mode
+- ``return (retry);``
 - Using ACLs
 
 .. container:: handout
@@ -3791,9 +3791,7 @@ Directors
 
 - Contains 1 or more backends
 - All backends must be known
-- Selection methods: random, round-robin, hash, client and DNS
-
-.. TODO for the author: Check this blog http://kly.no/posts/2010_08_02__Varnish_backend_selection_through_DNS__.html
+- Selection methods: round-robin, random and its variations
 
 .. include:: vcl/director_example.vcl
    :literal:
@@ -3814,17 +3812,20 @@ Directors
    The definition of anonymous backends within a director also yields all the normal properties of a backend.
 
    And a director must have a name.
-   The simplest directors available are the round-robin director and the random director. 
+   The simplest directors available are the *round-robin* and the *random* director. 
 
-   A round-robin director takes only the backends as arguments.
+   A *round-robin* director takes only a backend list as argument.
    This director type picks the first backend for the first request, then the second backend for the second request, and so on.
    Once the last backend have been selected, backends are selected again from the top. 
    If a health probe has marked a backend as sick, the round-robin director skip it.
 
-   The random director picks a backend randomly.
-   It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the traffic to the backends. 
-   It also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend and tries to find a healthy server.
-   .. TODO for the author: double check the purpose of the ``retries`` counter.
+   The *random* director picks a backend randomly.
+   It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the selection of the backends.
+  The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
+
+   The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
+   The next backend to be selected depends on the selection method (i.e. random, round-robin, or hash) of the director.
+   .. TODO for the author: is the counter set to 0 after a health backend is found?
 
    .. include: vcl/random_example.vcl
      :literal:
@@ -3837,151 +3838,88 @@ Directors
 
    .. note::
 
-      Directors are devined as loadable VMODs in Varnish 4.
+      Directors are defined as loadable VMODs in Varnish 4.
       This is different to Varnish 3.
       
 .. TODO for the author: Update reference of Health Probes Chapter.
 
-   .. bookmark: TODO: Add client.identity in the explanation of update from Varnish 3 to Varnish 4.
-
-
 Hash directors
 ..............
 
-- Random director:
- 
-  - Hash directors
+- *Random* director: seeded with a random number
+- *Hash* director: seeded with hash key from typically a URL or a client identity string
 
   .. class:: handout
 
-  The *hash directors* is special variants of the random director.
-  The hash director uses the hashed requested URL to select a backend.
-  This means that the same URL request is always handled by the same web server.
-  The following VCL code shows how to initialize a hash director.
+  Both, the *random* and *hash* director select a backend randomly.
+  The difference between these two is the seed they use.
+  The *random* director is seeded with a random number, whereas the *hash* director is seeded with a hash key.
+
+  *Hash* directors typically use the requested URL or the client identity (e.g. session cookie) to compute the hash key.
+  Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
+  Therefore, *hash* directors select always the same backend for a given input.
+
+  Hash directors are useful to load balance in front of other Varnish caches or other web accelerators.
+  In this way, cached objects are not duplicated across different cache servers.
+  The following VCL code shows a hash director that uses client identity for backend selection.
 
   .. include: vcl/director_hash_example.vcl
     :literal:
 
-  *Hash directors* select the next backend available if the preferred one is unhealthy.
-  You will learn more about health probes for backends in the Health Probles Chapter.
-
-  .. TODO for the author: Update reference of Health Probes Chapter.
-
-.. TODO for the author: what is "multi-tiered caches".
-..  Hash directors are more relevant for multi-tiered caches.
-
   .. note::
 
-     In Varnish 3 there is the concept of *client director*.
-     This director type is a special case of the *hash director*, therefore it has been removed.
-
-The DNS director
-................
-
-The DNS director uses the Host header sent by a client to find a backend
-among a list of possibles.  This allows dynamic scaling and changing of web
-server pools without modifying Varnish' configuration, but instead just
-waiting for Varnish to pick up on the DNS changes.
-
-As the DNS director is perhaps the most complex, some extra
-explanation might be useful. Consider the following example VCL.
-
-.. include:: vcl/dns_director.vcl
-   :literal:
-
-It defines 255 backends, all in the 192.168.0.0/24 range. The DNS director
-can also use the traditional (non-list) format of defining backends, and
-most options are supported in .list, as long as they are specified before
-the relevant backends.
-
-The TTL specified is for the DNS cache. In our example, the `mydirector`
-director will cache the DNS lookups for 5 minutes. When a client asks for
-``www.example.org``, Varnish will look up
-``www.example.org.internal.example.net``, and if it resolves to something,
-the DNS director will check if on of the backends in the 192.168.0.0./24
-range matches, then use that.
-
+     In Varnish 3 there is a *client* director type, which is removed in Varnish 4.
+     This *client* director type is a special case of the *hash director*.
+     Therefore, the semantics of a *client* director type are achieved by using ``hash.backend(client.identity)``.
 
 Health checks
 -------------
 
 - Poke your web server every N seconds
 - Affects backend selection
-- ``req.backend.healthy``
-- Varnish needs at least `threshold` amount of good probes within a set of
-  the last `window` probes. Where `threshold` and `window` are parameters.
+- ``std.healthy(req.backend_hint)``
+- Varnish allows at most `threshold` amount of failed probes within a set of the last `window` probes
+- `threshold` and `window` are parameters
 - Set using `.probe`
 - varnishlog: Backend_health
-- varnishadm: debug.health
+
+.. TODO for the author: To verify the VCL code for health: health.vcl and health_request.vcl.
 
 .. include:: vcl/health.vcl
    :literal:
 
 .. container:: handout
 
-   You can define a health check for each backend, which will cause Varnish
-   to probe a URL every few seconds. Normally, it will take more than one
-   failed request before Varnish stops using a specific backend server.
+   You can define a health check for each backend.
+   A health check defines a *probe* to verify whether a backend replies on a given URL every given interval.
+   
+   The above example causes Varnish to send a request to  http://server1.example.com/healthtest every 4 seconds.
+   This probe requires that at least 3 requests succeed within a sliding window of 5 request.
 
-   The above example will cause Varnish to send a request to
-   http://example.com/healthtest every 3 seconds. When deciding whether to
-   use a server or not, it will look at the last 5 probes it has sent and
-   require that at least 3 of them were good.
+   Varnish initializes backends marked as sick.
+   The variable ``.initial`` defines how many times the *probe* must succeed to mark the backend as healthy.
+   ``.initial`` defaults to ``.threshold - 1``.
 
-   You also have an important variable called `.initial`, which defaults to
-   the same value as `.threshold`. It defines how many probes Varnish
-   should pretend are good when it first starts up. Before `.initial` was
-   added, Varnish needed enough time to probe the Web server and gather
-   good probes before it was able to start functioning after boot.
+   The variable ``Backend_health`` of ``varnishlog`` shows the result of a backend health probe.
+   Issue ``man vsl`` to see its detailed syntax.
 
-   ::
+   When Varnish has no healthy backend available, it attempts to use a *graced* copy of the cached object that a request is looking for.
+   The next subchapter explains *grace* mode.
 
-        debug.health
-        200 545
-        Backend foo is Healthy
-        Current states  good:  8 threshold:  5 window:  8
-        Average responsetime of good probes: 0.355237
-        Oldest                                                    Newest
-        ================================================================
-        ------------------------------------------------------4444444444 Good IPv4
-        ------------------------------------------------------XXXXXXXXXX Good Xmit
-        ------------------------------------------------------RRRRRRRRRR Good Recv
-        -------------------------------------------------HHHHHHHHHHHHHHH Happy
+   .. include:: vcl/health_request.vcl
+     :literal:
 
-   The above shows the output of debug.health - the same data is also
-   available in the more concise `Debug_health` tag of varnishlog.
-
-   `Good IPv4` indicates that the IP was available for routing and that
-   Varnish was able to connect over IPv4. `Good Xmit` indicates that
-   Varnish was able to transmit data.  `Good Recv` indicates that Varnish
-   got a valid reply. `Happy` indicates that the reply was a 200 OK.
 
    .. note::
 
-      Varnish does NOT send a Host header with health checks. If you
-      need that, you can define the entire request using `.request` instead
-      of `.url`.
+      Varnish does NOT send a Host header with health checks. 
+      If you need that, you can define an entire request using ``.request`` instead of ``.url``.
 
-      .. include:: vcl/health_request.vcl
-         :literal:
+   .. note::
 
-Health checks and grace
------------------------
-
-- If a backend is marked as sick, grace mode is attempted
-- You can use ``req.backend.healthy`` to alter ``req.grace`` when a backend
-  is sick to allow Varnish to use even older content, if available.
-
-.. container:: handout
-
-   When Varnish has no healthy backend available, it will attempt to use a
-   graced copy of the object it is looking for. But all the rules you
-   specify in VCL still apply.
-
-   Since you have ``req.backend.healthy`` available to you, you can use
-   this to optionally increase ``req.grace`` just for requests to unhealthy
-   backends.
-
+      The ``healthy`` function is implemented as VMOD in Varnish 4.
+      ``req.backend.healthy`` from Varnish 3 is replaced by ``std.healthy(req.backend_hint)``.
+      Do not forget to include the import line: ``import std;``
 
 Grace mode
 ----------
@@ -4010,7 +3948,7 @@ Grace mode
 
    The typical way to use grace is to store an object for several hours after its ``TTL`` has elapsed.
    In this way, Varnish has always a copy to be delivered immediately, while fetching a new object asynchronously.
-   If the backend is healhty, a graced object does not get older than a few seconds (after its TTL has elapased).
+   If the backend is healthy, a graced object does not get older than a few seconds (after its TTL has elapsed).
    If the backend is sick, Varnish may be delivering a graced object up to its maximum grace time.
    The following VCL code illustrates a normal usage of grace.
 
@@ -4073,8 +4011,8 @@ Exercise: Grace
 
 2. Make the script executable.
 4. Issue ``varnishlog -g request -i VCL_call,VCL_return`` in one terminal.
-3. Test that the script works outside Varnish by typping ``http http://localhost:8080/cgi-bin/test.cgi`` in another terminal.
-4. Send a single request, this time via Varnish, to cache the reponse from the CGI script. This should take 15 seconds.
+3. Test that the script works outside Varnish by typing ``http http://localhost:8080/cgi-bin/test.cgi`` in another terminal.
+4. Send a single request, this time via Varnish, to cache the response from the CGI script. This should take 15 seconds.
 6. Send three requests: one before the TTL (15 seconds) elapses, another after 15 seconds and before 30 seconds, and a last one after 30 seconds.
 7. Repeat until you understand the output of ``varnishlog``.
 8. Play with the values of ``max-age`` and ``stale-while-revalidate`` in the CGI script, and the ``beresp.grace`` value in the VCL code.
@@ -4085,12 +4023,11 @@ Exercise: Grace
    Once the TTL expires, Varnish delivers the graced copy, and asynchronously fetches an object from the backend.
    Therefore, after 15 seconds of triggering the asynchronous fetch, an updated object is available in the cache.
 
-.. bookmark
-
-Demo: Health probes and grace
------------------------------
+.. TODO for the author: Before, it was a no finished section called: "Demo: Health probes and grace". Should we add it?
 
 .. TODO for the author: To mention that saintmode is gone in Varnish 4?
+
+.. bookmark
 
 Restart in VCL
 --------------
