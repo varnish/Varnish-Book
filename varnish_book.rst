@@ -166,11 +166,13 @@ How to Use the Book
    .. man pages and help commands
 
    Varnish installs several reference manuals that are accessible through the manual page command ``man``.
-   You can issue the command ``man -k varnish`` to list the manual pages related to Varnish.
-   The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
+   You can issue the command ``man -k varnish`` to list the manual pages that mention Varnish in their short description.
+   In addition, the ``vsl`` man page that explains the Varnish Shared Memory Logging (VSL).
+   This man page does not come out when issuing ``man -k varnish``, because it does not contain the word `varnish` in its short description.
 
+   The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
    Also, some commands have a help option to print the usage of the command.
-   For example, ``varnishlog -h`` prints the usage of the command, and lists its options with a short description of them.
+   For example, ``varnishlog -h`` prints the usage and options of the command with a short description of them.
 
    .. Installation required
 
@@ -545,6 +547,10 @@ Install Varnish and Apache as backend
 
 	 You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
 
+      .. tip::
+
+	 Issue the command ``man vcl`` to see all available options to define a backend.
+
 The management interface
 ------------------------
 
@@ -825,10 +831,12 @@ Statistical tools:
    This option is used to specify the instance of ``varnishd``, or the location of the shared memory log. 
    On most installations ``-n`` is not used, but if you run multiple Varnish instances on a single machine, you need to use ``-n`` to distinguish one Varnish instance from another.
 
-   In this course, we will focus on the two  most important tools: ``varnishlog`` and ``varnishstat``.
+   In this course, we focus on the two  most important tools: ``varnishlog`` and ``varnishstat``.
    Unlike all other tools, ``varnishstat`` does not read from entries from Varnish log, but global counters.
    We include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
-   You will find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in Appendix ##.
+   You can find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in Appendix ##.
+
+   .. TODO for the editor: update reference to Appendix ##.
 
    .. tip::
       All tool programs of Varnish log have installed reference manuals.
@@ -3323,6 +3331,7 @@ There are three mechanism to invalidate caches in Varnish:
   - Invalidate caches explicitly
   - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
   - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
+  - The ``restart`` action return can be used to update immediately a purged object
 
 2) Banning
 
@@ -3419,6 +3428,73 @@ Test your VCL by issuing::
    Note the ``purge`` return action in ``vcl_recv``.
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
+
+Exercise : PURGE an article from the backend
+--------------------------------------------
+
+- Send a PURGE request to Varnish from your backend server after an article is published. 
+
+  - Simulate the article publication.
+  - The result is that the article is evicted in Varnish.
+
+.. container:: handout
+
+   Now you know that purging can be as easy as sending a specific HTTP request.
+   You are provided with `article.php`, which fakes an article.
+   It is recommended to create a separate php file to implement purging.
+
+   **article.php**
+
+   .. include:: material/webdev/article.php
+      :literal:
+
+   .. tip::
+      Remember to place your php files under ``/var/www/html/``.
+
+Solution : PURGE an article from the backend
+............................................
+
+.. raw:: pdf
+
+   PageBreak
+
+**purgearticle.php**
+
+.. include:: material/webdev/purgearticle.php
+   :literal:
+
+.. raw:: pdf
+
+   PageBreak
+
+**solution-purge-from-backend.vcl**
+
+.. TODO for the author: in v3, purge was called in vcl_hit and vcl_miss.
+.. purge is not available in those subroutines in v4.
+.. should we mention something about it?
+
+.. include:: vcl/solution-purge-from-backend.vcl
+   :literal:
+
+.. bookmark with TODO: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
+
+PURGE with ``restart`` return action
+------------------------------------
+
+- Start the VCL processing again from the top of ``vcl_recv``
+- Any changes made are kept
+
+.. include:: vcl/PURGE-and-restart.vcl
+   :literal:
+
+.. container:: handout
+
+   The ``restart`` return action allows Varnish to re-run the VCL state machine with different variables.
+   This is useful in combination with PURGE, in the way that a purged object can be immediately restored with a new fetched object.
+
+   Everytime a `restart` occurs, Varnish increments the ``req.restarts`` counter.
+   If the number of restarts is higher than the ``max_restarts`` parameter, Varnish emits a guru meditation error.
+   In this way, Varnish safe guards against infinite loops.
 
 Banning
 -------
@@ -3549,6 +3625,34 @@ Lurker Friendly Bans
         # Assumes req.url is a regex. This might be a bit too simple.
         ban("obj.http.x-url ~ " + req.url);
      }
+
+Exercise: Write a VCL program using *purge* and *ban*
+-----------------------------------------------------
+
+Write a VCL program that implements both cache invalidation mechanisms: *purge* and *ban*.
+The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker friendly bans*.
+
+Do you get any artifacts from using smart bans, and can you avoid them?
+
+To build further on this, you can also have a ``REFRESH`` HTTP method that fetches new content, using ``req.hash_always_miss``.
+
+.. container:: handout
+
+   To test this exercise, you can use *httpie*. Example commands::
+
+     http -p hH PURGE http://localhost/testpage
+     http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' \
+     'X-Ban-Host: .*\.example\.com'
+     http -p hH REFRESH http://localhost/testpage
+
+Solution: Write a VCL program using *purge* and *ban*
+.....................................................
+
+.. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
+.. This is not possible in v4. Should we comment about it?
+
+.. include:: vcl/solution-bans-etc.vcl
+   :literal:
 
 Hashtwo -> Varnish Plus only!
 -----------------------------
@@ -3694,83 +3798,8 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
       Purge and Hashtwo work very similar.
       The main difference is that they have they act on different hash keys.
 
-Exercise: Write a VCL program using *purge* and *ban*
------------------------------------------------------
-
-Write a VCL program that implements both cache invalidation mechanisms: *purge* and *ban*.
-The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker friendly bans*.
-
-Do you get any artifacts from using smart bans, and can you avoid them?
-
-To build further on this, you can also have a ``REFRESH`` HTTP method that fetches new content, using ``req.hash_always_miss``.
-
-.. container:: handout
-
-   To test this exercise, you can use *httpie*. Example commands::
-
-     http -p hH PURGE http://localhost/testpage
-     http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' \
-     'X-Ban-Host: .*\.example\.com'
-     http -p hH REFRESH http://localhost/testpage
-
-Solution: Write a VCL for bans and purges
-.........................................
-
-.. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
-.. This is not possible in v4. Should we comment about it?
-
-.. include:: vcl/solution-bans-etc.vcl
-   :literal:
-
-Exercise : PURGE an article from the backend
-............................................
-
-- Send a PURGE request to Varnish from your backend server after an article is published. 
-
-  - Simulate the article publication.
-  - The result is that the article is evicted in Varnish.
-
-.. container:: handout
-
-   Now you know that purging can be as easy as sending a specific HTTP request.
-   You are provided with `article.php`, which fakes an article.
-   It is recommended to create a separate php file to implement purging.
-
-   **article.php**
-
-   .. include:: material/webdev/article.php
-      :literal:
-
-   .. tip::
-      Remember to place your php files under ``/var/www/html/``.
-
-Solution : PURGE an article from the backend
-............................................
-
-.. raw:: pdf
-
-   PageBreak
-
-**purgearticle.php**
-
-.. include:: material/webdev/purgearticle.php
-   :literal:
-
-.. raw:: pdf
-
-   PageBreak
-
-**solution-purge-from-backend.vcl**
-
-.. TODO for the author: in v3, purge was called in vcl_hit and vcl_miss.
-.. purge is not available in those subroutines in v4.
-.. should we mention something about it?
-
-.. include:: vcl/solution-purge-from-backend.vcl
-   :literal:
-
-Request handling when backends get sick
-========================================
+Mechanisms to handle backends in problematic situations
+=======================================================
 
 *This chapter is for the system administration course only*
 
@@ -3836,12 +3865,12 @@ Directors
 
       Health probes are explain in the Health Probes Chapter.
 
+.. TODO for the author: Update reference of Health Probes Chapter.
+
    .. note::
 
       Directors are defined as loadable VMODs in Varnish 4.
-      This is different to Varnish 3.
-      
-.. TODO for the author: Update reference of Health Probes Chapter.
+      Please see the ``vmod_directors`` man page for more information.
 
 Hash directors
 ..............
@@ -4029,76 +4058,63 @@ Exercise: Grace
 
 .. bookmark
 
-Restart in VCL
---------------
+``retry`` return action
+-----------------------
 
-- Start the VCL processing again from the top of ``vcl_recv``.
-- Any changes made are kept.
-- Parameter ``max_restarts`` safe guards against infinite loops
-- ``req.restarts`` counts the number of restarts
+- Available in ``vcl_backend_response`` and ``vcl_backend_error``
+- Re-enters ``vcl_backend_fetch``
+- Any changes made are kept
+- Parameter ``max_retries`` safe guards against infinite loops
+- Counter ``bereq.retries`` registers how many retries are done
 
-.. include:: vcl/restart.vcl
+.. include:: vcl/retry.vcl
    :literal:
 
 .. container:: handout
 
-   Restarts in VCL can be used everywhere.
+   The ``retry`` return action is available in ``vcl_backend_response`` and ``vcl_backend_error``.
+   This action re-enters the ``vcl_backend_fetch`` subroutine. 
+   This only influences the backend thread, the client-side handling is not affected.
 
-   They allow you to re-run the VCL state engine with different variables.
-   The above example simply executes a redirect without going through the
-   client. An other example is using it in combination with PURGE and
-   rewriting so the script that issues PURGE will also refresh the content.
+   You may want to use this action when the backend fails to respond.
+   In this way, Varnish can retry the request to a different backend.
+   For this, you must define multiple backends.
 
-   Yet another example is to combine it with saint mode.
+   .. TODO for the author: to create an example with two different selection mechanisms:
+
+   You can use directors to let Varnish select the next backend to try.
+   Alternatively, you may use ``bereq.backend`` to specifically select another backend.
+
+   ``return (retry)`` increments the ``bereq.retries`` counter.
+   If the number of retries is higher than ``max_retries``, control is passed to ``vcl_backend_error``.
 
    .. note::
 
-      Varnish version 2.1.5 is the first version where ``return(restart);``
-      is valid in ``vcl_deliver``, making it available everywhere.
+      In Varnish 3.0 it is possible to do ``return (restart)`` after the backend response failed.
+      This is now called ``return (retry)``, and jumps back up to ``vcl_backend_fetch``.
+
+.. TODO for the author: Think or ask around for meaningful examples of ``restart`` as a mechanism for backends in problematic situations.
 
 Backend properties
 ------------------
 
-- Most properties are optional
+- Tune backend properties
 
 .. include:: vcl/backend_properties.vcl
    :literal:
 
 .. container:: handout
 
-   All the backend-specific timers that are available as parameters can
-   also be overridden in the VCL on a backend-specific level.
-
-   While the timeouts have already been discussed, there are some other
-   notable parameters.
-
-   The saintmode threshold defines how many items can be blacklisted by
-   saint mode before the entire backend is considered sick. Saint mode will
-   be discussed in more detail.
-
-   If your backend is struggling, it might be advantageous to set
-   ``max_connections`` so only a set number of simultaneous connections
-   will be issued to a specific backend.
+   If a backend has not enough resources, it might be advantageous to set ``max_connections``.
+   So that a limited number of simultaneous connections are handled by a specific backend.
+   All backend-specific timers are available as parameters, and can be overridden in VCL on a backend-specific level.
 
    .. tip::
 
-      Varnish only accepts hostnames for backend servers that resolve to a
-      maximum of one IPv4 address `and` one IPv6 address. The parameter
-      ``prefer_ipv6`` defines which one Varnish will prefer.
+      Varnish only accepts hostnames for backend servers that resolve to a maximum of one IPv4 address `and` one IPv6 address.
+      The parameter ``prefer_ipv6`` defines which IP address Varnish prefer.
 
-Example: Evil backend hack
---------------------------
-
-You can not use saintmode in ``vcl_error`` and health probes can be
-slow to pick up on trouble. So, in order to act on a failing backend
-right away you can use the supplied hack to force delivery of graced
-object right away.
-
-You can use a fake backend that's always sick to force a grace copy. This
-is considered a rather dirty hack that works.
-
-.. include:: vcl/fake-backend.vcl
-   :literal:
+.. bookmark
 
 Access Control Lists
 --------------------
@@ -4126,30 +4142,6 @@ Access Control Lists
 
    Typical use cases are for PURGE requests, bans or avoiding the cache
    entirely.
-
-
-Exercise: Combine PURGE and restart
------------------------------------
-
-- Re-write the PURGE example to also issue a restart
-- The result should be that a PURGE both removes the content and fetches a
-  new copy from the backend.
-
-Solution: Combine PURGE and restart
------------------------------------
-
-.. include:: vcl/PURGE-and-restart.vcl
-   :literal:
-
-.. container:: handout
-
-   .. note::
-
-      Whenever you are using ``req.http`` to store an internal variable,
-      you should get used to unsetting it in ``vcl_recv`` on the first run.
-      Otherwise a client could supply it directly. In this situation, the
-      outcome wouldn't be harmful, but it's a good habit to establish.
-
 
 Content Composition
 ===================
@@ -4269,12 +4261,16 @@ Best practices for cookies
    - /voucher/ - Only leave the voucher-cookie.
    - etc.
 
+.. TODO for the author: update vcl_fetch for vcl_backend_fetch.
+
 - Once you have a URL scheme that works, add the req.http.cookie to the
   cache hash in `vcl_hash`: ``hash_data(req.http.cookie);``.
 - Never cache a `Set-Cookie` header. Either remove the header before
   caching or do not cache the object at all.
 - Avoid using ``return (deliver);`` more than once in `vcl_fetch`. Instead,
   finish up with something similar to::
+
+
 
      if (beresp.ttl > 0s) {
              unset beresp.http.set-cookie;
