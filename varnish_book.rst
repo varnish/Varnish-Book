@@ -4747,4 +4747,6 @@ The script is a beta version and it should be used under your own responsibility
 You can download the script from https://github.com/fgsch/varnish3to4.
 Usage and up-to-date details about the script is at the same web address.
 
-PageBreak
+.. raw:: pdf
+
+   PageBreak
