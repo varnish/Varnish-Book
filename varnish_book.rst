@@ -4728,13 +4728,23 @@ set-cookie.php
 .. include:: material/webdev/set-cookie.php
    :literal:
 
+Appendix C: From Varnish 3 to Varnish 4
+=======================================
+
 What is new since Varnish 3
 ---------------------------
-
-.. TODO for the author: TODO
 
 TODO:
 
 https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
+
+VCL migrator from Varnish 3 to Varnish 4
+----------------------------------------
+
+`varnish3to4 <https://github.com/fgsch/varnish3to4>`_ is a script to assist you migrating a VCL file from Varnish 3 to 4.
+The script is a beta version and it should be used under your own responsibility.
+
+You can download the script from https://github.com/fgsch/varnish3to4.
+Usage and up-to-date details about the script is at the same web address.
 
 PageBreak
