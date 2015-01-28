@@ -4742,7 +4742,8 @@ VCL migrator from Varnish 3 to Varnish 4
 ----------------------------------------
 
 `varnish3to4 <https://github.com/fgsch/varnish3to4>`_ is a script to assist you migrating a VCL file from Varnish 3 to 4.
-The script is a beta version and it should be used under your own responsibility.
+The script aims to replace most of the syntactical changes in VCL code from Varnish 3 to Varnish 4, but it is not exhaustive.
+That said, you should use it under your own responsibility.
 
 You can download the script from https://github.com/fgsch/varnish3to4.
 Usage and up-to-date details about the script is at the same web address.
