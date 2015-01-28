@@ -3331,7 +3331,7 @@ There are three mechanism to invalidate caches in Varnish:
   - Invalidate caches explicitly
   - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
   - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
-  - The ``restart`` action return can be used to update immediately a purged object
+  - The ``restart`` return action can be used to update immediately a purged object
 
 2) Banning
 
@@ -3419,9 +3419,9 @@ Test your VCL by issuing::
 
 .. container:: handout
 
-   ``acl`` is a reserved keyword that is used to create access control lists.
-   The access control list is used to control which client IP address are allowed to purge cached objects.
-   For more details about ``acl``, look at Chapter #.
+   ``acl`` is a reserved keyword that is used to create Access Control Lists (ACLs).
+   ACLs are used to control which client IP addresses are allowed to purge cached objects.
+   For more details about ``acl``, look at Subsection #.
 
    .. TODO for the author: update chapter reference.
 
@@ -3477,6 +3477,35 @@ Solution : PURGE an article from the backend
    :literal:
 
 .. bookmark with TODO: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
+
+Access Control Lists (ACLs)
+---------------------------
+
+- An ACL is a list of IP addreses
+- VCL programs can use ACL to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
+- Compare with ``client.ip`` or ``server.ip``
+
+.. include:: vcl/acl.vcl
+   :literal:
+
+.. container:: handout
+
+   An Access Control List (ACL) declaration creates and initialises a named access control list, which can later be used to match client or server IP addresses.
+   ACLs can be used for anything. 
+   ACLs are typically used to control the IP addresses that are allowed to send ``PURGE`` or *ban* requests, or even to avoid the cache entirely.
+
+   Some people have also setup ACLs to differantiate how their Varnish servers behave.
+   You can, for example, have a single VCL program for different Varnish servers.
+   In this case, the VCL program evaluates ``server.ip`` and acts accordingly.
+
+   ACLs are fairly simple to create.
+   A single IP address or hostname should be in quotation marks, as ``"localhost"``.
+   ACL uses CIDR notation to specify IP addresses and their associated routing prefixes.
+   In Varnish's ACLs the slash "``/``" character is appended outside the quoted IP address, for example ``"192.168.1.0"/24``.
+
+   To exclude an IP address or range from an ACL, and exclamation mark "``!`" should precede the IP quoted address.
+   For example ``!"192.168.1.23"``.
+   This is useful when, for example, you want to include all the IP addresss in a range except the gateway.
 
 PURGE with ``restart`` return action
 ------------------------------------
@@ -4056,8 +4085,6 @@ Exercise: Grace
 
 .. TODO for the author: To mention that saintmode is gone in Varnish 4?
 
-.. bookmark
-
 ``retry`` return action
 -----------------------
 
@@ -4115,33 +4142,6 @@ Backend properties
       The parameter ``prefer_ipv6`` defines which IP address Varnish prefer.
 
 .. bookmark
-
-Access Control Lists
---------------------
-
-.. TODO for the author: Update based on https://www.varnish-cache.org/docs/4.0/users-guide/vcl-syntax.html?highlight=syntax#access-control-lists-acls
-
-- An ACL is a list of IPs or IP ranges.
-- Compare with ``client.ip`` or ``server.ip``
-
-.. include:: vcl/acl.vcl
-   :literal:
-
-.. container:: handout
-
-   ACLs are fairly simple. A single IP is listed as ``"192.168.1.2"``, and
-   to turn it into an IP-range, add the /24 *outside* of the quotation
-   marks (``"192.168.1.0"/24``). To exclude an IP or range from an ACL,
-   precede it with an exclamation mark - that way you can include all the
-   IPs in a range except the gateway, for example.
-
-   ACLs can be used for anything. Some people have even used ACLs to
-   differantiate how their Varnish servers behaves (e.g.: A single VCL for
-   different Varnish servers - but it evaluates server.ip to see where it
-   really is).
-
-   Typical use cases are for PURGE requests, bans or avoiding the cache
-   entirely.
 
 Content Composition
 ===================
