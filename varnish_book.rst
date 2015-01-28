@@ -4150,73 +4150,69 @@ TODO: This chapter has not been udpated yet.
 
 *This chapter is for the webdeveloper course only*
 
-You now know almost all you need to know to adapt your site to work well
-with Varnish. In this chapter, we will look closer at how to glue your
-content together. We will look at:
+This chapter teaches you how to glue content from independent sources into one web page.
 
-- AJAX and masquerading AJAX requests through Varnish.
-- Cookies and how you can work with them.
+- AJAX and masquerading AJAX requests through Varnish
+- Cookies and how you can work with them
 - Edge Side Includes (ESI) and how you can compose a single client-visible
-  page out of multiple objects.
-- Combining ESI and Cookies.
+  page out of multiple objects
+- Combining ESI and Cookies
 
 .. container:: handout
 
-   While you may or may not be comfortable in PHP, it should be easy to
-   re-use the same ideas in other languages after you've finished this
-   chapter.
+   .. TODO for the author: To elaborate an introduction.
 
-A typical site
---------------
+A typical website
+-----------------
 
-Most websites follow a pattern, with easily distinguishable parts:
+Most websites follow a pattern: they have easily distinguishable parts:
 
-- A front page.
-- Articles or sub-pages.
-- A login-box or "home bar".
-- Static elements, like CSS, JavaScript and graphics.
+- A front page
+- Articles or sub-pages
+- A login-box or "home bar"
+- Static elements, like CSS, JavaScript and graphics
 
-To truly utilize Varnish to its full potential, you have to start by
-mentally organizing your own site. Ask yourself this:
+To truly utilize Varnish to its full potential, start by analyzing the structure of the website.
+Ask yourself this:
 
-- What makes this page unique, and how can I let caches know.
+- What makes web pages in your server different from each other?
+- Does the differences apply to entire pages, or only parts of them?
+- How can I let Varnish to know those differences?
 
 .. container:: handout
 
-   Beginning with the static elements should be easy. You already know what
-   you need to know to handle those.
+   Beginning with the static elements should be easy. 
+   Previous chapters of this book cover how to handle static elements.
+   How to proceed with dynamic content?
 
-   An other easy option is to only cache content for users that are not
-   logged in. For news-papers, that's probably enough. For a web-shop,
-   that's not going to cut it.
+   An easy solution is to only cache content for users that are not logged in.
+   For news-papers, that is probably enough, but not for web-shops.
 
-   But even for a web-shop, you can frequently re-use objects. If you can
-   isolate the user-specific bits, like the shopping cart, you can cache
-   the rest. You could even cache the shopping cart, if you told Varnish
-   when it changed.
+   Web-shops re-use objects frequently.
+   If you can isolate the user-specific bits, like the shopping cart, you can cache the rest.
+   You can even cache the shopping cart, if you tell Varnish when to change it.
 
-   The most important lessons, though, is to start with what you know.
+   The most important lessons is to start with what you know.
 
 Cookies
 -------
 
-Cookies are frequently used to identify unique users, or user-choices. They
-can be used for anything from identifying a user-session in a web-shop to
-opting out of a sites mobile-version. There are three ways cookies can be
-handled:
+.. TODO: "Content substitution based on variables and cookies is not implemented but is on the roadmap. At least if you look at the roadmap from a certain angle. During a full moon." https://www.varnish-cache.org/docs/trunk/users-guide/esi.html
 
-- The client can (and will) send a Cookie request-header containing all
-  cookies that matches that site and path.
-- The server can set a cookie by returning a Set-Cookie response-header.
-- You can modify cookies through JavaScript.
+Cookies are frequently used to identify unique users, or user-choices. 
+They can be used for anything from identifying a user-session in a web-shop to opting out of a sites mobile-version. 
+There are three ways cookies can be handled:
+
+- Clients send a ``Cookie`` HTTP request header field containing all cookies that matche that website and path.
+- Servers set a cookie by returning a ``Set-Cookie`` HTTP response header field.
+- JavaScripts modify cookies.
 
 .. container:: handout
 
-   We will not look too closely at the JavaScript-method, but it is often
-   necessary to go down that road for user-specific content. We'll see why
-   soon enough.
+   This chapter does not look closely at the JavaScript method, but just what is necessary to get user-specific content in Varnish.
+   Varnish has several ways to handle Cookies.
 
-   For Varnish, there are several ways to handle Cookies.
+.. bookmark
 
 Vary and Cookies
 ----------------
@@ -4317,6 +4313,8 @@ and hash-dynamics.
 
 Edge Side Includes
 ------------------
+
+TODO: To update based on https://www.varnish-cache.org/docs/trunk/users-guide/esi.html.
 
 - What is ESI
 - How to use ESI
@@ -4565,6 +4563,8 @@ Misc
 
 varnishtop
 ----------
+
+TODO: To update!
 
 ::
 
