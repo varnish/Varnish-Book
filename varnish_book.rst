@@ -2377,6 +2377,7 @@ VCL Basics
 - VCL as a state machine
 - VCL subroutines
 - Built-in subroutines
+- Available functions, legal return actions and variables.
 
 .. container:: handout
 
@@ -2534,7 +2535,16 @@ VCL Syntax
 VCL built-in functions
 ----------------------
 
-The following built-in functions are available.
+TODO: This table is not finished.
+.. test availability with varnishd -C -f foo.vcl
+
+.. csv-table:: VCL built-in subroutines and their functions
+   :name: subroutines_functions
+   :delim: ,
+   :header-rows: 1
+   :file: tables/subroutine_functions.csv
+
+Arguments of functions:
 
 - ``regsub(str, regex, sub)``
 - ``regsuball(str, regex, sub)``
@@ -2545,11 +2555,13 @@ The following built-in functions are available.
 - ``new()``
 - ``rollback()``
 - ``synthetic(str)``
-     
+- ``set()``
+- ``unset()``
+
 .. container:: handout
 
    VCL offers a handful of simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control from the VCL Run Time (VRT) environment to Varnish.
-   You will get to test all of these in detail, so the description is brief.
+   This book describes the most important functions in later chapters, so the description at this point is brief.
 
    .. regsub and regsuball
 
@@ -2561,29 +2573,118 @@ The following built-in functions are available.
    .. TODO for the author: update the chapter reference.
 
    The ``ban()`` function invalidates all objects in cache that match the expression ``exp`` with the ban mechanism.
-   You will learn more about *banning* when studying *purging* in Chapter #.
+   *banning* and *purging* in detailed in Chapter #.
 
+Legal Return Actions
+--------------------
 
-Actions
-.......
-   
+.. TODO for the editor: scale or change the font size of this table.
+
+.. csv-table:: VCL built-in subroutines and their legal returns
+   :name: subroutines_legal_returns
+   :delim: ,
+   :header-rows: 1
+   :file: tables/subroutine_legal_returns.csv
+
+.. container:: handout
+
+   .. Acknowledgment: Table layout by MatouÅ¡ Jan Fialka.
+
+   The table above shows the VCL built-in subroutines and their legal returns.
    ``return()`` is a built-in function that ends execution of the current VCL subroutine, and continue to the next ``action`` step in the request handling state machine.
    Legal return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
 
-   An special *action* is ``restart``.
-   This action restarts the processing of a whole transaction.
-   Therefore, ``return (restart)`` offers a way to re-run the VCL logic, re-starting at ``vcl_recv``.
-
-   All changes made up until that point are kept and the ``req.restarts`` variable is incremented.
-   In order to avoid infinite loops, the ``max_restarts`` parameter defines the maximum number of restarts that can be issued in VCL before an error is triggered.
-
    .. note::
-      Varnish 4 defines `purge` as an action.
-      This is contrary to Varnish 3, where `purge` is a function.
+      Varnish 4 defines ``purge`` as a return action.
+      This is contrary to Varnish 3, where ``purge`` is a function.
 
-   .. warning::
+Variables in VCL subroutines
+----------------------------
 
-      Restarts are likely to cause a hit against the backend, so do not increase ``max_restarts`` thoughtlessly.
+.. csv-table:: Variable Availability in VCL subroutines
+   :name: variable_availability
+   :delim: ;
+   :widths: 25,15,15,15,15,15
+   :header-rows: 1
+   :file: tables/variable_availability.csv
+
+The *State* column lists the different states in a request work-flow.
+States are handled by subroutines, which have a leading ``vcl_`` prefix name.
+
+The *Variables* columns list the prefix of the available variables.
+Most but not all of the prefixed variables are readable (R) or writable (W) at the given state.
+To have a detailed availability of each variable, refer to the VCL man page by typing: ``man vcl``.
+
+.. container:: handout
+
+   .. TODO for the author: update reference of Table #
+
+   The table above shows the availability of variables in different states of the Varnish finite state machine.
+   There are more variables not belonging to the prefixes in Table #.
+   ``client.``, ``server.``, and ``storage.`` are prefixes of variables that are accessible almost every where, as it is the ``now`` variable.
+
+   Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
+   And the ``resp.`` variables are copies of what is about to be returned to the client.
+   The values of ``resp.`` variables come possibly from ``obj.``. 
+
+   A change to ``beresp.`` variables, in other words, affects ``obj.`` and ``resp.`` variables. 
+   Similar semantics apply to ``bereq.`` and  ``req.`` variables. 
+   
+   Variables belonging to the backend request (``bereq.``) are assigned with values from the original request (``req.``).
+   However, their values may slightly differ, because Varnish may modify HTTP requests methods.
+   For example, requests with ``HEAD`` methods may be converted to ``GET`` methods.
+
+   Many but not all of the variables are self-explanatory.
+   To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
+	
+Summary of VCL
+--------------
+
+- VCL provides a state machine for controlling Varnish.
+- Each request is handled independently.
+- Building a VCL file is done one line at a time.
+
+.. container:: handout
+
+        VCL is all about policy. By providing a state machine which you can
+        hook into, VCL allows you to affect the handling of any single
+        request almost anywhere in the execution chain.
+
+        This provides pros and cons as any other programming language.
+	This book is not a complete reference guide to
+        how you can deal with every possible scenario in VCL, but on the
+        other hand, if you master the basics of VCL you can solve complex
+        problems that nobody has thought about before. And you can usually
+        do it without requiring too many different sources of
+        documentation.
+
+        Whenever you are working on VCL, you should think of what that
+        exact line you are writing has to do. The best VCL is built by
+        having many independent sections that do not interfere with each
+        other more than what they have to.
+
+        Remember that there is a default VCL.
+	If your own VCL code does not have a return statement, the default VCL is always executed after yours.	
+        If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
+
+VCL built-in subroutines
+========================
+
+.. TODO for the author: double check that the subroutines list is congruent with the chapter.
+.. TODO for the author: consider to add ``vcl_init``, and ``vcl_init``.
+
+- Go through the VCL built-in subroutines: ``vcl_recv``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_pass``, ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
+- Add some "features" with VCL.
+
+.. container:: handout
+
+   This chapter covers the VCL subroutines where you customize the behavior of Varnish.
+   However, this chapter does not define caching policies.
+
+   VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
+
+   After this chapter, you should know what all the VCL subroutines can be used for.
+   You should also be ready to dive into more advanced features of Varnish and VCL.
 
 VCL - ``vcl_recv``
 ------------------
@@ -2859,7 +2960,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
       This action is replaced in Varnish 4 with the variable ``beresp.uncacheable``.
 
 Built-in: ``vcl_backend_response``
-----------------------------------
+..................................
 
 .. include:: vcl/default-vcl_backend_response.vcl
    :literal:
@@ -2877,7 +2978,7 @@ Built-in: ``vcl_backend_response``
    Alternatively, you can find the subroutines in the file ``/bin/varnishd/builtin.vcl`` in the Varnish source code .
 
 The initial value of ``beresp.ttl``
------------------------------------
+...................................
 
 Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has already been set to a value. 
 ``beresp.ttl`` is initialized with the first value it finds among:
@@ -2903,7 +3004,7 @@ Only the following status codes will be cached by default:
 
         You can cache other status codes than the ones listed above, but you have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response``.
         Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
-	``Cache-Control`` directives are defined in RFC7234 Section 5.2.	
+	``Cache-Control`` directives are defined in RFC7234 Section 5.2.
 
 	A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
 	This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
@@ -2924,7 +3025,7 @@ Only the following status codes will be cached by default:
 	   In this case, you might inadvertently be delivering stale objects to your client.
 
 Example: Setting TTL of .jpg URLs to 60 seconds
-----------------------------------------------------
+...............................................
 
 .. include:: vcl/cache_jpg.vcl
    :literal:
@@ -2936,7 +3037,7 @@ Example: Setting TTL of .jpg URLs to 60 seconds
    That means that images with a ``Set-Cookie`` field are not cached.
 
 Example: Cache .jpg for 60 only if s-maxage isn't present
----------------------------------------------------------
+.........................................................
 
 .. include:: vcl/cache_jpg_smaxage.vcl
    :literal:
@@ -2963,7 +3064,7 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
 .. include:: build/exercises/complete-avoid_caching_a_page.rst
 
 Exercise: Either use s-maxage or set TTL by file type
------------------------------------------------------
+.....................................................
 
 Write a VCL that:
 
@@ -2986,7 +3087,7 @@ Write a VCL that:
       Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
 
 Solution: Either use s-maxage or set ttl by file type
------------------------------------------------------
+.....................................................
 
 .. include:: vcl/s-maxage_cookies_filetypes.vcl
    :literal:
@@ -2997,108 +3098,6 @@ Solution: Either use s-maxage or set ttl by file type
 	The first part checks that ``s-maxage`` is /not/ present, then handles .jpg and .html files - including cookie removal.
 	The second part checks if ``s-maxage`` caused Varnish to set a positive TTL and consider it cacheable.
 	Then, we remove the ``Set-Cookie`` header field.
-	
-Summary of VCL
---------------
-
-- VCL provides a state machine for controlling Varnish.
-- Each request is handled independently.
-- Building a VCL file is done one line at a time.
-
-.. container:: handout
-
-        VCL is all about policy. By providing a state machine which you can
-        hook into, VCL allows you to affect the handling of any single
-        request almost anywhere in the execution chain.
-
-        This provides pros and cons as any other programming language.
-	This book is not a complete reference guide to
-        how you can deal with every possible scenario in VCL, but on the
-        other hand, if you master the basics of VCL you can solve complex
-        problems that nobody has thought about before. And you can usually
-        do it without requiring too many different sources of
-        documentation.
-
-        Whenever you are working on VCL, you should think of what that
-        exact line you are writing has to do. The best VCL is built by
-        having many independent sections that do not interfere with each
-        other more than what they have to.
-
-        Remember that there is a default VCL.
-	If your own VCL code does not have a return statement, the default VCL is always executed after yours.	
-        If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
-	
-VCL built-in subroutines
-========================
-
-.. TODO for the author: double check that the subroutines list is congruent with the chapter.
-.. TODO for the author: consider to add ``vcl_init``, and ``vcl_init``.
-
-- Start off with a cheat-sheet for available variables and legal returns.
-- Go through the VCL built-in subroutines: ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
-- Add some "features" with VCL.
-
-.. container:: handout
-
-   This chapter covers the VCL subroutines where you customize the behavior of Varnish.
-   However, this chapter does not define caching policies.
-
-   VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
-
-   After this chapter, you should know what all the VCL subroutines can be used for.
-   You should also be ready to dive into more advanced features of Varnish and VCL.
-
-Varnish built-in subroutines and their legal returns
-----------------------------------------------------
-The table below shows the VCL built-in subroutines and their legal returns.
-
-.. TODO for the editor: scale or change the font size of this table.
-
-.. csv-table:: VCL built-in subroutines and their legal returns.
-   :name: subroutines_legal_returns
-   :delim: ,
-   :header-rows: 1
-   :file: tables/subroutine_legal_returns.csv
-
-.. Acknowledgment: Table layout by MatouÅ¡ Jan Fialka.
-
-Variable availability in VCL subroutines
-----------------------------------------
-
-The table below shows the availability of variables in different states of the Varnish finite state machine.
-
-.. csv-table:: Variable Availability in VCL subroutines
-   :name: variable_availability
-   :delim: ;
-   :widths: 25,15,15,15,15,15
-   :header-rows: 1
-   :file: tables/variable_availability.csv
-
-The *State* column lists the different states in a request work-flow.
-States are handled by subroutines, which have a leading ``vcl_`` prefix name.
-
-The *Variables* columns list the prefix of the available variables.
-Most but not all of the prefixed variables are readable (R) or writable (W) at the given state.
-To have a detailed availability of each variable, refer to the VCL man page by typing: ``man vcl``.
-
-.. container:: handout
-
-   There are more variables not belonging to the prefixes in Table #.
-   ``client.``, ``server.``, and ``storage.`` are prefixes of variables that are accessible almost every where, as it is the ``now`` variable.
-
-   Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
-   And the ``resp.`` variables are copies of what is about to be returned to the client.
-   The values of ``resp.`` variables come possibly from ``obj.``. 
-
-   A change to ``beresp.`` variables, in other words, affects ``obj.`` and ``resp.`` variables. 
-   Similar semantics apply to ``bereq.`` and  ``req.`` variables. 
-   
-   Variables belonging to the backend request (``bereq.``) are assigned with values from the original request (``req.``).
-   However, their values may slightly differ, because Varnish may modify HTTP requests methods.
-   For example, requests with HEAD methods may be converted to GET methods.
-
-   Many but not all of the variables are self-explanatory.
-   To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
 
 VCL - ``vcl_hash``
 ------------------
@@ -3524,6 +3523,10 @@ PURGE with ``restart`` return action
    Everytime a `restart` occurs, Varnish increments the ``req.restarts`` counter.
    If the number of restarts is higher than the ``max_restarts`` parameter, Varnish emits a guru meditation error.
    In this way, Varnish safe guards against infinite loops.
+
+   .. warning::
+
+      Restarts are likely to cause a hit against the backend, so do not increase ``max_restarts`` thoughtlessly.
 
 Banning
 -------
@@ -4194,94 +4197,82 @@ Ask yourself this:
 
    The most important lessons is to start with what you know.
 
+.. bookmark
+
 Cookies
 -------
 
-.. TODO: "Content substitution based on variables and cookies is not implemented but is on the roadmap. At least if you look at the roadmap from a certain angle. During a full moon." https://www.varnish-cache.org/docs/trunk/users-guide/esi.html
+- **Be careful when caching cookies!**
 
 Cookies are frequently used to identify unique users, or user-choices. 
-They can be used for anything from identifying a user-session in a web-shop to opting out of a sites mobile-version. 
-There are three ways cookies can be handled:
+They can be used for anything from identifying a user-session in a web-shop to opting for a mobile version of a web page.
+Varnish can handle cookies coming from three different sources:
 
-- Clients send a ``Cookie`` HTTP request header field containing all cookies that matche that website and path.
-- Servers set a cookie by returning a ``Set-Cookie`` HTTP response header field.
-- JavaScripts modify cookies.
+- ``req.http.Cookie`` header field from clients
+- ``beresp.http.Set-Cookie`` header field from servers
+- cookies modified by JavaScripts
 
 .. container:: handout
 
-   This chapter does not look closely at the JavaScript method, but just what is necessary to get user-specific content in Varnish.
-   Varnish has several ways to handle Cookies.
+   By default Varnish does not cache a page if the ``Cookie`` request header or ``Set-Cookie`` response header are present.
+   This is for two main reasons:
+   1) to avoid littering the cache with large amount of copies of the same content, and
+   2) to avoid delivering cookie-based content to a wrong client.
 
-.. bookmark
+   It is far better to either cache multiple copies of the same content for each user or **not** cache it at all, than caching personal, confidential or private content and deliver it to a wrong client.
+   In other words, the worst is to jeopardize users' privacy for saving backend resources.
+   Therefore, it is strongly adviced to take your time to write an efficient VCL program and test it thoroughly before caching cookies in production deployments.
+
+   You can force Varnish to cache content based on cookies.
+   If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
+   If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
+
+   This chapter does not study in detail the method for handling cookies from JavaScripts, but just what is necessary to get user-specific content in Varnish.
+   .. TODO: to elaborate more this chapter.
 
 Vary and Cookies
-----------------
+................
 
-- The Vary-header can be used to let caches cache content that is based on
-  the value of cookies.
+- The ``Vary`` response header field can be used to cache content that is based on the value of cookies.
 - Cookies are widely used
-- ... but almost no-one sends ``Vary: Cookie`` for content that does,
-  indeed, vary based on the Cookie.
-- Thus: Varnish does not cache when cookies are involved, by default.
+- ... but almost no-one sends ``Vary: Cookie`` for **content that varies based on the cookies**.
+- Varnish **does not cache** when cookies are involved, by default.
 
 .. container:: handout
 
-   There is a good chance that you never knew what the Vary-header did
-   before you begun this course. You are not alone. However, many people
-   know how to store and retrieve cookies.
+   Server responses containing  ``Vary: Cookie`` in their response header are stored as a separate `vary` object in the cache.
+   `vary` objects shared the same hash value.
+   See the Vary Subsection to learn more about `vary` objects.
 
-   If Varnish' default VCL only obeyed the HTTP standard, you would be able
-   to cache content freely, regardless of the cookies a client sent. If the
-   server generated different pages based on the cookie-header, it would
-   signal that by sending a Vary response-header with Cookie in it. Sadly,
-   that's not the case.
+   .. TODO for the author: update the reference to the Vary Subsection.
 
-   To avoid cache collisions and littering the cache with large amount of
-   copies of the same content, Varnish does not cache a page if the Cookie
-   request-header or Set-Cookie response header is present.
-
-   You can force it, by issuing ``return (lookup);`` in `vcl_recv`, and
-   similar actions for Set-Cookie, and you'll most likely have to. But be
-   careful, or you end up giving a page generated based on a cookie to the
-   wrong person.
+   Caching based on the ``Varnish: Cookie`` response header is not adviced, because its poor performance.
 
 Best practices for cookies
---------------------------
+..........................
 
-- Remove all cookies you know you do not need, then cache if none are left.
-- Use URL schemes that let you easily determine if a page needs a cookie or
-  not. E.g:
+- Remove all cookies that you do not need
+- Organize the content of your web site in a way that let you easily determine if a page needs a cookie or not. For example:
 
-   - /common/ - strip all cookies.
-   - /user/ - Leave user-cookies.
-   - /voucher/ - Only leave the voucher-cookie.
+   - ``/common/`` -- no cookies
+   - ``/user/`` -- has user-cookies
+   - ``/voucher/`` -- has only the voucher-cookie
    - etc.
 
 .. TODO for the author: update vcl_fetch for vcl_backend_fetch.
 
-- Once you have a URL scheme that works, add the req.http.cookie to the
-  cache hash in `vcl_hash`: ``hash_data(req.http.cookie);``.
-- Never cache a `Set-Cookie` header. Either remove the header before
-  caching or do not cache the object at all.
-- Avoid using ``return (deliver);`` more than once in `vcl_fetch`. Instead,
-  finish up with something similar to::
+- Add the ``req.http.cookie`` to the cache hash by issuing ``hash_data(req.http.cookie);`` in ``vcl_hash``
+- Never cache a `Set-Cookie` header. Either remove the header before caching or do not cache the object at all.
+- Avoid using ``return (deliver);`` more than once in `vcl_fetch`. Instead, finish up with something similar to::
 
+  if (beresp.ttl > 0s) {
+     unset beresp.http.set-cookie;
+  }
 
-
-     if (beresp.ttl > 0s) {
-             unset beresp.http.set-cookie;
-     }
-
-  This ensures that all cached pages are stripped of set-cookie.
+This ensures that all cached pages are stripped of set-cookie.
 
 .. container:: handout
 
-   A golden rule through all of this is: It's far better to either NOT
-   cache or cache multiple copies of the same content for each user than it
-   is to deliver the wrong content to the wrong person.
-
-   Your worst-case scenario should be a broken cache and overloaded web
-   servers, not a compromised user-account and a lawsuit.
 
 Exercise: Compare Vary and ``hash_data``
 ----------------------------------------
