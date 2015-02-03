@@ -2531,11 +2531,11 @@ VCL Syntax
    
       If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
 
-
 VCL built-in functions
 ----------------------
 
 TODO: This table is not finished.
+
 .. test availability with varnishd -C -f foo.vcl
 
 .. csv-table:: VCL built-in subroutines and their functions
@@ -3439,7 +3439,7 @@ Exercise : PURGE an article from the backend
 .. container:: handout
 
    Now you know that purging can be as easy as sending a specific HTTP request.
-   You are provided with `article.php`, which fakes an article.
+   You are provided with ``article.php``, which fakes an article.
    It is recommended to create a separate php file to implement purging.
 
    **article.php**
@@ -4144,22 +4144,19 @@ Backend properties
       Varnish only accepts hostnames for backend servers that resolve to a maximum of one IPv4 address `and` one IPv6 address.
       The parameter ``prefer_ipv6`` defines which IP address Varnish prefer.
 
-.. bookmark
-
 Content Composition
 ===================
 
-TODO: This chapter has not been udpated yet.
+**Update in progress**
 
 *This chapter is for the webdeveloper course only*
 
 This chapter teaches you how to glue content from independent sources into one web page.
 
-- AJAX and masquerading AJAX requests through Varnish
-- Cookies and how you can work with them
-- Edge Side Includes (ESI) and how you can compose a single client-visible
-  page out of multiple objects
+- Cookies and how to work with them
+- Edge Side Includes (ESI) and how to compose a single client-visible page out of multiple objects
 - Combining ESI and Cookies
+- AJAX and masquerading AJAX requests through Varnish
 
 .. container:: handout
 
@@ -4197,8 +4194,6 @@ Ask yourself this:
 
    The most important lessons is to start with what you know.
 
-.. bookmark
-
 Cookies
 -------
 
@@ -4210,7 +4205,6 @@ Varnish can handle cookies coming from three different sources:
 
 - ``req.http.Cookie`` header field from clients
 - ``beresp.http.Set-Cookie`` header field from servers
-- cookies modified by JavaScripts
 
 .. container:: handout
 
@@ -4219,24 +4213,20 @@ Varnish can handle cookies coming from three different sources:
    1) to avoid littering the cache with large amount of copies of the same content, and
    2) to avoid delivering cookie-based content to a wrong client.
 
-   It is far better to either cache multiple copies of the same content for each user or **not** cache it at all, than caching personal, confidential or private content and deliver it to a wrong client.
+   It is far better to either cache multiple copies of the same content for each user or cache **nothing** at all, than caching personal, confidential or private content and deliver it to a wrong client.
    In other words, the worst is to jeopardize users' privacy for saving backend resources.
-   Therefore, it is strongly adviced to take your time to write an efficient VCL program and test it thoroughly before caching cookies in production deployments.
+   Therefore, it is strongly adviced to take your time to write a correct VCL program and test it thoroughly before caching cookies in production deployments.
 
-   You can force Varnish to cache content based on cookies.
+   Despite cookie-based caching is discouraged, Varnish can be forced to cache content based on cookies.
    If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
    If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
-
-   This chapter does not study in detail the method for handling cookies from JavaScripts, but just what is necessary to get user-specific content in Varnish.
-   .. TODO: to elaborate more this chapter.
 
 Vary and Cookies
 ................
 
+- Varnish **does not cache** when cookies are involved by default.
 - The ``Vary`` response header field can be used to cache content that is based on the value of cookies.
-- Cookies are widely used
-- ... but almost no-one sends ``Vary: Cookie`` for **content that varies based on the cookies**.
-- Varnish **does not cache** when cookies are involved, by default.
+- Cookies are widely used, but almost no-one sends ``Vary: Cookie`` for **content that varies based on cookies**.
 
 .. container:: handout
 
@@ -4246,7 +4236,7 @@ Vary and Cookies
 
    .. TODO for the author: update the reference to the Vary Subsection.
 
-   Caching based on the ``Varnish: Cookie`` response header is not adviced, because its poor performance.
+   .. Caching based on the ``Varnish: Cookie`` response header is not adviced, because its poor performance.
 
 Best practices for cookies
 ..........................
@@ -4259,56 +4249,46 @@ Best practices for cookies
    - ``/voucher/`` -- has only the voucher-cookie
    - etc.
 
-.. TODO for the author: update vcl_fetch for vcl_backend_fetch.
-
-- Add the ``req.http.cookie`` to the cache hash by issuing ``hash_data(req.http.cookie);`` in ``vcl_hash``
-- Never cache a `Set-Cookie` header. Either remove the header before caching or do not cache the object at all.
-- Avoid using ``return (deliver);`` more than once in `vcl_fetch`. Instead, finish up with something similar to::
+- Add the ``req.http.Cookie`` request header to the cache hash by issuing ``hash_data(req.http.cookie);`` in ``vcl_hash``.
+- Never cache a ``Set-Cookie`` header. Either remove the header before caching or do not cache the object at all.
+- Finish ``vcl_backend_response`` with something similar to::
 
   if (beresp.ttl > 0s) {
-     unset beresp.http.set-cookie;
+     unset beresp.http.Set-cookie;
   }
 
-This ensures that all cached pages are stripped of set-cookie.
+This ensures that all cached pages are stripped of ``Set-cookie.``
 
 .. container:: handout
-
 
 Exercise: Compare Vary and ``hash_data``
-----------------------------------------
+........................................
 
-Both a ``Vary: Cookie`` response-header and ``hash_data(req.http.cookie);``
-will create separate objects in the cache. This exercise is all about Vary-
-and hash-dynamics.
+Both a ``Vary: Cookie`` response header and ``hash_data(req.http.Cookie);`` create separate objects in the cache.
+This exercise is all about ``Vary`` and hash dynamics.
 
-#. Use the ``purge;`` code from previous chapters.
-#. Test with ``curl --cookie "user=John" http://localhost/cookies.php``
-#. Force Varnish to cache, despite the client sending a Cookie header
+#. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
+#. Test ``cookies.php`` by issuing  ``curl -v --cookie "user=John" http://localhost/cookies.php``.
+#. Write a VCL program to force Varnish to cache the response from ``cookies.php``.
 #. Change the cookie, and see if you get a new value.
-#. Make ``cookies.php`` send a ``Vary: Cookie`` header, then try changing
-   the cookie again.
-#. Try to PURGE. Check if it affects all, none or just one of the objects
-   in cache (e.g: change the cookie-value and see if PURGE has purged all
-   of them).
-#. Remove ``beresp.http.Vary`` in `vcl_fetch` and see if Varnish will still
-   honor the Vary-header.
-#. Add ``hash_data(req.http.cookie);`` in `vcl_hash`. Check how multiple
-   cookie-values will give individually-cached pages.
-#. Try PURGE now that you use ``hash_data()`` instead of Vary.
+#. Make ``cookies.php`` send a ``Vary: Cookie`` header, then try changing the cookie again.
+#. Try to `purge` the ``cookies.php`` cached object. Check if it affects all, none or just one of the objects in cache (e.g: change the value of the cookie and see if the ``PURGE`` method has purged all of them).
+#. Remove ``beresp.http.Vary`` in `vcl_backend_fetch` and see if Varnish still honors the ``Vary`` header.
+#. Add ``hash_data(req.http.cookie);`` in `vcl_hash`. Check how multiple values of cookie give individual cached pages.
+#. Try `purging` again, and check the result difference after using ``hash_data()`` instead of ``Vary: Cookie``.
 
 .. container:: handout
 
-   Once you've done this exercise, you should have a very good idea on how
-   both Vary and ``hash_data();`` works. We only looked at it for the
-   Cookie header, but the same rules would apply to any other header too.
+   After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
+   The exercise only looks for the ``Cookie`` header, but the same rules apply to any other header.
+
+.. TODO for the author: to create a solution for this exercise
 
 Edge Side Includes
 ------------------
 
-TODO: To update based on https://www.varnish-cache.org/docs/trunk/users-guide/esi.html.
-
-- What is ESI
-- How to use ESI
+- What is ESI?
+- How to use ESI?
 - Testing ESI without Varnish
 
 .. image:: ui/img/esi.png
@@ -4317,73 +4297,84 @@ TODO: To update based on https://www.varnish-cache.org/docs/trunk/users-guide/es
 
 .. container:: handout
 
-   Edge Side Includes or ESI is a small markup language for dynamic
-   web content assembly at the reverse proxy level.
-   The reverse proxy analyses the HTML code, parses ESI specific markup and
-   assembles the final result before flushing it to the client.
+   Edge Side Includes or ESI is a small markup language for dynamic web content assembly at the reverse proxy level.
+   The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
 
-   With ESI, Varnish can be used not only to deliver objects, but to glue
-   them together. The most typical use case for ESI is a news article with
-   a "most recent news" box at the side. The article itself is most likely
-   written once and possibly never changed, and can be cached for a long
-   time. The box at the side with "most recent news", however, will change
-   frequently. With ESI, the article can include a "most recent news" box
-   with a different TTL.
+   With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
+   The most typical use case for ESI is a news article with a most recent news box at the side. 
+   The article itself is most likely written once and possibly never changed, and can be cached for a long time. 
+   The box at the side with most recent news, however, changes frequently.
+   With ESI, the article can include a most recent news box with a different TTL.
 
-   Varnish would then first fetch the news article from a web server, then
-   parse it for ESI content, see the ``<esi:include src="/top.html">``
-   item, then fetch `/top.html` as if it was a normal object, either
-   finding it already cached or getting it from a web server and inserting
-   it into cache. The TTL of `/top.html` can be 5 minutes while the article
-   is cached for two days. Varnish will know that it has to glue the page
-   together from two different objects when it sends it, and thus it will
-   update the parts independently and always use the most updated version.
+   When using ESI, Varnish fetches the news article from a web server, then parses the ``<esi:include src="/url" />`` ESI tag, and fetches the URL via a normal request.
+   Either finding it already cached or getting it from a web server and inserting it into cache.
+   
+   The TTL of the ESI element can be 5 minutes while the article is cached for two days.
+   Varnish delivers the two different objects in one glued page.
+   Thus, Varnish updates parts independently and makes possible to combine content with different TTL.
 
 Basic ESI usage
----------------
+...............
 
 Enabling ESI in Varnish is simple enough:
 
 .. include:: vcl/esi_basic.vcl
-         :literal:
+   :literal:
 
-To include a page in another, the ``<esi:include>`` tag is used::
+To include a page in another, the ``<esi:include>`` ESI tag is used::
 
    <esi:include src="/url" />
 
-You can also strip cookies for the top-element of an ESI page, but leave
-them for the sub-page. This is done in `vcl_recv`.
+You can also strip off cookies per ESI element.
+This is done in `vcl_recv`.
 
 .. container:: handout
 
-    Varnish only supports the three following tags:
+    Varnish only supports three ESI tags:
 
-    - ``<esi:include>`` : calls the page defined in the "src" attribute and inserts it
-      in the page where the tag has been placed.
+    - ``<esi:include>``: calls the page defined in the ``src`` attribute and replaces the ESI tag with the content of ``src``.
     - ``<esi:remove>`` : removes any code inside this opening and closing tag.
-    - ``<!--esi ``(content)`` -->``: Leaves ``(content)`` unparsed. E.g,
-      the following will not perform substitution for the
-      ``<esi:include...`` tag::
+    - ``<!--esi ``(content)`` -->``: Leaves ``(content)`` unparsed. E.g., the following does not process the ``<esi:include>`` tag::
 
         <!--esi
-            An esi tag looks like: <esi:include src="example">
+            This ESI tag is not processed: <esi:include src="example">
         -->
-
 
     .. note::
 
-       By default, Varnish refuses to parse content for ESI if it does not
-       `look` like XML. That means that it has to start with a `<`-sign.
-       You should be able to see ESI parse errors both in varnishstat and
-       varnishlog, though you may have to look closely.
+       Varnish outputs ESI parsing errors in ``varnishstat`` and ``varnishlog``.
+
+
+Example: Using ESI
+..................
+
+Copy ``material/webdev/esi-date.php`` under ``/var/www/html/``.
+This file contains an ESI include tag::
+
+.. include:: material/webdev/esi-date.php
+   :literal:
+
+Copy ``material/webdev/esi-date.cgi`` under ``/usr/lib/cgi-bin/``.
+This file is a simple CGI that outputs the date of the server::
+
+.. include:: material/webdev/date.cgi
+   :literal:
+
+For the ESI to work, load the following VCL code::
+
+.. include:: vcl/esi_date.vcl
+   :literal:
+
+Then reload Varnish and issue the command ``http http://localhost/esi-date.php``.
+The output should show you how Varnish replaces the ESI tag with the reponse from ``esi-date.cgi``.
+This example also tries to show you how the glued objects have different TTLs.
 
 Exercise: Enable ESI and Cookies
---------------------------------
+................................
 
-Use the `esi-top.php` and `esi-user.php`-files to test ESI.
+#. Use ``material/webdev/esi-top.php`` and ``material/webdev/esi-user.php`` to test ESI.
+#. Visit ``esi-top.php`` and identify the ESI tag.
 
-#. Visit the `esi-top.php`-page and observe that the ESI-markup is clearly
-   visible.
 #. Enable ESI in Varnish and re-test.
 #. Strip all cookies from `esi-top.php` and make it cache.
 #. Let the user-page cache too. It emits ``Vary: Cookie``, but might need
@@ -4467,13 +4458,8 @@ Solution : write a VCL that masquerades XHR calls
    :literal:
 
 
-Finishing words
-===============
-
-TODO: This chapter has not been updated yet.
-
-Resources
----------
+Appendix A: Resources
+=====================
 
 Community driven:
 
@@ -4492,7 +4478,7 @@ Commercial:
 - support@varnish-software.com (for existing customers, with SLA)
 - sales@varnish-software.com
 
-Appendix A: Varnish Programs
+Appendix B: Varnish Programs
 ============================
 
 TODO: This chapter has not been updated yet.
@@ -4660,7 +4646,7 @@ Exercise: Try the tools
 - Install ``siege``
 - Run siege against localhost while looking at varnishhist
 
-Appendix B: Extra Material
+Appendix C: Extra Material
 ==========================
 
 The following is content needed for some of the exercises.
@@ -4719,7 +4705,7 @@ set-cookie.php
 .. include:: material/webdev/set-cookie.php
    :literal:
 
-Appendix C: From Varnish 3 to Varnish 4
+Appendix D: From Varnish 3 to Varnish 4
 =======================================
 
 What is new since Varnish 3

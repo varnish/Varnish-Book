@@ -20,7 +20,6 @@ if( isset($_POST['k']) and $_POST['k'] !== '' and
 
 <?php echo "$now"; ?>
 
-
 <h1>Set a cookie:</h1><form action="/esi-top.php" method="POST">
 Key: <input type="text" name="k">
 Value: <input type="text" name="v">
@@ -33,6 +32,5 @@ Value: <input type="text" name="v">
 foreach( $_COOKIE as $name => $value )
     print( "<li>${name} : ${value}</li>\n" );
 ?>
-
 
 <table border="1"><tr><td><esi:include src="/esi-user.php" /></td></tr></table></body></html>
