@@ -3882,7 +3882,7 @@ Directors
 
    The *random* director picks a backend randomly.
    It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the selection of the backends.
-  The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
+   The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
 
    The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
    The next backend to be selected depends on the selection method (i.e. random, round-robin, or hash) of the director.
@@ -4253,13 +4253,11 @@ Best practices for cookies
 - Never cache a ``Set-Cookie`` header. Either remove the header before caching or do not cache the object at all.
 - Finish ``vcl_backend_response`` with something similar to::
 
-  if (beresp.ttl > 0s) {
-     unset beresp.http.Set-cookie;
-  }
+    if (beresp.ttl > 0s) {
+        unset beresp.http.Set-cookie;
+    }
 
-This ensures that all cached pages are stripped of ``Set-cookie.``
-
-.. container:: handout
+This ensures that all cached pages are stripped of ``Set-cookie``.
 
 Exercise: Compare Vary and ``hash_data``
 ........................................
@@ -4349,18 +4347,18 @@ Example: Using ESI
 ..................
 
 Copy ``material/webdev/esi-date.php`` under ``/var/www/html/``.
-This file contains an ESI include tag::
+This file contains an ESI include tag.
 
 .. include:: material/webdev/esi-date.php
    :literal:
 
 Copy ``material/webdev/esi-date.cgi`` under ``/usr/lib/cgi-bin/``.
-This file is a simple CGI that outputs the date of the server::
+This file is a simple CGI that outputs the date of the server.
 
-.. include:: material/webdev/date.cgi
+.. include:: material/webdev/esi-date.cgi
    :literal:
 
-For the ESI to work, load the following VCL code::
+For the ESI to work, load the following VCL code.
 
 .. include:: vcl/esi_date.vcl
    :literal:
@@ -4369,6 +4367,8 @@ Then reload Varnish and issue the command ``http http://localhost/esi-date.php``
 The output should show you how Varnish replaces the ESI tag with the reponse from ``esi-date.cgi``.
 This example also tries to show you how the glued objects have different TTLs.
 
+.. bookmark
+
 Exercise: Enable ESI and Cookies
 ................................
 
@@ -4376,7 +4376,7 @@ Exercise: Enable ESI and Cookies
 #. Visit ``esi-top.php`` and identify the ESI tag.
 
 #. Enable ESI in Varnish and re-test.
-#. Strip all cookies from `esi-top.php` and make it cache.
+#. Strip all cookies from ``esi-top.php`` and make it cache.
 #. Let the user-page cache too. It emits ``Vary: Cookie``, but might need
    some help.
 
@@ -4391,8 +4391,8 @@ Exercise: Enable ESI and Cookies
    `esi-user.php` and test.
 
    You may also want to try ``PURGE``. You will have to purge each of the
-   objects: Purging just `/esi-top.php` will not automatically purge
-   `/esi-user.php`.
+   objects: Purging just ``/esi-top.php`` will not automatically purge
+   ``/esi-user.php``.
 
 Testing ESI without Varnish
 ---------------------------
@@ -4724,7 +4724,3 @@ That said, you should use it under your own responsibility.
 
 You can download the script from https://github.com/fgsch/varnish3to4.
 Usage and up-to-date details about the script is at the same web address.
-
-.. raw:: pdf
-
-   PageBreak
