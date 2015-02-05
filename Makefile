@@ -11,8 +11,10 @@ PICK = "./util/pickchapter2.igawk"
 # the pdfs you can now build.
 
 book = "*"
+# test = "*"
+test = "VCL Basics"
 # TOFIX: the sysadmin target is not compiling as expected.
-sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"
+# sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"
 
 #webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
@@ -28,6 +30,7 @@ exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${ex
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
+testt= ${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
 images = ui/img/cache_fetch.png ui/img/cache_req_fsm.png
@@ -59,6 +62,8 @@ webdev: ${webdevt}
 sysadmin: ${sysadmint}
 
 book: ${bookt}
+
+test: ${testt}
 
 src/conf.py: src/conf.py.in build/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@

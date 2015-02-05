@@ -23,13 +23,3 @@ sub vcl_recv{
         set req.backend_hint = localhost;
     }
 }
-
-/*sub vcl_backend_fetch {
-    if (bereq.url ~ "^/masq") {
-        set bereq.backend = google;
-        set bereq.http.host = "www.google.com";
-        set bereq.url = regsub(bereq.url, "^/masq", "");
-        return (fetch);
-    }
-}
-*/
