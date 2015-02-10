@@ -541,6 +541,8 @@ Configure Varnish
       :header-rows: 2
       :file: tables/varnish_configuration_files.csv
 
+\* ``/etc/systemd/system/varnish.service`` does not exist by default. Copy it from ``/lib/systemd/system/varnish.service`` and edit it.
+
 .. container:: handout
 
    The configuration file is used to give parameters and command line arguments to the Varnish daemon.
