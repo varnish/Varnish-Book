@@ -521,40 +521,63 @@ Install Varnish and Apache as backend
 
    To use the varnish-cache.org repository and install Varnish on Ubuntu 14.04 trusty do the following as root::
 
-     1. apt-get install apt-transport-https
-     2. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-     3. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+     #. apt-get install apt-transport-https
+     #. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+     #. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
 	/etc/apt/sources.list.d/varnish-cache.list
-     4. apt-get update
-     5. apt-get install varnish
+     #. apt-get update
+     #. apt-get install varnish
 
    For Ubuntu 12.04 (precise) replace ``trusty`` with ``precise`` in instruction 3.
    If you want to install Varnish version 3.0, replace ``varnish-4.0`` with ``varnish-3.0`` in instruction 3.
 
-   .. Configure Varnish
+Configure Varnish
+.................
 
-   Next, you edit the Varnish configuration file ``/etc/default/varnish`` to listen on port `80` and have a management interface on port `1234`.
+   .. csv-table:: Different Locations of the Varnish Configuration File
+      :name: Different Locations of the Varnish Configuration File
+      :delim: ;
+      :widths: 20, 27, 25, 28
+      :header-rows: 2
+      :file: tables/varnish_configuration_files.csv
+
+.. container:: handout
+
+   The configuration file is used to give parameters and command line arguments to the Varnish daemon.
+   This file also specifies the location of the VCL file.
+   Modifications to this file require to run ``service varnish restart`` for the changes to take effect.
+
+   The location of the Varnish configuration file depends on the operating system and whether it uses the ``init`` system of `SysV`, or `systemd`.
+   Table `Different Locations of the Varnish Configuration File`_ shows the locations for each system installation.
+
+   Once you have found the Varnish configuration file, edit it to listen on port `80` and have a management interface on port `1234`.
    This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
 
      -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
      -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
-   Edit the configuration file ``/etc/varnish/default.vcl`` to use Apache as backend::
+   In order for changes in the configuration file to take effect, `varnishd` must be restarted.
+   The safest way to restart Varnish is by using ``service varnish restart``.
+
+   The default VCL file location is ``/etc/varnish/default.vcl``.
+   You can change this location by editing the configuration file.
+   The VCL file contains your VCL and backend definitions.
+   Edit the VCL file to use Apache as backend::
 
      backend default {
        .host = "127.0.0.1";
        .port = "8080";
      }
 
-   Finally, restart Varnish using ``service varnish restart``.
+   After changing a VCL file, you can run ``service varnish reload``, which does not restart `varnishd`. 
 
-      .. tip::
+   .. tip::
 
-	 You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
+      You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
 
-      .. tip::
+   .. tip::
 
-	 Issue the command ``man vcl`` to see all available options to define a backend.
+      Issue the command ``man vcl`` to see all available options to define a backend.
 
 The management interface
 ------------------------
@@ -581,7 +604,7 @@ You can read about other usages by issuing the ``help`` command after you connec
    2. Changes are not persistent across restarts of Varnish. 
       If you change a parameter and you want the change to persist after you restart Varnish,
       you need to store your changes in the configuration file of the boot script.
-      The location of the configuration file is ``/etc/default/varnish`` by default.
+      The location of the configuration file is is in Table `Different Locations of the Varnish Configuration File`_.
 
    ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
    You can now provide access to the interface on a per user basis by adjusting the read permission on the secret file.
@@ -601,7 +624,7 @@ You can read about other usages by issuing the ``help`` command after you connec
       To check the Varnish CLI manual page, issue ``man varnish-cli``.
 
 More about Varnish Configuration
---------------------------------
+................................
 
 .. csv-table:: Varnish Configuration Types
    :name: configuration_types
@@ -610,6 +633,8 @@ More about Varnish Configuration
    :header-rows: 1
    :file: tables/configuration_type.csv
 
+The location of the configuration file is in Table `Different Locations of the Varnish Configuration File`_.
+
 .. csv-table:: How to reload Varnish
    :name: varnish_reload
    :delim: ;
@@ -617,31 +642,44 @@ More about Varnish Configuration
    :header-rows: 1
    :file: tables/varnish_reload.csv
 
-Using the ``service`` commands is recommended. 
-It is safe and fast.
+Using the ``service`` commands is recommended, safe and fast.
 
 .. container:: handout
 
-        Command line options and tunable parameters are used to:
-	1) define how Varnish should work with operating system and hardware, and
-	2) set default values.
-	Configuration in VCL defines how Varnish should interact with web servers and clients.
+   Command line options and tunable parameters are used to:
+   1) define how Varnish should work with operating system and hardware, and
+   2) set default values.
+   Configuration in VCL defines how Varnish should interact with web servers and clients.
 
-        Almost every aspect of Varnish can be reconfigured without restarting Varnish.
-	Notable exceptions are:
-	1) allocated memory size for caching,
-	2) cache file location, 
-	3) ownership (for user and group privileges) of the Varnish daemon, and
-	4) the hashing algorithm.
+   Almost every aspect of Varnish can be reconfigured without restarting Varnish.
+   Notable exceptions are:
+   1) allocated memory size for caching,
+   2) cache file location, 
+   3) ownership (for user and group privileges) of the Varnish daemon, and
+   4) the hashing algorithm.
 
-        Some parameters changes require to restart Varnish to take effect.
-	For example, the modification of the listening port.
-	Other changes might not take effect immediately, but restart is not required.
-	Changes to cache time-to-live (TTL), for instance, take effect only after the current cached objects expire.
-	In this example, the value of the TTL parameter is only applicable to caches fetched after the TTL modification.
+   Some parameters changes require to restart Varnish to take effect.
+   For example, the modification of the listening port.
+   Other changes might not take effect immediately, but restart is not required.
+   Changes to cache time-to-live (TTL), for instance, take effect only after the current cached objects expire.
+   In this example, the value of the TTL parameter is only applicable to caches fetched after the TTL modification.
 
-	``param.show <parameter>`` outputs a description of ``parameter``.
-	The description includes when and how modifications takes effect, and the default and current value of the parameter.
+   ``param.show <parameter>`` outputs a description of ``parameter``.
+   The description includes when and how modifications takes effect, and the default and current value of the parameter.
+
+   There are other ways to reload VCL and make parameter-changes take effect, mostly using the ``varnishadm`` tool. 
+   However, using the ``service varnish reload`` and ``service varnish restart`` commands is a good habit.
+
+   .. note::
+
+      If you want to know how the ``service varnish``-commands work, look at the script that runs behind the scenes. 
+      The script is in ``/etc/init.d/varnish``.
+
+   .. warning::
+
+      The varnish script-configuration (located under `/etc/default/` or `/etc/sysconfig/`) is directly sourced as a shell script.
+      Pay close attention to any backslashes (\\) and quotation marks that might move around as you edit the ``DAEMON_OPTS`` environmental variable.
+
 
 Command line configuration
 --------------------------
@@ -684,7 +722,7 @@ Relevant options for the course are:
         for tuning Varnish parameters usually means that you first try the
         parameter on a running Varnish through the management interface to
         find the value you want.
-	Then store the parameter and value in a configuration file ``/etc/default/varnish``.
+	Then store the parameter and value in a configuration file.
 	This file is read every time you start Varnish.
 
         The ``-S`` option specifies a file which contains a secret to be
@@ -707,37 +745,7 @@ Relevant options for the course are:
 	.. tip::
 	   Type ``man varnishd`` to see all options of the Varnish daemon.
 
-.. review bookmark
-
-Configuration files
--------------------
-
-Most Varnish-installations use two configuration-files.
-One of them is used by the operating system to start Varnish, and the other contains your VCL.
-
-.. csv-table:: Varnish Configuration Files
-   :name: configuration_files
-   :delim: ;
-   :widths: 35, 65
-   :header-rows: 1
-   :file: tables/configuration_files.csv
-
-.. container:: handout
-
-   There are other ways to reload VCL and make parameter-changes take effect, mostly using the ``varnishadm`` tool. 
-   However, using the ``service varnish reload`` and ``service varnish restart`` commands is a good habit.
-
-   .. note::
-
-      If you want to know how the ``service varnish``-commands work, you can always look at the script that runs behind the scenes. 
-      The script is in ``/etc/init.d/varnish``.
-
-   .. warning::
-
-      The `varnish` script-configuration (located under `/etc/default/`
-      or `/etc/sysconfig/`) is directly sourced as a shell script. Pay close
-      attention to any backslashes (\\) and quotation marks that might move
-      around as you edit the ``DAEMON_OPTS`` environmental variable.
+	.. review bookmark
 
 Defining a backend in VCL
 -------------------------
@@ -1514,7 +1522,7 @@ The output of ``varnishturner`` updates every time you introduce a new input or 
 However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
 To make the tuning persistent, you can add do the following:
 
-- Specify the Varnish parameters in ``/etc/default/varnish``.
+- Specify the Varnish parameters in the configuration file.
 - Specify the ``sysctl`` system variables in ``/etc/sysctl.conf`` or in ``/etc/sysctl.d/varnishtuner.conf`` (if ``/etc/sysctl.d/`` is included).
 
 To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
@@ -2768,6 +2776,9 @@ Default: ``vcl_recv``
    For a well-behaving Varnish server, most of the logic in the default VCL is needed, and care should be taken when ``vcl_recv`` is terminated.
    Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
 
+   .. TODO: Consider to mention why SPDY is not supported in Varnish.
+   .. https://www.varnish-software.com/blog/why-i-dont-spdy
+
 Example: Basic Device Detection
 ...............................
 
@@ -2850,7 +2861,7 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
    .. tip::
       Remember that ``man vcl`` contains a reference manual with the syntax and details of functions such as ``regsub(str, regex, sub)``.
       We recommend you to leave the default VCL file untouched, and create a new file for your VCL code.
-      Remember to update the location of the VCL file in ``/etc/default/varnish``, and restart Varnish.
+      Remember to update the location of the VCL file in the Varnish configuration file, and restart Varnish.
       
 Solution: Rewrite URLs and Host headers
 .......................................
