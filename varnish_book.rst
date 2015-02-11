@@ -242,18 +242,24 @@ Varnish Cache and Varnish Cache Plus
 
    .. Open Source / Free Software:
 
-   Varnish Cache is an open source project, and free software. The
-   development process is public and everyone can submit patches, or just
-   take a peek at the code if there is some uncertainty as to how Varnish Cache
-   works. There is a community of volunteers who help each other and
-   newcomers. The BSD-like license used by Varnish Cache does not place
-   significant restriction on re-use of the code, which makes it possible
-   to integrate Varnish Cache in virtually any solution.
+   Varnish Cache is an open source project, and free software. 
+   The development process is public and everyone can submit patches, or just take a peek at the code if there is some uncertainty as to how Varnish Cache works. 
+   There is a community of volunteers who help each other and newcomers. 
+   The BSD-like license used by Varnish Cache does not place significant restriction on re-use of the code, which makes it possible to integrate Varnish Cache in virtually any solution.
 
-   Varnish Cache is developed and tested on GNU/Linux and FreeBSD. The code-base
-   is kept as self-contained as possible to avoid introducing out-side bugs
-   and unneeded complexity. As a consequence of this, Varnish uses very few
-   external libraries.
+   Varnish Cache is developed and tested on GNU/Linux and FreeBSD. 
+   The code-base is kept as self-contained as possible to avoid introducing out-side bugs and unneeded complexity. 
+   As a consequence of this, Varnish uses very few external libraries.
+
+   At the moment of writting this book, Varnish Cache 4 is supporting the following Linux distributions:
+
+   - Debian Linux 7 (wheezy)
+   - Debian Linux 8 (jessie)
+   - Ubuntu Linux 12.04 (precise)
+   - Ubuntu Linux 14.04 (trusty)
+   - RedHat Enterprise Linux 6
+   - FreeBSD 9
+   - FreeBSD 10
 
    .. Varnish Software:
 
@@ -288,23 +294,33 @@ Varnish Cache and Varnish Cache Plus
    - quick fix for unstable backends, and
    - HTTP router.
 
+   At the moment of writting this book, Varnish Plus is supporting the following Linux distributions:
+
+   - RedHat Enterprise Linux 5
+   - RedHat Enterprise Linux 6
+   - Ubuntu Linux 12.04 LTS (precise)
+   - Ubuntu Linux 14.04 LTS (trusty)
+   - Debian Linux 7 (wheezy)
+
+   Varnish Cache Plus is supported on 64-bit systems.
+
 Varnish Software
 ----------------
 
 Varnish timeline:
 
-- 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were
-  looking for alternative cache solutions.
-- 2006: Work began. Redpill Linpro was in charge of project management,
-  infrastructure and supporting development. Poul-Henning Kamp did the
-  majority of the actual development.
+- 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were looking for alternative cache solutions.
+- 2006: Work began. 
+  Redpill Linpro was in charge of project management, infrastructure and supporting development. 
+  Poul-Henning Kamp did the majority of the actual development.
 - 2006: Varnish 1.0 released
 - 2008: Varnish 2.0 released
-- 2009: The first Varnish User Group Meeting is held in London. Roughly a
-  dozen people participate from all around the world.
+- 2009: The first Varnish User Group Meeting is held in London.
+  Roughly a dozen people participate from all around the world.
 - 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
 - 2011: Varnish 3.0 released
-- 2012: The fifth Varnish User Group Meeting is held in Paris. Roughly 70 people participate on the User-day and around 30 on the developer-day!
+- 2012: The fifth Varnish User Group Meeting is held in Paris. 
+  Roughly 70 people participate on the User-day and around 30 on the developer-day!
 
 .. container:: handout
 
@@ -485,6 +501,17 @@ Install Varnish and Apache as backend
 
 - Use packages provided by varnish-cache.org
 
+.. csv-table:: Different Locations of the Varnish Configuration File
+   :name: Different Locations of the Varnish Configuration File
+   :stub-columns: 2
+   :delim: ;
+   :widths: 24, 27, 26, 33
+   :header-rows: 2
+   :file: tables/varnish_configuration_files.csv
+
+\* ``/etc/systemd/system/varnish.service`` does not exist by default. 
+Copy it from ``/lib/systemd/system/varnish.service`` and edit it.
+
 .. csv-table:: Varnish and Apache configuration
    :name: varnish_apache
    :delim: ;
@@ -492,14 +519,24 @@ Install Varnish and Apache as backend
    :header-rows: 1
    :file: tables/varnish_apache.csv
 
+\* These files are for a SysV Ubuntu/Debian configuration.
+
 .. container:: handout
+
+   The configuration file is used to give parameters and command line arguments to the Varnish daemon.
+   This file also specifies the location of the VCL file.
+   Modifications to this file require to run ``service varnish restart`` for the changes to take effect.
+
+   The location of the Varnish configuration file depends on the operating system and whether it uses the ``init`` system of `SysV`, or `systemd`.
+   Table `Different Locations of the Varnish Configuration File`_ shows the locations for each system installation.
 
    .. Introduction to apt-get and yum
 
    To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
    For Red Hat, use ``yum install <package>``.
 
-   .. Install Apache
+Install Apache
+..............
 
    To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
    Install the *HTTPie* utility with the command: ``apt-get install httpie``.
@@ -511,7 +548,10 @@ Install Varnish and Apache as backend
    #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
    #. Restart Apache: ``service apache2 restart``.
 
-   .. Install Varnish
+
+Install Varnish
+...............
+
    .. TODO for the author: Update this instructions to install Varnish Plus once packages are available for Ubuntu.
 
    Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
@@ -533,24 +573,6 @@ Install Varnish and Apache as backend
 
 Configure Varnish
 .................
-
-   .. csv-table:: Different Locations of the Varnish Configuration File
-      :name: Different Locations of the Varnish Configuration File
-      :delim: ;
-      :widths: 20, 27, 25, 28
-      :header-rows: 2
-      :file: tables/varnish_configuration_files.csv
-
-\* ``/etc/systemd/system/varnish.service`` does not exist by default. Copy it from ``/lib/systemd/system/varnish.service`` and edit it.
-
-.. container:: handout
-
-   The configuration file is used to give parameters and command line arguments to the Varnish daemon.
-   This file also specifies the location of the VCL file.
-   Modifications to this file require to run ``service varnish restart`` for the changes to take effect.
-
-   The location of the Varnish configuration file depends on the operating system and whether it uses the ``init`` system of `SysV`, or `systemd`.
-   Table `Different Locations of the Varnish Configuration File`_ shows the locations for each system installation.
 
    Once you have found the Varnish configuration file, edit it to listen on port `80` and have a management interface on port `1234`.
    This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
@@ -580,6 +602,12 @@ Configure Varnish
    .. tip::
 
       Issue the command ``man vcl`` to see all available options to define a backend.
+
+   .. note::
+
+      Varnish recommends to disable SELinux.
+      If you prefer otherwise, then set the boolean 'varnishd_connect_any' variable to 1.
+      You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
 The management interface
 ------------------------
