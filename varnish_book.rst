@@ -503,25 +503,26 @@ Install Varnish and Apache as backend
 
 .. csv-table:: Different Locations of the Varnish Configuration File
    :name: Different Locations of the Varnish Configuration File
-   :stub-columns: 2
    :delim: ;
    :widths: 24, 27, 26, 33
    :header-rows: 2
    :file: tables/varnish_configuration_files.csv
 
-\* ``/etc/systemd/system/varnish.service`` does not exist by default. 
+\* ``/etc/systemd/system/varnish.service`` does not exist by default.
 Copy it from ``/lib/systemd/system/varnish.service`` and edit it.
 
-.. csv-table:: Varnish and Apache configuration
-   :name: varnish_apache
-   :delim: ;
-   :widths: 20, 30, 50 
-   :header-rows: 1
-   :file: tables/varnish_apache.csv
-
-\* These files are for a SysV Ubuntu/Debian configuration.
-
 .. container:: handout
+
+   .. Note for the editor: Table varnish_apache should be above 'handout', but having two tables throws an error when compiling.
+
+   .. csv-table:: Varnish and Apache configuration
+      :name: varnish_apache
+      :delim: ;
+      :widths: 20, 30, 50
+      :header-rows: 1
+      :file: tables/varnish_apache.csv
+
+   \* These files are for a SysV Ubuntu/Debian configuration.
 
    The configuration file is used to give parameters and command line arguments to the Varnish daemon.
    This file also specifies the location of the VCL file.
@@ -2412,7 +2413,6 @@ Exercise: Use `article.php` to test `Age`
    headers Varnish sends. That way, your web-server can emit response
    headers that are only seen and used by Varnish.
 
-
 VCL Basics
 ==========
 
@@ -2487,27 +2487,21 @@ Varnish request flow for the client worker thread
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
 .. TODO for the author: Double check that the available variables are correct and not confusing.
+.. TODO for the editor: Sizing the figure over 33% throws error. Fix it!
 
 TODO: To simplify this diagram.
-
-.. raw:: pdf
-
-	 PageBreak
 
 .. image:: ui/img/cache_req_fsm.png
    :align: center
    :width: 33%
 
-.. raw:: pdf
-
-	 PageBreak
-
-
 Varnish request flow for the backend worker thread
 --------------------------------------------------
+
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
 .. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
 .. TODO for the author: Double check that the available variables are correct and not confusing.
+.. TODO for the editor: Sizing the figure over 5% throws error. Fix it!
 
 TODO: To simplify this diagram.
 
