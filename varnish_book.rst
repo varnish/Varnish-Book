@@ -20,14 +20,12 @@
 Abstract
 ========
 
-.. container:: handout
+The Varnish Book is the training material for Varnish Plus courses.
+The book teaches technical staff to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
 
-   The Varnish Book is the training material for Varnish Plus courses.
-   The book teaches technical staff to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
-
-   The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
-   Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
-   Also included are Varnish programs such as ``varnishtop``, and extra material.
+The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
+Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
+Also included are Varnish programs such as ``varnishtop``, and extra material.
 
 Preface
 =======
@@ -96,19 +94,20 @@ The Webdev course requires that you:
 Organization of the Book and Course
 -----------------------------------
 
-.. TODO for instructor: tailor this slide
+TODO for instructor: tailor this slide
 
 Each chapter has the following structure:
-1) background,
-2) checklist,
-3) example(s),
-4) exercise(s), and 
-5) feedback.
+
+  1) background,
+  2) checklist,
+  3) example(s),
+  4) exercise(s), and 
+  5) feedback.
 
 At the end of each chapter there is a **Fast Track** section, and it contains three parts:
-1) a review,
-2) exercise(s), and 
-3) feedback.
+  1) a review,
+  2) exercise(s), and 
+  3) feedback.
 
 .. container:: handout
 
@@ -144,65 +143,71 @@ At the end of each chapter there is a **Fast Track** section, and it contains th
    
    Note: This organization is still not completely implemented.
 
-How to Use the Book
--------------------
+.. Commenting this subsection
 
-- Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
-- The instructor guides you through the book
-- Use the *manual pages* and help options.
-- To practice the course, use the Fast Track in the following way:
+   How to Use the Book
+   -------------------
 
-  - Read the Review and Exercise parts of the Fast Track.
-  - If you can complete the exercise(s), you remember the most important parts.
-  - If not, you should repeat the chapter.
+   .. TODO: "How to Use the Book" is a subsection.
+   .. At the moment is a section to exlude it from compiling in the Makefile
 
-.. container:: handout
+   - Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
+   - The instructor guides you through the book
+   - Use the *manual pages* and help options.
 
-   .. Varnish Cache Course
+   .. - To practice the course, use the Fast Track in the following way:
 
-   The Varnish Book is designed to be used as training material under a Varnish Plus course taught by a certified instructor.
-   Under a course, the instructor guides you and selects the relevant chapters to learn.
-   If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
+   ..   - Read the Review and Exercise parts of the Fast Track.
+   ..   - If you can complete the exercise(s), you remember the most important parts.
+   ..   - If not, you should repeat the chapter.
 
-   .. Exercises
+   .. container:: handout
 
-   There are almost always many ways to do an exercise.
-   The solutions provided in this book or by your instructor are not necessarily better than your own.
+      .. Varnish Cache Course
 
-   .. man pages and help commands
+      The Varnish Book is designed to be used as training material under the Varnish Plus course taught by a certified instructor.
+      Under the course, the instructor guides you and selects the relevant chapters to learn.
+      .. If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
-   Varnish installs several reference manuals that are accessible through the manual page command ``man``.
-   You can issue the command ``man -k varnish`` to list the manual pages that mention Varnish in their short description.
-   In addition, the ``vsl`` man page that explains the Varnish Shared Memory Logging (VSL).
-   This man page does not come out when issuing ``man -k varnish``, because it does not contain the word `varnish` in its short description.
+      .. Exercises
 
-   The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
-   Also, some commands have a help option to print the usage of the command.
-   For example, ``varnishlog -h`` prints the usage and options of the command with a short description of them.
+      There are almost always many ways to do an exercise.
+      The solutions provided in this book or by your instructor are not necessarily better than your own.
 
-   .. Installation required
+      .. man pages and help commands
 
-   To complete this book, you need the following installation:
+      Varnish installs several reference manuals that are accessible through the manual page command ``man``.
+      You can issue the command ``man -k varnish`` to list the manual pages that mention Varnish in their short description.
+      In addition, the ``vsl`` man page that explains the Varnish Shared Memory Logging (VSL).
+      This man page does not come out when issuing ``man -k varnish``, because it does not contain the word `varnish` in its short description.
 
-   - Varnish Cache Plus  4.0 or later
-   - TODO
-   - TODO
+      The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
+      Also, some commands have a help option to print the usage of the command.
+      For example, ``varnishlog -h`` prints the usage and options of the command with a short description of them.
 
-   .. formats
-   
-   The book is written with different formatting conventions.
-   Varnish Configuration Language (VCL) text is in verbatim mode.
-   
-   .. TODO for the author: insert an example of VCL code here.
-   
-   Important notes and tips are stated inside boxes throughout the book.
+      .. Installation required
 
-   .. Ask for help
-   
-   This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
-   If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
-   You can also contact the Varnish open source community at https://varnish-cache.org.
-   To book training, please look at https://varnish-software.com/academy.
+      To complete this book, you need the following installation:
+
+      - Varnish Cache Plus, or Varnish Cache Plus 4.0 or later
+      - Apache/2.4 or later
+      - HTTPie 0.8.0 or later
+
+      .. formats
+
+      The book is written with different formatting conventions.
+      Varnish Configuration Language (VCL) text is in verbatim mode.
+
+      .. TODO for the author: insert an example of VCL code here.
+
+      Important notes and tips are stated inside boxes throughout the book.
+
+      .. Ask for help
+
+      This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
+      If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
+      You can also contact the Varnish open source community at https://varnish-cache.org.
+      To book training, please look at https://varnish-software.com/academy.
 
 Introduction
 ============
@@ -471,7 +476,7 @@ How objects are stored
 	Varnish stores various objects under one key.
 	Upon a client request, Varnish selects the object that matches the client preferences.
 
-Getting started
+Getting Started
 ===============
 
 In this chapter, you will:
@@ -504,12 +509,17 @@ Install Varnish and Apache as backend
 .. csv-table:: Different Locations of the Varnish Configuration File
    :name: Different Locations of the Varnish Configuration File
    :delim: ;
-   :widths: 24, 27, 26, 33
    :header-rows: 2
    :file: tables/varnish_configuration_files.csv
 
-\* ``/etc/systemd/system/varnish.service`` does not exist by default.
-Copy it from ``/lib/systemd/system/varnish.service`` and edit it.
+[1] The file does not exist by default.
+Copy it from ``/lib/systemd/system/`` and edit it.
+
+[2] There is no configuration file.
+Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
+
+[3] There is no configuration file.
+Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` instead.
 
 .. container:: handout
 
@@ -817,7 +827,7 @@ Exercise: Fetch data through Varnish
 The Varnish Log
 ===============
 
-In this chapter you will learn about:
+.. In this chapter you will learn about:
 
 - Log data is in shared memory
 - Varnish logs everything (no debug switches)
@@ -826,35 +836,30 @@ In this chapter you will learn about:
    
    .. Log data is in shared memory
 
-   Varnish provides a great deal of log data in real-time. 
-   If you look for logging data from Varnish you may discover that `/var/log/varnish/` is either non-existent or empty. 
-   There's a reason for that.
+   Varnish provides log data in real-time. 
+   ``/var/log/varnish/`` is either non-existent or empty.
+   There is a reason for that.
 
    .. logs everything
 
-   Varnish logs all its information to a shared memory log which is overwritten repeatedly every time it's filled up.
-   The downside is that you do not have historic data unless you set it up yourself, which is not covered in this chapter.
+   Varnish logs all its information to a shared memory log which is overwritten repeatedly every time it is filled up.
+   The downside is that there is no historic data unless you set it up yourself.
    The upside is that you get an abundance of information when you need it.
 
-   .. Utilities to inspect the log
+   The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writting to disk.
+   Table `Different Locations of the Varnish Configuration File`_ shows the location of the configuration file based on your platform.
+   Keep in mind that ``varnishlog`` generates large amounts of data!
 
-   To use the log data, you need to use specific tools to parse the content.
-   Through the course you will become familiar with ``varnishlog`` and ``varnishstat``, which are the two most important tools you have at your disposal.
-
-   .. note::
-
-      If you want to log to disk you should take a look at ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` (or under the ``/etc/syconfig/`` equivalents for Red Hat).
-      .. TODO for the author: recall this note when introducing ``varnishncsa``.
-      You can configure those files to run ``varnishlog`` or ``varnishncsa`` as a service in the background that writes to disk.
-
-      Keep in mind that ``varnishlog`` generates large amounts of data.
-      You may not want to log all of it to disk.
+   Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat``.
+   ``varnishlog`` and ``varnishstat`` are the two most common used tools.
 
    .. tip::
-      Issue ``man varnishlog`` to retrieve the reference manual of ``varnishlog``.
+   
+      Issue ``man varnishlog/varnishncsa/varnishstat`` to retrieve their reference manuals.
 
 Log Data Tools
 --------------
+
 Tools to display detailed log records:
 
 - ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
@@ -991,6 +996,9 @@ Example of Transaction Grouping with ``varnishlog``
 ---------------------------------------------------
 
 .. image:: ui/img/cache_miss_request_grouping.png
+
+..   :align: center
+..   :width: 100%
 
 TODO: To update image resolution
 
@@ -1831,587 +1839,589 @@ Does ``thread_pool_timeout`` affect already running threads?
       It's not common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
       These assignments are for educational purposes, and not intended as an encouragement to change the values.
 
-HTTP
-====
+.. Commenting this section because it is not updated
 
-TODO: This chapter has not been updated yet.
+   HTTP
+   ====
 
-*This chapter is for the webdeveloper course only*
+   TODO: This chapter has not been updated yet.
 
-This chapter covers:
+   *This chapter is for the webdeveloper course only*
 
-- Protocol basics
-- Requests and responses
-- HTTP request/response control flow
-- Statelessness and idempotence
-- Cache related headers
-
-.. container:: handout
-
-   HTTP is at the heart of Varnish, or rather the model HTTP represents.
-
-   This chapter will cover the basics of HTTP as a protocol, how it's used
-   in the wild, and delve into caching as it applies to HTTP.
-
-Protocol basics
----------------
-
-- Hyper-Text Transfer Protocol, HTTP, is at the core of the web
-- Specified by the IETF, the latest version (HTTP/1.1) is available from
-  http://tools.ietf.org/html/rfc2616
-- A request consists of a request method, headers and an optional request body.
-- A response consists of a response status, headers and an optional
-  response body.
-- Multiple requests can be sent over a single connection, in serial.
-- Clients will open multiple connections to fetch resources in parallel.
-
-.. container:: handout
-
-    HTTP is a networking protocol for distributed systems. It is the foundation of
-    data communication for the Web. The development of this standard is done by the
-    IETF and the W3C. The latest version of the standard is HTTP/1.1.
-
-    A new version of HTTP called HTTP bis is under development, you can follow
-    the work document at http://datatracker.ietf.org/wg/httpbis/charter/.
-    Basically HTTP bis will be HTTP/1.1 with new features for example a better
-    caching of web pages.
-
-Requests
---------
-
-- Standard request methods are: `GET`, `POST`, `HEAD`, `OPTIONS`, `PUT`,
-  `DELETE`, `TRACE`, or `CONNECT`.
-- This is followed by a URI, e.g:  `/img/image.png` or `/index.html`
-- Usually followed by the HTTP version
-- A new-line (CRLF), followed by an arbitrary amount of CRLF-separated
-  headers (`Accept-Language`, `Cookie`, `Host`, `User-Agent`, etc).
-- A single empty line, ending in CRLF.
-- An optional message body, depending on the request method.
+   This chapter covers:
 
-.. container:: handout
-
-   Each request has the same, strict and fairly simple pattern. A request
-   method informs the web server what sort of request this is: Is the
-   client trying to fetch a resource (`GET`), or update some data(`POST`)?
-   Or just get the headers of a resource (`HEAD`)?
+   - Protocol basics
+   - Requests and responses
+   - HTTP request/response control flow
+   - Statelessness and idempotence
+   - Cache related headers
+
+   .. container:: handout
+
+      HTTP is at the heart of Varnish, or rather the model HTTP represents.
+
+      This chapter will cover the basics of HTTP as a protocol, how it's used
+      in the wild, and delve into caching as it applies to HTTP.
+
+   Protocol basics
+   ---------------
+
+   - Hyper-Text Transfer Protocol, HTTP, is at the core of the web
+   - Specified by the IETF, the latest version (HTTP/1.1) is available from
+     http://tools.ietf.org/html/rfc2616
+   - A request consists of a request method, headers and an optional request body.
+   - A response consists of a response status, headers and an optional
+     response body.
+   - Multiple requests can be sent over a single connection, in serial.
+   - Clients will open multiple connections to fetch resources in parallel.
 
-   There are strict rules that apply to the request methods. For instance,
-   a `GET` request can not contain a request body, but a `POST` request
-   can.
+   .. container:: handout
+
+       HTTP is a networking protocol for distributed systems. It is the foundation of
+       data communication for the Web. The development of this standard is done by the
+       IETF and the W3C. The latest version of the standard is HTTP/1.1.
+
+       A new version of HTTP called HTTP bis is under development, you can follow
+       the work document at http://datatracker.ietf.org/wg/httpbis/charter/.
+       Basically HTTP bis will be HTTP/1.1 with new features for example a better
+       caching of web pages.
+
+   Requests
+   --------
+
+   - Standard request methods are: `GET`, `POST`, `HEAD`, `OPTIONS`, `PUT`,
+     `DELETE`, `TRACE`, or `CONNECT`.
+   - This is followed by a URI, e.g:  `/img/image.png` or `/index.html`
+   - Usually followed by the HTTP version
+   - A new-line (CRLF), followed by an arbitrary amount of CRLF-separated
+     headers (`Accept-Language`, `Cookie`, `Host`, `User-Agent`, etc).
+   - A single empty line, ending in CRLF.
+   - An optional message body, depending on the request method.
 
-   Similarly, a web server can not attach a request body to a response to a
-   `HEAD` body.
+   .. container:: handout
 
-Request example
----------------
+      Each request has the same, strict and fairly simple pattern. A request
+      method informs the web server what sort of request this is: Is the
+      client trying to fetch a resource (`GET`), or update some data(`POST`)?
+      Or just get the headers of a resource (`HEAD`)?
 
-::
+      There are strict rules that apply to the request methods. For instance,
+      a `GET` request can not contain a request body, but a `POST` request
+      can.
 
-    GET / HTTP/1.1
-    Host: localhost
-    User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; fr; rv:1.9.2.16) \
-    Gecko/20110319 Firefox/3.6.16
-    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-    Accept-Language: fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
-    Accept-Encoding: gzip,deflate
-    Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-    Keep-Alive: 115
-    Connection: keep-alive
-    Cache-Control: max-age=0
-
-.. container:: handout
-
-   The above is a typical HTTP `GET` request for the ``/`` resource.
-
-   Note that the ``Host``-header contains the hostname as seen by the
-   browser. The above request was generated by entering http://localhost/
-   in the browser. The browser automatically adds a number of headers. Some
-   of these will vary depending on language settings, others will vary
-   depending on whether the client has a cached copy of the page already,
-   or if the client is doing a refresh or forced refresh.
-
-   Whether the server honors these headers will depend on both the server
-   in question and the specific header.
-
-   The following is an example of a HTTP request using the `POST` method,
-   which includes a request body::
-
-     POST /accounts/ServiceLoginAuth HTTP/1.1
-     Host: www.google.com
-     User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; fr; rv:1.9.2.16) \
-     Gecko/20110319 Firefox/3.6.16
-     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-     Accept-Language: fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
-     Accept-Encoding: gzip,deflate
-     Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-     Keep-Alive: 115
-     Connection: keep-alive
-     Referer: https://www.google.com/accounts/ServiceLogin
-     Cookie: GoogleAccountsLocale_session=en;[...]
-     Content-Type: application/x-www-form-urlencoded
-     Content-Length: 288
-
-     ltmpl=default[...]&signIn=Sign+in&asts=
-
-Response
---------
+      Similarly, a web server can not attach a request body to a response to a
+      `HEAD` body.
 
-::
-
-        HTTP/1.1 200 OK
-        Cache-Control: max-age=150
-        Content-Length: 150
-
-        [data]
-
-- A HTTP response contains the HTTP versions, response code(e.g: 200)  and response
-  message (e.g: OK).
-- CRLF as line separator
-- A number of headers
-- Headers are terminated with a blank line.
-- Optional response body
-
-.. container:: handout
-
-   The HTTP response is similar to the request itself. The response code
-   informs the browser both whether the request succeeded and what type of
-   response this is. The response message is a text-representation of the
-   same information, and is often ignored by the browser itself.
-
-   Examples of status codes are `200 OK`, `404 File Not Found`, `304 Not
-   Modified` and so fort. They are all defined in the HTTP standard, and
-   grouped into the following categories:
-
-   - 1xx: Informational - Request received, continuing process
-
-   - 2xx: Success - The action was successfully received, understood, and
-     accepted
-
-   - 3xx: Redirection - Further action must be taken in order to complete
-     the request
-
-   - 4xx: Client Error - The request contains bad syntax or cannot be
-     fulfilled
-
-   - 5xx: Server Error - The server failed to fulfill an apparently valid
-     request
-
-Response example
-----------------
-
-::
-
-    HTTP/1.1 200 OK
-    Server: Apache/2.2.14 (Ubuntu)
-    X-Powered-By: PHP/5.3.2-1ubuntu4.7
-    Cache-Control: public, max-age=86400
-    Last-Modified: Mon, 04 Apr 2011 04:13:41 +0000
-    Expires: Sun, 11 Mar 1984 12:00:00 GMT
-    Vary: Cookie,Accept-Encoding
-    ETag: "1301890421"
-    Content-Type: text/html; charset=utf-8
-    Content-Length: 23562
-    Date: Mon, 04 Apr 2011 09:02:26 GMT
-    X-Varnish: 1886109724 1886107902
-    Age: 17324
-    Via: 1.1 varnish
-    Connection: keep-alive
+   Request example
+   ---------------
 
-    (data)
+   ::
 
-HTTP request/response control flow
-----------------------------------
+       GET / HTTP/1.1
+       Host: localhost
+       User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; fr; rv:1.9.2.16) \
+       Gecko/20110319 Firefox/3.6.16
+       Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+       Accept-Language: fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
+       Accept-Encoding: gzip,deflate
+       Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+       Keep-Alive: 115
+       Connection: keep-alive
+       Cache-Control: max-age=0
+
+   .. container:: handout
+
+      The above is a typical HTTP `GET` request for the ``/`` resource.
+
+      Note that the ``Host``-header contains the hostname as seen by the
+      browser. The above request was generated by entering http://localhost/
+      in the browser. The browser automatically adds a number of headers. Some
+      of these will vary depending on language settings, others will vary
+      depending on whether the client has a cached copy of the page already,
+      or if the client is doing a refresh or forced refresh.
 
-.. image:: ui/img/httprequestflow.png
-   :align: center
-   :width: 80%
-
-The client sends an HTTP request to the server which returns an HTTP response
-with the message body.
-
-Statelesness and idempotence
-----------------------------
-
-**statelesness**
-    HTTP is by definition a stateless protocol which means that in theory
-    your browser has to reconnect to the server for every request. In practice
-    there is a header called `Keep-Alive` you may use if you want to keep the
-    connection open between the client (your browser) and the server.
-
-**idempotence**
-    Imdempotence means that an operation can be applied multiple times without
-    changing the result. `GET` and `PUT` HTTP request are expected to be
-    idempotent whereas `POST` requests are not. In other words, you can not
-    cache `POST` HTTP responses.
-
-.. container:: handout
-
-   For more discussion about idempotence
-   http://queue.acm.org/detail.cfm?id=2187821.
-
-Cache related headers
----------------------
-
-HTTP provides a list of headers dedicated to page caching and cache
-invalidation. The most important ones are :
-
-- Expires
-- Cache-Control
-- Etag
-- Last-Modified
-- If-Modified-Since
-- If-None-Match
-- Vary
-- Age
-
-Exercise : Test various Cache headers
--------------------------------------
-
-Before we talk about all the various cache headers and cache mechanisms, we
-will use `httpheadersexample.php` to experiment and get a sense of what
-it's all about.
-
-Try both clicking the links twice, hitting refresh and forced refresh
-(usually done by hitting control-F5, depending on browser).
-
-- Try out the Expires-header and see how the browser and Varnish behave.
-- What happens when both Expires and Cache-Control is present?
-- Test the `If-Modified-Since` request too. Does the browser issue a
-   request to Varnish? If the item was in cache, does Varnish query the
-   web-server?
-- Try the `Vary`-test by using two different browsers at the same time.
-
-.. container:: handout
-
-   When performing this exercise, try to see if you can spot the patterns.
-   There are many levels of cache on the Web, and you have to think about
-   more than just Varnish.
-
-   If it hasn't already, it's likely that browser cache will confuse you at
-   least a few times through this course. When that happens, pull up
-   varnishlog or another browser.
-
-Expires
--------
-
-The `Expires` **response** header field gives the date/time after which the
-response is considered stale. A stale cache item will not be returned by
-any cache (proxy cache or client cache).
-
-The syntax for this header is::
-
-    Expires: GMT formatted date
-
-It is recommended not to define `Expires` too far in the future. Setting it
-to 1 year is usually enough.
-
-Using `Expires` does not prevent the cached resource to be updated. If a
-resource is updated changing its name (by using a version number for
-instance) is possible.
-
-`Expires` works best for any file that is part of your design like
-JavaScripts stylesheets or images.
-
-Cache-Control
--------------
-
-The `Cache-Control` header field specifies directives that **must** be
-applied by all caching mechanisms (from proxy cache to browser cache).
-`Cache-Control` accepts the following arguments (only the most relevant are
-described):
-
-- `public`: The response may be cached by any cache.
-- `no-store`: The response body **must not** be stored by any cache
-  mechanism;
-- `no-cache`: Authorizes a cache mechanism to store the response in its
-  cache but it **must not** reuse it without validating it with the origin
-  server first. In order to avoid any confusion with this argument think of
-  it as a "store-but-do-no-serve-from-cache-without-revalidation"
-  instruction.
-- `max-age`: Specifies the period in seconds during which the cache will be
-  considered fresh;
-- `s-maxage`: Like `max-age` but it applies only to public caches;
-- `must-revalidate`: Indicates that a stale cache item can not be serviced
-  without revalidation with the origin server first;
-
-.. container:: handout
-
-        Unlike `Expires`, `Cache-Control` is both a **request** and a **response**
-        header, here is the list of arguments you may use for each context:
-
-        +--------------------+---------+-----------+
-        | Argument           | Request | Response  |
-        +====================+=========+===========+
-        | `no-cache`         | X       | X         |
-        +--------------------+---------+-----------+
-        | `no-store`         | X       | X         |
-        +--------------------+---------+-----------+
-        | `max-age`          | X       | X         |
-        +--------------------+---------+-----------+
-        | `s-maxage`         |         | X         |
-        +--------------------+---------+-----------+
-        | `max-stale`        | X       |           |
-        +--------------------+---------+-----------+
-        | `min-fresh`        | X       |           |
-        +--------------------+---------+-----------+
-        | `no-transform`     | X       | X         |
-        +--------------------+---------+-----------+
-        | `only-if-cached`   | X       |           |
-        +--------------------+---------+-----------+
-        | `public`           |         | X         |
-        +--------------------+---------+-----------+
-        | `private`          |         | X         |
-        +--------------------+---------+-----------+
-        | `must-revalidate`  |         | X         |
-        +--------------------+---------+-----------+
-        | `proxy-revalidate` |         | X         |
-        +--------------------+---------+-----------+
+      Whether the server honors these headers will depend on both the server
+      in question and the specific header.
 
+      The following is an example of a HTTP request using the `POST` method,
+      which includes a request body::
+
+	POST /accounts/ServiceLoginAuth HTTP/1.1
+	Host: www.google.com
+	User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; fr; rv:1.9.2.16) \
+	Gecko/20110319 Firefox/3.6.16
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3
+	Accept-Encoding: gzip,deflate
+	Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+	Keep-Alive: 115
+	Connection: keep-alive
+	Referer: https://www.google.com/accounts/ServiceLogin
+	Cookie: GoogleAccountsLocale_session=en;[...]
+	Content-Type: application/x-www-form-urlencoded
+	Content-Length: 288
+
+	ltmpl=default[...]&signIn=Sign+in&asts=
 
-        Example of a `Cache-Control` header::
+   Response
+   --------
 
-            Cache-Control: public, must-revalidate, max-age=2592000
+   ::
 
-        .. Note::
+	   HTTP/1.1 200 OK
+	   Cache-Control: max-age=150
+	   Content-Length: 150
+
+	   [data]
+
+   - A HTTP response contains the HTTP versions, response code(e.g: 200)  and response
+     message (e.g: OK).
+   - CRLF as line separator
+   - A number of headers
+   - Headers are terminated with a blank line.
+   - Optional response body
+
+   .. container:: handout
+
+      The HTTP response is similar to the request itself. The response code
+      informs the browser both whether the request succeeded and what type of
+      response this is. The response message is a text-representation of the
+      same information, and is often ignored by the browser itself.
+
+      Examples of status codes are `200 OK`, `404 File Not Found`, `304 Not
+      Modified` and so fort. They are all defined in the HTTP standard, and
+      grouped into the following categories:
+
+      - 1xx: Informational - Request received, continuing process
+
+      - 2xx: Success - The action was successfully received, understood, and
+	accepted
+
+      - 3xx: Redirection - Further action must be taken in order to complete
+	the request
+
+      - 4xx: Client Error - The request contains bad syntax or cannot be
+	fulfilled
+
+      - 5xx: Server Error - The server failed to fulfill an apparently valid
+	request
+
+   Response example
+   ----------------
+
+   ::
 
-            As you might have noticed `Expires` and `Cache-Control` do more or less the
-            same job, `Cache-Control` gives you more control though. There is a
-            significant difference between these two headers:
+       HTTP/1.1 200 OK
+       Server: Apache/2.2.14 (Ubuntu)
+       X-Powered-By: PHP/5.3.2-1ubuntu4.7
+       Cache-Control: public, max-age=86400
+       Last-Modified: Mon, 04 Apr 2011 04:13:41 +0000
+       Expires: Sun, 11 Mar 1984 12:00:00 GMT
+       Vary: Cookie,Accept-Encoding
+       ETag: "1301890421"
+       Content-Type: text/html; charset=utf-8
+       Content-Length: 23562
+       Date: Mon, 04 Apr 2011 09:02:26 GMT
+       X-Varnish: 1886109724 1886107902
+       Age: 17324
+       Via: 1.1 varnish
+       Connection: keep-alive
 
-                - `Cache-Control` uses relative times in seconds, cf (s)max-age
-                - `Expires` always returns an absolute date
+       (data)
 
-        .. Note::
+   HTTP request/response control flow
+   ----------------------------------
 
-            Cache-Control **always** overrides Expires.
+   .. image:: ui/img/httprequestflow.png
+      :align: center
+      :width: 80%
 
-        .. Note::
+   The client sends an HTTP request to the server which returns an HTTP response
+   with the message body.
+
+   Statelesness and idempotence
+   ----------------------------
+
+   **statelesness**
+       HTTP is by definition a stateless protocol which means that in theory
+       your browser has to reconnect to the server for every request. In practice
+       there is a header called `Keep-Alive` you may use if you want to keep the
+       connection open between the client (your browser) and the server.
+
+   **idempotence**
+       Imdempotence means that an operation can be applied multiple times without
+       changing the result. `GET` and `PUT` HTTP request are expected to be
+       idempotent whereas `POST` requests are not. In other words, you can not
+       cache `POST` HTTP responses.
+
+   .. container:: handout
+
+      For more discussion about idempotence
+      http://queue.acm.org/detail.cfm?id=2187821.
+
+   Cache related headers
+   ---------------------
+
+   HTTP provides a list of headers dedicated to page caching and cache
+   invalidation. The most important ones are :
+
+   - Expires
+   - Cache-Control
+   - Etag
+   - Last-Modified
+   - If-Modified-Since
+   - If-None-Match
+   - Vary
+   - Age
+
+   Exercise : Test various Cache headers
+   -------------------------------------
+
+   Before we talk about all the various cache headers and cache mechanisms, we
+   will use `httpheadersexample.php` to experiment and get a sense of what
+   it's all about.
+
+   Try both clicking the links twice, hitting refresh and forced refresh
+   (usually done by hitting control-F5, depending on browser).
+
+   - Try out the Expires-header and see how the browser and Varnish behave.
+   - What happens when both Expires and Cache-Control is present?
+   - Test the `If-Modified-Since` request too. Does the browser issue a
+      request to Varnish? If the item was in cache, does Varnish query the
+      web-server?
+   - Try the `Vary`-test by using two different browsers at the same time.
+
+   .. container:: handout
+
+      When performing this exercise, try to see if you can spot the patterns.
+      There are many levels of cache on the Web, and you have to think about
+      more than just Varnish.
+
+      If it hasn't already, it's likely that browser cache will confuse you at
+      least a few times through this course. When that happens, pull up
+      varnishlog or another browser.
+
+   Expires
+   -------
+
+   The `Expires` **response** header field gives the date/time after which the
+   response is considered stale. A stale cache item will not be returned by
+   any cache (proxy cache or client cache).
+
+   The syntax for this header is::
+
+       Expires: GMT formatted date
+
+   It is recommended not to define `Expires` too far in the future. Setting it
+   to 1 year is usually enough.
+
+   Using `Expires` does not prevent the cached resource to be updated. If a
+   resource is updated changing its name (by using a version number for
+   instance) is possible.
+
+   `Expires` works best for any file that is part of your design like
+   JavaScripts stylesheets or images.
+
+   Cache-Control
+   -------------
+
+   The `Cache-Control` header field specifies directives that **must** be
+   applied by all caching mechanisms (from proxy cache to browser cache).
+   `Cache-Control` accepts the following arguments (only the most relevant are
+   described):
+
+   - `public`: The response may be cached by any cache.
+   - `no-store`: The response body **must not** be stored by any cache
+     mechanism;
+   - `no-cache`: Authorizes a cache mechanism to store the response in its
+     cache but it **must not** reuse it without validating it with the origin
+     server first. In order to avoid any confusion with this argument think of
+     it as a "store-but-do-no-serve-from-cache-without-revalidation"
+     instruction.
+   - `max-age`: Specifies the period in seconds during which the cache will be
+     considered fresh;
+   - `s-maxage`: Like `max-age` but it applies only to public caches;
+   - `must-revalidate`: Indicates that a stale cache item can not be serviced
+     without revalidation with the origin server first;
 
-            By default, Varnish does not care about the Cache-Control
-	    request header.  If you want to let users update the cache
-	    via a force refresh you need to do it yourself.
+   .. container:: handout
+
+	   Unlike `Expires`, `Cache-Control` is both a **request** and a **response**
+	   header, here is the list of arguments you may use for each context:
+
+	   +--------------------+---------+-----------+
+	   | Argument           | Request | Response  |
+	   +====================+=========+===========+
+	   | `no-cache`         | X       | X         |
+	   +--------------------+---------+-----------+
+	   | `no-store`         | X       | X         |
+	   +--------------------+---------+-----------+
+	   | `max-age`          | X       | X         |
+	   +--------------------+---------+-----------+
+	   | `s-maxage`         |         | X         |
+	   +--------------------+---------+-----------+
+	   | `max-stale`        | X       |           |
+	   +--------------------+---------+-----------+
+	   | `min-fresh`        | X       |           |
+	   +--------------------+---------+-----------+
+	   | `no-transform`     | X       | X         |
+	   +--------------------+---------+-----------+
+	   | `only-if-cached`   | X       |           |
+	   +--------------------+---------+-----------+
+	   | `public`           |         | X         |
+	   +--------------------+---------+-----------+
+	   | `private`          |         | X         |
+	   +--------------------+---------+-----------+
+	   | `must-revalidate`  |         | X         |
+	   +--------------------+---------+-----------+
+	   | `proxy-revalidate` |         | X         |
+	   +--------------------+---------+-----------+
 
-Last-Modified
--------------
 
-The `Last-Modified` **response** header field indicates the date and time
-at which the origin server believes the variant was last modified. This
-headers may be used in conjunction with `If-Modified-Since` and
-`If-None-Match`.
+	   Example of a `Cache-Control` header::
 
-Example of a `Last-Modified` header: ::
+	       Cache-Control: public, must-revalidate, max-age=2592000
 
-    Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
+	   .. Note::
 
-If-Modified-Since
------------------
+	       As you might have noticed `Expires` and `Cache-Control` do more or less the
+	       same job, `Cache-Control` gives you more control though. There is a
+	       significant difference between these two headers:
 
-The `If-Modified-Since` **request** header field is used with a method to
-make it conditional:
+		   - `Cache-Control` uses relative times in seconds, cf (s)max-age
+		   - `Expires` always returns an absolute date
 
-- **if** the requested variant has not been modified since the time
-  specified in this field, an entity will not be returned from the server;
-- **instead**, a 304 (not modified) response will be returned without any
-  message-body.
+	   .. Note::
 
-Example of an `If-Modified-Since` header: ::
+	       Cache-Control **always** overrides Expires.
 
-    If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
+	   .. Note::
 
-.. image:: ui/img/httpifmodifiedsince.png
-   :align: center
-   :height: 1235px
+	       By default, Varnish does not care about the Cache-Control
+	       request header.  If you want to let users update the cache
+	       via a force refresh you need to do it yourself.
 
-If-None-Match
--------------
+   Last-Modified
+   -------------
 
-The `If-None-Match` **request** header field is used with a method to make
-it conditional.
+   The `Last-Modified` **response** header field indicates the date and time
+   at which the origin server believes the variant was last modified. This
+   headers may be used in conjunction with `If-Modified-Since` and
+   `If-None-Match`.
 
-A client that has one or more entities previously obtained from the
-resource can verify that none of those entities is current by including a
-list of their associated entity tags in the If-None-Match header field.
+   Example of a `Last-Modified` header: ::
 
-The purpose of this feature is to allow efficient updates of cached
-information with a minimum amount of transaction overhead. It is also used
-to prevent a method (e.g. PUT) from inadvertently modifying an existing
-resource when the client believes that the resource does not exist.
+       Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
 
-Example of an `If-None-Match` header : ::
+   If-Modified-Since
+   -----------------
 
-    If-None-Match: "1edec-3e3073913b100"
+   The `If-Modified-Since` **request** header field is used with a method to
+   make it conditional:
 
-.. image:: ui/img/httpifnonematch.png
-   :align: center
-   :width: 80%
+   - **if** the requested variant has not been modified since the time
+     specified in this field, an entity will not be returned from the server;
+   - **instead**, a 304 (not modified) response will be returned without any
+     message-body.
 
+   Example of an `If-Modified-Since` header: ::
 
-Etag
-----
+       If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
-The `ETag` **response** header field provides the current value of the
-entity tag for the requested variant.  The idea behind `Etag` is to provide
-a unique value for a resource's contents.
+   .. image:: ui/img/httpifmodifiedsince.png
+      :align: center
+      :height: 1235px
 
-Example of an `Etag` header: ::
+   If-None-Match
+   -------------
 
-    Etag: "1edec-3e3073913b100"
-
-Pragma
-------
-
-The `Pragma` **request** header is a legacy header and should no longer be used.
-Some applications still send headers like ``Pragma: no-cache`` but this is
-for backwards compatibility reasons **only**.
-
-Any proxy cache should treat ``Pragma: no-cache`` as ``Cache-Control:
-no-cache``, and should not be seen as a reliable header especially when
-used as a response header.
-
-Vary
-----
-
-The `Vary` **response** header indicates the response returned by the origin
-server may vary depending on headers received in the request.
-
-The most common usage of `Vary` is to use ``Vary: Accept-Encoding``, which
-tells caches (Varnish included) that the content might look different
-depending on the `Accept-Encoding`-header the client sends. In other words:
-The page can be delivered compressed or uncompressed depending on the
-client.
+   The `If-None-Match` **request** header field is used with a method to make
+   it conditional.
 
-.. container:: handout
+   A client that has one or more entities previously obtained from the
+   resource can verify that none of those entities is current by including a
+   list of their associated entity tags in the If-None-Match header field.
 
-   The `Vary`-header is one of the trickiest headers to deal with for a
-   cache. A cache, like Varnish, does not necessarily understand the
-   semantics of a header, or what part triggers different variants of a
-   page.
+   The purpose of this feature is to allow efficient updates of cached
+   information with a minimum amount of transaction overhead. It is also used
+   to prevent a method (e.g. PUT) from inadvertently modifying an existing
+   resource when the client believes that the resource does not exist.
 
-   As a result, using ``Vary: User-Agent`` for instance tells a cache that
-   for ANY change in the `User-Agent`-header, the content `might` look
-   different. Since there are probably thousands of `User-Agent` strings
-   out there, this means you will drastically reduce the efficiency of any
-   cache method.
-
-   An other example is using ``Vary: Cookie`` which is actually not a bad
-   idea. Unfortunately, you can't issue ``Vary: Cookie(but only THESE
-   cookies: ...)``. And since a client will send you a great deal of
-   cookies, this means that just using ``Vary: Cookie`` is not necessarily
-   sufficient. We will discuss this further in the Content Composition
-   chapter.
+   Example of an `If-None-Match` header : ::
 
-   .. note::
+       If-None-Match: "1edec-3e3073913b100"
 
-      From Varnish version 3, Varnish handles `Accept-Encoding` and ``Vary:
-      Accept-Encoding`` for you. This is because Varnish 3 has support for
-      gzip compression. In Varnish 2 it was necessary to normalize the
-      `Accept-Encoding`-header, but this is redundant in Varnish 3.
+   .. image:: ui/img/httpifnonematch.png
+      :align: center
+      :width: 80%
 
 
-Age
----
+   Etag
+   ----
 
-- A cache server can send an additional response header, `Age`, to indicate
-  the age of the response.
-- Varnish (and other caches) does this.
-- Browsers (and Varnish) will use the Age-header to determine how long to
-  cache.
-- E.g: for a `max-age`-based equation: cache duration = `max-age` - `Age`
-- If you allow Varnish to cache for a long time, the `Age`-header could
-  effectively disallow client-side caches.
-
-.. container:: handout
-
-   Consider what happens if you let Varnish cache content for a week,
-   because you can easily invalidate the cache Varnish keeps. If you do not
-   change the `Age`-header, Varnish will happily inform clients that the
-   content is, for example, two days old, and that the maximum age should
-   be no more than fifteen minutes.
-
-   Browsers will obey this. They will use the reply, but they will also
-   realize that it has exceeded its max-age, so they will not cache it.
-
-   Varnish will do the same, if your web-server emits and `Age`-header (or
-   if you put one Varnish-server in front of another).
-
-   We will see in later chapters how we can handle this in Varnish.
-
-Header availability summary
----------------------------
-
-The table below lists HTTP headers seen above and whether they are a request
-header or a response one.
-
-+-------------------+---------+----------+
-| Header            | Request | Response |
-+===================+=========+==========+
-| Expires           |         | X        |
-+-------------------+---------+----------+
-| Cache-Control     | X       | X        |
-+-------------------+---------+----------+
-| Last-Modified     |         | X        |
-+-------------------+---------+----------+
-| If-Modified-Since | X       |          |
-+-------------------+---------+----------+
-| If-None-Match     | X       |          |
-+-------------------+---------+----------+
-| Etag              |         | X        |
-+-------------------+---------+----------+
-| Pragma            | X       | X        |
-+-------------------+---------+----------+
-| Vary              |         | X        |
-+-------------------+---------+----------+
-| Age               |         | X        |
-+-------------------+---------+----------+
-
-Cache-hit and misses
---------------------
-
-**cache-hit**
-
-There is a cache-hit when Varnish returns a page from its cache instead of
-forwarding the request to the origin server.
-
-.. image:: ui/img/httpcachehit.png
-   :align: center
-   :width: 60%
-
-**cache-miss**
-
-There is a cache-miss when Varnish has to forward the request to the origin
-server so the page can be serviced.
-
-.. image:: ui/img/httpcachemiss.png
-   :align: center
-   :width: 60%
-
-Exercise: Use `article.php` to test `Age`
------------------------------------------
-
-#. Modify the `article.php`-script to send an Age header that says `30` and ``Cache-Control: max-age=60``.
-#. Watch ``varnishlog``.
-#. Send a request to Varnish for `article.php`. See what `Age`-Header Varnish replies with.
-#. Is the `Age`-header an accurate method to determine if Varnish made a cache hit or not?
-#. How long does Varnish cache the reply? How long would a browser cache it?
-
-.. container:: handout
-
-   Also consider how you would avoid issues like this to begin with.  We do
-   not yet know how to modify Varnish' response headers, but hopefully you
-   will understand why you may need to do that.
-
-   Varnish is not the only part of your web-stack that parses and honors
-   cache-related headers. The primary consumer of such headers are the web
-   browsers, and there might also be other caches along the way which you
-   do not control, like a company-wide proxy server.
-
-   By using `s-maxage` instead of `max-age` we limit the number of
-   consumers to cache servers, but even `s-maxage` will be used by caching
-   proxies which you do not control.
-
-   In the next few chapters, you will learn how to modify the response
-   headers Varnish sends. That way, your web-server can emit response
-   headers that are only seen and used by Varnish.
+   The `ETag` **response** header field provides the current value of the
+   entity tag for the requested variant.  The idea behind `Etag` is to provide
+   a unique value for a resource's contents.
+
+   Example of an `Etag` header: ::
+
+       Etag: "1edec-3e3073913b100"
+
+   Pragma
+   ------
+
+   The `Pragma` **request** header is a legacy header and should no longer be used.
+   Some applications still send headers like ``Pragma: no-cache`` but this is
+   for backwards compatibility reasons **only**.
+
+   Any proxy cache should treat ``Pragma: no-cache`` as ``Cache-Control:
+   no-cache``, and should not be seen as a reliable header especially when
+   used as a response header.
+
+   Vary
+   ----
+
+   The `Vary` **response** header indicates the response returned by the origin
+   server may vary depending on headers received in the request.
+
+   The most common usage of `Vary` is to use ``Vary: Accept-Encoding``, which
+   tells caches (Varnish included) that the content might look different
+   depending on the `Accept-Encoding`-header the client sends. In other words:
+   The page can be delivered compressed or uncompressed depending on the
+   client.
+
+   .. container:: handout
+
+      The `Vary`-header is one of the trickiest headers to deal with for a
+      cache. A cache, like Varnish, does not necessarily understand the
+      semantics of a header, or what part triggers different variants of a
+      page.
+
+      As a result, using ``Vary: User-Agent`` for instance tells a cache that
+      for ANY change in the `User-Agent`-header, the content `might` look
+      different. Since there are probably thousands of `User-Agent` strings
+      out there, this means you will drastically reduce the efficiency of any
+      cache method.
+
+      An other example is using ``Vary: Cookie`` which is actually not a bad
+      idea. Unfortunately, you can't issue ``Vary: Cookie(but only THESE
+      cookies: ...)``. And since a client will send you a great deal of
+      cookies, this means that just using ``Vary: Cookie`` is not necessarily
+      sufficient. We will discuss this further in the Content Composition
+      chapter.
+
+      .. note::
+
+	 From Varnish version 3, Varnish handles `Accept-Encoding` and ``Vary:
+	 Accept-Encoding`` for you. This is because Varnish 3 has support for
+	 gzip compression. In Varnish 2 it was necessary to normalize the
+	 `Accept-Encoding`-header, but this is redundant in Varnish 3.
+
+
+   Age
+   ---
+
+   - A cache server can send an additional response header, `Age`, to indicate
+     the age of the response.
+   - Varnish (and other caches) does this.
+   - Browsers (and Varnish) will use the Age-header to determine how long to
+     cache.
+   - E.g: for a `max-age`-based equation: cache duration = `max-age` - `Age`
+   - If you allow Varnish to cache for a long time, the `Age`-header could
+     effectively disallow client-side caches.
+
+   .. container:: handout
+
+      Consider what happens if you let Varnish cache content for a week,
+      because you can easily invalidate the cache Varnish keeps. If you do not
+      change the `Age`-header, Varnish will happily inform clients that the
+      content is, for example, two days old, and that the maximum age should
+      be no more than fifteen minutes.
+
+      Browsers will obey this. They will use the reply, but they will also
+      realize that it has exceeded its max-age, so they will not cache it.
+
+      Varnish will do the same, if your web-server emits and `Age`-header (or
+      if you put one Varnish-server in front of another).
+
+      We will see in later chapters how we can handle this in Varnish.
+
+   Header availability summary
+   ---------------------------
+
+   The table below lists HTTP headers seen above and whether they are a request
+   header or a response one.
+
+   +-------------------+---------+----------+
+   | Header            | Request | Response |
+   +===================+=========+==========+
+   | Expires           |         | X        |
+   +-------------------+---------+----------+
+   | Cache-Control     | X       | X        |
+   +-------------------+---------+----------+
+   | Last-Modified     |         | X        |
+   +-------------------+---------+----------+
+   | If-Modified-Since | X       |          |
+   +-------------------+---------+----------+
+   | If-None-Match     | X       |          |
+   +-------------------+---------+----------+
+   | Etag              |         | X        |
+   +-------------------+---------+----------+
+   | Pragma            | X       | X        |
+   +-------------------+---------+----------+
+   | Vary              |         | X        |
+   +-------------------+---------+----------+
+   | Age               |         | X        |
+   +-------------------+---------+----------+
+
+   Cache-hit and misses
+   --------------------
+
+   **cache-hit**
+
+   There is a cache-hit when Varnish returns a page from its cache instead of
+   forwarding the request to the origin server.
+
+   .. image:: ui/img/httpcachehit.png
+      :align: center
+      :width: 60%
+
+   **cache-miss**
+
+   There is a cache-miss when Varnish has to forward the request to the origin
+   server so the page can be serviced.
+
+   .. image:: ui/img/httpcachemiss.png
+      :align: center
+      :width: 60%
+
+   Exercise: Use `article.php` to test `Age`
+   -----------------------------------------
+
+   #. Modify the `article.php`-script to send an Age header that says `30` and ``Cache-Control: max-age=60``.
+   #. Watch ``varnishlog``.
+   #. Send a request to Varnish for `article.php`. See what `Age`-Header Varnish replies with.
+   #. Is the `Age`-header an accurate method to determine if Varnish made a cache hit or not?
+   #. How long does Varnish cache the reply? How long would a browser cache it?
+
+   .. container:: handout
+
+      Also consider how you would avoid issues like this to begin with.  We do
+      not yet know how to modify Varnish' response headers, but hopefully you
+      will understand why you may need to do that.
+
+      Varnish is not the only part of your web-stack that parses and honors
+      cache-related headers. The primary consumer of such headers are the web
+      browsers, and there might also be other caches along the way which you
+      do not control, like a company-wide proxy server.
+
+      By using `s-maxage` instead of `max-age` we limit the number of
+      consumers to cache servers, but even `s-maxage` will be used by caching
+      proxies which you do not control.
+
+      In the next few chapters, you will learn how to modify the response
+      headers Varnish sends. That way, your web-server can emit response
+      headers that are only seen and used by Varnish.
 
 VCL Basics
 ==========
@@ -2493,7 +2503,8 @@ TODO: To simplify this diagram.
 
 .. image:: ui/img/cache_req_fsm.png
    :align: center
-   :width: 33%
+
+..   :width: 33%
 
 Varnish request flow for the backend worker thread
 --------------------------------------------------
@@ -2507,7 +2518,8 @@ TODO: To simplify this diagram.
 
 .. image:: ui/img/cache_fetch.png
    :align: center
-   :width: 5%
+
+..   :width: 5%
 
 The VCL State Machine
 ---------------------
@@ -2714,7 +2726,7 @@ Summary of VCL
 	If your own VCL code does not have a return statement, the default VCL is always executed after yours.	
         If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
 
-VCL built-in subroutines
+VCL Built-in Subroutines
 ========================
 
 .. TODO for the author: double check that the subroutines list is congruent with the chapter.
@@ -2967,6 +2979,9 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 - Override cache duration
 
 .. image:: ui/img/cache_fetch.png
+
+..   :align: center
+..   :width: 100%
 
 .. container:: handout
 
@@ -3373,7 +3388,7 @@ Solution #: Modify the error message
    
    TODO: To elaborate
 
-Cache invalidation
+Cache Invalidation
 ==================
 
 There are three mechanism to invalidate caches in Varnish:
@@ -3884,7 +3899,7 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
       Purge and Hashtwo work very similar.
       The main difference is that they have they act on different hash keys.
 
-Mechanisms to handle backends in problematic situations
+Mechanisms to Handle Backends in Problematic Situations
 =======================================================
 
 *This chapter is for the system administration course only*
@@ -3940,6 +3955,7 @@ Directors
 
    The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
    The next backend to be selected depends on the selection method (i.e. random, round-robin, or hash) of the director.
+
    .. TODO for the author: is the counter set to 0 after a health backend is found?
 
    .. include: vcl/random_example.vcl
@@ -4774,5 +4790,3 @@ That said, you should use it under your own responsibility.
 
 You can download the script from https://github.com/fgsch/varnish3to4.
 Usage and up-to-date details about the script is at the same web address.
-
-PageBreak
