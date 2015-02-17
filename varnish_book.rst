@@ -91,57 +91,57 @@ The Webdev course requires that you:
    This part is perhaps the most UNIX-centric part of the course.
    If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
-Organization of the Book and Course
------------------------------------
+.. Organization of the Book and Course
+   -----------------------------------
 
-TODO for instructor: tailor this slide
+   TODO for instructor: tailor this slide
 
-Each chapter has the following structure:
+   Each chapter has the following structure:
 
-  1) background,
-  2) checklist,
-  3) example(s),
-  4) exercise(s), and 
-  5) feedback.
+     1) background,
+     2) checklist,
+     3) example(s),
+     4) exercise(s), and 
+     5) feedback.
 
-At the end of each chapter there is a **Fast Track** section, and it contains three parts:
-  1) a review,
-  2) exercise(s), and 
-  3) feedback.
+   At the end of each chapter there is a **Fast Track** section, and it contains three parts:
+     1) a review,
+     2) exercise(s), and 
+     3) feedback.
 
-.. container:: handout
+   .. container:: handout
 
-   .. TODO presentation of outline
+      .. TODO presentation of outline
 
-   The introduction presents background information of the relevant technologies behind Varnish.
-   It presents the history and main design principles needed to understand Varnish.
+      The introduction presents background information of the relevant technologies behind Varnish.
+      It presents the history and main design principles needed to understand Varnish.
 
-   .. TODO for the author:
-   .. complete this paragraph
+      .. TODO for the author:
+      .. complete this paragraph
 
-   .. Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
-   .. The format of each sub-objective is of a five-part **lesson** including:
+      .. Each chapter teaches one **objective** and its **sub-objectives**, or component skills.
+      .. The format of each sub-objective is of a five-part **lesson** including:
 
-   The Fast Track can be used for various purposes:
+      The Fast Track can be used for various purposes:
 
-   - As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
-   - As a test. If you can perform the exercises in the Fast Track, you have learned the important skills taught in the chapter.
-   - As a express lesson. If you do not have the time to complete the entire chapter, you can use the Fast Track instead.
-   - As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
-   - As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
+      - As a preliminary test. If you know the information in the Fast Track and can do its exercises, you may skip the chapter.
+      - As a test. If you can perform the exercises in the Fast Track, you have learned the important skills taught in the chapter.
+      - As a express lesson. If you do not have the time to complete the entire chapter, you can use the Fast Track instead.
+      - As a preview of the chapter. The Fast Track provides a concise overview of what you learn in the chapter.
+      - As a review. Once you have completed the Varnish Book, you can use the Fast Tracks as a quick review.
 
-   In Appendix A of the book, you will find the **Varnish Book Reference**.
-   The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
-   Appendix B and C contain special purpose Varnish programs and supporting material respectively.
-   Appendix D lists the Varnish Three Letter Acronyms.
-   Appendix E describes what is new since Varnish 3.0.
+      In Appendix A of the book, you will find the **Varnish Book Reference**.
+      The Varnish Book Reference is a complete listing, by chapter, of all the checklists.
+      Appendix B and C contain special purpose Varnish programs and supporting material respectively.
+      Appendix D lists the Varnish Three Letter Acronyms.
+      Appendix E describes what is new since Varnish 3.0.
 
-   .. TODO for the author: include a glossary based on:
-   .. https://www.varnish-cache.org/trac/wiki/VTLA
+      .. TODO for the author: include a glossary based on:
+      .. https://www.varnish-cache.org/trac/wiki/VTLA
 
-   .. TODO for the author: remove this comment when the organization has been completely implemented.
-   
-   Note: This organization is still not completely implemented.
+      .. TODO for the author: remove this comment when the organization has been completely implemented.
+
+      Note: This organization is still not completely implemented.
 
 .. Commenting this subsection
 
@@ -223,11 +223,12 @@ Introduction
 
 .. TODO Comparison of related software solutions such as: Apache mod_security, Squid, Nginx, and Apache Traffic Server (ATS) (reverse and forward proxy, generally comparable to Nginx and Squid).
 
+What is Varnish?
+----------------
 
-Varnish Cache and Varnish Cache Plus
-------------------------------------
-- TODO: Here goes a diagram of Varnish as reverse HTTP proxy.
-- TODO: Here goes a diagram showing the differences between Varnish Cache and  Varnish Plus
+.. image:: ui/img/reverse_proxy.png
+   :alt: Reverse Proxy
+   :align: center
 
 .. container:: handout
 
@@ -244,6 +245,43 @@ Varnish Cache and Varnish Cache Plus
    At the same time, Varnish is flexible.
    The Varnish Configuration Language (VCL) is lightning fast and allows system administrators to express their wanted policy rather than being constrained by what the Varnish developers want to cater for or could think of.
    Varnish has shown itself to work well both on large (and expensive) servers and tiny appliances.
+
+   .. Varnish use
+
+   Varnish is more than a reverse HTTP proxy.
+   Depending on the installation, Varnish can be used as:
+
+   .. TODO for the author: can we be more specific with what functionality is achieved with Varnish Cache, and which one with Varnish Cache Plus?
+
+   - web application firewall,
+   - DDoS attacks defender,
+   - load balancer,
+   - integration point,
+   - quick fix for unstable backends, and
+   - HTTP router.
+
+   At the moment of writting this book, Varnish Plus is supporting the following Linux distributions:
+
+   - RedHat Enterprise Linux 5
+   - RedHat Enterprise Linux 6
+   - Ubuntu Linux 12.04 LTS (precise)
+   - Ubuntu Linux 14.04 LTS (trusty)
+   - Debian Linux 7 (wheezy)
+
+   Varnish Cache Plus is supported on 64-bit systems.
+
+Varnish Cache and Varnish Cache Plus
+------------------------------------
+
+.. image:: ui/img/varnish_cache_plus_components.png
+   :alt: Varnish Cache and Varnish Plus Components Diagram
+   :align: center
+
+.. image:: ui/img/varnish_cache_plus_union.png
+   :alt: Varnish Cache and Varnish Plus Union Diagram
+   :align: center
+
+.. container:: handout
 
    .. Open Source / Free Software:
 
@@ -276,38 +314,25 @@ Varnish Cache and Varnish Cache Plus
    Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
    This edition is proprietary and it is called *Varnish Cache Plus*.
+   Figure Varnish Cache and Varnish Plus Union Diagram shows 
    
    The Varnish Plus offer of software products include:
 
-   - the Varnish Massive Storage Engine,
+   - the Varnish Massive Storage Engine (MSE),
    - hashtwo (Varnish Software implementation of surrogate keys),
    - Varnish Administration Console (VAC),
    - Varnish Customer Statistics (VCS),
-   - Varnish Tuner, and more.
+   - Varnish Tuner,
+   - and more at https://www.varnish-software.com/what-is-varnish-plus.
 
-   .. Varnish use
+   .. VMODs
+   .. bookmark
+   .. TODO for the author: describe VMODs and describe the diagramas above.
 
-   Varnish is more than a reverse HTTP proxy.
-   Depending on the installation, Varnish can be used as:
+   .. https://www.varnish-cache.org/vmods
+   
 
-   .. TODO for the author: can we be more specific with what functionality is achieved with Varnish Cache, and which one with Varnish Cache Plus?
-
-   - web application firewall,
-   - DDoS attacks defender,
-   - load balancer,
-   - integration point,
-   - quick fix for unstable backends, and
-   - HTTP router.
-
-   At the moment of writting this book, Varnish Plus is supporting the following Linux distributions:
-
-   - RedHat Enterprise Linux 5
-   - RedHat Enterprise Linux 6
-   - Ubuntu Linux 12.04 LTS (precise)
-   - Ubuntu Linux 14.04 LTS (trusty)
-   - Debian Linux 7 (wheezy)
-
-   Varnish Cache Plus is supported on 64-bit systems.
+   This book covers the modules with dark blue background in Figure Varnish Cache and Varnish Plus Components Diagram.
 
 Varnish Software
 ----------------
@@ -342,7 +367,8 @@ Varnish timeline:
    Today Varnish Software is able to fund the core development with income from service agreements, in addition to offering development of specific features on a case-by-case basis.
    The interest in Varnish continues to increase.
    An informal study based on the list of most popular web sites in Norway indicates that about 75% or more of the web traffic that originates in Norway is served through Varnish.
-   .. TODO for the author: reference?
+
+   .. TODO for the author: reference for the informal study?
 
    .. VGB
 
@@ -896,36 +922,23 @@ Log Layout
 
 .. image:: ui/img/log_layout.png
    :align: center
-   :width: 80%
 
 .. container:: handout
    
-   .. TODO for the author: Add description
-
-   TODO: To update figure resolution and add description.
-
-Reordered Log Layout
---------------------
-
-.. image:: ui/img/reordered_log_layout.png
-   :align: center
-   :width: 80%
-
-.. container:: handout
-
-    .. TODO for the author: Add description
-
-   TODO: To update figure resolution and add description.
+   The figure above shows how Varnish logs transactions chronologically, and how can they be reordered.
+   The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
+   `Transactions`_ Subsection explains transactions in more detail.
 
 Transactions
 ------------
 
 - A transaction is one work item in Varnish
-- Share a single Varnish Transaction ID (VXID) per types of transactions. Examples of transaction types are:
+- Share a single Varnish Transaction ID (VXID) per types of transactions.
+  Examples of transaction types are:
 
+ - Session
  - Client request
  - Backend request
- - Session
 
 - Transaction reasons. Examples:
 
@@ -952,7 +965,7 @@ Transactions
    .. Transaction reasons
 
 Transaction Groups
-------------------
+..................
 
 .. the VSL-query man page describes the grouping modes and the transaction hierarchy
 .. https://www.varnish-cache.org/docs/trunk/reference/vsl-query.html
@@ -993,7 +1006,7 @@ Transaction Groups
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
 
 Example of Transaction Grouping with ``varnishlog``
----------------------------------------------------
+...................................................
 
 .. image:: ui/img/cache_miss_request_grouping.png
 
@@ -4436,8 +4449,6 @@ For the ESI to work, load the following VCL code.
 Then reload Varnish and issue the command ``http http://localhost/esi-date.php``.
 The output should show you how Varnish replaces the ESI tag with the reponse from ``esi-date.cgi``.
 This example also tries to show you how the glued objects have different TTLs.
-
-.. bookmark
 
 Exercise: Enable ESI and Cookies
 ................................
