@@ -63,7 +63,7 @@ Index
 Building the material
 ---------------------
 
-The work in progress is being compiled on Ubuntu trusty 14.04 with the following tools:
+The work in progress is being compiled on Ubuntu LTS 14.04 (Trusty) with the following tools:
 
 - rst2pdf
 - gawk (old awk is not sufficient)
