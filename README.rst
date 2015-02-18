@@ -30,6 +30,7 @@ In addition to the authors, the following deserve special thanks (in no particul
 
 - Rubén Romero
 - Dag Haavi Finstad
+- Per Buer
 - Sevan Janiyan
 - Kacper Wysocki
 - Magnus Hagander
