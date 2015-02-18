@@ -16,7 +16,7 @@ book = "*"
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
 #"Abstract,Preface,Introduction,Getting Started,The Varnish Log,Tuning,VCL Basics,VCL Built-in Subroutines,Cache Invalidation,Mechanisms to Handle Backends in Problematic Situations,Content Composition,Appendix A: Resources,Appendix B: Varnish Programs,Appendix C: Extra Material,Appendix D: From Varnish 3 to Varnish 4"
 
-test = "Getting Started,The Varnish Log"
+test = "Tuning"
 #test = "Varnish request flow for the client worker thread"
 # TOFIX: the sysadmin target is not compiling as expected.
 # sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"

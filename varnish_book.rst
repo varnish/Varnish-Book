@@ -273,20 +273,18 @@ What is Varnish?
 Varnish Cache and Varnish Cache Plus
 ------------------------------------
 
-.. image:: ui/img/varnish_cache_plus_components.png
-   :alt: Varnish Cache and Varnish Plus Components Diagram
-   :align: center
-
-.. image:: ui/img/varnish_cache_plus_union.png
-   :alt: Varnish Cache and Varnish Plus Union Diagram
-   :align: center
+.. csv-table:: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
+   :name: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
+   :delim: ,
+   :header-rows: 1
+   :file: tables/varnish_cache_plus_offer_diff.csv
 
 .. container:: handout
 
    .. Open Source / Free Software:
 
    Varnish Cache is an open source project, and free software. 
-   The development process is public and everyone can submit patches, or just take a peek at the code if there is some uncertainty as to how Varnish Cache works. 
+   The development process is public and everyone can submit patches, or just take a peek at the code if there is some uncertainty on how does Varnish Cache work.
    There is a community of volunteers who help each other and newcomers. 
    The BSD-like license used by Varnish Cache does not place significant restriction on re-use of the code, which makes it possible to integrate Varnish Cache in virtually any solution.
 
@@ -294,7 +292,7 @@ Varnish Cache and Varnish Cache Plus
    The code-base is kept as self-contained as possible to avoid introducing out-side bugs and unneeded complexity. 
    As a consequence of this, Varnish uses very few external libraries.
 
-   At the moment of writting this book, Varnish Cache 4 is supporting the following Linux distributions:
+   At the moment of writting this book, Varnish Cache is supporting the following Linux distributions:
 
    - Debian Linux 7 (wheezy)
    - Debian Linux 8 (jessie)
@@ -314,7 +312,6 @@ Varnish Cache and Varnish Cache Plus
    Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
    This edition is proprietary and it is called *Varnish Cache Plus*.
-   Figure Varnish Cache and Varnish Plus Union Diagram shows 
    
    The Varnish Plus offer of software products include:
 
@@ -323,16 +320,13 @@ Varnish Cache and Varnish Cache Plus
    - Varnish Administration Console (VAC),
    - Varnish Customer Statistics (VCS),
    - Varnish Tuner,
-   - and more at https://www.varnish-software.com/what-is-varnish-plus.
+   - and more.
 
-   .. VMODs
-   .. bookmark
-   .. TODO for the author: describe VMODs and describe the diagramas above.
-
-   .. https://www.varnish-cache.org/vmods
+   .. Covered in this book:
    
-
-   This book covers the modules with dark blue background in Figure Varnish Cache and Varnish Plus Components Diagram.
+   This book covers technical topics for Varnish Cache and Varnish Plus Products.
+   Table `Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus`_  shows the these topics and their availability for Varnish Cache users and Varnish Plus customers.
+   For more detailed information about the Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
 
 Varnish Software
 ----------------
@@ -1013,7 +1007,7 @@ Example of Transaction Grouping with ``varnishlog``
 ..   :align: center
 ..   :width: 100%
 
-TODO: To update image resolution
+.. TODO: To update cache_miss_request_grouping.png resolution
 
 .. container:: handout
 
@@ -1256,36 +1250,33 @@ Varnish Architecture
 
 .. image:: ui/img/architecture.png
    :align: center
-   :width: 100%
-
-Figure #. Varnish Architecture
 
 .. container:: handout
 
    .. TODO for the author: Add some of the description from https://www.varnish-cache.org/docs/trunk/phk/barriers.html
 
-   Figure # shows a block diagram of the Varnish architecture.
+   Figure *Varnish Architecture* shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
    The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
    ``varnishd`` creates a new child process mainly for security reasons.
    The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
-   The Manager's CLI is accessible directly on the terminal, through ``varnishadm``, or through the Varnish Administration Console (VAC) via *agent2*.
-
-   TODO: To elaborate this section.
-
-   .. TODO for the author: update the Section #.
-   
-   You will learn more on VAC and *agent2* in Section #.
+   The Manager's CLI is accessible directly on the terminal, through ``varnishadm`` as explained in `The Management Interface`_ Subsection, or through the Varnish Administration Console (VAC) via *agent2*.
+   *agent2* exposes ``varnishd`` services to allow remote control and monitoring.
+   For more detailed information about vagent2, please visit https://github.com/varnish/vagent2.
 
    .. C-compiler
+   .. TODO
 
    .. Shared object
+   .. TODO
 
    .. Shared memory
+   .. TODO
 
    .. varnishlog, etc.
+   .. TODO
 
 The Parent Process: The Manager
 -------------------------------
@@ -1568,7 +1559,7 @@ Varnish Tuner
           Copying Varnish Tuner suggestions to other systems might not be a good idea.
 
 Varnish Tuner Persistence
--------------------------
+.........................
 
 The output of ``varnishturner`` updates every time you introduce a new input or execute a suggested command.
 However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
@@ -1580,7 +1571,7 @@ To make the tuning persistent, you can add do the following:
 To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
 
 Install Varnish Tuner
----------------------
+.....................
 
 Below are the installation instructions for getting the tuner from our repositories.
 Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.

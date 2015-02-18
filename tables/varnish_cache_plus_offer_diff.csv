@@ -1,0 +1,19 @@
+Topic,Varnish Cache,Varnish Plus
+VCL,Yes,Yes
+varnishlog,Yes,Yes
+varnishadm,Yes,Yes
+varnishncsa,Yes,Yes
+varnishstat,Yes,Yes
+varnishhist,Yes,Yes
+varnishtest,Yes,Yes
+varnishtop,Yes,Yes
+directors,Yes,Yes
+purge,Yes,Yes
+ban,Yes,Yes
+force cache misses,Yes,Yes
+MSE,No,Yes
+Tuner,No,Yes
+VHA,No,Yes
+VCS,No,Yes
+VAC,No,Yes
+hashtwo,No,Yes
