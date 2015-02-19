@@ -11,6 +11,7 @@ directors,Yes,Yes
 purge,Yes,Yes
 ban,Yes,Yes
 force cache misses,Yes,Yes
+vagent2,Yes,Yes
 MSE,No,Yes
 Tuner,No,Yes
 VHA,No,Yes

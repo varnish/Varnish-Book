@@ -1262,9 +1262,15 @@ Varnish Architecture
    ``varnishd`` creates a new child process mainly for security reasons.
    The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
-   The Manager's CLI is accessible directly on the terminal, through ``varnishadm`` as explained in `The Management Interface`_ Subsection, or through the Varnish Administration Console (VAC) via *agent2*.
-   *agent2* exposes ``varnishd`` services to allow remote control and monitoring.
-   For more detailed information about vagent2, please visit https://github.com/varnish/vagent2.
+   The Manager's command line interface (CLI) is accessible through:
+   1) ``varnishadm`` as explained in `The Management Interface`_ Subsection, or
+   2) the Varnish Administration Console (VAC) via the Varnish Agent *vagent2*.
+   
+   The Varnish Agent *vagent2* is a HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
+   Varnish Software has a commercial offering of a fully functional web UI called Varnish Administration Console (VAC).
+   Nevertheless, since *vagent2* is open, you can write your own code for it.
+
+   For more detailed information about *vagent2*, please visit https://github.com/varnish/vagent2.
 
    .. C-compiler
    .. TODO
@@ -2501,14 +2507,11 @@ Varnish request flow for the client worker thread
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
 .. TODO for the author: Double check that the available variables are correct and not confusing.
-.. TODO for the editor: Sizing the figure over 33% throws error. Fix it!
-
-TODO: To simplify this diagram.
+.. TODO for the author: To simplify this diagram.
 
 .. image:: ui/img/cache_req_fsm.png
    :align: center
-
-..   :width: 33%
+   :scale: 130%
 
 Varnish request flow for the backend worker thread
 --------------------------------------------------
@@ -2516,14 +2519,11 @@ Varnish request flow for the backend worker thread
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
 .. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
 .. TODO for the author: Double check that the available variables are correct and not confusing.
-.. TODO for the editor: Sizing the figure over 5% throws error. Fix it!
-
-TODO: To simplify this diagram.
+.. TODO for the author: To simplify this diagram.
 
 .. image:: ui/img/cache_fetch.png
    :align: center
-
-..   :width: 5%
+   :scale: 200%
 
 The VCL State Machine
 ---------------------
@@ -2597,16 +2597,6 @@ VCL Syntax
 VCL built-in functions
 ----------------------
 
-TODO: This table is not finished.
-
-.. test availability with varnishd -C -f foo.vcl
-
-.. csv-table:: VCL built-in subroutines and their functions
-   :name: subroutines_functions
-   :delim: ,
-   :header-rows: 1
-   :file: tables/subroutine_functions.csv
-
 List of functions and their arguments:
 
 - ``regsub(str, regex, sub)``
@@ -2616,10 +2606,17 @@ List of functions and their arguments:
 - ``hash_data(input)``
 - ``call(subroutine)``
 - ``new()``
-- ``rollback()``
 - ``synthetic(str)``
 - ``set()``
 - ``unset()``
+
+All functions are avialable in all subroutines, except the listed in Table `Specific Function Availability`_.
+
+.. csv-table:: Specific Function Availability
+   :name: Specific Function Availability
+   :delim: ,
+   :header-rows: 1
+   :file: tables/subroutine_functions.csv
 
 .. container:: handout
 
@@ -3936,11 +3933,6 @@ Directors
    Backend directors, usually just called directors, provide logical groupings of similar web servers.
    There are several different directors available, but they all share the same basic properties.
 
-   First of all, anywhere in VCL where you can refer to a backend, you can also refer to a director.
-
-   .. include: vcl/director_references.vcl
-      :literal:
-
    Directors allow you to re-use previously defined backends, or define "anonymous" backends within the director definition. 
    If a backend is defined explicitly and referred to or from a director, Varnish records data such as number of connections. 
    The definition of anonymous backends within a director also yields all the normal properties of a backend.
@@ -3959,13 +3951,6 @@ Directors
 
    The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
    The next backend to be selected depends on the selection method (i.e. random, round-robin, or hash) of the director.
-
-   .. TODO for the author: is the counter set to 0 after a health backend is found?
-
-   .. include: vcl/random_example.vcl
-     :literal:
-
-   The director of the above example selects ``localhost`` twice more than ``example.com``.
 
    .. note::
 
