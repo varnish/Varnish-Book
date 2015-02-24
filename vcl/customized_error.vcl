@@ -4,14 +4,13 @@ backend default {
     .port = "8081";
 }
 
-/* This exercise is still not working */
-sub vcl_synth {
-    if(resp.status == 503){
-    synthetic( {"
-      <html><body><!-- Here goes a more friendly error message. --></body></html>
-    "} );
-    set resp.status = 200;
-
-    return (deliver);
+/* Customize error responses */
+sub vcl_backend_error {
+    if(beresp.status == 503){
+      synthetic( {"
+         <html><body><!-- Here goes a more friendly error message. --></body></html>
+      "} );
+       set beresp.status = 200;
+       return (deliver);
     }
 }

@@ -3349,14 +3349,14 @@ Example #. Using Varnish to redirect requests.
       The *301* response can affect how browsers prioritize history and how search engines treat the content.
       *302* responses are temporary and do not affect search engines as *301* responses do.   
 
-Exercise #: Modify the HTTP response header fields
---------------------------------------------------
+Exercise: Modify the HTTP response header fields
+------------------------------------------------
 
 - Add a header stating either HIT or MISS
 - "Rename" the Age header to X-Age.
 
-Solution #: Modify the HTTP response header fields
-..................................................
+Solution: Modify the HTTP response header fields
+................................................
 
 .. include:: vcl/modify_headers.vcl
    :literal:
@@ -3372,22 +3372,20 @@ Solution #: Modify the HTTP response header fields
 
 .. TODO for the author: Double check the format that rst requires for em and en dash (rule).
 
-Exercise #: Modify the error message
-------------------------------------
+Exercise: Modify the error message
+----------------------------------
 
 - Make the default error message more friendly.
 
-Solution #: Modify the error message
-....................................
+Solution: Modify the error message
+..................................
 
 .. include:: vcl/customized_error.vcl
    :literal:
 
 .. container:: handout
 
-   .. TODO for the author: to elaborate this section when tests show that the VCL code is correct.
-   
-   TODO: To elaborate
+   The suggested solution forces a ``503`` error by misconfiguring ``.port`` in the `default` backend.
 
 Cache Invalidation
 ==================
