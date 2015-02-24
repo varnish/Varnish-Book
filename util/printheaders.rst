@@ -4,11 +4,11 @@
 
       .. class:: headertable
 
-      +---+---------------------+----------------+
-      |   |.. class:: centered  |.. class:: right|
-      |   |                     |                |
-      |   |Section ###Section###|Page ###Page### |
-      +---+---------------------+----------------+
+      +---+-----------------------+------------------+
+      |   | .. class:: centered   | .. class:: right |
+      |   |                       |                  |
+      |   | Section ###Section### | Page ###Page###  |
+      +---+-----------------------+------------------+
 
       .. class:: headertable
 
@@ -28,8 +28,8 @@
       |   |.. class:: centered  |.. class:: right            |
       |   |                     |                            |
       |   |                     |.. image:: ui/img/logo.png  |
-      |   |                     |    :width: 50%             |
-      |   |                     |                            |
+      |   |                     |    :scale: 100%            |
+      |   |                     |    :align: right           |
       +---+---------------------+----------------------------+
 
       .. class:: headertable
@@ -38,7 +38,7 @@
       |.. class:: left             |.. class:: centered  |   |
       |                            |                     |   |
       |.. image:: ui/img/logo.png  |                     |   |
-      |    :width: 50%             |                     |   |
+      |   :scale: 100%             |                     |   |
       |                            |                     |   |
       +----------------------------+---------------------+---+
 

@@ -3409,7 +3409,8 @@ There are three mechanism to invalidate caches in Varnish:
 3) Hashtwo -> Varnish Plus only!
 
   - For websites with the need for cache invalidation at a very large scale 
-  - TODO
+  - Varnish Software implementation of surrogate keys
+  - Flexible cache invalidation based on cache tags
 
 4) Force Cache Misses
 
@@ -3422,18 +3423,18 @@ There are three mechanism to invalidate caches in Varnish:
 
 .. container:: handout
 
-     Whenever you deal with a cache, you have to eventually deal with the challenge of cache invalidation, or refreshing content. 
-     There are many motives behind such a task.
-     Varnish addresses the problem in several slightly different ways.
+   Whenever you deal with a cache, you have to eventually deal with the challenge of cache invalidation, or refreshing content. 
+   There are many motives behind such a task.
+   Varnish addresses the problem in several slightly different ways.
 
-     To decide which cache invalidation mechanism to use, answer the following questions:
+   To decide which cache invalidation mechanism to use, answer the following questions:
 
-     - Am I invalidating one specific object, or many?
-     - Do I need to free up memory, or just replace the content?
-     - How long time does it take to replace the content?
-     - Is this a regular task, or a one-off task?
+   - Am I invalidating one specific object, or many?
+   - Do I need to free up memory, or just replace the content?
+   - How long time does it take to replace the content?
+   - Is this a regular task, or a one-off task?
 
-     The rest of the chapter gives you the information to pickup the most suitable mechanism.
+   The rest of the chapter gives you the information to pickup the most suitable mechanism.
 
 HTTP PURGE
 ----------
@@ -3759,7 +3760,7 @@ Hashtwo -> Varnish Plus only!
 
 - Hashtwo is Varnish' implementation of surrogate keys
 - Cache invalidation based on cache tags
-- Adds easily patters to be matched against
+- Adds patterns easily to be matched against
 - Highly scalable
 
 .. container:: handout

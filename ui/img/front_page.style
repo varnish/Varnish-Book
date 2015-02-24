@@ -1,0 +1,26 @@
+{
+  "pageSetup" : {
+    "firstTemplate": "coverPage"
+  },
+  "pageTemplates" : {
+    "coverPage": {
+        "frames": [
+            ["0cm", "0cm", "100%", "70%"]
+          ],
+	
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 10,
+	"background" : "bluebg.png"
+    }
+  },
+  "styles" : [
+    ["cover", {
+	"fontName": "White Rabbit",
+        "fontSize": 30,
+	"textColor": white,
+	"alignment":"center"
+     }
+    ]
+  ]
+}
