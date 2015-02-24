@@ -1,7 +1,7 @@
 Parameter ;Default ;Description ;Scope 
 connect_timeout ;|def_connect_timeout|;OS/network latency ;Backend 
-first_byte_timeout ;|def_first_byte_timeout|;Web page generation? ;Backend 
-between_bytes_timeout ;|def_between_bytes_timeout|;Hiccoughs? ;Backend 
+first_byte_timeout ;|def_first_byte_timeout|;Web page generation ;Backend 
+between_bytes_timeout ;|def_between_bytes_timeout|;Hiccoughs ;Backend 
 send_timeout ;|def_send_timeout|;Client-in-tunnel ;Client 
 timeout_idle ;|def_timeout_idle|;keep-alive timeout ;Client 
 timeout_req ;|def_timeout_req|;deadline to receive a complete request header ;Client 

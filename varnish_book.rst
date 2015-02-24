@@ -1774,6 +1774,8 @@ Timers
       :header-rows: 1
       :file: tables/timers.csv
 
+.. TODO for the author: verify what means hiccoughs, and "web page generation" in the table.
+
 .. container:: handout
 
         The timeout-parameters are generally set to pretty good defaults, but you might have to adjust them for unusual applications.
