@@ -35,11 +35,13 @@
   },
   "styles" : [
     ["bodytext", {
+            "fontName": "Open Sans",
+	    "fontSize": 10,
 	    "borderPadding": 0
 	}
 	],
     ["title", {
-        "fontName": "White Rabbit",
+        "fontName": "Open Sans",
         "fontSize": 48
     }],
         
@@ -58,6 +60,10 @@
         "parent": "bodytext",
         "alignment": "center"
     }],
+    ["left", {
+        "parent": "bodytext",
+        "alignment": "left"
+    }],
     ["headertable" , {
     "parent" : "table",
     "colWidths": ["20%","60%","20%"],
@@ -70,4 +76,3 @@
     ]
    ]
 }
-

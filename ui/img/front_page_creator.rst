@@ -1,6 +1,10 @@
 .. figure:: varnish_software.png
-   :scale: 120%
+   :scale: 50%
 
 .. class:: cover
+
+::
+
+
 
    The Varnish Book

@@ -14,12 +14,14 @@
 	"background" : "bluebg.png"
     }
   },
+ ￼"embeddedFonts" : [ "Open Sans" ],
   "styles" : [
     ["cover", {
-	"fontName": "White Rabbit",
+	"fontName": "Open Sans",
         "fontSize": 30,
 	"textColor": white,
-	"alignment":"center"
+	"alignment":"center",
+	"spaceBefore":50
      }
     ]
   ]

@@ -4512,6 +4512,43 @@ Solution : write a VCL that masquerades XHR calls
 
 Notice that the ``getMasqueraded()`` works now after being processed in ``vcl_recv()``.
 
+Varnish Administration Console (VAC)
+====================================
+
+.. TODO for the author: 
+
+.. The single point of control for simultaneous administration of all your Varnish Cache servers. Varnish Administration Console provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify any bottlenecks and issues within your Varnish Cache servers.
+
+.. figure:: ui/img/vac_screenshot_1.png
+   :scale: 30%
+
+.. figure:: ui/img/vac_screenshot_2.png
+   :scale: 30%
+
+.. figure:: ui/img/vac_screenshot_3.png
+   :scale: 30%
+
+https://vacdemo.varnish-software.com
+
+.. TODO: To elaborate
+
+Varnish Custom Statistics (VCS)
+===============================
+
+.. Varnish Custom Statistics is a real-time statistics engine allowing you to aggregate, display and analyze user web traffic. VCS is extremely flexible, allowing you to define the grouping of statistics easily using Varnish Configuration Language (VCL). If you can imagine what kind of traffic you want to analyze, VCS can capture the relevant data.
+
+.. figure:: ui/img/vcsui_header_2.png
+
+
+.. figure:: ui/img/vcsui_4.png
+
+
+.. TODO: To elaborate.
+.. In the meantime, please refer to:
+
+http://vcsdemo.varnish-software.com
+
+
 Appendix A: Resources
 =====================
 
@@ -4535,7 +4572,7 @@ Commercial:
 Appendix B: Varnish Programs
 ============================
 
-TODO: This chapter has not been updated yet.
+TODO: This chapter is not updated
 
 SHMLOG tools
 
@@ -4544,7 +4581,6 @@ SHMLOG tools
 - varnishstat
 - varnishhist
 - varnishtop
-- varnishsizes
 
 Administration
 
@@ -4558,7 +4594,7 @@ Misc
 .. container:: handout
 
    Varnish provides several tools to help monitor and control Varnish.
-   varnishadm, used to access the management interface, is the only one
+   ``varnishadm``, used to access the management interface, is the only one
    that can affect a running instance of Varnish.
 
    All the other tools operate exclusively on the shared memory log, often

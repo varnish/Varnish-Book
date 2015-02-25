@@ -28,7 +28,7 @@
       |   |.. class:: centered  |.. class:: right            |
       |   |                     |                            |
       |   |                     |.. image:: ui/img/logo.png  |
-      |   |                     |    :scale: 100%            |
+      |   |                     |    :scale: 50%             |
       |   |                     |    :align: right           |
       +---+---------------------+----------------------------+
 
@@ -38,7 +38,7 @@
       |.. class:: left             |.. class:: centered  |   |
       |                            |                     |   |
       |.. image:: ui/img/logo.png  |                     |   |
-      |   :scale: 100%             |                     |   |
+      |   :scale: 50%              |                     |   |
       |                            |                     |   |
       +----------------------------+---------------------+---+
 
