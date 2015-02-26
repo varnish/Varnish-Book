@@ -42,5 +42,47 @@
 	    "showHeader": false,
 	    "showFooter": false
     }
-  }
+  },
+    "styles" : [
+    ["bodytext", {
+            "fontName": "Open Sans",
+            "fontSize": 10,
+            "borderPadding": 0
+        }
+        ],
+    ["title", {
+        "fontName": "Open Sans",
+        "fontSize": 48
+    }],
+
+    ["thin" , {
+    "parent" : "bodytext",
+    "width" : "65%",
+    "alignment": "TA_JUSTIFY",
+    "hyphenation": true
+    }
+    ],
+    ["right", {
+        "parent": "bodytext",
+        "alignment": "right"
+    }],
+    ["centered", {
+        "parent": "bodytext",
+        "alignment": "center"
+    }],
+    ["left", {
+        "parent": "bodytext",
+        "alignment": "left"
+    }],
+    ["headertable" , {
+    "parent" : "table",
+    "colWidths": ["20%","60%","20%"],
+    "commands": []
+    }
+    ],
+    ["footer" , {
+            "textColor": "red"
+    }
+    ]
+   ]
 }

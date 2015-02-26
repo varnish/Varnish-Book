@@ -21,7 +21,7 @@ Abstract
 ========
 
 The Varnish Book is the training material for Varnish Plus courses.
-The book teaches technical staff to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
+The book teaches technical staff how to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
 
 The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
 Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
@@ -226,9 +226,13 @@ Introduction
 What is Varnish?
 ----------------
 
-.. image:: ui/img/reverse_proxy.png
+.. figure 1
+
+.. figure:: ui/img/reverse_proxy.png
    :alt: Reverse Proxy
    :align: center
+
+   Figure :counter:`figures`: Reverse Proxy
 
 .. container:: handout
 
@@ -273,7 +277,9 @@ What is Varnish?
 Varnish Cache and Varnish Cache Plus
 ------------------------------------
 
-.. csv-table:: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
+.. table 1
+
+.. csv-table:: Table :counter:`tables`: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
    :name: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
    :delim: ,
    :header-rows: 1
@@ -324,8 +330,7 @@ Varnish Cache and Varnish Cache Plus
 
    .. Covered in this book:
    
-   This book covers technical topics for Varnish Cache and Varnish Plus Products.
-   Table `Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus`_  shows the these topics and their availability for Varnish Cache users and Varnish Plus customers.
+   `Table 1 <#tables-1>`_ shows the topics covered in this book and their availability for Varnish Cache users and Varnish Plus customers.
    For more detailed information about the Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
 
 Varnish Software
@@ -468,6 +473,10 @@ Varnish is designed to:
         sacrifice performance or simplicity for the sake of niche use-cases
         that can easily be solved by other means -- like using a 64-bit OS.
 
+.. TODO for the author: Sub-subtitles do not start in a new page
+.. raw: pageBreak does not work because the script util/strip-class.gawk ignores .. container: handout
+.. The solution should not be to make sub-subtitles into subtitles, but to find the way to break the page.
+
 How objects are stored
 ......................
 
@@ -526,7 +535,9 @@ Install Varnish and Apache as backend
 
 - Use packages provided by varnish-cache.org
 
-.. csv-table:: Different Locations of the Varnish Configuration File
+.. table 2
+
+.. csv-table:: Table :counter:`tables`: Different Locations of the Varnish Configuration File
    :name: Different Locations of the Varnish Configuration File
    :delim: ;
    :header-rows: 2
@@ -545,7 +556,9 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
 
    .. Note for the editor: Table varnish_apache should be above 'handout', but having two tables throws an error when compiling.
 
-   .. csv-table:: Varnish and Apache configuration
+   .. table 3
+
+   .. csv-table:: Table :counter:`tables`: Varnish and Apache configuration
       :name: varnish_apache
       :delim: ;
       :widths: 20, 30, 50
@@ -559,7 +572,7 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    Modifications to this file require to run ``service varnish restart`` for the changes to take effect.
 
    The location of the Varnish configuration file depends on the operating system and whether it uses the ``init`` system of `SysV`, or `systemd`.
-   Table `Different Locations of the Varnish Configuration File`_ shows the locations for each system installation.
+   `Table 2 <#tables-2>`_ shows the locations for each system installation.
 
    .. Introduction to apt-get and yum
 
@@ -665,7 +678,7 @@ You can read about other usages by issuing the ``help`` command after you connec
    2. Changes are not persistent across restarts of Varnish. 
       If you change a parameter and you want the change to persist after you restart Varnish,
       you need to store your changes in the configuration file of the boot script.
-      The location of the configuration file is is in Table `Different Locations of the Varnish Configuration File`_.
+      The location of the configuration file is is in `Table 2 <#tables-2>`_
 
    ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
    You can now provide access to the interface on a per user basis by adjusting the read permission on the secret file.
@@ -687,16 +700,20 @@ You can read about other usages by issuing the ``help`` command after you connec
 More about Varnish Configuration
 ................................
 
-.. csv-table:: Varnish Configuration Types
+.. table 4
+
+.. csv-table:: Table :counter:`tables`: Varnish Configuration Types
    :name: configuration_types
    :delim: ;
    :widths: 25, 25, 50
    :header-rows: 1
    :file: tables/configuration_type.csv
 
-The location of the configuration file is in Table `Different Locations of the Varnish Configuration File`_.
+The location of the configuration file is in `Table 2 <#tables-2>`_.
 
-.. csv-table:: How to reload Varnish
+.. table 5
+
+.. csv-table:: Table :counter:`tables`: How to reload Varnish
    :name: varnish_reload
    :delim: ;
    :widths: 40, 60
@@ -867,7 +884,7 @@ The Varnish Log
    The upside is that you get an abundance of information when you need it.
 
    The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writting to disk.
-   Table `Different Locations of the Varnish Configuration File`_ shows the location of the configuration file based on your platform.
+   `Table 2 <#tables-2>`_ shows the location of the configuration file based on your platform.
    Keep in mind that ``varnishlog`` generates large amounts of data!
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat``.
@@ -903,9 +920,7 @@ Statistical tools:
    In this course, we focus on the two  most important tools: ``varnishlog`` and ``varnishstat``.
    Unlike all other tools, ``varnishstat`` does not read from entries from Varnish log, but global counters.
    We include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
-   You can find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in Appendix ##.
-
-   .. TODO for the editor: update reference to Appendix ##.
+   You can find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in `Appendix B: Varnish Programs`_.
 
    .. tip::
       All tool programs of Varnish log have installed reference manuals.
@@ -914,12 +929,16 @@ Statistical tools:
 Log Layout
 ----------
 
-.. image:: ui/img/log_layout.png
+.. figure 2
+
+.. figure:: ui/img/log_layout.png
    :align: center
+
+   Figure :counter:`figures`: Log Layout Timeline
 
 .. container:: handout
    
-   The figure above shows how Varnish logs transactions chronologically, and how can they be reordered.
+   `Figure 2 <#figures-2>`_ shows how Varnish logs transactions chronologically, and how can they be reordered.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
    `Transactions`_ Subsection explains transactions in more detail.
 
@@ -957,6 +976,10 @@ Transactions
    Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
 
    .. Transaction reasons
+
+.. raw:: pdf
+
+   PageBreak
 
 Transaction Groups
 ..................
@@ -1002,21 +1025,27 @@ Transaction Groups
 Example of Transaction Grouping with ``varnishlog``
 ...................................................
 
-.. image:: ui/img/cache_miss_request_grouping.png
+.. raw:: pdf
 
-..   :align: center
-..   :width: 100%
+   PageBreak
 
-.. TODO: To update cache_miss_request_grouping.png resolution
+.. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
+.. figure 3
+
+.. figure:: ui/img/cache_miss_request_grouping.png
+   :width: 70%
+
+   Figure :counter:`figures`: Example of Transaction Grouping with ``varnishlog``
 
 .. container:: handout
 
-   The example shows a client request in a *cache miss* scenario.
-   In figure ##, ``varnishlog`` returns records grouped by request.
+   `Figure 3 <#figures-3>`_ shows a client request in a *cache miss* scenario.
+   In the figure, ``varnishlog`` returns records grouped by request.
    For simplicity, we use the ``-i`` option to include only the ``Session`` and ``Link`` tags.
-   For more information about the format and content of all Varnish shared memory logging (VSL) tags, see its man page by typing ``man vsl``.
-   You will learn more about the work flow of Varnish in detail in Section ##.
-   
+
+   For more information about the format and content of all Varnish shared memory logging (VSL) tags, see the VSL man page by typing ``man vsl``.
+   The work-flow of Varnish is detailed in the `VCL Basics`_ section.
+
    To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
    The ``-d`` option processes all recorded entries in Varnish log.
    To learn more about the available ``varnishlog`` options, enter ``varnishlog -h`` or see the man page of varnishlog.
@@ -1172,7 +1201,9 @@ TOFIX: To resize the font of this example.
    The hitrate average ``avg(n)`` show data for the last 10, 100, and 438 seconds.
    The average hitrate is 0.9967 (or 99.67%) for the last 10 seconds, 0.5686 for the last 100 seconds and 0.3870 for the last 438 seconds.
 
-   .. csv-table:: Columns displayed in central area of ``varnishstat``
+   .. table 6
+
+   .. csv-table:: Table :counter:`tables`: Columns displayed in central area of ``varnishstat``
       :name: columns_central_area
       :delim: ;
       :widths: 20, 80
@@ -1193,7 +1224,9 @@ TOFIX: To resize the font of this example.
 
    Some counters to note are:
 
-   .. csv-table:: Notable counters in ``varnishstat``
+   .. table 7
+
+   .. csv-table:: Table :counter:`tables`: Notable counters in ``varnishstat``
       :name: notable_counters
       :delim: ;
       :widths: 20, 80
@@ -1248,14 +1281,18 @@ This chapter covers:
 Varnish Architecture
 --------------------
 
-.. image:: ui/img/architecture.png
+.. figure 4
+
+.. figure:: ui/img/architecture.png
    :align: center
+
+   Figure :counter:`figures`: Varnish Architecture
 
 .. container:: handout
 
    .. TODO for the author: Add some of the description from https://www.varnish-cache.org/docs/trunk/phk/barriers.html
 
-   Figure *Varnish Architecture* shows a block diagram of the Varnish architecture.
+   `Figure 4 <#figures-4>`_ shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
    The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
@@ -1312,9 +1349,6 @@ You can toggle this property using the ``auto_restart`` parameter.
    To verify that the child process is not being restarted, you can also check its lifetime with the ``MAIN.uptime`` counter in ``varnishstat``.
 
    Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
-.. raw:: pdf
-
-   PageBreak
 
 The Child Process: The Cacher
 -----------------------------
@@ -1629,7 +1663,9 @@ Threading model
    The threads of these pools are called worker threads.
    The following table lists some relevant threads.
    
-   .. csv-table:: Relevant threads in Varnish
+   .. table 8
+
+   .. csv-table:: Table :counter:`tables`: Relevant threads in Varnish
       :name: relevant_threads
       :delim: ;
       :widths: 20, 40, 40
@@ -1672,7 +1708,9 @@ Varnish will use one thread for each session and the number of threads you let V
 
 The available parameters directly related to threads are:
 
-.. csv-table:: Thread parameters
+.. table 9
+
+.. csv-table:: Table :counter:`tables`: Thread parameters
       :name: thread_parameters
       :delim: ;
       :widths: 50, 50
@@ -1767,7 +1805,9 @@ The ``workspace_client`` and ``workspace_backend`` are parameters that could sti
 Timers
 ------
 
-.. csv-table:: Timers
+.. table 10
+
+.. csv-table:: Table :counter:`tables`: Timers
       :name: timers
       :delim: ;
       :widths: 20,20,40,20
@@ -2044,7 +2084,7 @@ Does ``thread_pool_timeout`` affect already running threads?
    HTTP request/response control flow
    ----------------------------------
 
-   .. image:: ui/img/httprequestflow.png
+   .. figure:: ui/img/httprequestflow.png
       :align: center
       :width: 80%
 
@@ -2482,10 +2522,9 @@ VCL Basics
    Your own subroutines cannot start their name with ``vcl_``.
 
    .. Built-in subroutines as states
-   .. TODO for the author: to update the reference for the figure
 
    Built-in subroutines represent states of the Varnish state machine.
-   Figure # shows a state machine to represent the Varnish request flow.
+   `Figures 5 <#figures-5>`_ and `6 <#figures-6>`_ show the state machine that represents the Varnish request flow.
    Each state is handled by a special VCL subroutine.
    
    Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
@@ -2503,19 +2542,24 @@ VCL Basics
       Remember that Varnish has many reference manuals.
       For more details about VCL, check its manual page by issuing ``man vcl``.
 
-Varnish request flow for the client worker thread
+Varnish Request Flow for the Client Worker Thread
 -------------------------------------------------
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
 .. TODO for the author: Double check that the available variables are correct and not confusing.
 .. TODO for the author: To simplify this diagram.
+.. TODO for the editor: To have different sizes for vertical tall figures for slide-pdf format.
 
-.. image:: ui/img/cache_req_fsm.png
+.. figure 5
+
+.. figure:: ui/img/cache_req_fsm.png
    :align: center
-   :scale: 130%
+   :height: 1000px
 
-Varnish request flow for the backend worker thread
+   Figure :counter:`figures`: Varnish Request Flow for the Client Worker Thread
+
+Varnish Request Flow for the Backend Worker Thread
 --------------------------------------------------
 
 .. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
@@ -2523,9 +2567,16 @@ Varnish request flow for the backend worker thread
 .. TODO for the author: Double check that the available variables are correct and not confusing.
 .. TODO for the author: To simplify this diagram.
 
-.. image:: ui/img/cache_fetch.png
+.. figure 6
+
+.. figure:: ui/img/cache_fetch.png
    :align: center
-   :scale: 200%
+
+   Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread
+
+.. container:: handout
+
+   `Figure 6 <#figures-6>`_ is further explained in the `VCL Built-in Subroutines`_ section, `Figure 7 <#figures-7>`_.
 
 The VCL State Machine
 ---------------------
@@ -2612,9 +2663,11 @@ List of functions and their arguments:
 - ``set()``
 - ``unset()``
 
-All functions are avialable in all subroutines, except the listed in Table `Specific Function Availability`_.
+All functions are avialable in all subroutines, except the listed in the table below.
 
-.. csv-table:: Specific Function Availability
+.. table 11
+
+.. csv-table:: Table :counter:`tables`: Specific Function Availability
    :name: Specific Function Availability
    :delim: ,
    :header-rows: 1
@@ -2632,17 +2685,18 @@ All functions are avialable in all subroutines, except the listed in Table `Spec
    The difference between ``regsub()`` and ``regsuball()`` is that the latter changes all occurrences while the former only affects the first match.
 
    .. ban
-   .. TODO for the author: update the chapter reference.
 
    The ``ban()`` function invalidates all objects in cache that match the expression ``exp`` with the ban mechanism.
-   *banning* and *purging* in detailed in Chapter #.
+   *banning* and *purging* in detailed in the `Cache Invalidation`_ section.
 
 Legal Return Actions
 --------------------
 
 .. TODO for the editor: scale or change the font size of this table.
 
-.. csv-table:: VCL built-in subroutines and their legal returns
+.. table 12
+
+.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns
    :name: subroutines_legal_returns
    :delim: ,
    :header-rows: 1
@@ -2663,8 +2717,10 @@ Legal Return Actions
 Variables in VCL subroutines
 ----------------------------
 
- .. csv-table:: Variable Availability in VCL subroutines
-   :name: variable_availability
+.. table 13
+
+ .. csv-table:: Table :counter:`tables`: Variable Availability in VCL subroutines
+   :name: Variable Availability in VCL subroutines
    :delim: ,
    :widths: 25,15,15,15,15,15
    :header-rows: 1
@@ -2679,11 +2735,9 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 
 .. container:: handout
 
-   .. TODO for the author: update reference of Table #
-
-   The table above shows the availability of variables in different states of the Varnish finite state machine.
-   There are more variables not belonging to the prefixes in Table #.
-   ``client.``, ``server.``, and ``storage.`` are prefixes of variables that are accessible almost every where, as it is the ``now`` variable.
+   `Table 13 <#tables-13>`_ shows the availability of variables in different states of the Varnish finite state machine.
+   In addition to the variable prefixes in Table #, there are other three variables prefixes; ``client.``, ``server.``, and ``storage.``, and one variable ``now``.
+   These additional prefixes and variable are practically accesible every where.
 
    Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
    And the ``resp.`` variables are copies of what is about to be returned to the client.
@@ -2981,14 +3035,22 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 - Sanitize server-response
 - Override cache duration
 
-.. image:: ui/img/cache_fetch.png
+.. figure 7
+.. TODO for the editor: imprpove layout of this figure
+
+.. figure:: ui/img/cache_fetch.png
+
+   Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread.
+
+   This figure is identital to `Figure 6 <#figures-6>`_.
 
 ..   :align: center
 ..   :width: 100%
 
 .. container:: handout
 
-   The ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines are the backend-counterparts to ``vcl_recv``.
+   `Figure 6 <#figures-6>`_ shows the ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines.
+   These subroutines are the backend-counterparts to ``vcl_recv``.
    In ``vcl_recv`` you can use information provided by the client to decide on caching policy.
    Likewise, you can use information provided by the server to further decide on the caching policy in ``vcl_backend_fetch``.
 
@@ -3012,7 +3074,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    The *delivery* terminating action may or may not insert the object into the cache depending on several variables.   
    Two typically cases when the objects are not cached are: when coming from requests via the ``vcl_pass`` subroutine, or when having the ``beresp.uncacheable`` variable set to 1.
 
-   Figure # shows to alternatives for the *deliver* terminating action.
+   `Figure 7 <#figures-7>`_ shows to alternatives for the *deliver* terminating action.
    One alternative occurs when the server replies with a HTTP 304 response code.
    This server response happens when the requested object has not been modified since the time specified in the `If-Modified-Since` HTTP header request field.
    Since 304 responses do not contain a message-body, Varnish tries to *steal* the body from the cache, merge it with the header response and deliver it.
@@ -3202,9 +3264,7 @@ VCL - ``vcl_hash``
    ``hit``, ``miss``, ``hit-for-pass``, ``busy``, or ``purge``.
 
    The following subsections discuss the actions taken based on the outcome of the ``lookup`` operation.
-   Subsection # describes the ``hit-for-pass`` action.
-
-   .. TODO for the author: update the reference for Subsection #.
+   The `hit-for-pass`_ subsection describes the ``hit-for-pass`` action.
 
    .. note::
       One cache hash my refer to one or many object variations.
@@ -3337,8 +3397,6 @@ Example: Redirecting requests with ``vcl_synth``
 
 .. include:: vcl/redirect.vcl
    :literal:
-
-Example #. Using Varnish to redirect requests.
 
 .. container:: handout
 
@@ -3482,8 +3540,6 @@ In order to support purging in Varnish, you need the following VCL in place.
 .. include:: vcl/PURGE.vcl
    :literal:
 
-.. TODO for the author: Assign a Figure # and title.
-
 Test your VCL by issuing::
    http -p hH --proxy=http:http://localhost PURGE www.example.com
 
@@ -3491,9 +3547,7 @@ Test your VCL by issuing::
 
    ``acl`` is a reserved keyword that is used to create Access Control Lists (ACLs).
    ACLs are used to control which client IP addresses are allowed to purge cached objects.
-   For more details about ``acl``, look at Subsection #.
-
-   .. TODO for the author: update chapter reference.
+   For more details about ``acl``, refer to the `Access Control Lists (ACLs)`_ subsection.
 
    Note the ``purge`` return action in ``vcl_recv``.
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
@@ -3521,12 +3575,14 @@ Exercise : PURGE an article from the backend
    .. tip::
       Remember to place your php files under ``/var/www/html/``.
 
-Solution : PURGE an article from the backend
-............................................
 
 .. raw:: pdf
 
    PageBreak
+
+
+Solution : PURGE an article from the backend
+............................................
 
 **purgearticle.php**
 
@@ -3883,7 +3939,9 @@ Force Cache Misses
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
 
-.. csv-table:: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
+.. table 14
+
+.. csv-table:: Table :counter:`tables`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
    :name: purge_ban_hash2_force
    :header-rows: 1
    :file: tables/purge_ban_hash2_force.csv
@@ -3955,9 +4013,9 @@ Directors
 
    .. note::
 
-      Health probes are explain in the Health Probes Chapter.
+      Health probes are explain in the `Health Checks`_ subsection.
 
-.. TODO for the author: Update reference of Health Probes Chapter.
+      .. TODO for the author: Double check that the health checks subsection is explaining health probles.
 
    .. note::
 
@@ -3993,7 +4051,7 @@ Hash directors
      This *client* director type is a special case of the *hash director*.
      Therefore, the semantics of a *client* director type are achieved by using ``hash.backend(client.identity)``.
 
-Health checks
+Health Checks
 -------------
 
 - Poke your web server every N seconds
@@ -4349,14 +4407,19 @@ Edge Side Includes
 - How to use ESI?
 - Testing ESI without Varnish
 
-.. image:: ui/img/esi.png
+.. figure 8
+
+.. figure:: ui/img/esi.png
    :align: center
    :width: 60%
 
+   Figure :counter:`figures`: Web page assambling using ESI via Varnish
+
 .. container:: handout
 
-   Edge Side Includes or ESI is a small markup language for dynamic web content assembly at the reverse proxy level.
+   Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
+   Figure `Figure 8 <#figures-8>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -4519,6 +4582,8 @@ Varnish Administration Console (VAC)
 
 .. The single point of control for simultaneous administration of all your Varnish Cache servers. Varnish Administration Console provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify any bottlenecks and issues within your Varnish Cache servers.
 
+.. figure 9,10,11
+
 .. figure:: ui/img/vac_screenshot_1.png
    :scale: 30%
 
@@ -4536,6 +4601,8 @@ Varnish Custom Statistics (VCS)
 ===============================
 
 .. Varnish Custom Statistics is a real-time statistics engine allowing you to aggregate, display and analyze user web traffic. VCS is extremely flexible, allowing you to define the grouping of statistics easily using Varnish Configuration Language (VCL). If you can imagine what kind of traffic you want to analyze, VCS can capture the relevant data.
+
+.. figure 12,13
 
 .. figure:: ui/img/vcsui_header_2.png
 
