@@ -44,7 +44,19 @@
         "fontName": "Open Sans",
         "fontSize": 48
     }],
-        
+    ["tinycode",
+	{
+        "fontSize": 8,
+      	"parent": literal,
+      	"leftIndent": 0,
+      	"spaceBefore": 8,
+      	"spaceAfter": 8,
+      	"backColor": beige,
+      	"borderColor": darkgray,
+      	"borderWidth": 0.5,
+      	"borderPadding": 6
+    }
+    ],
     ["thin" , {
     "parent" : "bodytext",
     "width" : "65%",

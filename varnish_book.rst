@@ -582,35 +582,36 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
 Install Apache
 ..............
 
-   To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
-   Install the *HTTPie* utility with the command: ``apt-get install httpie``.
-   HTTPie allows you to issue arbitrary HTTP requests in the terminal.
-   Next:
+To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
+Install the *HTTPie* utility with the command: ``apt-get install httpie``.
+HTTPie allows you to issue arbitrary HTTP requests in the terminal.
+Next:
 
-   #. Verify that Apache works by typing ``http -p h localhost``.
-      You should see a ``200 OK`` response from Apache.
-   #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
-   #. Restart Apache: ``service apache2 restart``.
-
+#. Verify that Apache works by typing ``http -p h localhost``.
+   You should see a ``200 OK`` response from Apache.
+#. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
+#. Restart Apache: ``service apache2 restart``.
 
 Install Varnish
 ...............
 
-   .. TODO for the author: Update this instructions to install Varnish Plus once packages are available for Ubuntu.
+.. TODO for the author: Update this instructions to install Varnish Plus once packages are available for Ubuntu.
 
-   Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
-   We generally recommend you to use the packages provided by varnish-cache.org.
-   Please be advised that we only provide packages for Ubuntu's LTS releases, not all the intermediate releases.
-   However, these packages might still work fine on newer releases.
+Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
+We generally recommend you to use the packages provided by varnish-cache.org.
+Please be advised that we only provide packages for Ubuntu's LTS releases, not all the intermediate releases.
+However, these packages might still work fine on newer releases.
 
-   To use the varnish-cache.org repository and install Varnish on Ubuntu 14.04 trusty do the following as root::
+To use the varnish-cache.org repository and install Varnish Cache 4 on Ubuntu 14.04 trusty do the following as root::
 
-     #. apt-get install apt-transport-https
-     #. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-     #. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
-	/etc/apt/sources.list.d/varnish-cache.list
-     #. apt-get update
-     #. apt-get install varnish
+  #. apt-get install apt-transport-https
+  #. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+  #. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+     /etc/apt/sources.list.d/varnish-cache.list
+  #. apt-get update
+  #. apt-get install varnish
+
+.. container:: handout
 
    For Ubuntu 12.04 (precise) replace ``trusty`` with ``precise`` in instruction 3.
    If you want to install Varnish version 3.0, replace ``varnish-4.0`` with ``varnish-3.0`` in instruction 3.
@@ -618,11 +619,13 @@ Install Varnish
 Configure Varnish
 .................
 
-   Once you have found the Varnish configuration file, edit it to listen on port `80` and have a management interface on port `1234`.
-   This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
+Once you have found the Varnish configuration file, edit it to listen on port `80` and have a management interface on port `1234`.
+This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
 
-     -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
-     -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
+  -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
+  -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
+
+.. container:: handout
 
    In order for changes in the configuration file to take effect, `varnishd` must be restarted.
    The safest way to restart Varnish is by using ``service varnish restart``.
@@ -641,17 +644,17 @@ Configure Varnish
 
    .. tip::
 
-      You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
+     You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
 
    .. tip::
 
-      Issue the command ``man vcl`` to see all available options to define a backend.
+     Issue the command ``man vcl`` to see all available options to define a backend.
 
    .. note::
 
-      Varnish recommends to disable SELinux.
-      If you prefer otherwise, then set the boolean 'varnishd_connect_any' variable to 1.
-      You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
+     Varnish recommends to disable SELinux.
+     If you prefer otherwise, then set the boolean 'varnishd_connect_any' variable to 1.
+     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
 The management interface
 ------------------------
@@ -3136,27 +3139,27 @@ Only the following status codes will be cached by default:
 
 .. container:: handout
 
-        You can cache other status codes than the ones listed above, but you have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response``.
-        Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
-	``Cache-Control`` directives are defined in RFC7234 Section 5.2.
+   You can cache other status codes than the ones listed above, but you have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response``.
+   Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
+   ``Cache-Control`` directives are defined in RFC7234 Section 5.2.
 
-	A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
-	This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
-	For example, if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
-	This also means that responses with ``Age`` values between 301 and 3600 seconds are not cached by the clients' web browser, because ``Age`` is greater than ``max-age``.
+   A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
+   This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
+   For example, if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
+   This also means that responses with ``Age`` values between 301 and 3600 seconds are not cached by the clients' web browser, because ``Age`` is greater than ``max-age``.
 
-        A sensible approach is to use the ``s-maxage`` directive to instruct Varnish to cache the response.
-	Then, remove the ``s-maxage`` directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
-	In this way, you can safely use ``s-maxage`` as the cache duration for Varnish servers, and set ``max-age`` as the cache duration for clients.
-	
-        .. warning::
+   A sensible approach is to use the ``s-maxage`` directive to instruct Varnish to cache the response.
+   Then, remove the ``s-maxage`` directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
+   In this way, you can safely use ``s-maxage`` as the cache duration for Varnish servers, and set ``max-age`` as the cache duration for clients.
 
-	   Bear in mind that removing or altering the ``Age`` response header field may affect how responses are handled downstream.
-	   The impact of removing the ``Age`` field depends on the HTTP implementation of downstream intermediaries or clients.
+   .. warning::
 
-	   For example, imagine that you have a three Varnish-server serial setup.
-	   If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume ``Age=0``.
-	   In this case, you might inadvertently be delivering stale objects to your client.
+      Bear in mind that removing or altering the ``Age`` response header field may affect how responses are handled downstream.
+      The impact of removing the ``Age`` field depends on the HTTP implementation of downstream intermediaries or clients.
+
+      For example, imagine that you have a three Varnish-server serial setup.
+      If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume ``Age=0``.
+      In this case, you might inadvertently be delivering stale objects to your client.
 
 Example: Setting TTL of .jpg URLs to 60 seconds
 ...............................................
@@ -4578,43 +4581,78 @@ Notice that the ``getMasqueraded()`` works now after being processed in ``vcl_re
 Varnish Administration Console (VAC)
 ====================================
 
-.. TODO for the author: 
-
-.. The single point of control for simultaneous administration of all your Varnish Cache servers. Varnish Administration Console provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify any bottlenecks and issues within your Varnish Cache servers.
-
-.. figure 9,10,11
+.. figure 9
 
 .. figure:: ui/img/vac_screenshot_1.png
-   :scale: 30%
+   :width: 80%
+
+   Figure :counter:`figures`: Overview page of the Varnish Administration Console
+
+.. raw:: pdf
+
+   PageBreak
+
+.. figure 10
 
 .. figure:: ui/img/vac_screenshot_2.png
-   :scale: 30%
+   :width: 80%
+
+   Figure :counter:`figures`: Configuration page of the Varnish Administration Console
+
+.. raw:: pdf
+
+   PageBreak
+
+.. figure 11
 
 .. figure:: ui/img/vac_screenshot_3.png
-   :scale: 30%
+   :width: 80%
 
-https://vacdemo.varnish-software.com
+   Figure :counter:`figures`: Banning page of the Varnish Administration Console
 
-.. TODO: To elaborate
+.. raw:: pdf
+
+   PageBreak
+
+.. container:: handout
+
+   The Varnish Administration Console (VAC) is a single point of control for simultaneous administration of multiple Varnish Cache servers.
+   VAC provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
+
+   Please visit https://vacdemo.varnish-software.com to try a working demo.
+   The instructor of the course provides you the credentials.
 
 Varnish Custom Statistics (VCS)
 ===============================
 
-.. Varnish Custom Statistics is a real-time statistics engine allowing you to aggregate, display and analyze user web traffic. VCS is extremely flexible, allowing you to define the grouping of statistics easily using Varnish Configuration Language (VCL). If you can imagine what kind of traffic you want to analyze, VCS can capture the relevant data.
-
-.. figure 12,13
+.. figure 12
 
 .. figure:: ui/img/vcsui_header_2.png
+   :width: 100%
 
+   Figure :counter:`figures`: Header of Varnish Custom Statistics
+
+.. figure 13
+
+.. raw:: pdf
+
+   PageBreak
 
 .. figure:: ui/img/vcsui_4.png
 
+   Figure :counter:`figures`:
 
 .. TODO: To elaborate.
 .. In the meantime, please refer to:
 
-http://vcsdemo.varnish-software.com
+.. container:: handout
 
+   Varnish Custom Statistics (VCS) is a real-time statistics engine to aggregate, display and analyze user web traffic.
+   VCS is extremely flexible, it allows to define the grouping of statistics easily using Varnish Configuration Language (VCL).
+   `Figure 12 <#figures-12>`_, and `13 <#figures-13>`_ are screenshots demos.
+
+   Please visit http://vcsdemo.varnish-software.com to try a working demo.
+   The instructor of the course provides you the credentials.
 
 Appendix A: Resources
 =====================
