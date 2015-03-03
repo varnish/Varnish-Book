@@ -149,7 +149,7 @@ The Webdev course requires that you:
    -------------------
 
    .. TODO: "How to Use the Book" is a subsection.
-   .. At the moment is a section to exlude it from compiling in the Makefile
+   .. At the moment is a section to exclude it from compiling in the Makefile
 
    - Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
    - The instructor guides you through the book
@@ -264,7 +264,7 @@ What is Varnish?
    - quick fix for unstable backends, and
    - HTTP router.
 
-   At the moment of writting this book, Varnish Plus is supporting the following Linux distributions:
+   At the moment of writing this book, Varnish Plus is supporting the following Linux distributions:
 
    - RedHat Enterprise Linux 5
    - RedHat Enterprise Linux 6
@@ -298,7 +298,7 @@ Varnish Cache and Varnish Cache Plus
    The code-base is kept as self-contained as possible to avoid introducing out-side bugs and unneeded complexity. 
    As a consequence of this, Varnish uses very few external libraries.
 
-   At the moment of writting this book, Varnish Cache is supporting the following Linux distributions:
+   At the moment of writing this book, Varnish Cache is supporting the following Linux distributions:
 
    - Debian Linux 7 (wheezy)
    - Debian Linux 8 (jessie)
@@ -474,7 +474,7 @@ Varnish is designed to:
         that can easily be solved by other means -- like using a 64-bit OS.
 
 .. TODO for the author: Sub-subtitles do not start in a new page
-.. raw: pageBreak does not work because the script util/strip-class.gawk ignores .. container: handout
+.. raw: PageBreak does not work because the script util/strip-class.gawk ignores .. container: handout
 .. The solution should not be to make sub-subtitles into subtitles, but to find the way to break the page.
 
 How objects are stored
@@ -870,32 +870,33 @@ The Varnish Log
 .. In this chapter you will learn about:
 
 - Log data is in shared memory
-- Varnish logs everything (no debug switches)
+- Varnish logs everything all the time
 
 .. container:: handout
    
    .. Log data is in shared memory
 
-   Varnish provides log data in real-time. 
-   ``/var/log/varnish/`` is either non-existent or empty.
+   Varnish provides log data in real-time, which is accessible through Varnish tools.
+   Varnish does not log into ``/var/log/varnish/``.
    There is a reason for that.
 
    .. logs everything
 
-   Varnish logs all its information to a shared memory log which is overwritten repeatedly every time it is filled up.
-   The downside is that there is no historic data unless you set it up yourself.
-   The upside is that you get an abundance of information when you need it.
+   Varnish logs all its information to a shared memory log, which is overwritten repeatedly every time it is filled up.
+   The downside is that there is no historic data unless you instruct Varnish to store logs in files.
+   The upside is that you get an abundance of information at a very high speed when you need it.
 
-   The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writting to disk.
-   `Table 2 <#tables-2>`_ shows the location of the configuration file based on your platform.
+   The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
+   `Table 2 <#tables-2>`_ in Subsection `Install Varnish and Apache as backend`_ shows the location of the configuration file based on your platform.
    Keep in mind that ``varnishlog`` generates large amounts of data!
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat``.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
 
    .. tip::
-   
-      Issue ``man varnishlog/varnishncsa/varnishstat`` to retrieve their reference manuals.
+
+      All tool programs to display Varnish logs have installed reference manuals.
+      Use the ``man`` command to retrieve their manual pages.
 
 Log Data Tools
 --------------
@@ -903,7 +904,7 @@ Log Data Tools
 Tools to display detailed log records:
 
 - ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
-- ``varnishncsa`` displays Varnish logs in Apache/NCSA combined log format.
+- ``varnishncsa`` displays Varnish access logs in Apache/NCSA combined log format.
 
 Statistical tools:
 
@@ -911,23 +912,16 @@ Statistical tools:
 - ``varnishtop`` reads the Varnish log and presents a continuously updated list of the most commonly occurring log entries.
 - ``varnishhist`` reads the Varnish log and presents a continuously updated histogram showing the distribution of the last *N* requests by their processing.
 
-- If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when starting the corresponding tools.
-
 .. container:: handout
 
-   All log tools (including ``varnishadm``) take a ``-n`` option. 
-   The Varnish daemon ``varnishd`` itself also takes a ``-n`` option. 
-   This option is used to specify the instance of ``varnishd``, or the location of the shared memory log. 
-   On most installations ``-n`` is not used, but if you run multiple Varnish instances on a single machine, you need to use ``-n`` to distinguish one Varnish instance from another.
+   If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when starting the corresponding tools.
+   This option is used to specify the instance of ``varnishd``, or the location of the shared memory log.
+   All log tools (including ``varnishadm``) also take a ``-n`` option.
 
    In this course, we focus on the two  most important tools: ``varnishlog`` and ``varnishstat``.
    Unlike all other tools, ``varnishstat`` does not read from entries from Varnish log, but global counters.
-   We include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
+   However, we include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
    You can find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in `Appendix B: Varnish Programs`_.
-
-   .. tip::
-      All tool programs of Varnish log have installed reference manuals.
-      Remember to use the ``man`` command to retrieve their manual pages.
 
 Log Layout
 ----------
@@ -948,7 +942,7 @@ Log Layout
 Transactions
 ------------
 
-- A transaction is one work item in Varnish
+- One transaction is one work item in Varnish.
 - Share a single Varnish Transaction ID (VXID) per types of transactions.
   Examples of transaction types are:
 
@@ -969,14 +963,14 @@ Transactions
    A transaction is a set of log lines that belongs together, e.g. a client request or a backend request.
    The Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
    A unique VXID is assigned to each type of transaction.
-   You can use the VXID when you view the log through varnishlog. 
+   You can use the VXID when you view the log through ``varnishlog``.
    
    .. More about VXID
 
-   The default is to group the log on VXID, which basically makes ``varnishlog`` act more or less the way it does in Varnish 3.0.
+   The default is to group the log by VXID.
    When viewing a log for a simple cache miss, you can see the backend request, the client request and then the session.
    They are displayed in the order they end.
-   Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it is perfectly natural.
+   Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it makes sense.
 
    .. Transaction reasons
 
@@ -994,14 +988,14 @@ Transaction Groups
 - Transaction groups are hierarchical
 - Levels are equal to relationships (parents and children)::
  
-   Lvl 1: Client request (cache miss)
-     Lvl 2: Backend request
-     Lvl 2: ESI subrequest (cache miss)
-       Lvl 3: Backend request
-       Lvl 3: Backend request (VCL restart)
-       Lvl 3: ESI subrequest (cache miss)
-         Lvl 4: Backend request
-     Lvl 2: ESI subrequest (cache hit)
+   Level 1: Client request (cache miss)
+     Level 2: Backend request
+     Level 2: ESI subrequest (cache miss)
+       Level 3: Backend request
+       Level 3: Backend request (VCL restart)
+       Level 3: ESI subrequest (cache miss)
+         Level 4: Backend request
+     Level 2: ESI subrequest (cache hit)
 
 .. container:: handout
 
@@ -1012,10 +1006,10 @@ Transaction Groups
    When grouping transactions, there is a hierarchy structure showing which transaction initiated what.    
    In client request grouping mode, the various work items are logged together with their originating client request.
    For example, a client request that triggers a backend request might trigger two more ESI subrequests, which in turn might trigger yet another ESI subrequest.
-   After that, it comes the response from the backend to the client.
+
    All these requests together with the client response are arranged in the order they are initiated.
    This arrangement is easier to grasp than when grouping by VXID.
-   We will see in the Content Composition section how to analyze the log for Edge Side Includes (ESI) transactions.
+   Section `Content Composition`_ shows how to analyze the log for Edge Side Includes (ESI) transactions.
 
    .. Levels and relationships of transactions
    .. TODO for the author: explain that levels are equal to relationships.
@@ -1047,32 +1041,34 @@ Example of Transaction Grouping with ``varnishlog``
    For simplicity, we use the ``-i`` option to include only the ``Session`` and ``Link`` tags.
 
    For more information about the format and content of all Varnish shared memory logging (VSL) tags, see the VSL man page by typing ``man vsl``.
-   The work-flow of Varnish is detailed in the `VCL Basics`_ section.
+   The workflow of Varnish is detailed in Section `VCL Basics`_.
 
    To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
    The ``-d`` option processes all recorded entries in Varnish log.
-   To learn more about the available ``varnishlog`` options, enter ``varnishlog -h`` or see the man page of varnishlog.
+   To learn more about the available ``varnishlog`` options, enter ``varnishlog -h`` or see the ``varnishlog`` man page.
 
-   .. warning::
+  ``varnishlog`` accepts all options that are syntactically correct.
+  The output, however, might be different from your first interpretation.
+  Therefore, you should make sure that your results make sense.
 
-      ``varnishlog`` accepts all option that are syntactically correct.
-      The semantics of your use of options, however, might be different than what you think at first.
-      Therefore, you should ensure that your results  make sense.
-      You can verify the meaning of your results by double checking the filters, and by separating your results with the ``-b``and ``-c`` options.
+  Options ``-b`` and ``-c`` display only transactions coming from the backend and client communication respectively.
+  You can verify the meaning of your results by double checking the filters, and separating your results with the ``-b`` and ``-c`` options.
 
 Query language
 --------------
 
-- Operates on transaction groups
+- Operates on transaction groups.
 - Query expression is true if it matches one or more records, false otherwise.
 - Supports:
 
-  - string matching ``RespProtocol eq "HTTP/1.1"``
-  - regex ``ReqMethod ~ "GET|POST"``
-  - integer and float matching ``RespStatus == 200``
-  - boolean operators ``RespStatus >= 500 and RespStatus < 600``
+  - string matching, e.g.: ``RespProtocol eq "HTTP/1.1"``
+  - regex, e.g.: ``ReqMethod ~ "GET|POST"``
+  - integer and float matching, e.g.: ``RespStatus == 200``
+  - boolean operators, e.g.: ``RespStatus >= 500 and RespStatus < 600``
   - parenthesis hierarchy
   - Negate using ``not``
+
+|
 
 Examples of Varnish log queries::
 
@@ -1082,30 +1078,42 @@ Examples of Varnish log queries::
 
 .. container:: handout
 
-    .. Query Log Language
+   .. Query Log Language
 
-    The ``-q`` option allows you to add a query to ``varnishlog``. 
-    Think of it as a sort of select filter for ``varnishlog``. 
-    It works together with the grouping so that if the query matches some part of any of the work items in the transaction group, the whole group matches and gets displayed.
+   The ``-q`` option allows you to add a query to ``varnishlog``. 
+   Think of it as a sort of select filter for ``varnishlog``. 
+   It works together with the grouping so that if the query matches some part of any of the work items in the transaction group, the whole group matches and gets displayed.
 
-    Query expressions can be combined using boolean functions.
-    There are many output control options, such as ``-i``.
-    Output controls are applied last, and they do not affect queries.
+   Query expressions can be combined using boolean functions.
+   There are many output control options, such as ``-i`` *taglist*.
+   These options are output filters, they do not affect transaction matching.
+   Output controls are applied last.
 
-    .. Benefits for others
+   .. syntax
 
-    The grouping and the query log processing all happens in the Varnish logging API.
-    This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
+   A query expression consists of record selection criteria, and optionally an operator and a value to match against the selected records::
 
-    .. tip::
+     <record selection criteria> <operator> <operand>
 
-       Other useful tricks:
-       
-       - Response time exceeds 1⁄2 second ``ReqEnd[5] >= 0.5``
-       - Client requests connection closed ``ReqHeader:connection ~ close``
-       - ESI miss (-g request) ``{3+}Begin ~ Bereq``
+   The ``<record selection criteria>`` determines what kind of records from the transaction group the expression applies to.
+   The syntax is::
 
-	 .. TODO for the author: double check {3+}
+     {level}taglist:record-prefix[field]
+
+   For example:
+
+   - Response time exceeds 1⁄2 second ``Timestamp:Process[2] > 0.5``
+   - Client requests connection closed ``ReqHeader:connection ~ close``
+   - ESI miss (-g request) ``{3+}Begin ~ Bereq``
+
+   .. Benefits for others
+
+   The grouping and the query log processing all happens in the Varnish logging API.
+   This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
+
+   .. tip::
+
+      Issue ``man vsl-query`` for more details about query expressions.
 
 Exercise
 --------
@@ -1183,7 +1191,7 @@ TOFIX: To resize the font of this example.
    There are over a hundred different counters available.
    To increase the usefulness of ``varnishstat``, only counters with a value different from 0 is shown by default.
 
-   ``varnishstat`` can be used interactively with its text user interface, or it can prints the current values of all the counters with the ``-1`` option.
+   ``varnishstat`` can be used interactively, or it can display the current values of all the counters with the ``-1`` option.
    Both methods allow you to specify specific counters using ``-f field1,field2,...`` to limit the list.
 
    In interactive mode, ``varnishstat`` has three areas.
@@ -1214,8 +1222,8 @@ TOFIX: To resize the font of this example.
       :file: tables/columns_central_area.csv
 
    In the above example Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
-   Some counters do not have "per interval" data.
-   These are counters which both increase and decrease.
+   Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
+   *Gauges* normally start with a ``g_`` prefix.
 
    There are far too many counters to keep track of for non-developers, and
    many of the counters are only there for debugging purposes. This allows
@@ -1232,14 +1240,13 @@ TOFIX: To resize the font of this example.
    .. csv-table:: Table :counter:`tables`: Notable counters in ``varnishstat``
       :name: notable_counters
       :delim: ;
-      :widths: 20, 80
+      :widths: 30, 70
       :header-rows: 1
       :file: tables/notable_counters.csv
 
    .. tip::
-      Remember that Varnish provides many on-line reference manuals.
+      Remember that Varnish provides many reference manuals.
       To see all Varnish counter field definitions, issue ``man varnish-counters``.
-
 
 Exercise: Try ``varnishstat`` and ``varnishlog`` together
 ---------------------------------------------------------
@@ -1589,9 +1596,9 @@ Varnish Tuner
 
    .. user interaction
 
-   ``varnishturner`` requires by default user input to produce its output.
-   If you are not sure about the requested input, you can instruct ``varnishturner`` to do not suggest parameters that require user input.
-   For this, you issue ``varnishturner -n``.
+   ``varnishtuner`` requires by default user input to produce its output.
+   If you are not sure about the requested input, you can instruct ``varnishtuner`` to do not suggest parameters that require user input.
+   For this, you issue ``varnishtuner -n``.
 
    .. varnish plus
 
@@ -1604,7 +1611,7 @@ Varnish Tuner
 Varnish Tuner Persistence
 .........................
 
-The output of ``varnishturner`` updates every time you introduce a new input or execute a suggested command.
+The output of ``varnishtuner`` updates every time you introduce a new input or execute a suggested command.
 However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
 To make the tuning persistent, you can add do the following:
 
@@ -2666,7 +2673,7 @@ List of functions and their arguments:
 - ``set()``
 - ``unset()``
 
-All functions are avialable in all subroutines, except the listed in the table below.
+All functions are available in all subroutines, except the listed in the table below.
 
 .. table 11
 
@@ -2740,7 +2747,7 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 
    `Table 13 <#tables-13>`_ shows the availability of variables in different states of the Varnish finite state machine.
    In addition to the variable prefixes in Table #, there are other three variables prefixes; ``client.``, ``server.``, and ``storage.``, and one variable ``now``.
-   These additional prefixes and variable are practically accesible every where.
+   These additional prefixes and variable are practically accessible every where.
 
    Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
    And the ``resp.`` variables are copies of what is about to be returned to the client.
@@ -3039,13 +3046,13 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 - Override cache duration
 
 .. figure 7
-.. TODO for the editor: imprpove layout of this figure
+.. TODO for the editor: improve layout of this figure
 
 .. figure:: ui/img/cache_fetch.png
 
    Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread.
 
-   This figure is identital to `Figure 6 <#figures-6>`_.
+   This figure is identical to `Figure 6 <#figures-6>`_.
 
 ..   :align: center
 ..   :width: 100%
@@ -3610,7 +3617,7 @@ Solution : PURGE an article from the backend
 Access Control Lists (ACLs)
 ---------------------------
 
-- An ACL is a list of IP addreses
+- An ACL is a list of IP addresses
 - VCL programs can use ACL to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
 - Compare with ``client.ip`` or ``server.ip``
 
@@ -3619,11 +3626,11 @@ Access Control Lists (ACLs)
 
 .. container:: handout
 
-   An Access Control List (ACL) declaration creates and initialises a named access control list, which can later be used to match client or server IP addresses.
+   An Access Control List (ACL) declaration creates and initializes a named access control list, which can later be used to match client or server IP addresses.
    ACLs can be used for anything. 
    ACLs are typically used to control the IP addresses that are allowed to send ``PURGE`` or *ban* requests, or even to avoid the cache entirely.
 
-   Some people have also setup ACLs to differantiate how their Varnish servers behave.
+   Some people have also setup ACLs to differentiate how their Varnish servers behave.
    You can, for example, have a single VCL program for different Varnish servers.
    In this case, the VCL program evaluates ``server.ip`` and acts accordingly.
 
@@ -3634,7 +3641,7 @@ Access Control Lists (ACLs)
 
    To exclude an IP address or range from an ACL, and exclamation mark "``!`" should precede the IP quoted address.
    For example ``!"192.168.1.23"``.
-   This is useful when, for example, you want to include all the IP addresss in a range except the gateway.
+   This is useful when, for example, you want to include all the IP address in a range except the gateway.
 
 PURGE with ``restart`` return action
 ------------------------------------
@@ -3650,7 +3657,7 @@ PURGE with ``restart`` return action
    The ``restart`` return action allows Varnish to re-run the VCL state machine with different variables.
    This is useful in combination with PURGE, in the way that a purged object can be immediately restored with a new fetched object.
 
-   Everytime a `restart` occurs, Varnish increments the ``req.restarts`` counter.
+   Every time a `restart` occurs, Varnish increments the ``req.restarts`` counter.
    If the number of restarts is higher than the ``max_restarts`` parameter, Varnish emits a guru meditation error.
    In this way, Varnish safe guards against infinite loops.
 
@@ -4018,7 +4025,7 @@ Directors
 
       Health probes are explain in the `Health Checks`_ subsection.
 
-      .. TODO for the author: Double check that the health checks subsection is explaining health probles.
+      .. TODO for the author: Double check that the health checks subsection is explaining health probes.
 
    .. note::
 
@@ -4336,7 +4343,7 @@ Varnish can handle cookies coming from three different sources:
 
    It is far better to either cache multiple copies of the same content for each user or cache **nothing** at all, than caching personal, confidential or private content and deliver it to a wrong client.
    In other words, the worst is to jeopardize users' privacy for saving backend resources.
-   Therefore, it is strongly adviced to take your time to write a correct VCL program and test it thoroughly before caching cookies in production deployments.
+   Therefore, it is strongly advised to take your time to write a correct VCL program and test it thoroughly before caching cookies in production deployments.
 
    Despite cookie-based caching is discouraged, Varnish can be forced to cache content based on cookies.
    If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
@@ -4357,7 +4364,7 @@ Vary and Cookies
 
    .. TODO for the author: update the reference to the Vary Subsection.
 
-   .. Caching based on the ``Varnish: Cookie`` response header is not adviced, because its poor performance.
+   .. Caching based on the ``Varnish: Cookie`` response header is not advised, because its poor performance.
 
 Best practices for cookies
 ..........................
@@ -4416,7 +4423,7 @@ Edge Side Includes
    :align: center
    :width: 60%
 
-   Figure :counter:`figures`: Web page assambling using ESI via Varnish
+   Figure :counter:`figures`: Web page assembling using ESI via Varnish
 
 .. container:: handout
 
@@ -4490,7 +4497,7 @@ For the ESI to work, load the following VCL code.
    :literal:
 
 Then reload Varnish and issue the command ``http http://localhost/esi-date.php``.
-The output should show you how Varnish replaces the ESI tag with the reponse from ``esi-date.cgi``.
+The output should show you how Varnish replaces the ESI tag with the response from ``esi-date.cgi``.
 This example also tries to show you how the glued objects have different TTLs.
 
 Exercise: Enable ESI and Cookies
