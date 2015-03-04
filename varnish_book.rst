@@ -701,7 +701,7 @@ You can read about other usages by issuing the ``help`` command after you connec
       To check the Varnish CLI manual page, issue ``man varnish-cli``.
 
 More about Varnish Configuration
-................................
+--------------------------------
 
 .. table 4
 
@@ -844,6 +844,7 @@ Defining a backend in VCL
 
 Exercise: Use the administration interface to learn, review and set Varnish parameters
 --------------------------------------------------------------------------------------
+
 #. Use ``varnishadm`` to see the default value for the ``default_ttl`` parameter, and what it does.
 
 .. TODO for the author: This exercise is too short and simple. Consider to remove it or elaborate it.
@@ -937,7 +938,7 @@ Log Layout
    
    `Figure 2 <#figures-2>`_ shows how Varnish logs transactions chronologically, and how can they be reordered.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
-   `Transactions`_ Subsection explains transactions in more detail.
+   The `Transactions`_ subsection explains transactions in more detail.
 
 Transactions
 ------------
@@ -1131,9 +1132,8 @@ varnishstat
 
 .. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
 
-TOFIX: To resize the font of this example.
-
-::
+.. parsed-literal:: 
+   :class: tinycode
 
    Uptime mgt:   1+23:38:08                                                                Hitrate n:       10      100      438
    Uptime child: 1+23:38:08                                                                   avg(n):   0.9967   0.5686   0.3870
@@ -1179,7 +1179,8 @@ TOFIX: To resize the font of this example.
 
    MAIN.cache_hit                                                                                                         INFO
    Cache hits:
-   Count of cache hits.   A cache hit indicates that an object has been delivered to a  client without fetching it from a backend server.
+   Count of cache hits.   A cache hit indicates that an object has been delivered to a  client without fetching it from a
+   backend server.
 
 .. container:: handout
 
@@ -1332,7 +1333,7 @@ Varnish Architecture
    .. TODO
 
 The Parent Process: The Manager
--------------------------------
+...............................
 
 The *Manager* process is owned by the root user, and its main functions are:
 
@@ -1361,7 +1362,7 @@ You can toggle this property using the ``auto_restart`` parameter.
    Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
 
 The Child Process: The Cacher
------------------------------
+.............................
 
 Since the *Cacher* listens on public IP addresses and known ports, it is exposed to evil clients.
 Therefore, for security reasons, this child process is owned by the *nobody* user, and it has no backwards communication to its parent, the *Manager*.
@@ -1410,7 +1411,7 @@ or to monitor Varnish in real-time.
 .. class:: handout
 
 VCL compilation
-................
+...............
 
 Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL). 
 Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
@@ -2706,11 +2707,21 @@ Legal Return Actions
 
 .. table 12
 
-.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns
-   :name: subroutines_legal_returns
+.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns on the client side
+   :name: subroutines_legal_returns_client
+   :delim: ,
+   :widths: 16,9,9,8,9,8,8,8,8,8,9
+   :header-rows: 1
+   :file: tables/subroutine_legal_returns_client.csv
+
+.. table 13
+
+.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns on the backend side, ``vcl.load``, and ``vcl.discard``
+   :name: subroutines_legal_returns_backend
    :delim: ,
    :header-rows: 1
-   :file: tables/subroutine_legal_returns.csv
+   :widths: 25,15,15,15,15,15
+   :file: tables/subroutine_legal_returns_backend.csv
 
 .. container:: handout
 
@@ -2727,7 +2738,7 @@ Legal Return Actions
 Variables in VCL subroutines
 ----------------------------
 
-.. table 13
+.. table 14
 
  .. csv-table:: Table :counter:`tables`: Variable Availability in VCL subroutines
    :name: Variable Availability in VCL subroutines
@@ -2745,7 +2756,7 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 
 .. container:: handout
 
-   `Table 13 <#tables-13>`_ shows the availability of variables in different states of the Varnish finite state machine.
+   `Table 14 <#tables-14>`_ shows the availability of variables in different states of the Varnish finite state machine.
    In addition to the variable prefixes in Table #, there are other three variables prefixes; ``client.``, ``server.``, and ``storage.``, and one variable ``now``.
    These additional prefixes and variable are practically accessible every where.
 
@@ -2806,7 +2817,6 @@ VCL Built-in Subroutines
 
    This chapter covers the VCL subroutines where you customize the behavior of Varnish.
    However, this chapter does not define caching policies.
-
    VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
 
    After this chapter, you should know what all the VCL subroutines can be used for.
@@ -3402,7 +3412,8 @@ VCL - ``vcl_synth``
       ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.      
 
 Example: Redirecting requests with ``vcl_synth``
-------------------------------------------------
+................................................
+
 .. TODO for the rst editor: remove obsolete vcl files from the git repository.
 
 .. include:: vcl/redirect.vcl
@@ -3543,7 +3554,7 @@ VCL – ``vcl_purge``
    The ``purge;`` keyword has been retired from Varnish 3.
 
 Example: ``PURGE``
-...................
+..................
 
 In order to support purging in Varnish, you need the following VCL in place.
 
@@ -3564,7 +3575,7 @@ Test your VCL by issuing::
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
 
 Exercise : PURGE an article from the backend
---------------------------------------------
+............................................
 
 - Send a PURGE request to Varnish from your backend server after an article is published. 
 
@@ -3589,7 +3600,6 @@ Exercise : PURGE an article from the backend
 .. raw:: pdf
 
    PageBreak
-
 
 Solution : PURGE an article from the backend
 ............................................
@@ -3684,7 +3694,8 @@ Banning
 
     sub vcl_recv {
         if (req.method == "BAN") {
-            ban("req.http.host == " + req.http.host + " && req.url == " + req.url);
+            ban("req.http.host == " + req.http.host + 
+	        " && req.url == " + req.url);
             # Throw a synthetic page so the request won't go to the backend.
             return(synth(200, "Ban added"));
         }
@@ -3949,11 +3960,12 @@ Force Cache Misses
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
 
-.. table 14
+.. table 15
 
 .. csv-table:: Table :counter:`tables`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
    :name: purge_ban_hash2_force
    :header-rows: 1
+   :widths: 14,29,19,19,19
    :file: tables/purge_ban_hash2_force.csv
 
 .. container:: handout
@@ -4275,8 +4287,6 @@ Backend properties
 Content Composition
 ===================
 
-**Update in progress**
-
 *This chapter is for the webdeveloper course only*
 
 This chapter teaches you how to glue content from independent sources into one web page.
@@ -4576,7 +4586,7 @@ Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
 Solution : write a VCL that masquerades XHR calls
--------------------------------------------------
+.................................................
 
 ``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
 
@@ -4913,7 +4923,7 @@ Appendix D: From Varnish 3 to Varnish 4
 What is new since Varnish 3
 ---------------------------
 
-TODO:
+TODO: To elaborate
 
 https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 

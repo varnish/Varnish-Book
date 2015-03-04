@@ -44,19 +44,25 @@
         "fontName": "Open Sans",
         "fontSize": 48
     }],
-    ["tinycode",
-	{
-        "fontSize": 8,
-      	"parent": literal,
+    ["tinycode",{
+        "fontSize": 6,
+      	"parent": normal,
       	"leftIndent": 0,
       	"spaceBefore": 8,
       	"spaceAfter": 8,
       	"backColor": beige,
       	"borderColor": darkgray,
       	"borderWidth": 0.5,
-      	"borderPadding": 6
-    }
-    ],
+      	"borderPadding": 6,
+        "fontName": stdMono,
+        "firstLineIndent": 0,
+        "hyphenation": false,
+        "wordWrap": null
+    }],
+    ["tinytable",{
+        "fontSize": 4,
+      	"parent": table
+    }],
     ["thin" , {
     "parent" : "bodytext",
     "width" : "65%",

@@ -11,7 +11,8 @@ sub vcl_recv {
 
     if (req.method == "PURGE") {
       if (!client.ip ~ purgers) {
-           return(synth(405,"Purging not allowed by this "+client.ip+" IP address."));
+           return(synth(405,"Purging not allowed by this " + client.ip +
+           " IP address."));
       }
       return (purge);
     }

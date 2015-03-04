@@ -54,14 +54,27 @@
         "fontName": "Open Sans",
         "fontSize": 48
     }],
-
+    ["tinycode", {
+        "fontSize": 6,
+      	"parent": normal,
+      	"leftIndent": 0,
+      	"spaceBefore": 8,
+      	"spaceAfter": 8,
+      	"backColor": beige,
+      	"borderColor": darkgray,
+      	"borderWidth": 0.5,
+      	"borderPadding": 6,
+        "fontName": stdMono,
+        "firstLineIndent": 0,
+        "hyphenation": false,
+        "wordWrap": null
+    }],
     ["thin" , {
     "parent" : "bodytext",
     "width" : "65%",
     "alignment": "TA_JUSTIFY",
     "hyphenation": true
-    }
-    ],
+    }],
     ["right", {
         "parent": "bodytext",
         "alignment": "right"
