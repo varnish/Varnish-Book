@@ -3019,8 +3019,8 @@ VCL - ``vcl_pass``
    Fetched objects from requests in *pass* mode are not cached, but passed to the client.
    The *synth* and *restart* return actions call their corresponding subroutines.
 
-*hit-for-pass*
-..............
+hit-for-pass
+............
 
 - Used when an object should not be cached
 - *hit-for-pass* object instead of fetched object
@@ -3260,7 +3260,7 @@ Solution: Avoid caching a page
    Even though using ``bereq.uncacheable`` in ``vcl_backend_fetch`` is reasonable, it creates a *hit-for-pass* object, which can create unnecessary complexity.
    Whenever you use *hit-for-pass* objects, you should set ``beresp.ttl`` to a short duration.
    Short TTLs avoid accidentally adding long living *hit-for-pass* objects that prevent caching for a long time.
-   See Subsection `*hit-for-pass*`_ for description of this type of object.
+   See Subsection `hit-for-pass`_ for description of this type of object.
 
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
