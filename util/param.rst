@@ -75,3 +75,6 @@
 .. |def_vcl_trace| replace::                   off [bool]
 .. |def_vmod_dir| replace::                    /usr/local/lib/varnish/vmods
 .. |def_waiter| replace::                      default (epoll, poll)
+.. |def_thread_pool_destroy_delay| replace::   1 [second]
+.. |def_thread_queue_limit| replace::          20 [requests]
+.. |def_workspace_thread| replace::            2 [kb]

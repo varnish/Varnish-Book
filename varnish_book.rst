@@ -878,18 +878,16 @@ The Varnish Log
    .. Log data is in shared memory
 
    Varnish provides log data in real-time, which is accessible through Varnish tools.
-   Varnish does not log into ``/var/log/varnish/``.
-   There is a reason for that.
+   Varnish logs all its information to a shared memory log.
+   This memory log is overwritten when filled up.
 
-   .. logs everything
-
-   Varnish logs all its information to a shared memory log, which is overwritten repeatedly every time it is filled up.
-   The downside is that there is no historic data unless you instruct Varnish to store logs in files.
-   The upside is that you get an abundance of information at a very high speed when you need it.
+   The memory log overwriting has two effects.
+   On the one hand, there is no historic data, but on the other hand, there is an abundance of information accessible at a very high speed.
+   Still, you can instruct Varnish to store logs in files.
 
    The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
+   Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
    `Table 2 <#tables-2>`_ in Subsection `Install Varnish and Apache as backend`_ shows the location of the configuration file based on your platform.
-   Keep in mind that ``varnishlog`` generates large amounts of data!
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat``.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
@@ -909,18 +907,18 @@ Tools to display detailed log records:
 
 Statistical tools:
 
-- ``varnishstat`` is used to **access global counters**. It provides overall statistics, e.g the number of total requests, number of objects and more.
+- ``varnishstat`` is used to access **global counters**. It provides overall statistics, e.g the number of total requests, number of objects, and more.
 - ``varnishtop`` reads the Varnish log and presents a continuously updated list of the most commonly occurring log entries.
 - ``varnishhist`` reads the Varnish log and presents a continuously updated histogram showing the distribution of the last *N* requests by their processing.
 
 .. container:: handout
 
-   If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when starting the corresponding tools.
+   If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when using the tools.
    This option is used to specify the instance of ``varnishd``, or the location of the shared memory log.
    All log tools (including ``varnishadm``) also take a ``-n`` option.
 
-   In this course, we focus on the two  most important tools: ``varnishlog`` and ``varnishstat``.
-   Unlike all other tools, ``varnishstat`` does not read from entries from Varnish log, but global counters.
+   In this course, we focus on the two most important tools: ``varnishlog`` and ``varnishstat``.
+   Unlike all other tools, ``varnishstat`` does not read entries from the Varnish log, but from global counters.
    However, we include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
    You can find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in `Appendix B: Varnish Programs`_.
 
@@ -935,10 +933,10 @@ Log Layout
    Figure :counter:`figures`: Log Layout Timeline
 
 .. container:: handout
-   
-   `Figure 2 <#figures-2>`_ shows how Varnish logs transactions chronologically, and how can they be reordered.
+
+   Varnish logs transactions chronologically, as `Figure 2 <#figures-2>`_ shows.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
-   The `Transactions`_ subsection explains transactions in more detail.
+   The next `Transactions`_ subsection explains transactions and how to reorder them.
 
 Transactions
 ------------
@@ -1226,24 +1224,26 @@ varnishstat
    Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
    *Gauges* normally start with a ``g_`` prefix.
 
-   There are far too many counters to keep track of for non-developers, and
-   many of the counters are only there for debugging purposes. This allows
-   you to provide the developers of Varnish with real and detailed data
-   whenever you run into a performance issue or bug. It allows the
-   developers to test ideas and get feedback on how it works in production
-   environments without creating special test versions of Varnish. In
-   short: It allows Varnish to be developed according to how it is used.
+Notable counters
+................
 
-   Some counters to note are:
+.. table 7
 
-   .. table 7
+.. csv-table:: Table :counter:`tables`: Notable counters in ``varnishstat``
+   :name: notable_counters
+   :delim: ;
+   :widths: 30, 70
+   :header-rows: 1
+   :file: tables/notable_counters.csv
 
-   .. csv-table:: Table :counter:`tables`: Notable counters in ``varnishstat``
-      :name: notable_counters
-      :delim: ;
-      :widths: 30, 70
-      :header-rows: 1
-      :file: tables/notable_counters.csv
+.. container:: handout
+
+   Varnish provides a large number of counters for information, and debugging purposes.
+   `Table 7 <#tables-7>`_ presents counters that are typically important.
+   Other counters may be relevant only for Varnish developers when providing support.
+
+   Counters also provide feedback to Varnish developers on how Varnish works in production environments.
+   This feedback in turn allows Varnish to be developed according to its real usage.
 
    .. tip::
       Remember that Varnish provides many reference manuals.
@@ -1432,73 +1432,69 @@ Varnish supports different methods to allocate space for the cache.
 You can select one method with the ``-s`` option of ``varnishd``.
 
 - malloc
+
 - file
 
-  + persistent (deprecated in Varnish 4, but supported in Varnish Plus 3)
+- persistent (not advised)
 
 - Varnish Massive Storage Engine (MSE)
 
 .. note::
 
-    As a rule of thumb use: malloc if it fits in memory, file if it doesn't.
-    Expect around 1kB of overhead per object cached.
+   As a rule of thumb use: malloc if it fits in memory, file if it doesn't.
+   Expect around 1kB of overhead per object cached.
 
 .. container:: handout
 
-        .. malloc
+   .. malloc
 
-        They approach the same basic problem from different angles.
-        With the `malloc` method, Varnish will request the entire size of
-        the cache with a malloc() (memory allocation) library call. The
-        operating system divides the cache between memory and disk by
-        swapping out what it can't fit in memory.
+   They approach the same basic problem from different angles.
+   With the ``-s malloc`` method, Varnish will request the entire size of
+   the cache with a malloc() (memory allocation) library call. The
+   operating system divides the cache between memory and disk by
+   swapping out what it can't fit in memory.
 
-	.. file
+   .. file
 
-        Another possibility is to use the `file` storage backend, which instead
-        creates a file on a filesystem to contain the entire cache, then
-        tell the operating system through the mmap() (memory map) system
-        call to map the entire file into memory if possible.
+   Another possibility is to use the ``-s file`` storage backend.
+   This option creates a file on a filesystem to contain the entire cache.
+   Then, the operating system maps the entire file into memory if possible.
 
-	.. persistence
-	.. TODO: update according to varnish-cache/docs/phinx/phk/persistent.rst
-        
-	The `file` storage method does not retain data when you stop or restart Varnish!
-	This is what persistent storage is for.
-	When ``-s file`` is used, Varnish does not keep track of what is written to disk and what is not. 
-        Varnish will not, because it cannot, re-use old cache with the ``-s file`` option.
+   .. persistence
+   .. varnish-cache/docs/phinx/phk/persistent.rst
 
-	The persistent feature is experimental, and it is only supported in Varnish Plus 3.x series.
-	This feature is deprecated in Varnish Cache 4.
+   The ``-s file`` storage method does not retain data when you stop or restart Varnish!
+   For this purpose, Varnish provides a persistence option ``-s persistent``.
+   The usage of this option, however, is strongly discouraged mainly because of the consistency issues that arise with it.
 
-	.. MSE
+   .. MSE
 
-	The Varnish Massive Storage Engine (MSE) is an improved storage backend for Varnish Plus only.
-	Its main improvements are decreased disk IO load and lower storage fragmentation.
-	MSE is designed and tested with storage sizes up to 10 TB.
+   The Varnish Massive Storage Engine (MSE) is an improved storage backend for Varnish Plus only.
+   Its main improvements are decreased disk IO load and lower storage fragmentation.
+   MSE is designed and tested with storage sizes up to 10 TB.
 
-        While `malloc` is used swap to store data to disk, `file` and MSE use memory to cache the data instead. 
-        
-	.. Choosing the storage backend
+   While `malloc` is used swap to store data to disk, `file` and MSE use memory to cache the data instead. 
 
-        When choosing storage backend, use `malloc` if your cache will be contained entirely or mostly in memory.
-	If your cache will exceed the available physical memory, you have two options: `file` or MSE.
-	We recommend you to use MSE because it performs much better than `file` storage backend.
+   .. Choosing the storage backend
 
-        .. TODO for the author: update the overhead size
+   When choosing storage backend, use `malloc` if your cache will be contained entirely or mostly in memory.
+   If your cache will exceed the available physical memory, you have two options: `file` or MSE.
+   We recommend you to use MSE because it performs much better than `file` storage backend.
 
-        It is important to keep in mind that the size you specify with the
-        ``-s`` option is the size for the actual cache. Varnish has an
-        overhead on top of this for keeping track of the cache, so the
-        actual memory footprint of Varnish will exceed what the '-s'
-        argument specifies if the cache is full. The current estimate
-        (subject to change on individual Varnish-versions) is that about
-	1kB of overhead needed for each object. For 1 million objects, that
-        means 1GB extra memory usage.
+   .. TODO for the author: update the overhead size
 
-        In addition to the per-object overhead, there is also a fairly
-        static overhead which you can calculate by starting Varnish without
-        any objects. Typically around 100MB.
+   It is important to keep in mind that the size you specify with the
+   ``-s`` option is the size for the actual cache. Varnish has an
+   overhead on top of this for keeping track of the cache, so the
+   actual memory footprint of Varnish will exceed what the '-s'
+   argument specifies if the cache is full. The current estimate
+   (subject to change on individual Varnish-versions) is that about
+   1kB of overhead needed for each object. For 1 million objects, that
+   means 1GB extra memory usage.
+
+   In addition to the per-object overhead, there is also a fairly
+   static overhead which you can calculate by starting Varnish without
+   any objects. Typically around 100MB.
 
 The shared memory log
 ---------------------
@@ -1668,22 +1664,41 @@ Threading model
 - Worker threads are the bread and butter of the Varnish architecture
 - Utility-threads
 
+.. table 8
+
+.. csv-table:: Table :counter:`tables`: Relevant threads in Varnish
+   :name: relevant_threads
+   :delim: ;
+   :widths: 20, 40, 40
+   :header-rows: 1
+   :file: tables/relevant_threads.csv
+
 .. container:: handout
 
    The child process runs multiple threads in two thread pools.
    The threads of these pools are called worker threads.
-   The following table lists some relevant threads.
+   `Table 8 <#tables-8>`_ presents relevant threads.
    
-   .. table 8
+Threading parameters
+--------------------
 
-   .. csv-table:: Table :counter:`tables`: Relevant threads in Varnish
-      :name: relevant_threads
-      :delim: ;
-      :widths: 20, 40, 40
-      :header-rows: 1
-      :file: tables/relevant_threads.csv
+- Thread pools can safely be ignored
+- Maximum: roughly 5000 (total)
+- Start them sooner rather than later
+- Maximum and minimum values are per thread pool
 
-   For tuning Varnish, you need to think about your expected traffic. 
+.. table 9
+
+.. csv-table:: Table :counter:`tables`: Threads parameters
+   :name: thread_params
+   :delim: ;
+   :widths: 29, 20, 51
+   :header-rows: 1
+   :file: tables/thread_params.csv
+
+.. container:: handout
+
+   To tune Varnish, think about the expected traffic. 
    The most important thread setting is the number of cache-worker threads.
    You may configure ``thread_pool_min`` and ``thread_pool_max``.
    These parameters are per thread pool.
@@ -1694,39 +1709,19 @@ Threading model
 
    .. note::
 
-      If you run across tuning advice that suggests running one thread pool for each CPU core, rest assured that this is old advice. 
+      If you run across the tuning advice that suggests to have a thread pool per CPU core, rest assured that this is old advice. 
       Experiments and data from production environments have revealed that as long as you have two thread pools (which is the default), there is nothing to gain by increasing the number of thread pools.
       Still, you may increase the number of threads per pool.
 
       All other thread variables are not configurable.
 
-Threading parameters
---------------------
-
-- Thread pools can safely be ignored
-- Maximum: roughly 5000 (total)
-- Start them sooner rather than later
-- Maximum and minimum values are per thread pool
-
-.. class:: handout
-
 Details of threading parameters
--------------------------------
+...............................
 
-While most parameters can be left to the defaults, the exception is the number of threads.
+.. TODO for the author: create slide version.
 
+Most parameters can be left to the defaults with the exception is the number of threads.
 Varnish will use one thread for each session and the number of threads you let Varnish use is directly proportional to how many requests Varnish can serve concurrently.
-
-The available parameters directly related to threads are:
-
-.. table 9
-
-.. csv-table:: Table :counter:`tables`: Thread parameters
-      :name: thread_parameters
-      :delim: ;
-      :widths: 50, 50
-      :header-rows: 1
-      :file: tables/thread_parameters.csv
 
 Among these, ``thread_pool_min`` and ``thread_pool_max`` are the most important parameters.
 Values of these parameters are per thread pool.
@@ -1738,10 +1733,10 @@ When a connection is accepted, the connection is delegated to one of these threa
 Afterwards, the thread pool either delegates the connection request to an available thread, queue the request otherwise, or drop the connection if the queue is full. 
 By default, Varnish uses 2 thread pools, and this has proven sufficient for even the most busy Varnish server.
 
-.. class:: handout
-
 Number of threads
 .................
+
+.. TODO for the author: create slide version.
 
 Varnish has the ability to spawn new worker threads on demand, and remove them once the load is reduced. 
 This is mainly intended for traffic spikes.
@@ -1762,8 +1757,6 @@ Therefore, you should investigate elsewhere before you increase the maximum valu
 For minimum, it's common to operate with 500 to 1000 threads minimum (total).
 You can observe if those values are enough by looking at ``MAIN.sess_queued`` through ``varnishstat``.
 Look at the counter over time, because it is fairly static right after startup.
-
-.. class:: handout
 
 .. warning::
 
@@ -2831,7 +2824,7 @@ VCL - ``vcl_recv``
 - Decide caching policy based on client-input
 - Access control lists.
 - Security barriers, e.g., SQL injection attacks
-- Fixing mistakes, e.g., ``index.html`` -> ``index.html``
+- Fixing mistakes, e.g., ``index.htlm`` -> ``index.html``
 
 .. container:: handout
 
@@ -2985,13 +2978,6 @@ Solution: Rewrite URLs and Host headers
 
 ::
 
- vcl 4.0;
-
- backend default {
-     .host = "127.0.0.1";
-     .port = "8080";
- }
-
  sub vcl_recv {
 
      set req.http.x-host = req.http.host;
@@ -3033,21 +3019,27 @@ VCL - ``vcl_pass``
    Fetched objects from requests in *pass* mode are not cached, but passed to the client.
    The *synth* and *restart* return actions call their corresponding subroutines.
 
-hit-for-pass
-............
+*hit-for-pass*
+..............
 
-Some requested objects should not be cached.
-A typical example is when a requested page contains  a ``Set-Cookie`` response header, and therefore it must be delivered only to the client that requests it.
-In this case, you can tell Varnish to create a *hit-for-pass* object and stores it in the cache, instead of storing the fetched object.
-Subsequent requests will be processed in *pass* mode.
+- Used when an object should not be cached
+- *hit-for-pass* object instead of fetched object
+- Has TTL
 
-When an object should not be cached, the ``beresp.uncacheable`` variable is set to *true*.
-As a result, the `cacher process` keeps a hash reference to the *hit-for-pass* object.
-In this way, the lookup operation for requests translating to that hash find a *hit-for-pass* object.
-Such requests are handed over to the ``vcl_pass`` subroutine, and proceed in *pass* mode.
+.. container:: handout
 
-As any other cached object, *hit-for-pass* objects have a TTL.
-Once the object's TTL has elapsed, the object is removed from the cache.
+   Some requested objects should not be cached.
+   A typical example is when a requested page contains  a ``Set-Cookie`` response header, and therefore it must be delivered only to the client that requests it.
+   In this case, you can tell Varnish to create a *hit-for-pass* object and stores it in the cache, instead of storing the fetched object.
+   Subsequent requests are processed in *pass* mode.
+
+   When an object should not be cached, the ``beresp.uncacheable`` variable is set to *true*.
+   As a result, the `cacher process` keeps a hash reference to the *hit-for-pass* object.
+   In this way, the lookup operation for requests translating to that hash find a *hit-for-pass* object.
+   Such requests are handed over to the ``vcl_pass`` subroutine, and proceed in *pass* mode.
+
+   As any other cached object, *hit-for-pass* objects have a TTL.
+   Once the object's TTL has elapsed, the object is removed from the cache.
 
 VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 --------------------------------------------------------
@@ -3190,8 +3182,8 @@ Example: Setting TTL of .jpg URLs to 60 seconds
    Keep in mind that the built-in VCL is still executed.
    That means that images with a ``Set-Cookie`` field are not cached.
 
-Example: Cache .jpg for 60 only if s-maxage isn't present
-.........................................................
+Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
+......................................................................
 
 .. include:: vcl/cache_jpg_smaxage.vcl
    :literal:
@@ -3215,17 +3207,70 @@ Example: Cache .jpg for 60 only if s-maxage isn't present
    .. TODO for the author: Find this rst file and update it
    .. also, ask why some files are in include and under build.
 
-.. include:: build/exercises/complete-avoid_caching_a_page.rst
+Exercise: Avoid caching a page
+..............................
+
+#. Write a VCL which avoids caching the index page at all.
+   It should cover both accessing `/` and `/index.html`
+#. Write a VCL that makes Varnish honor the following headers::
+
+        Cache-Control: no-cache
+        Cache-Control: private
+        Pragma: no-cache
+
+.. container:: handout
+
+   When trying this out, remember that Varnish keeps the `Host`-header in ``req.http.host`` and the part after the hostname in ``req.url``.
+   For `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, but ``req.http.host`` has the value of `www.example.com` and ``req.url`` the value of `/index.html`.
+   Note how the leading `/` is included in ``req.url``.
+
+   Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
+   However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
+
+Solution: Avoid caching a page
+..............................
+
+::
+
+   // Suggested solution A for exercise 1
+   sub vcl_recv {
+	if (req.url ~ "^/index\.html" || req.url ~ "^/$") {
+		return(pass);
+	}
+   }
+   // Suggested solution B for exercise 1
+   sub vcl_backend_fetch {
+       if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
+	  set bereq.uncacheable = true;
+	  return(fetch);
+       }
+   }
+
+   // Second part of exercise
+   sub vcl_backend_response {
+       if (beresp.http.Cache-Control ~ "(no-cache|private)" ||
+	   beresp.http.Pragma ~ "no-cache") {
+	  set beresp.ttl = 0s;
+       }
+   }
+
+.. container:: handout
+
+   Usually it is most convenient to do as much as possible in ``vcl_recv``.
+   Even though using ``bereq.uncacheable`` in ``vcl_backend_fetch`` is reasonable, it creates a *hit-for-pass* object, which can create unnecessary complexity.
+   Whenever you use *hit-for-pass* objects, you should set ``beresp.ttl`` to a short duration.
+   Short TTLs avoid accidentally adding long living *hit-for-pass* objects that prevent caching for a long time.
+   See Subsection `*hit-for-pass*`_ for description of this type of object.
 
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
 
 Write a VCL that:
 
-- Uses ``Cache-Control: s-maxage`` when present
-- Caches ``.jpg`` for 30 seconds if ``s-maxage`` is not present
-- Caches ``.html`` for 10 seconds if ``s-maxage`` isn't present
-- Removes the ``Set-Cookie`` header field if ``s-maxage`` OR the above rules indicate that Varnish should cache.
+- uses ``Cache-Control: s-maxage`` when present,
+- caches ``.jpg`` for 30 seconds if ``s-maxage`` is not present,
+- caches ``.html`` for 10 seconds if ``s-maxage`` isn't present, and
+- removes the ``Set-Cookie`` header field if ``s-maxage`` OR the above rules indicate that Varnish should cache.
 
 .. container:: handout
 
@@ -3960,7 +4005,7 @@ Force Cache Misses
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
 
-.. table 15
+.. table 16
 
 .. csv-table:: Table :counter:`tables`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
    :name: purge_ban_hash2_force
@@ -4003,7 +4048,15 @@ Directors
 
 - Contains 1 or more backends
 - All backends must be known
-- Selection methods: round-robin, random and its variations
+- Selection methods:
+  
+  - round-robin
+  - random
+    
+    - seeded with a random number
+    - seeded with a hash key
+
+|
 
 .. include:: vcl/director_example.vcl
    :literal:
@@ -4012,13 +4065,14 @@ Directors
 
    Varnish can have several backends defined, and it can set them together into clusters for load balancing purposes.
    Backend directors, usually just called directors, provide logical groupings of similar web servers.
-   There are several different directors available, but they all share the same basic properties.
+   A director must have a name.
 
    Directors allow you to re-use previously defined backends, or define "anonymous" backends within the director definition. 
-   If a backend is defined explicitly and referred to or from a director, Varnish records data such as number of connections. 
+   If a backend is defined explicitly and referred to or from a director, Varnish records data such as the number of connections.
    The definition of anonymous backends within a director also yields all the normal properties of a backend.
 
-   And a director must have a name.
+   There are several different director selection methods available, they are: random, round-robin, and hash.
+   The next backend to be selected depends on the selection method.   
    The simplest directors available are the *round-robin* and the *random* director. 
 
    A *round-robin* director takes only a backend list as argument.
@@ -4026,12 +4080,8 @@ Directors
    Once the last backend have been selected, backends are selected again from the top. 
    If a health probe has marked a backend as sick, the round-robin director skip it.
 
-   The *random* director picks a backend randomly.
-   It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the selection of the backends.
-   The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
-
-   The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
-   The next backend to be selected depends on the selection method (i.e. random, round-robin, or hash) of the director.
+   *Random* directors are seeded with either a random number or a hash key.
+   Next Subsection `Random directors`_ explains their commonalities and differences.
 
    .. note::
 
@@ -4044,34 +4094,48 @@ Directors
       Directors are defined as loadable VMODs in Varnish 4.
       Please see the ``vmod_directors`` man page for more information.
 
-Hash directors
-..............
+Random directors
+................
 
 - *Random* director: seeded with a random number
 - *Hash* director: seeded with hash key from typically a URL or a client identity string
 
-  .. class:: handout
+|
 
-  Both, the *random* and *hash* director select a backend randomly.
-  The difference between these two is the seed they use.
-  The *random* director is seeded with a random number, whereas the *hash* director is seeded with a hash key.
+*Hash director that uses client identity for backend selection*
 
-  *Hash* directors typically use the requested URL or the client identity (e.g. session cookie) to compute the hash key.
-  Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
-  Therefore, *hash* directors select always the same backend for a given input.
+.. include:: vcl/director_hash_example.vcl
+   :literal:
 
-  Hash directors are useful to load balance in front of other Varnish caches or other web accelerators.
-  In this way, cached objects are not duplicated across different cache servers.
-  The following VCL code shows a hash director that uses client identity for backend selection.
+.. container:: handout
 
-  .. include: vcl/director_hash_example.vcl
-    :literal:
+   .. description of random directors
 
-  .. note::
+   The *random* director picks a backend randomly.
+   It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the selection of the backends.
+   The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
+   The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
 
-     In Varnish 3 there is a *client* director type, which is removed in Varnish 4.
-     This *client* director type is a special case of the *hash director*.
-     Therefore, the semantics of a *client* director type are achieved by using ``hash.backend(client.identity)``.
+   .. commonalities
+
+   Both, the *random* and *hash* director select a backend randomly.
+   The difference between these two is the seed they use.
+   The *random* director is seeded with a random number, whereas the *hash* director is seeded with a hash key.
+
+   .. hash directors
+
+   *Hash* directors typically use the requested URL or the client identity (e.g. session cookie) to compute the hash key.
+   Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
+   Therefore, *hash* directors select always the same backend for a given input.
+
+   Hash directors are useful to load balance in front of other Varnish caches or other web accelerators.
+   In this way, cached objects are not duplicated across different cache servers.
+
+   .. note::
+
+      In Varnish 3 there is a *client* director type, which is removed in Varnish 4.
+      This *client* director type is a special case of the *hash director*.
+      Therefore, the semantics of a *client* director type are achieved using ``hash.backend(client.identity)``.
 
 Health Checks
 -------------
@@ -4081,8 +4145,8 @@ Health Checks
 - ``std.healthy(req.backend_hint)``
 - Varnish allows at most `threshold` amount of failed probes within a set of the last `window` probes
 - `threshold` and `window` are parameters
-- Set using `.probe`
-- varnishlog: Backend_health
+- Set using ``.probe``
+- ``varnishlog``: Backend_health
 
 .. TODO for the author: To verify the VCL code for health: health.vcl and health_request.vcl.
 
@@ -4105,11 +4169,10 @@ Health Checks
    Issue ``man vsl`` to see its detailed syntax.
 
    When Varnish has no healthy backend available, it attempts to use a *graced* copy of the cached object that a request is looking for.
-   The next subchapter explains *grace* mode.
+   The next subchapter `Grace Mode`_ explains this concept in detail.
 
    .. include:: vcl/health_request.vcl
      :literal:
-
 
    .. note::
 
@@ -4122,7 +4185,7 @@ Health Checks
       ``req.backend.healthy`` from Varnish 3 is replaced by ``std.healthy(req.backend_hint)``.
       Do not forget to include the import line: ``import std;``
 
-Grace mode
+Grace Mode
 ----------
 
 - A `graced` object is an object that has expired, but is still kept in cache.
@@ -4277,7 +4340,7 @@ Backend properties
 
    If a backend has not enough resources, it might be advantageous to set ``max_connections``.
    So that a limited number of simultaneous connections are handled by a specific backend.
-   All backend-specific timers are available as parameters, and can be overridden in VCL on a backend-specific level.
+   All backend-specific timers are available as parameters and can be overridden in VCL on a backend-specific level.
 
    .. tip::
 

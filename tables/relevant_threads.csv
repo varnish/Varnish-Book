@@ -1,8 +1,8 @@
 Thread-name ;Amount of threads ;Task 
-cache-worker ;One per active connection ;Handle requests 
-cache-main ;One ;Startup 
-ban lurker ;One ;Clean bans 
-acceptor ;One ;Accept new connections 
+cache-worker ;1 per active connection ;Handle requests 
+cache-main ;1 ;Startup 
+ban lurker ;1 ;Clean bans 
+acceptor ;1 ;Accept new connections 
 epoll/kqueue ;Configurable, default: 2 ;Manage thread pools 
-expire ;One ;Remove old content 
-backend poll ;One per backend poll ;Health checks 
+expire ;1 ;Remove old content 
+backend poll ;1 per backend poll ;Health checks 
