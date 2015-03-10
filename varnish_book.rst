@@ -2479,6 +2479,14 @@ Does ``thread_pool_timeout`` affect already running threads?
       headers Varnish sends. That way, your web-server can emit response
       headers that are only seen and used by Varnish.
 
+      .. TODO for the author:
+      .. This was part of Exercise: Avoid caching a page.
+      ..  It might be relevant to mention this and or update it in this chapter.
+      ..  Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
+      ..  However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
+
+
+      
 VCL Basics
 ==========
 
@@ -2776,26 +2784,26 @@ Summary of VCL
 
 .. container:: handout
 
-        VCL is all about policy. By providing a state machine which you can
-        hook into, VCL allows you to affect the handling of any single
-        request almost anywhere in the execution chain.
+   VCL is all about policy. By providing a state machine which you can
+   hook into, VCL allows you to affect the handling of any single
+   request almost anywhere in the execution chain.
 
-        This provides pros and cons as any other programming language.
-	This book is not a complete reference guide to
-        how you can deal with every possible scenario in VCL, but on the
-        other hand, if you master the basics of VCL you can solve complex
-        problems that nobody has thought about before. And you can usually
-        do it without requiring too many different sources of
-        documentation.
+   This provides pros and cons as any other programming language.
+   This book is not a complete reference guide to
+   how you can deal with every possible scenario in VCL, but on the
+   other hand, if you master the basics of VCL you can solve complex
+   problems that nobody has thought about before. And you can usually
+   do it without requiring too many different sources of
+   documentation.
 
-        Whenever you are working on VCL, you should think of what that
-        exact line you are writing has to do. The best VCL is built by
-        having many independent sections that do not interfere with each
-        other more than what they have to.
+   Whenever you are working on VCL, you should think of what that
+   exact line you are writing has to do. The best VCL is built by
+   having many independent sections that do not interfere with each
+   other more than what they have to.
 
-        Remember that there is a default VCL.
-	If your own VCL code does not have a return statement, the default VCL is always executed after yours.	
-        If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
+   Remember that there is a default VCL.
+   **If your own VCL code does not have a return statement, the default VCL is always executed after yours.**
+   If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
 
 VCL Built-in Subroutines
 ========================
@@ -3212,20 +3220,12 @@ Exercise: Avoid caching a page
 
 #. Write a VCL which avoids caching the index page at all.
    It should cover both accessing `/` and `/index.html`
-#. Write a VCL that makes Varnish honor the following headers::
-
-        Cache-Control: no-cache
-        Cache-Control: private
-        Pragma: no-cache
 
 .. container:: handout
 
    When trying this out, remember that Varnish keeps the `Host`-header in ``req.http.host`` and the part after the hostname in ``req.url``.
    For `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, but ``req.http.host`` has the value of `www.example.com` and ``req.url`` the value of `/index.html`.
    Note how the leading `/` is included in ``req.url``.
-
-   Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
-   However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
 
 Solution: Avoid caching a page
 ..............................
@@ -3246,21 +3246,11 @@ Solution: Avoid caching a page
        }
    }
 
-   // Second part of exercise
-   sub vcl_backend_response {
-       if (beresp.http.Cache-Control ~ "(no-cache|private)" ||
-	   beresp.http.Pragma ~ "no-cache") {
-	  set beresp.ttl = 0s;
-       }
-   }
-
 .. container:: handout
 
    Usually it is most convenient to do as much as possible in ``vcl_recv``.
-   Even though using ``bereq.uncacheable`` in ``vcl_backend_fetch`` is reasonable, it creates a *hit-for-pass* object, which can create unnecessary complexity.
-   Whenever you use *hit-for-pass* objects, you should set ``beresp.ttl`` to a short duration.
-   Short TTLs avoid accidentally adding long living *hit-for-pass* objects that prevent caching for a long time.
-   See Subsection `hit-for-pass`_ for description of this type of object.
+   The usage of ``bereq.uncacheable`` in ``vcl_backend_fetch`` creates a *hit-for-pass* object.
+   See Subsection `hit-for-pass`_ for detailed description about this type of object.
 
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
