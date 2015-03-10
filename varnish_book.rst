@@ -2506,10 +2506,10 @@ VCL Basics
 
    .. State machine
 
-   VCL is also often described as a state machine.
+   VCL is also often described as a finite state machine.
    Each state has available only certain parameters that you can use in your VCL code.
    For example: you can not access response HTTP headers in states previous to fetching data from the backend.   
-   States in VCL are conceptualized as subroutines.
+   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_.
 
    .. Subroutines
 
@@ -2571,26 +2571,27 @@ Varnish Request Flow for the Client Worker Thread
 
    Figure :counter:`figures`: Varnish Request Flow for the Client Worker Thread
 
-.. container:: handout
+Waiting State
+.............
 
-   .. waitinglist()
+.. waitinglist()
 
-   The *waiting* state is reached when a request is set as *busy*.
-   This scenario happens when a subsequent request arrives while a previous identical request is being handled by the backend.
-   In this case, Varnish sets the subsequent request as busy and queues it in a waiting list.
-   If the fetched object from the first request is cacheable, it is then given to all queued requests in the waiting list.
-   In this way, only one request is sent to the backend.
+The *waiting* state is reached when a request is set as *busy*.
+This scenario happens when a subsequent request arrives while a previous identical request is being handled by the backend.
+In this case, Varnish sets the subsequent request as busy and queues it in a waiting list.
+If the fetched object from the first request is cacheable, it is then given to all queued requests in the waiting list.
+In this way, only one request is sent to the backend.
 
-   The *waiting* state is designed to improve response performance, however, a counterproductive scenario occurs when fetched objects that are uncachable.
-   For example, when a response contains the HTTP ``Set-Cookie`` header.
-   In this case, the next request in the waiting list is then forced to fetch the object from the backed.
-   As expected, the response from the second request will be also uncacheable.
-   As a result, all queued requests in the waiting list will have the same misfortune to be forced to contact the backend in a serialized manner.
+The *waiting* state is designed to improve response performance, however, a counterproductive scenario occurs when fetched objects that are uncachable.
+For example, when a response contains the HTTP ``Set-Cookie`` header.
+In this case, the next request in the waiting list is then forced to fetch the object from the backed.
+As expected, the response from the second request will be also uncacheable.
+As a result, all queued requests in the waiting list will have the same misfortune to be forced to contact the backend in a serialized manner.
 
-   Serialized requests should be avoided because their performance is poorer than paralleled requests.
-   You can avoid serialization by avoiding the *waiting state* when certain rules apply.
-   To do this, set requests in *pass* mode when appropriate or create ``hit-for-pass`` objects from uncacheable objects.
-   Section `VCL - vcl_pass`_ and `hit-for-pass`_ explain these topics.
+Serialized requests should be avoided because their performance is poorer than paralleled requests.
+You can avoid serialization by avoiding the *waiting state* when certain rules apply.
+To do this, set requests in *pass* mode when appropriate or create ``hit-for-pass`` objects from uncacheable objects.
+Section `VCL - vcl_pass`_ and `hit-for-pass`_ explain these topics.
 
 Varnish Request Flow for the Backend Worker Thread
 --------------------------------------------------
@@ -2611,10 +2612,8 @@ Varnish Request Flow for the Backend Worker Thread
 
    `Figure 6 <#figures-6>`_ is further explained in the `VCL Built-in Subroutines`_ section, `Figure 7 <#figures-7>`_.
 
-The VCL State Machine
----------------------
-
-.. TODO for the author: Consider to call it: The VCL finite state machine
+The VCL Finite State Machine
+----------------------------
 
 - Each request is processed separately.
 - Each request is independent from others at any given time.
