@@ -3218,8 +3218,8 @@ Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
 Exercise: Avoid caching a page
 ..............................
 
-#. Write a VCL which avoids caching the index page at all.
-   It should cover both accessing `/` and `/index.html`
+Write a VCL which avoids caching the index page at all.
+It should cover both accessing `/` and `/index.html`
 
 .. container:: handout
 
@@ -3232,13 +3232,13 @@ Solution: Avoid caching a page
 
 ::
 
-   // Suggested solution A for exercise 1
+   // Suggested solution A
    sub vcl_recv {
 	if (req.url ~ "^/index\.html" || req.url ~ "^/$") {
 		return(pass);
 	}
    }
-   // Suggested solution B for exercise 1
+   // Suggested solution B
    sub vcl_backend_fetch {
        if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
 	  set bereq.uncacheable = true;
