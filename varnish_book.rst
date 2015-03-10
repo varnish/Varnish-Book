@@ -2571,6 +2571,27 @@ Varnish Request Flow for the Client Worker Thread
 
    Figure :counter:`figures`: Varnish Request Flow for the Client Worker Thread
 
+.. container:: handout
+
+   .. waitinglist()
+
+   The *waiting* state is reached when a request is set as *busy*.
+   This scenario happens when a subsequent request arrives while a previous identical request is being handled by the backend.
+   In this case, Varnish sets the subsequent request as busy and queues it in a waiting list.
+   If the fetched object from the first request is cacheable, it is then given to all queued requests in the waiting list.
+   In this way, only one request is sent to the backend.
+
+   The *waiting* state is designed to improve response performance, however, a counterproductive scenario occurs when fetched objects that are uncachable.
+   For example, when a response contains the HTTP ``Set-Cookie`` header.
+   In this case, the next request in the waiting list is then forced to fetch the object from the backed.
+   As expected, the response from the second request will be also uncacheable.
+   As a result, all queued requests in the waiting list will have the same misfortune to be forced to contact the backend in a serialized manner.
+
+   Serialization of requests should be avoided because of its poor performance.
+   You can avoid serialization by avoiding the *waiting state* when certain rules apply.
+   To do this, set requests in *pass* mode when appropriate or create ``hit-for-pass`` objects from uncacheable objects.
+   Section `VCL - vcl_pass`_ and `hit-for-pass`_ explain these topics.
+
 Varnish Request Flow for the Backend Worker Thread
 --------------------------------------------------
 
@@ -2612,16 +2633,6 @@ The VCL State Machine
    Policies help to answer questions such as: should Varnish even attempt to find the requested resource in the cache?
    In this example, the policies are in the ``vcl_recv`` subroutine.
 
-   If you do not implement the ``vcl_recv`` subroutine, the default implementation of ``vcl_recv`` is executed. 
-   Nevertheless, even if you implement your own ``vcl_recv`` subroutine, the default is still present. 
-   Whether it is executed or not depends on whether your own VCL code terminates that specific state or not.
-
-   .. tip::
-
-      It is strongly advised to let the default built-in subroutines whenever is possible.
-      The built-in subroutines are designed with safety in mind, which often means that they handle any flaws in your VCL code in a reasonable manner.
-      The default ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
-      There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
 
 VCL Syntax
 ----------
@@ -2802,7 +2813,7 @@ Summary of VCL
    other more than what they have to.
 
    Remember that there is a default VCL.
-   **If your own VCL code does not have a return statement, the default VCL is always executed after yours.**
+   **If your own VCL code does not have a return statement, the built-in VCL subroutine is executed after yours.**
    If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
 
 VCL Built-in Subroutines
@@ -2813,6 +2824,7 @@ VCL Built-in Subroutines
 
 - Go through the VCL built-in subroutines: ``vcl_recv``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_pass``, ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
 - Add some "features" with VCL.
+- If your VCL code does not have a return statement, the built-in VCL subroutine is executed after yours.
 
 .. container:: handout
 
@@ -2822,6 +2834,17 @@ VCL Built-in Subroutines
 
    After this chapter, you should know what all the VCL subroutines can be used for.
    You should also be ready to dive into more advanced features of Varnish and VCL.
+
+   .. Note::
+
+      It is strongly advised to let the default built-in subroutines whenever is possible.
+      The built-in subroutines are designed with safety in mind, which often means that they handle any flaws in your VCL code in a reasonable manner.
+
+   .. Tip::
+
+      Looking at the code of built-in subroutines can help you to understand how to build your own VCL code.
+      Built-in subroutines are in the file ``/usr/share/doc/varnish/examples/builtin.vcl.gz`` or ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
+      The first location may change depending on your distro.
 
 VCL - ``vcl_recv``
 ------------------
@@ -2868,15 +2891,20 @@ VCL - ``vcl_recv``
    You may also be interested to look at the Security.vcl project at https://github.com/comotion/security.vcl.
    The Security.vcl project, however, supports only Varnish 3.x.
 
-Default: ``vcl_recv``
-.....................
+   .. tip::
+
+      The built-in ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
+      There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
+
+Built-in: ``vcl_recv``
+......................
 
 .. include:: vcl/default-vcl_recv.vcl
    :literal:
 
 .. container:: handout
 
-   The default VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
+   The built-in VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
    It has two main uses:
 
    #. Only handle recognized HTTP methods.
@@ -3124,12 +3152,6 @@ Built-in: ``vcl_backend_response``
    The built-in ``vcl_backend_response`` subroutine is designed to avoid caching in many conditions.
    Notable is the case when the ``Set-cookie`` HTTP header field, because there are very few situations where caching content with a set-cookie header is desirable.
    The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
-
-.. Tip::
-   Looking at the code of all other built-in subroutines can help you to understand how to build your own.
-   Built-in subroutines are in the file ``/usr/share/doc/varnish/examples/builtin.vcl.gz``.
-   This location may change depending on your distro.
-   Alternatively, you can find the subroutines in the file ``/bin/varnishd/builtin.vcl`` in the Varnish source code .
 
 The initial value of ``beresp.ttl``
 ...................................
@@ -3488,12 +3510,12 @@ Solution: Modify the HTTP response header fields
 
 .. TODO for the author: Double check the format that rst requires for em and en dash (rule).
 
-Exercise: Modify the error message
+Exercise: Change the error message
 ----------------------------------
 
 - Make the default error message more friendly.
 
-Solution: Modify the error message
+Solution: Change the error message
 ..................................
 
 .. include:: vcl/customized_error.vcl
