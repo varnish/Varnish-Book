@@ -2587,7 +2587,7 @@ Varnish Request Flow for the Client Worker Thread
    As expected, the response from the second request will be also uncacheable.
    As a result, all queued requests in the waiting list will have the same misfortune to be forced to contact the backend in a serialized manner.
 
-   Serialization of requests should be avoided because of its poor performance.
+   Serialized requests should be avoided because their performance is poorer than paralleled requests.
    You can avoid serialization by avoiding the *waiting state* when certain rules apply.
    To do this, set requests in *pass* mode when appropriate or create ``hit-for-pass`` objects from uncacheable objects.
    Section `VCL - vcl_pass`_ and `hit-for-pass`_ explain these topics.
