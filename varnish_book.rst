@@ -2571,27 +2571,53 @@ Varnish Request Flow for the Client Worker Thread
 
    Figure :counter:`figures`: Varnish Request Flow for the Client Worker Thread
 
+.. raw:: pdf
+   
+   PageBreak
+
 Waiting State
 .............
 
 .. waitinglist()
 
-The *waiting* state is reached when a request is set as *busy*.
-This scenario happens when a subsequent request arrives while a previous identical request is being handled by the backend.
-In this case, Varnish sets the subsequent request as busy and queues it in a waiting list.
-If the fetched object from the first request is cacheable, it is then given to all queued requests in the waiting list.
+The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled by the backend.
+In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
+If the fetched object from request 0 is cacheable, the object is given to all queued requests *n*.
 In this way, only one request is sent to the backend.
 
-The *waiting* state is designed to improve response performance, however, a counterproductive scenario occurs when fetched objects that are uncachable.
-For example, when a response contains the HTTP ``Set-Cookie`` header.
-In this case, the next request in the waiting list is then forced to fetch the object from the backed.
-As expected, the response from the second request will be also uncacheable.
-As a result, all queued requests in the waiting list will have the same misfortune to be forced to contact the backend in a serialized manner.
+The *waiting* state is designed to improve response performance.
+However, a counterproductive scenario, namely *request serialization*, may occur if the fetched objects are uncacheable, and so is recursively the next request in the waiting list.
+This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
+Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
 
-Serialized requests should be avoided because their performance is poorer than paralleled requests.
-You can avoid serialization by avoiding the *waiting state* when certain rules apply.
-To do this, set requests in *pass* mode when appropriate or create ``hit-for-pass`` objects from uncacheable objects.
-Section `VCL - vcl_pass`_ and `hit-for-pass`_ explain these topics.
+The built-in subroutine ``vcl_backend_response`` is designed to avoid request serialization.
+Therefore you should always let this built-in subroutine execute.
+Below is the code of the built-in ``vcl_backend_response``.
+
+::
+  
+   sub vcl_backend_response {
+       if (beresp.ttl <= 0s ||
+	 beresp.http.Set-Cookie ||
+	 beresp.http.Surrogate-control ~ "no-store" ||
+	 (!beresp.http.Surrogate-Control &&
+	   beresp.http.Cache-Control ~ "no-cache|no-store|private") ||
+	 beresp.http.Vary == "*") {
+	   /*
+	    * Mark as "Hit-For-Pass" for the next 2 minutes
+	    */
+	   set beresp.ttl = 120s;
+	   set beresp.uncacheable = true;
+       }
+       return (deliver);
+   }
+
+The above code avoids request serialization by applying rules when fetched objects should not be cached.
+For this purpose, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
+Subsection `hit-for-pass`_ explains in detail this object type.
+
+If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
+If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
 
 Varnish Request Flow for the Backend Worker Thread
 --------------------------------------------------
