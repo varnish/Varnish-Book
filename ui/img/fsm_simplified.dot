@@ -1,0 +1,80 @@
+digraph varnishfsm{
+	labeljust=l;
+	Request[shape=Mdiamond];
+	restart1[shape=Mdiamond,label="Restart"];
+	Request -> vcl_recv;
+	restart1 -> vcl_recv;
+	subgraph clusterfrontend{
+		
+		{
+			rank=same;
+			vcl_deliver;
+			vcl_synth;
+		};
+		{
+	                rank=same;
+			vcl_hit;
+			vcl_miss;
+			vcl_purge;
+			// vcl_pass;
+		}
+		label="Frontend (From Client) Workthread";
+		
+		vcl_recv -> vcl_hash [label="lookup"];
+		vcl_recv -> vcl_pipe[color=orange];
+		vcl_pipe -> Done[color=orange];
+		vcl_hash -> vcl_hit[label="hit",color=darkgreen];
+		vcl_hash -> vcl_miss [label="miss"];
+		vcl_hash -> vcl_pass [label="hit-for-pass",color=red];
+		waiting[shape=hexagon];
+		vcl_hash -> waiting [label="busy"];
+		vcl_hash -> vcl_purge [label="purge",color=purple];
+		vcl_purge -> vcl_synth[color=purple];
+		// restart2[shape=Mdiamond,label="Restart"];
+		// vcl_purge -> restart2;
+		vcl_hit -> vcl_deliver[color=darkgreen];
+		// vcl_hit -> vcl_miss;
+		vcl_hit -> vcl_pass[color=red];
+		vcl_miss -> vcl_backend_fetch;
+		waiting -> vcl_hash;
+		vcl_pass -> vcl_backend_fetch;
+		vcl_miss -> vcl_pass[color=red];
+		
+		subgraph clusterbackend {
+			bgcolor=aliceblue
+			label="Backend (To Server) Workthread";
+			decision1 [shape=diamond,label="if (conditions(beresp))"];
+			vcl_backend_fetch -> decision1;
+			decision1 -> vcl_backend_response [label="true"];
+			decision1 -> vcl_backend_error [label="false"];
+			decision4[shape=diamond,label="cacheable?"];
+			cache[shape=box,label="cache"];
+			nocache[shape=box,label="do not cache"];
+			vcl_backend_response -> decision4;
+			decision4 -> cache [label="yes",color=blue];
+			decision4 -> nocache [label="hit-for-pass",color=red];
+			
+			// decision3 [shape=diamond];
+			// vcl_backend_response -> decision3[label="retry"];
+			// vcl_backend_error -> decision2 [label="retry"];
+		}
+		// vcl_backend_fetch -> vcl_synth [label="abandon"];
+		// vcl_backend_response -> vcl_synth [label="abandon"];
+		// retry1[shape=plaintext,label="retry"] 
+		// decision2 [shape=diamond];
+		// decision2 -> vcl_synth [label=">max"];
+		// retry2[shape=plaintext,label="retry"]
+		// decision2 -> retry1 [label="<=max"];
+		// decision3 -> retry2 [label="<=max"];
+		// decision3 -> vcl_synth [label=">max"];
+		// vcl_backend_error -> vcl_deliver;
+		vcl_backend_error -> vcl_synth;
+		
+		cache -> vcl_deliver[color=blue];
+		nocache -> vcl_deliver;
+	}
+	Done[shape=Msquare];
+	vcl_deliver -> Done;
+	vcl_synth -> Done;
+	
+}

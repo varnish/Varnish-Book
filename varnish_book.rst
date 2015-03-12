@@ -15,8 +15,6 @@
 
    PageBreak oneColumn
 
-.. TODO for the author: To make a simplified version of the Varnish workflow.
-
 Abstract
 ========
 
@@ -934,7 +932,7 @@ Log Layout
 
 .. container:: handout
 
-   Varnish logs transactions chronologically, as `Figure 2 <#figures-2>`_ shows.
+   Varnish logs transactions chronologically as `Figure 2 <#figures-2>`_ shows.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
    The next `Transactions`_ subsection explains transactions and how to reorder them.
 
@@ -2504,12 +2502,44 @@ VCL Basics
    When a new configuration is loaded, the ``varnishd`` manager process translates the VCL code to C and compiles it to a shared object.
    This shared object is then loaded into the cacher process.
 
+   .. Chapter overview
+
+   This chapter focuses on the most important tasks to write effective VCL code.
+   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
+   All other built-in subroutines are taught in the next chapter.
+
+   .. tip::
+
+      Remember that Varnish has many reference manuals.
+      For more details about VCL, check its manual page by issuing ``man vcl``.
+
+Varnish Finite State Machine
+----------------------------
+
+.. figure 5
+
+.. figure:: ui/img/fsm_simplified.png
+   :align: center
+   :scale: 170%
+
+   Figure :counter:`figures`: Simplified Version of the Varnish Finite State Machine
+
+.. raw:: pdf
+
+   PageBreak
+
+.. container:: handout
+
    .. State machine
 
    VCL is also often described as a finite state machine.
    Each state has available only certain parameters that you can use in your VCL code.
-   For example: you can not access response HTTP headers in states previous to fetching data from the backend.   
-   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_.
+   For example: you can not access response HTTP headers in states previous to fetching data from the backend.
+
+   `Figure 5 <#figures-5>`_ depicts a simplified version of the Varnish finite state machine.
+   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
+   `Figure 6 <#figures-6>`_ shows a detailed version of the state machine for the frontend worker as a request flow diagram.
+   A detailed version of the request flow diagram for the backend worker is in Subsection `VCL - vcl_backend_fetch and vcl_backend_response`_.
 
    .. Subroutines
 
@@ -2523,6 +2553,10 @@ VCL Basics
      }
 
    Subroutines in VCL take neither arguments nor return values.
+   Each subroutine terminates by calling ``return (action)``, where ``action`` is a keyword that indicates the desired outcome.
+   Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
+   Subroutines instruct how requests are handled.
+   
    To call a subroutine, use the ``call`` instruction followed by the subroutine's name::
 
      call pipe_if_local;
@@ -2532,48 +2566,6 @@ VCL Basics
    Varnish has built-in subroutines that are hook into the Varnish workflow.
    These built-in subroutines are all named ``vcl_*``.
    Your own subroutines cannot start their name with ``vcl_``.
-
-   .. Built-in subroutines as states
-
-   Built-in subroutines represent states of the Varnish state machine.
-   `Figures 5 <#figures-5>`_ and `6 <#figures-6>`_ show the state machine that represents the Varnish request flow.
-   Each state is handled by a special VCL subroutine.
-   
-   Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
-   Subroutines instruct how requests are handled.
-   Each subroutine terminates by calling ``return(action)``, which indicates the desired outcome.
-
-   .. Chapter overview
-
-   This chapter focuses on the most important tasks to write effective VCL code.
-   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
-   All other built-in subroutines are taught in the next chapter.
-
-   .. tip::
-
-      Remember that Varnish has many reference manuals.
-      For more details about VCL, check its manual page by issuing ``man vcl``.
-
-Varnish Request Flow for the Client Worker Thread
--------------------------------------------------
-
-.. TODO for the author: Double check that "client worker thread" has been introduced at this point.
-.. TODO for the author: Remove the name of functions "cnt_*"
-.. TODO for the author: Double check that the available variables are correct and not confusing.
-.. TODO for the author: To simplify this diagram.
-.. TODO for the editor: To have different sizes for vertical tall figures for slide-pdf format.
-
-.. figure 5
-
-.. figure:: ui/img/cache_req_fsm.png
-   :align: center
-   :height: 1000px
-
-   Figure :counter:`figures`: Varnish Request Flow for the Client Worker Thread
-
-.. raw:: pdf
-   
-   PageBreak
 
 Waiting State
 .............
@@ -2590,7 +2582,7 @@ However, a counterproductive scenario, namely *request serialization*, may occur
 This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
 Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
 
-The built-in subroutine ``vcl_backend_response`` is designed to avoid request serialization.
+The built-in subroutine ``vcl_backend_response`` is designed to avoid *request serialization*.
 Therefore you should always let this built-in subroutine execute.
 Below is the code of the built-in ``vcl_backend_response``.
 
@@ -2612,31 +2604,35 @@ Below is the code of the built-in ``vcl_backend_response``.
        return (deliver);
    }
 
-The above code avoids request serialization by applying rules when fetched objects should not be cached.
+The above code avoids *request serialization* by applying rules when fetched objects should not be cached.
 For this purpose, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
 Subsection `hit-for-pass`_ explains in detail this object type.
 
 If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
 If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
 
-Varnish Request Flow for the Backend Worker Thread
---------------------------------------------------
+Detailed Varnish Request Flow for the Client Worker Thread
+----------------------------------------------------------
 
-.. TODO for the author: Double check that "backend worker thread" has been introduced at this point.
-.. TODO for the author: Consider to remove this image from here and have it only in Section VCL - vcl_backend_fetch
+.. TODO for the author: Double check that "client worker thread" has been introduced at this point.
+.. TODO for the author: Remove the name of functions "cnt_*"
 .. TODO for the author: Double check that the available variables are correct and not confusing.
-.. TODO for the author: To simplify this diagram.
+.. TODO for the editor: To have different sizes for vertical tall figures for slide-pdf format.
 
 .. figure 6
 
-.. figure:: ui/img/cache_fetch.png
+.. figure:: ui/img/cache_req_fsm.png
    :align: center
+   :scale: 125%
 
-   Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread
+   Figure :counter:`figures`: Detailed Varnish Request Flow for the Client Worker Thread
 
-.. container:: handout
+   The figure simplifies the backend worker in a grayed box.
+   The detailed request flow diagram for the backend worker is depicted in `Figure 7 <#figures-7>`_.
 
-   `Figure 6 <#figures-6>`_ is further explained in the `VCL Built-in Subroutines`_ section, `Figure 7 <#figures-7>`_.
+.. raw:: pdf
+   
+   PageBreak
 
 The VCL Finite State Machine
 ----------------------------
@@ -3112,17 +3108,16 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 .. TODO for the editor: improve layout of this figure
 
 .. figure:: ui/img/cache_fetch.png
+   :scale: 150%
 
    Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread.
-
-   This figure is identical to `Figure 6 <#figures-6>`_.
 
 ..   :align: center
 ..   :width: 100%
 
 .. container:: handout
 
-   `Figure 6 <#figures-6>`_ shows the ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines.
+   `Figure 7 <#figures-7>`_ shows the ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    In ``vcl_recv`` you can use information provided by the client to decide on caching policy.
    Likewise, you can use information provided by the server to further decide on the caching policy in ``vcl_backend_fetch``.
@@ -3147,7 +3142,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    The *delivery* terminating action may or may not insert the object into the cache depending on several variables.   
    Two typically cases when the objects are not cached are: when coming from requests via the ``vcl_pass`` subroutine, or when having the ``beresp.uncacheable`` variable set to 1.
 
-   `Figure 7 <#figures-7>`_ shows to alternatives for the *deliver* terminating action.
+   `Figure 7 <#figures-7>`_ shows alternatives for the *deliver* terminating action.
    One alternative occurs when the server replies with a HTTP 304 response code.
    This server response happens when the requested object has not been modified since the time specified in the `If-Modified-Since` HTTP header request field.
    Since 304 responses do not contain a message-body, Varnish tries to *steal* the body from the cache, merge it with the header response and deliver it.
