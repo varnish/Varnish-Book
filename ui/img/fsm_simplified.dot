@@ -71,7 +71,7 @@ digraph varnishfsm{
 		vcl_backend_error -> vcl_synth;
 		
 		cache -> vcl_deliver[color=blue];
-		nocache -> vcl_deliver;
+		nocache -> vcl_deliver[color=red];
 	}
 	Done[shape=Msquare];
 	vcl_deliver -> Done;
