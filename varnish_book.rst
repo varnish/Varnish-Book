@@ -885,7 +885,7 @@ The Varnish Log
 
    The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
    Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
-   `Table 2 <#tables-2>`_ in Subsection `Install Varnish and Apache as backend`_ shows the location of the configuration file based on your platform.
+   `Table 2 <#tables-2>`_ in Section `Install Varnish and Apache as backend`_ shows the location of the configuration file based on your platform.
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat``.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
@@ -934,7 +934,7 @@ Log Layout
 
    Varnish logs transactions chronologically as `Figure 2 <#figures-2>`_ shows.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
-   The next `Transactions`_ subsection explains transactions and how to reorder them.
+   The next `Transactions`_ section explains transactions and how to reorder them.
 
 Transactions
 ------------
@@ -1242,6 +1242,7 @@ Notable counters
 
    Counters also provide feedback to Varnish developers on how Varnish works in production environments.
    This feedback in turn allows Varnish to be developed according to its real usage.
+   Issue ``varnishstat -1`` to list all counters with their current values.
 
    .. tip::
       Remember that Varnish provides many reference manuals.
@@ -1309,7 +1310,7 @@ Varnish Architecture
    The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
    The Manager's command line interface (CLI) is accessible through:
-   1) ``varnishadm`` as explained in `The Management Interface`_ Subsection, or
+   1) ``varnishadm`` as explained in Section `The Management Interface`_, or
    2) the Varnish Administration Console (VAC) via the Varnish Agent *vagent2*.
    
    The Varnish Agent *vagent2* is a HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
@@ -2516,6 +2517,8 @@ VCL Basics
 Varnish Finite State Machine
 ----------------------------
 
+.. todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
+
 .. figure 5
 
 .. figure:: ui/img/fsm_simplified.png
@@ -2539,7 +2542,7 @@ Varnish Finite State Machine
    `Figure 5 <#figures-5>`_ depicts a simplified version of the Varnish finite state machine.
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
    `Figure 6 <#figures-6>`_ shows a detailed version of the state machine for the frontend worker as a request flow diagram.
-   A detailed version of the request flow diagram for the backend worker is in Subsection `VCL - vcl_backend_fetch and vcl_backend_response`_.
+   A detailed version of the request flow diagram for the backend worker is in Section `VCL - vcl_backend_fetch and vcl_backend_response`_.
 
    .. Subroutines
 
@@ -2606,7 +2609,7 @@ Below is the code of the built-in ``vcl_backend_response``.
 
 The above code avoids *request serialization* by applying rules when fetched objects should not be cached.
 For this purpose, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
-Subsection `hit-for-pass`_ explains in detail this object type.
+Section `hit-for-pass`_ explains in detail this object type.
 
 If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
 If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
@@ -3292,7 +3295,7 @@ Solution: Avoid caching a page
 
    Usually it is most convenient to do as much as possible in ``vcl_recv``.
    The usage of ``bereq.uncacheable`` in ``vcl_backend_fetch`` creates a *hit-for-pass* object.
-   See Subsection `hit-for-pass`_ for detailed description about this type of object.
+   See Section `hit-for-pass`_ for detailed description about this type of object.
 
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
@@ -3361,7 +3364,7 @@ VCL - ``vcl_hash``
    ``hit``, ``miss``, ``hit-for-pass``, ``busy``, or ``purge``.
 
    The following subsections discuss the actions taken based on the outcome of the ``lookup`` operation.
-   The `hit-for-pass`_ subsection describes the ``hit-for-pass`` action.
+   Section `hit-for-pass`_ describes the ``hit-for-pass`` action.
 
    .. note::
       One cache hash my refer to one or many object variations.
@@ -3645,7 +3648,7 @@ Test your VCL by issuing::
 
    ``acl`` is a reserved keyword that is used to create Access Control Lists (ACLs).
    ACLs are used to control which client IP addresses are allowed to purge cached objects.
-   For more details about ``acl``, refer to the `Access Control Lists (ACLs)`_ subsection.
+   For more details about ``acl``, refer to Section `Access Control Lists (ACLs)`_.
 
    Note the ``purge`` return action in ``vcl_recv``.
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
@@ -4113,11 +4116,11 @@ Directors
    If a health probe has marked a backend as sick, the round-robin director skip it.
 
    *Random* directors are seeded with either a random number or a hash key.
-   Next Subsection `Random directors`_ explains their commonalities and differences.
+   Next Section `Random directors`_ explains their commonalities and differences.
 
    .. note::
 
-      Health probes are explain in the `Health Checks`_ subsection.
+      Health probes are explain in Section `Health Checks`_.
 
       .. TODO for the author: Double check that the health checks subsection is explaining health probes.
 
@@ -4465,10 +4468,9 @@ Vary and Cookies
 
    Server responses containing  ``Vary: Cookie`` in their response header are stored as a separate `vary` object in the cache.
    `vary` objects shared the same hash value.
-   See the Vary Subsection to learn more about `vary` objects.
 
-   .. TODO for the author: update the reference to the Vary Subsection.
-
+   .. See Section Vary to learn more about `vary` objects.
+   .. TODO for the author: update the reference to the Vary Subsection when the Chapter HTTP is done.
    .. Caching based on the ``Varnish: Cookie`` response header is not advised, because its poor performance.
 
 Best practices for cookies

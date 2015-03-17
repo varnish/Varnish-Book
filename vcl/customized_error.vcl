@@ -1,3 +1,5 @@
+vcl 4.0;
+
 /* Change your backend configuration to provoke a 503 error */
 backend default {
     .host = "127.0.0.1";
