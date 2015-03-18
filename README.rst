@@ -63,18 +63,37 @@ Index
 Building the material
 ---------------------
 
-The work in progress is being compiled on Ubuntu LTS 14.04 (Trusty) with the following tools:
+Install the following packages with their dependencies.
 
 - rst2pdf
-- gawk (old awk is not sufficient)
-- bash (I'm lazy)
-- git (somewhat optional, I believe)
-- make (possibly GNU make. Not tested)
-- dot (for images)
-- varnishd
+- gawk
+- git
+- make
+- graphviz
 - php5
+- python3-sphinx
+- python-docutils
 
-All build-stuff is handled by make. The following is an incomplete list of targets:
+You also need the "Open Source" font type.
+To check whether you have it, type ``fc-match "Open Sans"`` in the terminal.
+The command should output ``OpenSans-Regular.ttf: "Open Sans" "Regular"``.
+Otherwise, download it and install it.
+
+Download this book version:::
+
+  git clone https://github.com/varnish/Varnish-Book.git
+
+Get into the right branch:::
+
+  cd Varnish-Book
+  git checkout Varnish-Book-v4
+
+Compile the book:::
+
+  make book
+
+All build-stuff is handled by make.
+The following is an incomplete list of targets:
 
 ``make check``
         Does syntax-checking on VCL and php-files. Ensures that they are
@@ -113,32 +132,17 @@ All build-stuff is handled by make. The following is an incomplete list of targe
 Updating the training material
 ------------------------------
 
-The first thing you should do, is grab a copy of the various RST
-documentation out there. Sadly enough, you will need it for some of the
-finer points.
+Read NEWS, and make sure you always add significnat content changes in this file, so the instructor(s) can keep track of changes without reading commit logs.
 
-The second thing you should do, is read NEWS, and make sure you always
-add significant content changes there, so the instructor(s) can keep track
-of what changes between version-1.5 and version-1.7 without reading commit
-logs which also contain edits to Makefile and whatnot.
+Try to use only `tip`, `warning` and `note` boxes.
 
-- rst2pdf
-
-rst2pdf generates the PDF, and needs a bit of help to get page numbering
-properly formated, that's where the oddeven stuff at the top comes in.
-The problem with that, is that it is not proper rst, so other tools will
-complain about it.
-
-I have tried to use `tip`, `warning` and `note`, and no further
-"boxes".
-
-To change the look of the PDF, change ui/pdf.style.
+To change the layout, change ``ui/pdf.style`` or ``ui/pdf_slide.style``.
 
 Legal
 -----
 
-This material is provided under a CC-BY-NC-SA license. The license is
-available from:
+This material is provided under a CC-BY-NC-SA license.
+The license is available from:
 
 http://creativecommons.org/licenses/by-nc-sa/3.0/
 
