@@ -5,8 +5,8 @@ This Github branch holds work in progress to update The Varnish Book for Varnish
 
 This repository contains:
 
-* Training material used for our Varnish training (the source for the
-  slides and printed version)
+* Training material used for Varnish Plus training
+* Source for the slides and book version
 * A snapshot of munin graphs for use by instructors.
 * PHP example-code for testing Varnish
 * Build system for said training material
@@ -36,20 +36,19 @@ In addition to the authors, the following deserve special thanks (in no particul
 - Magnus Hagander
 - Martin Blix Grydeland
 - Poul-Henning Kamp
+- Reza Naghibi
+- Federico G. Schwindt
 - Everyone who has participated on the training courses
 
 Index
 -----
 
-* build/ - Created on make, contains PDF output, html-output and necessary
-  images
+* build/ - Created on make, contains PDF output, html-output and necessary images
 * Makefile
 * material/ - PHP files, mainly used by the web-dev material
-* misc/ - Contains strange stuff. Including the old course (Linpro-source)
-  and a patch for rst2s5 needed (and a pre-patched version).
+* misc/ - Contains strange stuff. Including the old course (Linpro-source) and a patch for rst2s5 needed (and a pre-patched version).
 * munin/ - Anonymized munin graphs for instructors
-* NEWS - List of changes _instructors_ should be be aware of from version
-  to version.
+* NEWS - List of changes instructors should be be aware of from version to version.
 * README - This file
 * TODO
 * ui/ - Images, style-definitions for PDFs and CSS for the slides.
