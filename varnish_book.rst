@@ -37,25 +37,29 @@ Preface
 
 .. container:: handout
 
-   .. Common goal:
+   .. Common goal for Varnish Plus customers:
 
    **After finishing this course, you will be able to install and configure the Varnish server, and write effective VCL code.**
-   The Varnish Book is designed to teach attendees of Varnish Plus courses.
-   Varnish Plus is the commercial suite including the enhanced commercial edition of Varnish Cache.
-   This enhanced edition is called Varnish Cache Plus.
+   The Varnish Book is designed for attendees of Varnish Plus courses.
+   Varnish Plus is a commercial suite by Varnish Software that offers products for scalability, customization, monitoring, and expert support services.
+   The engine of Varnish Plus is Varnish Cache Plus, which is the enhenced commercial edition of Varnish Cache.
 
-   Most of the material presented in this book also applies to the open source Varnish Cache.
+   Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
+   Varnish Cache Plus is one of the software components available for Varnish Plus customers.
+
+   Most of the presented material in this book applies to both, the open source Varnish Cache and the commercial edition Varnish Cache Plus.
    Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
 
    For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
-   There is more information about differences between Varnish Cache and Varnish Cache Plus in the Introduction section.
+   There is more information about differences between Varnish Cache and Varnish Cache Plus in Section `Varnish Cache and Varnish Plus`_.
 
-   The Varnish Book is the training material that provides technical staff with a practical approach to thorough understand Varnish.
-   The goal of the book is to make you confident when using Varnish.
+   .. instructors goal:
+
+   The goal of this book is to make you confident when using Varnish.
    Varnish instructors focus on your area, needs or interest.
    Varnish courses are usually flexible enough to make room for it.
 
-   In addition, you will learn the specific material for the course you take.
+   The instructor will cover selected material for the course you take.
    The System Administration (Admin) course provides attendees with the necessary knowledge to troubleshoot and tune common parameters of a Varnish server.
    The Web Developer (Webdev) course teaches how to adapt web applications so that they work with Varnish, which guarantees a fast experience for visitors of any website.
    Besides that, other courses may also be taught with this book.
@@ -89,7 +93,8 @@ The Webdev course requires that you:
    This part is perhaps the most UNIX-centric part of the course.
    If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
-.. Organization of the Book and Course
+..
+   Organization of the Book and Course
    -----------------------------------
 
    TODO for instructor: tailor this slide
@@ -141,71 +146,78 @@ The Webdev course requires that you:
 
       Note: This organization is still not completely implemented.
 
-.. Commenting this subsection
+How to Use the Book
+-------------------
 
-   How to Use the Book
-   -------------------
+.. At the moment is a section to exclude it from compiling in the Makefile
 
-   .. TODO: "How to Use the Book" is a subsection.
-   .. At the moment is a section to exclude it from compiling in the Makefile
+- Most of the material in this book applies to both: Varnish Cache and Varnish Plus.
+  Parts that apply only to Varnish Cache Plus are clearly stated.
+- The instructor guides you through the book.
+- Use the *manual pages* and help options.
+- See Section `Appendix E: Varnish Three Letter Acronyms`_ for a list of acronyms.
 
-   - Most of the material in this book applies to Varnish Cache. Parts that apply only to Varnish Cache Plus are clearly stated.
-   - The instructor guides you through the book
-   - Use the *manual pages* and help options.
+.. - To practice the course, use the Fast Track in the following way:
 
-   .. - To practice the course, use the Fast Track in the following way:
+..   - Read the Review and Exercise parts of the Fast Track.
+..   - If you can complete the exercise(s), you remember the most important parts.
+..   - If not, you should repeat the chapter.
 
-   ..   - Read the Review and Exercise parts of the Fast Track.
-   ..   - If you can complete the exercise(s), you remember the most important parts.
-   ..   - If not, you should repeat the chapter.
+.. container:: handout
 
-   .. container:: handout
+   .. Varnish Cache Course
 
-      .. Varnish Cache Course
+   The Varnish Book is designed to be used as training material under the Varnish Plus course taught by a certified instructor.
+   Under the course, the instructor guides you and selects the relevant chapters to learn.
+   However, you can also use this book as self-instructional material.
+   .. If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
-      The Varnish Book is designed to be used as training material under the Varnish Plus course taught by a certified instructor.
-      Under the course, the instructor guides you and selects the relevant chapters to learn.
-      .. If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
+   .. Exercises
 
-      .. Exercises
+   There are almost always many ways to do an exercise.
+   The solutions provided in this book or by your instructor are not necessarily better than your own.
 
-      There are almost always many ways to do an exercise.
-      The solutions provided in this book or by your instructor are not necessarily better than your own.
+   .. man pages and help commands
 
-      .. man pages and help commands
+   Varnish installs several reference manuals that are accessible through the manual page command ``man``.
+   You can issue the command ``man -k varnish`` to list the manual pages that mention Varnish in their short description.
+   In addition, the ``vsl`` man page that explains the Varnish Shared Memory Logging (VSL).
+   This man page does not come out when issuing ``man -k varnish``, because it does not contain the word `varnish` in its short description.
 
-      Varnish installs several reference manuals that are accessible through the manual page command ``man``.
-      You can issue the command ``man -k varnish`` to list the manual pages that mention Varnish in their short description.
-      In addition, the ``vsl`` man page that explains the Varnish Shared Memory Logging (VSL).
-      This man page does not come out when issuing ``man -k varnish``, because it does not contain the word `varnish` in its short description.
+   The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
+   Also, some commands have a help option to print the usage of the command.
+   For example, ``varnishlog -h`` prints the usage and options of the command with a short description of them.
 
-      The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
-      Also, some commands have a help option to print the usage of the command.
-      For example, ``varnishlog -h`` prints the usage and options of the command with a short description of them.
+   .. reference to Varnish Cache docs
 
-      .. Installation required
+   In addition, you should refer to the documentation of Varnish Cache and Varnish Cache Plus.
+   That documentation provides you extended details on the topics covered in this book and more.
+   .. To access to that documentation, please visit 
+   .. TODO: to update this link.
 
-      To complete this book, you need the following installation:
+   .. Installation required
 
-      - Varnish Cache Plus, or Varnish Cache Plus 4.0 or later
-      - Apache/2.4 or later
-      - HTTPie 0.8.0 or later
+   To complete this book, you need the following installation:
 
-      .. formats
+   - Varnish Cache or Varnish Cache Plus 4.0 or later
+   - Apache/2.4 or later
+   - HTTPie 0.8.0 or later
 
-      The book is written with different formatting conventions.
-      Varnish Configuration Language (VCL) text is in verbatim mode.
+   .. formats
 
-      .. TODO for the author: insert an example of VCL code here.
+   The book is written with different formatting conventions.
+   Varnish Configuration Language (VCL) text is in verbatim mode.
 
-      Important notes and tips are stated inside boxes throughout the book.
+   .. TODO for the author: insert an example of VCL code here.
 
-      .. Ask for help
+   Important notes and tips are stated inside boxes throughout the book.
 
-      This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
-      If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
-      You can also contact the Varnish open source community at https://varnish-cache.org.
-      To book training, please look at https://varnish-software.com/academy.
+   .. Ask for help
+
+   This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
+   If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
+   You can also contact the Varnish open source community at https://varnish-cache.org.
+   To book training, please look at https://varnish-software.com/academy.
 
 Introduction
 ============
@@ -272,8 +284,8 @@ What is Varnish?
 
    Varnish Cache Plus is supported on 64-bit systems.
 
-Varnish Cache and Varnish Cache Plus
-------------------------------------
+Varnish Cache and Varnish Plus
+------------------------------
 
 .. table 1
 
@@ -317,7 +329,7 @@ Varnish Cache and Varnish Cache Plus
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
    This edition is proprietary and it is called *Varnish Cache Plus*.
    
-   The Varnish Plus offer of software products include:
+   The Varnish Plus offer of software products includes:
 
    - the Varnish Massive Storage Engine (MSE),
    - hashtwo (Varnish Software implementation of surrogate keys),
@@ -330,6 +342,12 @@ Varnish Cache and Varnish Cache Plus
    
    `Table 1 <#tables-1>`_ shows the topics covered in this book and their availability for Varnish Cache users and Varnish Plus customers.
    For more detailed information about the Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
+
+   .. note::
+
+      Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
+      Varnish Cache Plus is one of the software components available for Varnish Plus customers.
+
 
 Varnish Software
 ----------------
@@ -593,26 +611,64 @@ Next:
 Install Varnish
 ...............
 
-.. TODO for the author: Update this instructions to install Varnish Plus once packages are available for Ubuntu.
-
-Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
-We generally recommend you to use the packages provided by varnish-cache.org.
-Please be advised that we only provide packages for Ubuntu's LTS releases, not all the intermediate releases.
-However, these packages might still work fine on newer releases.
-
-To use the varnish-cache.org repository and install Varnish Cache 4 on Ubuntu 14.04 trusty do the following as root::
+To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty do the following as root::
 
   #. apt-get install apt-transport-https
-  #. curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-  #. echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
-     /etc/apt/sources.list.d/varnish-cache.list
-  #. apt-get update
-  #. apt-get install varnish
+  #. curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt | apt-key add -
+
+Put the following in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
+
+   # Remember to replace DISTRO and RELEASE with what applies to your system.
+   # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
+
+   # Varnish Cache Plus 4.0 and VMODs
+   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE varnish-4.0-plus
+
+   # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
+   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE non-free
+
+Then::
+
+   apt-get update
+   apt-get install varnish-plus
 
 .. container:: handout
 
-   For Ubuntu 12.04 (precise) replace ``trusty`` with ``precise`` in instruction 3.
-   If you want to install Varnish version 3.0, replace ``varnish-4.0`` with ``varnish-3.0`` in instruction 3.
+   Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
+   We generally recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
+   Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
+   However, these packages might still work fine on newer releases.
+
+   To use Varnish Cache Plus repositories on RHEL 6, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo``::
+
+      [varnish-4.0-plus]
+      name=Varnish Cache Plus
+      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/varnish-4.0-plus/el$releasever
+      enabled=1
+      gpgcheck=0
+
+      [varnish-admin-console]
+      name=Varnish Administration Console
+      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/vac/el$releasever
+      enabled=1
+      gpgcheck=0
+
+      [varnishtuner]
+      name=Varnish Tuner
+      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/varnishtuner/el$releasever
+      enabled=1
+      gpgcheck=0
+
+   If you want to install **Varnish Cache** in Ubuntu change the corresponding above lines to::
+
+     curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+     echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+	/etc/apt/sources.list.d/varnish-cache.list
+     apt-get install varnish
+
+   Change the Linux distribution and Varnish Cache release in the needed lines.
+
+   .. TODO for the author: Add RHEL for Varnish Cache.
 
 Configure Varnish
 .................
@@ -5033,3 +5089,94 @@ That said, you should use it under your own responsibility.
 
 You can download the script from https://github.com/fgsch/varnish3to4.
 Usage and up-to-date details about the script is at the same web address.
+
+Appendix E: Varnish Three Letter Acronyms
+=========================================
+
+VAV
+   Varnish Arg Vector -- Argv parsing.
+
+VBE
+   Varnish Back End -- Code for contacting backends (bin/varnishd/cache_backend.c)
+
+VBP
+   Varnish Backend Polling -- Health checks of backends (bin/varnishd/cache_backend_poll.c)
+
+VCA
+   Varnish Connection Acceptor -- The code that receives/accepts the TCP connections (bin/varnishd/cache_acceptor.c)
+
+VCC
+   VCL to C Compiler -- The code that compiles VCL to C code. (lib/libvcl)
+
+VCL
+   Varnish Configuration Language -- The domain-specific programming language used for configuring a varnishd.
+
+VCT
+   Varnish CType(3) -- Character classification for RFC2616 and XML parsing.
+
+VDD
+   Varnish (Core) Developer Day -- Quarterly invite-only meeting strictly for Varnish core (C) developers, packagers and VMOD hackers.
+
+VEV
+   Varnish EVent -- library functions to implement a simple event-dispatcher.
+
+VGB
+   Varnish Governing Board -- May or may not exist. If you need to ask, you are not on it.
+
+VGC
+   Varnish Generated Code -- Code generated by VCC from VCL.
+
+VIN
+   Varnish Instance Naming -- Resolution of -n arguments.
+
+VLU
+   Varnish Line Up -- library functions to collect stream of bytes into lines for processing. (lib/libvarnish/vlu.c)
+
+VRE
+   Varnish Regular Expression -- library functions for regular expression based matching and substring replacement. (lib/libvarnish/vre.c)
+
+VRT
+   Varnish Run Time -- functions called from compiled code. (bin/varnishd/cache_vrt.c)
+
+VRY
+   VaRY -- Related to processing of Vary: HTTP headers. (bin/varnishd/cache_vary.c)
+
+VSL
+   Varnish Shared memory Log -- The log written into the shared memory segment for varnish{log,ncsa,top,hist} to see.
+
+VSB
+   Varnish string Buffer -- a copy of the FreeBSD "sbuf" library, for safe string handling.
+
+VSC
+   Varnish Statistics Counter -- counters for various stats, exposed via varnishapi.
+
+VSS
+   Varnish Session Stuff -- library functions to wrap DNS/TCP. (lib/libvarnish/vss.c)
+
+VTC
+   Varnish Test Code -- a test-specification for the varnishtest program.
+
+VTLA
+   Varnish Three Letter Acronym -- No rule without an exception.
+
+VUG
+   Varnish User Group meeting -- Half-yearly event where the users and developers of Varnish Cache gather to share experiences and plan future development.
+
+VWx
+   Varnish Waiter 'x' -- A code module to monitor idle sessions.
+
+VWE
+   Varnish Waiter Epoll -- epoll(2) (linux) based waiter module.
+
+VWK
+   Varnish Waiter Kqueue -- kqueue(2) (freebsd) based waiter module.
+
+VWP
+   Varnish Waiter Poll -- poll(2) based waiter module.
+
+VWS
+   Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
+
+.. raw:: pdf
+
+   PageBreak
