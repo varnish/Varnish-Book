@@ -16,7 +16,7 @@ cat <<__EOF__
           Kristian Lyngstøl,
           Tollef Fog Heen,
 	  Jérôme Renard
-:Copyright: Varnish Software AS 2010-2014, Redpill Linpro AS 2008-2009
+:Copyright: Varnish Software AS 2010-2015, Redpill Linpro AS 2008-2009
 :Versions: Documentation ${v} / Tested for Varnish ${varnishversion}
 :Date: $(date +%Y-%m-%d)
 :License: The material is available under a CC-BY-NC-SA license. See
