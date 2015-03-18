@@ -202,6 +202,7 @@ How to Use the Book
    - Varnish Cache or Varnish Cache Plus 4.0 or later
    - Apache/2.4 or later
    - HTTPie 0.8.0 or later
+   - curl - command line tool for transferring data with URL syntax
 
    .. formats
 
@@ -549,7 +550,10 @@ In this chapter, you will:
 Install Varnish and Apache as backend
 -------------------------------------
 
-- Use packages provided by varnish-cache.org
+Use packages provided by 
+
+- varnish-software.com for Varnish Cache Plus
+- varnish-cache.org for Varnish Cache
 
 .. table 2
 
@@ -574,8 +578,8 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
 
    .. table 3
 
-   .. csv-table:: Table :counter:`tables`: Varnish and Apache configuration
-      :name: varnish_apache
+   .. csv-table:: Table :counter:`tables`: Varnish and Apache Configuration
+      :name: Varnish and Apache Configuration
       :delim: ;
       :widths: 20, 30, 50
       :header-rows: 1
@@ -614,7 +618,9 @@ Install Varnish
 To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty do the following as root::
 
   #. apt-get install apt-transport-https
-  #. curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt | apt-key add -
+  #. apt-get install curl
+  #. curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
+     | apt-key add -
 
 Put the following in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
 
@@ -622,10 +628,12 @@ Put the following in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
    # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
 
    # Varnish Cache Plus 4.0 and VMODs
-   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE varnish-4.0-plus
+   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   varnish-4.0-plus
 
    # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
-   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE non-free
+   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   non-free
 
 Then::
 
@@ -643,19 +651,24 @@ Then::
 
       [varnish-4.0-plus]
       name=Varnish Cache Plus
-      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/varnish-4.0-plus/el$releasever
+      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat
+      /varnish-4.0-plus/el$releasever
       enabled=1
       gpgcheck=0
 
       [varnish-admin-console]
       name=Varnish Administration Console
-      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/vac/el$releasever
+      baseurl=
+      https://<username>:<password>@repo.varnish-software.com/redhat
+      /vac/el$releasever
       enabled=1
       gpgcheck=0
 
       [varnishtuner]
       name=Varnish Tuner
-      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/varnishtuner/el$releasever
+      baseurl=
+      https://<username>:<password>@repo.varnish-software.com/redhat
+      /varnishtuner/el$releasever
       enabled=1
       gpgcheck=0
 
@@ -668,18 +681,21 @@ Then::
 
    Change the Linux distribution and Varnish Cache release in the needed lines.
 
-   .. TODO for the author: Add RHEL for Varnish Cache.
+   .. TODO for the author: Add RHEL details for installing Varnish Cache.
 
 Configure Varnish
 .................
 
-Once you have found the Varnish configuration file, edit it to listen on port `80` and have a management interface on port `1234`.
-This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_OPTS``::
+Configure the Varnish ``DAEMON_OPTS``:::
 
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
 .. container:: handout
+
+   See `Table 2 <#tables-2>`_ and locate the Varnish configuration file for your installation.
+   Open and edit that file to listen on port ``80`` and have a management interface on port `1234`.
+   This is configured with the variable  ``DAEMON_OPTS``, and options ``-a`` and ``-T`` respectively.
 
    In order for changes in the configuration file to take effect, `varnishd` must be restarted.
    The safest way to restart Varnish is by using ``service varnish restart``.
@@ -694,23 +710,59 @@ This is configured with the ``-a`` and ``-T`` options of the variable ``DAEMON_O
        .port = "8080";
      }
 
-   After changing a VCL file, you can run ``service varnish reload``, which does not restart `varnishd`. 
+   After changing a VCL file, you can run ``service varnish reload``.
+   This command does **not** restart `varnishd`, it only reloads the VCL code.
+   The result of your configuration is resumed in `Table 3 <#tables-3>`_.
 
-   .. tip::
+  You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
+  Within the result, you should see something like:::
 
-     You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
+   tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
+   tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
 
-   .. tip::
+  .. tip::
 
-     Issue the command ``man vcl`` to see all available options to define a backend.
+    Issue the command ``man vcl`` to see all available options to define a backend.
 
-   .. note::
+  .. note::
 
-     Varnish recommends to disable SELinux.
-     If you prefer otherwise, then set the boolean 'varnishd_connect_any' variable to 1.
-     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
+    Varnish recommends to disable Security-Enhanced Linux (SELinux).
+    If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
+    You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
-The management interface
+Installation Test
+.................
+
+::
+
+   # http -p hH localhost
+   GET / HTTP/1.1
+   Accept: */*
+   Accept-Encoding: gzip, deflate, compress
+   Host: localhost
+   User-Agent: HTTPie/0.8.0
+
+   HTTP/1.1 200 OK
+   Accept-Ranges: bytes
+   Age: 0
+   Connection: keep-alive
+   Content-Encoding: gzip
+   Content-Length: 3256
+   Content-Type: text/html
+   Date: Wed, 18 Mar 2015 13:55:28 GMT
+   ETag: "2cf6-5118f93ad6885-gzip"
+   Last-Modified: Wed, 18 Mar 2015 12:53:59 GMT
+   Server: Apache/2.4.7 (Ubuntu)
+   Vary: Accept-Encoding
+   Via: 1.1 varnish-plus-v4
+   X-Varnish: 32770
+
+.. container:: handout
+
+   You can test your Varnish installation by issuing the command ``http -p hH localhost``.
+   If you see the HTTP response header field ``Via: 1.1 varnish-plus-v4``, then your installation is correct.
+
+The Management Interface
 ------------------------
 
 Varnish offers a management command line interface (CLI) to control a running Varnish instance.
@@ -5177,6 +5229,4 @@ VWP
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
-.. raw:: pdf
-
-   PageBreak
+.. content:: handout

@@ -10,7 +10,6 @@ Content
 
 - Introduction: Explain the course language early. This could also include markup used (e.g: ``literal`` stuff etc).
 - Find a unified approach for Vary. There are at least two or three places it's discussed.
-- VCL: Need to re-phrase the state engine talk. Specially regarding what state is next.
 - Introduction to the test environment
 - In getting started: Start out early by describing:
    - Brief discussion on the test setup.
