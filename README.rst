@@ -79,16 +79,16 @@ To check whether you have it, type ``fc-match "Open Sans"`` in the terminal.
 The command should output ``OpenSans-Regular.ttf: "Open Sans" "Regular"``.
 Otherwise, download it and install it.
 
-Download this book version:::
+Download the source code of this book::
 
   git clone https://github.com/varnish/Varnish-Book.git
 
-Get into the right branch:::
+Get into the right branch::
 
   cd Varnish-Book
   git checkout Varnish-Book-v4
 
-Compile the book:::
+Compile the book::
 
   make book
 
