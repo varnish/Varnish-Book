@@ -3245,20 +3245,19 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
 
    ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
-   The *fetch* action sends the request to the back end, whereas the *abandon* action calls the ``vcl_synth`` routine.
+   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
+   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
-   The response of the backend is processed by the ``vcl_backend_response`` subroutine.
-   Figure # shows that this subroutine may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 7 <#figures-7>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   The *deliver* terminating action may or may not insert the object into the cache.
+   That is, the request is in *pass* mode, the fetched object is not cached.
 
-   The *delivery* terminating action may or may not insert the object into the cache depending on several variables.   
-   Two typically cases when the objects are not cached are: when coming from requests via the ``vcl_pass`` subroutine, or when having the ``beresp.uncacheable`` variable set to 1.
-
-   `Figure 7 <#figures-7>`_ shows alternatives for the *deliver* terminating action.
+   There are alternatives for the *deliver* terminating action.
    One alternative occurs when the server replies with a HTTP 304 response code.
-   This server response happens when the requested object has not been modified since the time specified in the `If-Modified-Since` HTTP header request field.
-   Since 304 responses do not contain a message-body, Varnish tries to *steal* the body from the cache, merge it with the header response and deliver it.
+   This server response happens when the requested object has not been modified since the timestamp in the ``If-Modified-Since`` HTTP header.
+   304 responses do not contain a message-body, thus, Varnish tries to *steal* the body from cache, merge it with the header response and deliver it.
    This process also updates the attributes of the cached object.
-   The *deliver* alternative handles all other responses from the server.
+   The *other* *deliver* alternative handles all other responses from the server.
 
    Typical tasks performed in ``vcl_backend_fetch`` or ``vcl_backend_response`` include:
 
