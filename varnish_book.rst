@@ -404,7 +404,7 @@ Varnish timeline:
    This usually takes place on Mondays around 12:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
 Design principles
------------------
+=================
 
 Varnish is designed to:
 
@@ -495,7 +495,7 @@ Varnish is designed to:
 .. The solution should not be to make sub-subtitles into subtitles, but to find the way to break the page.
 
 How objects are stored
-......................
+----------------------
 
 - Objects in Varnish are stored in memory and addressed by hash keys
 - You can control the hashing
@@ -521,6 +521,30 @@ How objects are stored
 	For instance, content in *gzip* format is sent only to clients that indicate *gzip* support.
 	Varnish stores various objects under one key.
 	Upon a client request, Varnish selects the object that matches the client preferences.
+
+Object Lifetime
+---------------
+
+.. figure 2
+
+.. figure:: ui/img/objectlifetime.png
+   :align: center
+
+   Figure :counter:`figures`: Object Lifetime
+
+.. container:: handout
+
+   `Figure 2 <#figures-2>`_ shows the lifetime of cached objects.
+   A cached object has an origin timestamp ``t_origin`` and three duration attributes: 1) ``TTL``, 2) ``grace``, and 3) ``keep``.
+   ``t_origin`` is the time when an object was created in the backend.
+   An object lives in cache until ``TTL + grace + keep`` elapses.
+   After that time, the object is removed by the Varnish daemon.
+
+   In a timeline, objects within the time-to-live ``TTL`` are considered *fresh objects*.
+   *Stale objects* are those within the time period ``TTL`` and ``grace``.
+   Objects within ``t_origin`` and  ``keep`` are used when applying conditions with the HTTP header ``If-Modified-Since``.
+
+   Section ``VCL - vcl_backend_fetch and vcl_backend_response`` explains how Varnish handles backend responses and how these duration attributes affect subsequent actions.
 
 Getting Started
 ===============
@@ -2592,8 +2616,6 @@ Does ``thread_pool_timeout`` affect already running threads?
       ..  Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
       ..  However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
 
-
-      
 VCL Basics
 ==========
 
@@ -2644,18 +2666,24 @@ Varnish Finite State Machine
    .. State machine
 
    VCL is also often described as a finite state machine.
-   Each state has available only certain parameters that you can use in your VCL code.
-   For example: you can not access response HTTP headers in states previous to fetching data from the backend.
+   Each state has available certain parameters that you can use in your VCL code.
+   For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
    `Figure 5 <#figures-5>`_ depicts a simplified version of the Varnish finite state machine.
-   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
-   `Figure 6 <#figures-6>`_ shows a detailed version of the state machine for the frontend worker as a request flow diagram.
+   This diagram shows the most common state transitions, and it is by no means complete.
+   `Figure 6 <#figures-6>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
    A detailed version of the request flow diagram for the backend worker is in Section `VCL - vcl_backend_fetch and vcl_backend_response`_.
+
+   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
 
    .. Subroutines
 
-   A subroutine is used to group code for legibility or re-usability.
-   For example::
+   Subroutines in VCL take neither arguments nor return values.
+   Each subroutine terminates by calling ``return (action)``, where ``action`` is a keyword that indicates the desired outcome.
+   Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
+   Subroutines instruct how requests are handled.
+
+   Subroutine example::
    
      sub pipe_if_local {
        if (client.ip ~ local) {
@@ -2663,10 +2691,6 @@ Varnish Finite State Machine
        }
      }
 
-   Subroutines in VCL take neither arguments nor return values.
-   Each subroutine terminates by calling ``return (action)``, where ``action`` is a keyword that indicates the desired outcome.
-   Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
-   Subroutines instruct how requests are handled.
    
    To call a subroutine, use the ``call`` instruction followed by the subroutine's name::
 
@@ -3235,7 +3259,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
    ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
    If ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object is cached.
-   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if the ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
+   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
 
    In the ``vcl_backend_fetch`` subroutine, you may alter the request before it is sent to the backend.
    ``vcl_backend_fetch`` has access to ``bereq.*`` variables.
@@ -3254,10 +3278,13 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
    There are alternatives for the *deliver* terminating action.
    One alternative occurs when the server replies with a HTTP 304 response code.
-   This server response happens when the requested object has not been modified since the timestamp in the ``If-Modified-Since`` HTTP header.
+   The other alternative handles all other responses from the server.
+
+   304 responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
+   If the request hits a non fresh object (see `Figure 2 <#figures-2>`_), Varnish adds the ``If-Modified-Since`` header with the value of ``t_origin` to the request and sends it to the backend.
+
    304 responses do not contain a message-body, thus, Varnish tries to *steal* the body from cache, merge it with the header response and deliver it.
-   This process also updates the attributes of the cached object.
-   The *other* *deliver* alternative handles all other responses from the server.
+   This process updates the attributes of the cached object.
 
    Typical tasks performed in ``vcl_backend_fetch`` or ``vcl_backend_response`` include:
 
@@ -3504,16 +3531,15 @@ VCL - ``vcl_hit``
    .. For more information about *hit-for-pass* objects, refer to Section #.
    .. TODO for the author: update reference to Section #.
 
-   ``deliver`` returns control to ``vcl_deliver`` if the ``TTL + grace time`` of the object has not elapsed.
-   If the elapsed time is more than the ``TTL``, and less than the ``TTL + grace time``, then ``deliver`` calls for *background fetch* in parallel to ``vcl_deliver``.
+   ``deliver`` returns control to ``vcl_deliver`` if the ``TTL + grace time`` of an object has not elapsed.
+   If the elapsed time is more than the ``TTL``, but less than the ``TTL + grace time``, then ``deliver`` calls for *background fetch* in parallel to ``vcl_deliver``.
    The background fetch is an asynchronous call that inserts a *fresher* requested object in the cache.
+   Grace time is explained in Section `Grace Mode`_.
 
    ``restart`` starts again the transaction, and increases the restart counter.
    If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru* meditation error.
 
    ``synth(status code, reason)`` returns the specified status code to the client and abandon the request.
-
-   .. TODO for the author: consider s/sm/fsm/g.
 
 VCL - ``vcl_miss``
 ------------------
@@ -3702,7 +3728,7 @@ There are three mechanism to invalidate caches in Varnish:
    - How long time does it take to replace the content?
    - Is this a regular task, or a one-off task?
 
-   The rest of the chapter gives you the information to pickup the most suitable mechanism.
+   The rest of the chapter gives you the information to pickup the most suitable mechanisms.
 
 HTTP PURGE
 ----------
