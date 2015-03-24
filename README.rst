@@ -103,7 +103,7 @@ The following is an incomplete list of targets:
         Builds all PDFs (not sphinx)
 
 ``make dist``
-        Builds tar-balls for use by instructurs, which contain PDFs,
+        Builds tar-balls for use by instructors, which contain PDFs,
         munin-snapshot, www-examples (material/), NEWS and a bit more.
 
 ``make clean``
@@ -132,7 +132,7 @@ The following is an incomplete list of targets:
 Updating the training material
 ------------------------------
 
-Read NEWS, and make sure you always add significnat content changes in this file, so the instructor(s) can keep track of changes without reading commit logs.
+Read NEWS, and make sure you always add significant content changes in this file, so the instructor(s) can keep track of changes without reading commit logs.
 
 Try to use only `tip`, `warning` and `note` boxes.
 
