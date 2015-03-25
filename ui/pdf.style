@@ -59,6 +59,14 @@
         "hyphenation": false,
         "wordWrap": null
     }],
+    ["figformat",{
+	"width": 100%,
+	"commands": [
+	     ["VALIGN", [ 0, 0 ], [ -1, -1 ], "TOP" ],
+             ["ALIGN", [ 0, 0 ], [ -1, -1 ], "CENTER" ],
+             ["BOX", [ 0, 0 ], [ -1, -1 ], 0.25, "black" ]
+        ]
+    }],
     ["tinytable",{
         "fontSize": 4,
       	"parent": table

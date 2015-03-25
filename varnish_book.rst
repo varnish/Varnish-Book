@@ -3281,7 +3281,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    The other alternative handles all other responses from the server.
 
    304 responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
-   If the request hits a non fresh object (see `Figure 2 <#figures-2>`_), Varnish adds the ``If-Modified-Since`` header with the value of ``t_origin` to the request and sends it to the backend.
+   If the request hits a non fresh object (see `Figure 2 <#figures-2>`_), Varnish adds the ``If-Modified-Since`` header with the value of ``t_origin`` to the request and sends it to the backend.
 
    304 responses do not contain a message-body, thus, Varnish tries to *steal* the body from cache, merge it with the header response and deliver it.
    This process updates the attributes of the cached object.

@@ -34,7 +34,7 @@ exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${ex
 
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
-bookt= ${BDIR}/varnish-book.pdf ${BDIR}/varnish_slide-book.pdf
+bookt= ${BDIR}/varnish-book.pdf
 testt= ${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst

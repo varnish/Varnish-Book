@@ -1,10 +1,10 @@
 {
   "pageSetup" : {
-    "firstTemplate": "coverPage",
-    "size": null,
-	"width": "218mm",
-	"height": "125mm",
-	"margin-top": "1mm",
+       "firstTemplate": "coverPage",
+       "size": null,
+       "width": "218mm",
+       "height": "125mm",
+       "margin-top": "1mm",
        "margin-bottom": "1mm",
        "margin-left": "2mm",
        "margin-right": "2mm",
@@ -69,11 +69,23 @@
         "hyphenation": false,
         "wordWrap": null
     }],
+    ["figformat",{
+	"alignment": "center",
+        "width": "218mm",
+	"height": "10mm",
+	"scale": 10%,
+	"commands": [
+             ["VALIGN", [ 0, 0 ], [ -1, -1 ], "TOP" ],
+             ["ALIGN", [ 0, 0 ], [ -1, -1 ], "CENTER" ],
+             ["BOX", [ 0, 0 ], [ -1, -1 ], 0.25, "black" ]
+        ],
+	"colWidths": ["3cm",null]
+    }],
     ["thin" , {
-    "parent" : "bodytext",
-    "width" : "65%",
-    "alignment": "TA_JUSTIFY",
-    "hyphenation": true
+        "parent" : "bodytext",
+	"width" : "65%",
+	"alignment": "TA_JUSTIFY",
+	"hyphenation": true
     }],
     ["right", {
         "parent": "bodytext",
@@ -88,14 +100,12 @@
         "alignment": "left"
     }],
     ["headertable" , {
-    "parent" : "table",
-    "colWidths": ["20%","60%","20%"],
-    "commands": []
-    }
-    ],
+        "parent" : "table",
+	"colWidths": ["20%","60%","20%"],
+	"commands": []
+    }],
     ["footer" , {
-            "textColor": "red"
-    }
-    ]
+        "textColor": "red"
+    }]
    ]
 }
