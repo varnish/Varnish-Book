@@ -1,5 +1,5 @@
-SysV;SysV;Systemd;Systemd
-Ubuntu/Debian;Fedora/RHEL/CentOS;Ubuntu/Debian;Fedora/RHEL/CentOS
+SysV;SysV;systemd;systemd
+Ubuntu/Debian;RHEL/CentOS;Ubuntu/Debian;Fedora/RHEL 7+/CentOS 7+
 /etc/default/varnish;		/etc/sysconfig/varnish;		/etc/systemd/system/varnish.service [1];	/etc/varnish/varnish.params
 /etc/default/varnishlog;	[2];				/etc/systemd/system/varnishlog.service [1];	[3]
 /etc/default/varnishncsa;	[2];				/etc/systemd/system/varnishncsa.service [1];	[3]

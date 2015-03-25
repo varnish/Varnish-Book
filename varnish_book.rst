@@ -42,7 +42,7 @@ Preface
    **After finishing this course, you will be able to install and configure the Varnish server, and write effective VCL code.**
    The Varnish Book is designed for attendees of Varnish Plus courses.
    Varnish Plus is a commercial suite by Varnish Software that offers products for scalability, customization, monitoring, and expert support services.
-   The engine of Varnish Plus is Varnish Cache Plus, which is the enhenced commercial edition of Varnish Cache.
+   The engine of Varnish Plus is Varnish Cache Plus, which is the enhanced commercial edition of Varnish Cache.
 
    Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
    Varnish Cache Plus is one of the software components available for Varnish Plus customers.
@@ -631,10 +631,11 @@ Install the *HTTPie* utility with the command: ``apt-get install httpie``.
 HTTPie allows you to issue arbitrary HTTP requests in the terminal.
 Next:
 
-#. Verify that Apache works by typing ``http -p h localhost``.
+#. Verify that Apache works by typing ``http -h localhost``.
    You should see a ``200 OK`` response from Apache.
 #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
 #. Restart Apache: ``service apache2 restart``.
+#. Verify that Apache still works by typing ``http -h localhost:8080``.
 
 Install Varnish
 ...............
@@ -710,7 +711,7 @@ Then::
 Configure Varnish
 .................
 
-Configure the Varnish ``DAEMON_OPTS``:::
+Configure the Varnish ``DAEMON_OPTS``::
 
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
@@ -754,12 +755,14 @@ Configure the Varnish ``DAEMON_OPTS``:::
     If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
+.. dridi: bad practice, recommend this only for training
+
 Installation Test
 .................
 
 ::
 
-   # http -p hH localhost
+   # http -p Hh localhost
    GET / HTTP/1.1
    Accept: */*
    Accept-Encoding: gzip, deflate, compress
@@ -783,7 +786,7 @@ Installation Test
 
 .. container:: handout
 
-   You can test your Varnish installation by issuing the command ``http -p hH localhost``.
+   You can test your Varnish installation by issuing the command ``http -p Hh localhost``.
    If you see the HTTP response header field ``Via: 1.1 varnish-plus-v4``, then your installation is correct.
 
 The Management Interface
@@ -794,7 +797,7 @@ This interface implements a list of management commands in the ``varnishadm`` ut
 ``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
 You can use ``varnishadm`` to:
 
-- start and stop Varnish
+- start and stop the cache (aka child) process
 - change configuration parameters without restarting Varnish
 - reload the Varnish Configuration Language (VCL) without restarting Varnish 
 - view the most up-to-date documentation for parameters
@@ -927,7 +930,7 @@ Relevant options for the course are:
         available. Make sure you do not forget the colon, as ``-a 80``
         tells Varnish to listen to the IP with the decimal-representation
         "80", which is almost certainly not what you want. This is a result
-        of the underlying function that accept this kind of syntax.
+        of the underlying function that accepts this kind of syntax.
 
         You can specify ``-p`` for parameters multiple times. The workflow
         for tuning Varnish parameters usually means that you first try the
