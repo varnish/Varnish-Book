@@ -85,7 +85,7 @@ The Webdev course requires that you:
 
 .. container:: handout
 
-   You need have no background in theory or application behind Varnish to complete this course.
+   You do not need background in theory or application behind Varnish to complete this course.
    However, it is assumed that you have experience and expertise in basic UNIX commands.
    More specific prerequisite skills depend the course you take.
 
@@ -151,8 +151,10 @@ How to Use the Book
 
 .. At the moment is a section to exclude it from compiling in the Makefile
 
-- Most of the material in this book applies to both: Varnish Cache and Varnish Plus.
+- Most of the material in this book applies to both: Varnish Cache and Varnish Cache Plus.
   Parts that apply only to Varnish Cache Plus are clearly stated.
+- Varnish caching mechanisms are different than in other caching technologies.
+  Open your mind and try to think different when using Varnish.
 - The instructor guides you through the book.
 - Use the *manual pages* and help options.
 - See Section `Appendix E: Varnish Three Letter Acronyms`_ for a list of acronyms.
@@ -277,8 +279,7 @@ What is Varnish?
 
    At the moment of writing this book, Varnish Plus is supporting the following Linux distributions:
 
-   - RedHat Enterprise Linux 5
-   - RedHat Enterprise Linux 6
+   - RedHat Enterprise Linux 5, 6 and 7.
    - Ubuntu Linux 12.04 LTS (precise)
    - Ubuntu Linux 14.04 LTS (trusty)
    - Debian Linux 7 (wheezy)
@@ -309,7 +310,7 @@ Varnish Cache and Varnish Plus
    The code-base is kept as self-contained as possible to avoid introducing out-side bugs and unneeded complexity. 
    As a consequence of this, Varnish uses very few external libraries.
 
-   At the moment of writing this book, Varnish Cache is supporting the following Linux distributions:
+   At the moment of writing this book, Varnish Cache is supporting the following operating systems and Linux distributions:
 
    - Debian Linux 7 (wheezy)
    - Debian Linux 8 (jessie)
@@ -367,6 +368,7 @@ Varnish timeline:
 - 2011: Varnish 3.0 released
 - 2012: The fifth Varnish User Group Meeting is held in Paris. 
   Roughly 70 people participate on the User-day and around 30 on the developer-day!
+- 2014: Varnish 4.0 released
 
 .. container:: handout
 
@@ -403,17 +405,17 @@ Varnish timeline:
    For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
    This usually takes place on Mondays around 12:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
-Design principles
+Design Principles
 =================
 
 Varnish is designed to:
 
-- solve real problems,
-- run on modern hardware (64-bit multi-core architectures),
-- work with the kernel, not against it,
-- translate Varnish Configuration Language (VCL) to C programming language,
-- be extendible via Varnish Modules (VMODs), and
-- reduce lock-contention via its workspace-oriented shared memory model.
+- Solve real problems
+- Run on modern hardware (64-bit multi-core architectures)
+- Work with the kernel, not against it
+- Translate Varnish Configuration Language (VCL) to C programming language
+- Be extendible via Varnish Modules (VMODs)
+- Reduce lock-contention via its workspace-oriented shared memory model
 
 .. - Innovation, not regurgitation
 
