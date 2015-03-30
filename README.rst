@@ -38,6 +38,7 @@ In addition to the authors, the following deserve special thanks (in no particul
 - Poul-Henning Kamp
 - Reza Naghibi
 - Federico G. Schwindt
+- Dridi Boukelmoune
 - Everyone who has participated on the training courses
 
 Index
