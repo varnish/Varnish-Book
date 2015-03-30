@@ -15,6 +15,9 @@
 
    PageBreak oneColumn
 
+
+.. TODO for the editor: To find out how to disable automatic section numbering with ``--no-section-numbering``.
+
 Abstract
 ========
 
@@ -330,20 +333,12 @@ Varnish Cache and Varnish Plus
    Varnish Software also provides a commercial suite called Varnish Plus with software products for scalability, customization, monitoring and expert support services.
    The engine of the Varnish Plus commercial suite is the enhanced commercial edition of Varnish Cache.
    This edition is proprietary and it is called *Varnish Cache Plus*.
-   
-   The Varnish Plus offer of software products includes:
-
-   - the Varnish Massive Storage Engine (MSE),
-   - hashtwo (Varnish Software implementation of surrogate keys),
-   - Varnish Administration Console (VAC),
-   - Varnish Customer Statistics (VCS),
-   - Varnish Tuner,
-   - and more.
 
    .. Covered in this book:
    
-   `Table 1 <#tables-1>`_ shows the topics covered in this book and their availability for Varnish Cache users and Varnish Plus customers.
-   For more detailed information about the Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
+   `Table 1 <#tables-1>`_ shows the components covered in this book and their availability for Varnish Cache users and Varnish Plus customers.
+   The covered components of Varnish Plus are described in Section `Varnish Plus Software Components`_.
+   For more information about the complete Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
 
    .. note::
 
@@ -1561,7 +1556,7 @@ A compiled VCL file is kept around until you restart Varnish completely, or unti
 You can only discard compiled VCL files after all references to them are gone.
 You can see the amount of VCL references by reading the parameter ``vcl.list``.
 
-Storage backends
+Storage Backends
 ----------------
 
 Varnish supports different methods to allocate space for the cache.
@@ -1696,8 +1691,8 @@ Tunable parameters
 	These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
 	They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
 
-Varnish Tuner
--------------
+``Varnish Tuner``
+-----------------
 
 - Command ``varnishtuner``
 - Suggested values for system variables and Varnish parameters are **installation specific**
@@ -4052,13 +4047,14 @@ Solution: Write a VCL program using *purge* and *ban*
 .. include:: vcl/solution-bans-etc.vcl
    :literal:
 
-Hashtwo -> Varnish Plus only!
------------------------------
+Hashtwo (Varnish Software Implementation of Surrogate Keys)
+-----------------------------------------------------------
 
 - Hashtwo is Varnish' implementation of surrogate keys
 - Cache invalidation based on cache tags
 - Adds patterns easily to be matched against
 - Highly scalable
+- Varnish Plus only!
 
 .. container:: handout
 
@@ -4830,8 +4826,46 @@ Solution : write a VCL that masquerades XHR calls
 
 Notice that the ``getMasqueraded()`` works now after being processed in ``vcl_recv()``.
 
+Varnish Plus Software Components
+================================
+
+.. TODO for the author: To fix the hyperlink to VAC and VCS.
+.. They are not correctly linked because the targets are defined after their references.
+
+The Varnish Plus offer of software products includes:
+
+   - `Varnish Massive Storage Engine (MSE)`__,
+
+__ `Storage Backends`_
+
+   - `hashtwo (surrogate keys)`__,
+
+__ `Hashtwo (Varnish Software Implementation of Surrogate Keys)`_
+
+   - `Varnish Tuner`__,
+
+__ `Varnish Tuner`_
+
+   - `Varnish Administration Console (VAC)`__,
+
+.. _VAC: `Varnish Administration Console (VAC)`_
+
+__ VAC_
+
+   - `Varnish Custom Statistics (VCS)`__,
+
+__ `Varnish Custom Statistics (VCS)`_
+
+   - and `more`__.
+
+__ https://www.varnish-software.com/what-is-varnish-plus
+
+|
+
+For more information about the complete Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
+
 Varnish Administration Console (VAC)
-====================================
+------------------------------------
 
 .. figure 9
 
@@ -4875,7 +4909,7 @@ Varnish Administration Console (VAC)
    The instructor of the course provides you the credentials.
 
 Varnish Custom Statistics (VCS)
-===============================
+-------------------------------
 
 .. figure 12
 
