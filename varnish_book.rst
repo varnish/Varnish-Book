@@ -462,14 +462,12 @@ Varnish is designed to:
 	.. VMODs
         
 	Varnish allows integration of Varnish Modules or simply VMODs.
-	These modules let you extend the functionality of the VCL language by
-        pulling in custom-written features. Some examples include
-        non-standard header manipulation, access to *memcached* or complex
-        normalization of headers.
+	These modules let you extend the functionality of VCL by pulling in custom-written features.
+	Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
 
 	.. shared memory
         
-	The shared memory log allows Varnish to log large amounts of
+	The shared memory log (SHMLOG) allows Varnish to log large amounts of
         information at almost no cost by having other applications parse
         the data and extract the useful bits. This reduces the
         lock-contention in the heavily threaded environment of Varnish.
@@ -1008,8 +1006,8 @@ The Varnish Log
    .. Log data is in shared memory
 
    Varnish provides log data in real-time, which is accessible through Varnish tools.
-   Varnish logs all its information to a shared memory log.
-   This memory log is overwritten when filled up.
+   Varnish logs all its information to the SHared Memory LOG (SHMLOG).
+   This memory log is overwritten when filled-up in circular order.
 
    The memory log overwriting has two effects.
    On the one hand, there is no historic data, but on the other hand, there is an abundance of information accessible at a very high speed.
@@ -1044,18 +1042,19 @@ Statistical tools:
 .. container:: handout
 
    If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when using the tools.
-   This option is used to specify the instance of ``varnishd``, or the location of the shared memory log.
+   This option is used to specify the instance of ``varnishd``, or the location of the SHMLOG.
    All log tools (including ``varnishadm``) also take a ``-n`` option.
 
    In this course, we focus on the two most important tools: ``varnishlog`` and ``varnishstat``.
    Unlike all other tools, ``varnishstat`` does not read entries from the Varnish log, but from global counters.
    However, we include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
-   You can find more details about ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in `Appendix B: Varnish Programs`_.
+
+   You can find more details about the other Varnish tools ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in `Appendix B: Varnish Programs`_.
 
 Log Layout
 ----------
 
-.. figure 2
+.. figure 3
 
 .. figure:: ui/img/log_layout.png
    :align: center
@@ -1064,7 +1063,7 @@ Log Layout
 
 .. container:: handout
 
-   Varnish logs transactions chronologically as `Figure 2 <#figures-2>`_ shows.
+   Varnish logs transactions chronologically as `Figure 3 <#figures-3>`_ shows.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
    The next `Transactions`_ section explains transactions and how to reorder them.
 
@@ -1156,7 +1155,7 @@ Example of Transaction Grouping with ``varnishlog``
    PageBreak
 
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
-.. figure 3
+.. figure 4
 
 .. figure:: ui/img/cache_miss_request_grouping.png
    :width: 70%
@@ -1165,7 +1164,7 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. container:: handout
 
-   `Figure 3 <#figures-3>`_ shows a client request in a *cache miss* scenario.
+   `Figure 4 <#figures-4>`_ shows a client request in a *cache miss* scenario.
    In the figure, ``varnishlog`` returns records grouped by request.
    For simplicity, we use the ``-i`` option to include only the ``Session`` and ``Link`` tags.
 
@@ -1183,7 +1182,7 @@ Example of Transaction Grouping with ``varnishlog``
   Options ``-b`` and ``-c`` display only transactions coming from the backend and client communication respectively.
   You can verify the meaning of your results by double checking the filters, and separating your results with the ``-b`` and ``-c`` options.
 
-Query language
+Query Language
 --------------
 
 - Operates on transaction groups.
@@ -1201,7 +1200,7 @@ Query language
 
 Examples of Varnish log queries::
 
-   varnishlog -q 'respstatus < 500'
+   varnishlog -q 'RespStatus < 500'
    varnishlog -g request -q 'ReqURL eq "/"'
    varnishlog -g request -q 'Backend ~default'
 
@@ -1235,6 +1234,8 @@ Examples of Varnish log queries::
    - Client requests connection closed ``ReqHeader:connection ~ close``
    - ESI miss (-g request) ``{3+}Begin ~ Bereq``
 
+   Taglists are not case-sensitive, but we recommend you to follow the same format as declared in ``man vsl``.
+
    .. Benefits for others
 
    The grouping and the query log processing all happens in the Varnish logging API.
@@ -1242,7 +1243,8 @@ Examples of Varnish log queries::
 
    .. tip::
 
-      Issue ``man vsl-query`` for more details about query expressions.
+      ``man vsl-query`` shows you more details about query expressions.
+      ``man vsl`` lists all *taglists* and their syntax.
 
 Exercise
 --------
@@ -1255,8 +1257,8 @@ Exercise
 
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
-varnishstat
------------
+``varnishstat``
+---------------
 
 .. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
 
@@ -1423,7 +1425,7 @@ This chapter covers:
 Varnish Architecture
 --------------------
 
-.. figure 4
+.. figure 5
 
 .. figure:: ui/img/architecture.png
    :align: center
@@ -1434,7 +1436,7 @@ Varnish Architecture
 
    .. TODO for the author: Add some of the description from https://www.varnish-cache.org/docs/trunk/phk/barriers.html
 
-   `Figure 4 <#figures-4>`_ shows a block diagram of the Varnish architecture.
+   `Figure 5 <#figures-5>`_ shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
    The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
@@ -1512,34 +1514,30 @@ The *Cacher* consists of several different types of threads, including, but not 
 - Worker threads - one per client request (session). It's common to use hundreds of worker threads.
 - Expiry thread, to evict old content from the cache.
 
-Varnish uses workspaces to reduce the contention between each thread when
-they need to acquire or modify memory. There are multiple workspaces, but
-the most important one is the session workspace, which is used to
-manipulate session data. An example is changing `www.example.com` to
-`example.com` before it is entered into the cache, to reduce the number of
-duplicates.
-
-It is important to remember that even if you have 5MB of session workspace
-and are using 1000 threads, the actual memory usage is not 5GB. The virtual
-memory usage will indeed be 5GB, but unless you actually use the memory,
-this is not a problem. Your memory controller and operating system will
-keep track of what you actually use.
-
-To communicate with the rest of the system, the child process uses a shared
-memory log accessible from the file system. This means that if a thread
-needs to log something, all it has to do is to grab a lock, write to a memory
-area and then free the lock. In addition to that, each worker thread has a
-cache for log-data to reduce lock contention.
-
-The log file is usually about 80MB, and split in two. The first part is
-counters, the second part is request data. To view the actual data, a
-number of tools exist that parses the shared memory log. Since the
-log-data is not meant to be written to disk in its raw form, Varnish can
-afford to be very verbose. You then use one of the log-parsing tools to
-extract the piece of information you want - either to store it permanently
-or to monitor Varnish in real-time.
-
 .. class:: handout
+
+   Varnish uses workspaces to reduce the contention between each thread when
+   they need to acquire or modify memory. There are multiple workspaces, but
+   the most important one is the session workspace, which is used to
+   manipulate session data. An example is changing `www.example.com` to
+   `example.com` before it is entered into the cache, to reduce the number of
+   duplicates.
+
+   It is important to remember that even if you have 5MB of session workspace
+   and are using 1000 threads, the actual memory usage is not 5GB. The virtual
+   memory usage will indeed be 5GB, but unless you actually use the memory,
+   this is not a problem. Your memory controller and operating system will
+   keep track of what you actually use.
+
+   To communicate with the rest of the system, the child process uses the SHMLOG accessible from the file system.
+   This means that if a thread needs to log something, all it has to do is to grab a lock, write to a memory area and then free the lock. 
+   In addition to that, each worker thread has a cache for log-data to reduce lock contention.
+
+   The log file is usually about 80MB, and split in two. 
+   The first part is counters, the second part is request data. 
+   To view the actual data, a number of tools exist that parses the SHMLOG.
+   Since the log-data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose. 
+   You then use one of the log-parsing tools to extract the piece of information you want -- either to store it permanently or to monitor Varnish in real-time.
 
 VCL compilation
 ...............
@@ -1636,21 +1634,21 @@ The shared memory log
 
 .. container:: handout
 
-   Varnish' shared memory log is used to log most data. 
+   Varnish' SHared Memory LOG (SHMLOG) is used to log most data. 
    It's sometimes called a `shm-log`, and operates on a circular buffer.
 
    .. I/O operations
 
-   There's not much you have to do with the shared memory log, except ensure that it does not cause I/O operations.
-   You can avoid I/O by mounting the shared memory log as a temporary file storage (`tmpfs`).
+   There is not much you have to do with the SHMLOG, except ensure that it does not cause I/O operations.
+   You can avoid I/O by mounting the SHMLOG as a temporary file storage (`tmpfs`).
    This is typically configured in ``/etc/fstab``, and the `shm-log` is normally kept under ``/var/lib/varnish/`` or equivalent locations.
    You need to restart ``varnishd`` after mounting it as `tmpfs`.
 
    .. no persistent
 
-   The shared memory log is not persistent.    
+   The SHMLOG is not persistent.    
    You can issue ``varnishlog -d`` to see old log entries.
-   The typical size of the shared memory log is 80MB. 
+   The typical size of the SHMLOG is 80MB. 
    All the content under ``/var/lib/varnish/`` directory is safe to delete.
 
    .. warning::
@@ -2649,7 +2647,7 @@ Varnish Finite State Machine
 
 .. todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
 
-.. figure 5
+.. figure 6
 
 .. figure:: ui/img/fsm_simplified.png
    :align: center
@@ -2669,9 +2667,9 @@ Varnish Finite State Machine
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
-   `Figure 5 <#figures-5>`_ depicts a simplified version of the Varnish finite state machine.
+   `Figure 6 <#figures-6>`_ depicts a simplified version of the Varnish finite state machine.
    This diagram shows the most common state transitions, and it is by no means complete.
-   `Figure 6 <#figures-6>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
+   `Figure 7 <#figures-7>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
    A detailed version of the request flow diagram for the backend worker is in Section `VCL - vcl_backend_fetch and vcl_backend_response`_.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
@@ -2754,7 +2752,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
 .. TODO for the author: Double check that the available variables are correct and not confusing.
 .. TODO for the editor: To have different sizes for vertical tall figures for slide-pdf format.
 
-.. figure 6
+.. figure 7
 
 .. figure:: ui/img/cache_req_fsm.png
    :align: center
@@ -2763,7 +2761,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
    Figure :counter:`figures`: Detailed Varnish Request Flow for the Client Worker Thread
 
    The figure simplifies the backend worker in a grayed box.
-   The detailed request flow diagram for the backend worker is depicted in `Figure 7 <#figures-7>`_.
+   The detailed request flow diagram for the backend worker is depicted in `Figure 8 <#figures-8>`_.
 
 .. raw:: pdf
    
@@ -3239,7 +3237,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 - Sanitize server-response
 - Override cache duration
 
-.. figure 7
+.. figure 8
 .. TODO for the editor: improve layout of this figure
 
 .. figure:: ui/img/cache_fetch.png
@@ -3252,7 +3250,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
 .. container:: handout
 
-   `Figure 7 <#figures-7>`_ shows the ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines.
+   `Figure 8 <#figures-8>`_ shows the ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    In ``vcl_recv`` you can use information provided by the client to decide on caching policy.
    Likewise, you can use information provided by the server to further decide on the caching policy in ``vcl_backend_fetch``.
@@ -3272,7 +3270,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
    The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
-   `Figure 7 <#figures-7>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 9 <#figures-9>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache.
    That is, the request is in *pass* mode, the fetched object is not cached.
 
@@ -3683,6 +3681,8 @@ Solution: Change the error message
 
 Cache Invalidation
 ==================
+
+- You should decide and define the rules on when and how to invalidate cached objects **before caching them** in production environments.
 
 There are three mechanism to invalidate caches in Varnish:
 
@@ -4658,7 +4658,7 @@ Edge Side Includes
 - How to use ESI?
 - Testing ESI without Varnish
 
-.. figure 8
+.. figure 9
 
 .. figure:: ui/img/esi.png
    :align: center
@@ -4670,7 +4670,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   Figure `Figure 8 <#figures-8>`_ depicts this process.
+   Figure `Figure 9 <#figures-9>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -4846,28 +4846,45 @@ __ `Hashtwo (Varnish Software Implementation of Surrogate Keys)`_
 
 __ `Varnish Tuner`_
 
-   - `Varnish Administration Console (VAC)`__,
+   - `Varnish Administration Console (VAC)`_,
 
-.. _VAC: `Varnish Administration Console (VAC)`_
 
-__ VAC_
+   - `Varnish Custom Statistics (VCS)`_,
 
-   - `Varnish Custom Statistics (VCS)`__,
 
-__ `Varnish Custom Statistics (VCS)`_
+   - `Varnish High Availability (VHA)`_,
+
 
    - and `more`__.
 
 __ https://www.varnish-software.com/what-is-varnish-plus
 
-|
+.. container:: handout
 
-For more information about the complete Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
+   For more information about the complete Varnish Plus offer and their documentation, please visit:
+
+   - https://www.varnish-software.com/what-is-varnish-plus
+   - https://www.varnish-software.com/resources/
 
 Varnish Administration Console (VAC)
 ------------------------------------
 
-.. figure 9
+- Single point of control for simultaneous administration of multiple Varnish Cache servers.
+- VAC provides a UI and an API.
+- `Figures 10 <#figures-10>`_, `11 <#figures-11>`_, and `12 <#figures-12>`_ show screenshots of the UI.
+
+.. container:: handout
+
+   The Varnish Administration Console (VAC) provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
+
+   Please visit https://vacdemo.varnish-software.com to try a working demo.
+   The instructor of the course provides you the credentials.
+
+.. raw:: pdf
+
+   PageBreak
+
+.. figure 10
 
 .. figure:: ui/img/vac_screenshot_1.png
    :width: 80%
@@ -4878,7 +4895,7 @@ Varnish Administration Console (VAC)
 
    PageBreak
 
-.. figure 10
+.. figure 11
 
 .. figure:: ui/img/vac_screenshot_2.png
    :width: 80%
@@ -4889,36 +4906,37 @@ Varnish Administration Console (VAC)
 
    PageBreak
 
-.. figure 11
+.. figure 12
 
 .. figure:: ui/img/vac_screenshot_3.png
    :width: 80%
 
    Figure :counter:`figures`: Banning page of the Varnish Administration Console
 
+Varnish Custom Statistics (VCS)
+-------------------------------
+
+- Real-time statistics engine to aggregate, display and analyze user web traffic.
+- `Figures 13 <#figures-13>`_, and `14 <#figures-14>`_ are screenshots demos.
+
+.. container:: handout
+
+   Varnish Custom Statistics (VCS) is an extremely flexible engine that allows you to group statistics easily using the Varnish Configuration Language (VCL).
+   Please visit http://vcsdemo.varnish-software.com to try a working demo.
+   The instructor of the course provides you the credentials.
+
 .. raw:: pdf
 
    PageBreak
 
-.. container:: handout
-
-   The Varnish Administration Console (VAC) is a single point of control for simultaneous administration of multiple Varnish Cache servers.
-   VAC provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
-
-   Please visit https://vacdemo.varnish-software.com to try a working demo.
-   The instructor of the course provides you the credentials.
-
-Varnish Custom Statistics (VCS)
--------------------------------
-
-.. figure 12
+.. figure 13
 
 .. figure:: ui/img/vcsui_header_2.png
    :width: 100%
 
    Figure :counter:`figures`: Header of Varnish Custom Statistics
 
-.. figure 13
+.. figure 14
 
 .. raw:: pdf
 
@@ -4928,17 +4946,26 @@ Varnish Custom Statistics (VCS)
 
    Figure :counter:`figures`:
 
-.. TODO: To elaborate.
-.. In the meantime, please refer to:
+.. TODO for the author: figure title
 
-.. container:: handout
+Varnish High Availability (VHA)
+-------------------------------
 
-   Varnish Custom Statistics (VCS) is a real-time statistics engine to aggregate, display and analyze user web traffic.
-   VCS is extremely flexible, it allows to define the grouping of statistics easily using Varnish Configuration Language (VCL).
-   `Figure 12 <#figures-12>`_, and `13 <#figures-13>`_ are screenshots demos.
+The Varnish High Availability agent (*vha-agent*) is a content replicator with the aim of copying the cached objects from an origin Varnish server to a neighbouring Varnish server.
+This increases resiliency and performance.
 
-   Please visit http://vcsdemo.varnish-software.com to try a working demo.
-   The instructor of the course provides you the credentials.
+.. What about increased complexity?
+
+*vha-agent* reads the log of Varnish, and for each object insertion detected it fires a request to the neighboring Varnish server.
+This server fetches the object from the origin Varnish server.
+As a result, the same object is cached in both servers with only one single backend fetch.
+
+This solution requires *vha-agent* to be installed on the origin Varnish server, and some simple VCL configuration on the replicated Varnish server.
+Ideally, *vha-agent* is installed on both servers so they can both replicate object insertions from each other in an active/active configuration.
+
+The replication of cached objects may bring the need for multiple cache invalidation.
+For that purpose, you can use the `Varnish Administration Console (VAC)`_.
+Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
 
 Appendix A: Resources
 =====================
@@ -4954,6 +4981,7 @@ Community driven:
 
 Commercial:
 
+- http://www.varnish-software.com/resources/
 - http://planet.varnish-cache.org/
 - http://www.varnish-software.com
 - http://repo.varnish-software.com (for service agreement customers)
@@ -4963,112 +4991,93 @@ Commercial:
 Appendix B: Varnish Programs
 ============================
 
-TODO: This chapter is not updated
+SHared Memory LOG (SHMLOG) tools:
 
-SHMLOG tools
+- ``varnishlog``
+- ``varnishncsa``
+- ``varnishhist``
+- ``varnishtop``
 
-- varnishlog
-- varnishncsa
-- varnishstat
-- varnishhist
-- varnishtop
+Administration:
 
-Administration
+- ``varnishadm``
 
-- varnishadm
+Global counters:
 
-Misc
+- ``varnishstat``
 
-- varnishtest
-- varnishreplay
+Misc:
+
+- ``varnishtest``
 
 .. container:: handout
 
-   Varnish provides several tools to help monitor and control Varnish.
-   ``varnishadm``, used to access the management interface, is the only one
-   that can affect a running instance of Varnish.
 
-   All the other tools operate exclusively on the shared memory log, often
-   called shmlog in the context of Varnish. They take similar (but not
-   identical) command line arguments, and use the same underlying API.
+   `The Varnish Log`_ provides large amounts of information, thus it is usually necessary to filter it.
+   For example, "show me only what matches X".
+   ``varnishlog`` does precisely that.
+   The rest of the tools, however, can process the information further and display running statistical information.
 
-   Among the log-parsing tools, varnishstat is so far unique in that it
-   only looks at counters. The counters are easily found in the shmlog, and
-   are typically polled at reasonable interval to give the impression of
-   real-time updates. Counters, unlike the rest of the log, are not
-   directly mapped to a single request, but represent how many times some
-   specific action has occurred since Varnish started.
+   Varnish also provides several tools to monitor and control Varnish.
+   ``varnishadm`` is used to access the management interface.
+   This tool is the only one that may affect a running instance of Varnish.
 
-   The rest of the tools work on the round robin part of the shmlog, which
-   deals with specific requests. Since the shmlog provides large amounts of
-   information, it is usually necessary to filter it. But that does not
-   just mean "show me everything that matches X". The most basic log tool,
-   varnishlog, will do precisely that. The rest of the tools, however, can
-   process the information further and display running statistical
-   information.
+   `varnishstat`_ looks only at counters.
+   These counters are easily found in the SHMLOG, and are typically polled at reasonable interval to give the impression of real-time updates. 
+   Counters, unlike the rest of the log, are not directly mapped to a single request, but represent how many times a specific action has occurred since Varnish started.
 
-   If varnishlog is used to dump data to disk, varnishreplay can simulate a
-   similar load. varnishtest is used for regression tests, mainly during
-   development. Both are outside the scope of this course.
-
+   ``varnishtest`` is used for regression tests, mainly during development.
+   This took, however, is outside the scope of this course.
 
    .. note::
 
-      There is a delay in the log process, though usually it is not
-      noticeable. The shmlog is 80MB large by default, which gives some
-      potential history, but that is not guaranteed and it depends heavily
-      on when the last roll-around of the shmlog occurred.
+      There is a delay in the log process, though usually it is not noticeable.
+      The SHMLOG is 80MB large by default, which gives a certain history, but remember that it is not persistent unless you instruct Varnish to do otherwise.
+      By default, the persistence of the history depends on the SHMLOG circular rewriting.
 
-varnishtop
-----------
-
-TODO: To update!
+``varnishtop``
+--------------
 
 ::
+   $varnishtop -i BereqURL,RespStatus
 
-        varnishtop -i TxStatus
+   list length 5                                                           trusty-amd64
 
-          list length 6                                                          hostname
-
-          3864.45 TxStatus       200
-          1001.33 TxStatus       304
-            33.93 TxStatus       301
-             3.99 TxStatus       302
-             3.00 TxStatus       404
-             1.00 TxStatus       403
+	7.20 RespStatus     200
+	5.26 RespStatus     404
+	0.86 BereqURL       /test.html
+	0.68 BereqURL       /
+	0.39 BereqURL       /index.html
 
 - Group tags and tag-content by frequency
 
 .. container:: handout
 
-        varnishtop groups tags and the content of the tag together to
-        generate a sorted list of the most frequently appearing
-        tag/tag-content pair.
+   ``varnishtop`` groups tags and their content together to generate a sorted list of the most frequently appearing tag/tag-content pair.
+   This tool is sometimes overlooked, because its usefulness is visible after you start filtering. 
+   The above example lists status codes that Varnish returns.
 
-        Because the usefulness is only visible once you start filtering, it
-        is often overlooked. The above example lists status codes that
-        Varnish returns.
+   Two of the perhaps most useful variants of ``varnishtop`` are:
 
-        Two of the perhaps most useful variants of varnishtop is:
+   - ``varnishtop -i BereqURL``: creates a list of URLs requested at the backend.
+     Use this to find out which URL is the most requested.
+   - ``varnishtop -i RespStatus``: lists what status codes Varnish returns to clients.
 
-        - ``varnishtop -i TxUrl`` creates a list of URLs requested from a web
-          server. Use this this find out what is causing back-end traffic
-          and start hitting items on the top of the list.
-        - ``varnishtop -i TxStatus`` lists what status codes Varnish returns
-          to clients. (As shown above)
+   You may also combine taglist as in the above example.
+   Even more, you may apply `Transactions Groups`_ and `Query Language`_ with the ``-g`` and ``-q`` options.
 
-        Some other possibly useful examples are:
+   .. TODO for the author: to make an example with -g and -q.
 
-        - ``varnishtop -i RxUrl`` displays what URLs are most frequently
-          requested from a client.
-        - ``varnishtop -i RxHeader -I 'User-Agent:.*Linux.*'`` lists
-          User-Agent headers with "Linux" in it (e.g: most used Linux web
-          browsers, that report them self as Linux).
-        - ``varnishtop -i RxStatus`` will list status codes received from a
-          web server.
-        - ``varnishtop -i VCL_call`` shows what VCL functions are used.
-        - ``varnishtop -i RxHeader -I Referrer`` shows the most common
-          referrer addresses.
+   Some other possibly useful examples are:
+
+   - ``varnishtop -i ReqUrl``: displays what URLs are most frequently requested from clients.
+   - ``varnishtop -i ReqHeader -I 'User-Agent:.*Linux.*'``: lists User-Agent headers with "Linux" in it.
+     This example is useful for Linux users, since most web browsers in Linux report themselves as Linux.
+   - ``varnishtop -i RespStatus``: lists status codes received in clients from backends.
+   - ``varnishtop -i VCL_call``: shows what VCL functions are used.
+   - ``varnishtop -i ReqHeader -I Referrer`` shows the most common referrer addresses.
+
+.. bookmark
 
 varnishncsa
 -----------
@@ -5123,7 +5132,7 @@ Exercise: Try the tools
 - Send a few requests to Varnish using ``GET -e http://localhost:8000``
 - verify you have some cached objects using ``varnishstat``
 - look at the communication with the clients, using ``varnishlog``.
-  Try sending various headers and see them appear in varnishlog.
+  Try sending various headers and see them appear in ``varnishlog``.
 - Install ``siege``
 - Run siege against localhost while looking at varnishhist
 
