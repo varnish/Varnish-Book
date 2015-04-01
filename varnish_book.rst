@@ -1031,7 +1031,7 @@ Log Data Tools
 Tools to display detailed log records:
 
 - ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
-- ``varnishncsa`` displays Varnish access logs in Apache/NCSA combined log format.
+- ``varnishncsa`` displays Varnish access logs in NCSA Common log format.
 
 Statistical tools:
 
@@ -4951,7 +4951,7 @@ Varnish Custom Statistics (VCS)
 Varnish High Availability (VHA)
 -------------------------------
 
-The Varnish High Availability agent (*vha-agent*) is a content replicator with the aim of copying the cached objects from an origin Varnish server to a neighbouring Varnish server.
+The Varnish High Availability agent (*vha-agent*) is a content replicator with the aim of copying the cached objects from an origin Varnish server to a neighboring Varnish server.
 This increases resiliency and performance.
 
 .. What about increased complexity?
@@ -5064,7 +5064,8 @@ Misc:
    - ``varnishtop -i RespStatus``: lists what status codes Varnish returns to clients.
 
    You may also combine taglist as in the above example.
-   Even more, you may apply `Transactions Groups`_ and `Query Language`_ with the ``-g`` and ``-q`` options.
+   Even more, you may apply `Query Language`_ ``-q`` options.
+   For example, ``varnishtop -q 'respstatus > 400'`` shows you counters for responses where client seem to have erred.
 
    .. TODO for the author: to make an example with -g and -q.
 
@@ -5077,59 +5078,69 @@ Misc:
    - ``varnishtop -i VCL_call``: shows what VCL functions are used.
    - ``varnishtop -i ReqHeader -I Referrer`` shows the most common referrer addresses.
 
-.. bookmark
-
-varnishncsa
------------
+``varnishncsa``
+---------------
 
 ::
 
-        10.10.0.1 - - [24/Aug/2008:03:46:48 +0100] "GET \
-        http://www.example.com/images/foo.png HTTP/1.1" 200 5330 \
-        "http://www.example.com/" "Mozilla/5.0"
+   10.10.0.1 - - [24/Aug/2008:03:46:48 +0100] "GET \
+   http://www.example.com/images/foo.png HTTP/1.1" 200 5330 \
+   "http://www.example.com/" "Mozilla/5.0"
 
 .. container:: handout
 
-   If you already have tools in place to analyze Apache-like logs (NCSA
-   logs), varnishncsa can be used to print the shmlog as ncsa-styled log.
+   If you already have tools in place to analyze NCSA Common log format, ``varnishncsa`` can be used to print the SHMLOG in this format.
+   ``varnishncsa`` dumps everything pointing to a certain domain and subdomains.
 
-   Filtering works similar to varnishlog.
+   Filtering works similar to ``varnishlog``.
 
-    ``varnishncsa`` dumps everything pointing to a certain domain and subdomains.
-
-
-varnishhist
------------
+``varnishhist``
+---------------
 
 ::
 
+   1:1, n = 71                                                    localhost
 
-                              #
-                              #
-                              #
-                              #
-                              ##
-                             ###
-                             ###
-                             ###
-                             ###
-                             ###
-                          |  ###
-                          |  ###
-                        | |  ###
-                        |||| ###                    #
-                        |||| ####                   #
-                        |##|#####   #           #   #  # #
-        +-------+-------+-------+-------+-------+-------+-------+-------+-------
-        |1e-6   |1e-5   |1e-4   |1e-3   |1e-2   |1e-1   |1e0    |1e1    |1e2
+			 #
+			 #
+			 #
+			 #
+			 ##
+			###
+			###
+			###
+			###
+			###
+		     |  ###
+		     |  ###
+		   | |  ###
+		   |||| ###                    #
+		   |||| ####                   #
+		   |##|#####   #           #   #  # #
+   +-------+-------+-------+-------+-------+-------+-------+-------+-------
+   |1e-6   |1e-5   |1e-4   |1e-3   |1e-2   |1e-1   |1e0    |1e1    |1e2
 
-    You can issue the ``varnishhist`` tool to show transactions delivering text/html.
+.. container:: handout
 
+   The ``varnishhist`` utility reads the SHMLOG and presents a continuously updated histogram showing the distribution of the last *n* requests.
+   ``varnishhist`` is particularly useful to get an idea about the performance of your Varnish Cache server and your backend.
+
+   The horizontal axis shows a time range from 1e-6 (1 microsecond) to 1e2 (100 seconds).
+   This time range shows the internal processing time of your Varnish Cache server and the time it takes to receive a response from the backend.
+   Thus, this axis does not show the time perceived at the client side, because other factors such as network delay may affect the overall response time.
+
+   Hits are marked with a pipe character ("``|``"), and misses are marked with a hash character ("``#``").
+   These markers are distributed according to the time taken to process the request.
+   Therefore, distributions with more markers on the left side represent a faster performance.
+
+   When the histogram grows in vertical direction more than what the terminal can display, the 1:*m* rate changes on the left top corner.
+   Where *m* represent the number of times that each marker is found.
+   On the right top corner, you can see the name of the host.
 
 Exercise: Try the tools
 -----------------------
 
-- Send a few requests to Varnish using ``GET -e http://localhost:8000``
+- Send a few requests to Varnish using ``http -p hH http://localhost/``
 - verify you have some cached objects using ``varnishstat``
 - look at the communication with the clients, using ``varnishlog``.
   Try sending various headers and see them appear in ``varnishlog``.
@@ -5205,7 +5216,7 @@ TODO: To elaborate
 
 https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 
-VCL migrator from Varnish 3 to Varnish 4
+VCL Migrator from Varnish 3 to Varnish 4
 ----------------------------------------
 
 `varnish3to4 <https://github.com/fgsch/varnish3to4>`_ is a script to assist you migrating a VCL file from Varnish 3 to 4.
