@@ -254,7 +254,7 @@ What is Varnish?
 
    .. What is Varnish?:
 
-   Varnish is a reverse HTTP proxy, sometimes referred to as a HTTP accelerator or a web accelerator.
+   Varnish is a reverse HTTP proxy, sometimes referred to as an HTTP accelerator or a web accelerator.
    A reverse proxy is a proxy server that appears to clients as an ordinary server.
    Varnish stores files or fragments of files in memory, allowing them to be served quickly. 
    It is essentially a key/value store, that usually uses the URL as a key. 
@@ -395,10 +395,8 @@ Varnish timeline:
    As of December 2014, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
    On a day-to-day basis, there is little need to interfere with the general flow of development.
 
-   .. TODO for the editor: is this still true?
-   
    For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
-   This usually takes place on Mondays around 12:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
+   This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
 Design Principles
 =================
@@ -1017,12 +1015,12 @@ The Varnish Log
    Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
    `Table 2 <#tables-2>`_ in Section `Install Varnish and Apache as backend`_ shows the location of the configuration file based on your platform.
 
-   Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat``.
+   Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat`` among others.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
 
    .. tip::
 
-      All tool programs to display Varnish logs have installed reference manuals.
+      All utility programs to display Varnish logs have installed reference manuals.
       Use the ``man`` command to retrieve their manual pages.
 
 Log Data Tools
@@ -1042,8 +1040,8 @@ Statistical tools:
 .. container:: handout
 
    If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when using the tools.
-   This option is used to specify the instance of ``varnishd``, or the location of the SHMLOG.
-   All log tools (including ``varnishadm``) also take a ``-n`` option.
+   This option is used to specify the instance of ``varnishd``, or the location of the shared memory log.
+   All tools (including ``varnishadm``) can also take a ``-n`` option.
 
    In this course, we focus on the two most important tools: ``varnishlog`` and ``varnishstat``.
    Unlike all other tools, ``varnishstat`` does not read entries from the Varnish log, but from global counters.
@@ -1166,7 +1164,7 @@ Example of Transaction Grouping with ``varnishlog``
 
    `Figure 4 <#figures-4>`_ shows a client request in a *cache miss* scenario.
    In the figure, ``varnishlog`` returns records grouped by request.
-   For simplicity, we use the ``-i`` option to include only the ``Session`` and ``Link`` tags.
+   For simplicity, we use the ``-i`` option to include only the ``Begin`` and ``Link`` tags.
 
    For more information about the format and content of all Varnish shared memory logging (VSL) tags, see the VSL man page by typing ``man vsl``.
    The workflow of Varnish is detailed in Section `VCL Basics`_.
@@ -1202,7 +1200,7 @@ Examples of Varnish log queries::
 
    varnishlog -q 'RespStatus < 500'
    varnishlog -g request -q 'ReqURL eq "/"'
-   varnishlog -g request -q 'Backend ~default'
+   varnishlog -g request -q 'Backend ~ default'
 
 .. container:: handout
 
@@ -1315,7 +1313,7 @@ Exercise
 .. container:: handout
 
    ``varnishstat`` gives a good representation of the general health of Varnish.
-   Unlike all other tools, ``varnishstat`` does not read log entries, but counters that Varnish update in real-time.   
+   Unlike all other tools, ``varnishstat`` does not read log entries, but counters that Varnish updates in real-time.
    It can be used to determine your request rate, memory usage, thread usage, number of failed backend connections, and more.
    ``varnishstat`` gives you information just about anything that is not related to a specific request.
 
@@ -1447,7 +1445,7 @@ Varnish Architecture
    1) ``varnishadm`` as explained in Section `The Management Interface`_, or
    2) the Varnish Administration Console (VAC) via the Varnish Agent *vagent2*.
    
-   The Varnish Agent *vagent2* is a HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
+   The Varnish Agent *vagent2* is an HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
    Varnish Software has a commercial offering of a fully functional web UI called Varnish Administration Console (VAC).
    Nevertheless, since *vagent2* is open, you can write your own code for it.
 
@@ -1498,7 +1496,7 @@ The Child Process: The Cacher
 .............................
 
 Since the *Cacher* listens on public IP addresses and known ports, it is exposed to evil clients.
-Therefore, for security reasons, this child process is owned by the *nobody* user, and it has no backwards communication to its parent, the *Manager*.
+Therefore, for security reasons, this child process is owned by an unprivileged user, and it has no backwards communication to its parent, the *Manager*.
 
 The main functions of the *Cacher* are:
 
@@ -1564,7 +1562,7 @@ You can select one method with the ``-s`` option of ``varnishd``.
 
 - file
 
-- persistent (not advised)
+- persistent (deprecated)
 
 - Varnish Massive Storage Engine (MSE)
 
@@ -1889,7 +1887,7 @@ Look at the counter over time, because it is fairly static right after startup.
 
 .. warning::
 
-   New threads use preallocated workespace.
+   New threads use preallocated workspace.
    If threads have not enough workspace, the child process is unable to process the task and it terminates.
    The workspace needed depends on the task that the thread handles.
    This is normally defined in your VCL.
@@ -1925,7 +1923,7 @@ The ``workspace_client`` and ``workspace_backend`` are parameters that could sti
 .. container:: handout
 
         Workspaces are some of the things you can change with parameters. 
-        Some times you may have to increase them to avoid running out of workspace.
+        Sometimes you may have to increase them to avoid running out of workspace.
 
 	The ``workspace_client`` parameter states how much memory can be allocated for each HTTP session.
 	This space is used for tasks like string manipulation of incoming headers.
@@ -2064,12 +2062,12 @@ Does ``thread_pool_timeout`` affect already running threads?
 
        HTTP is a networking protocol for distributed systems. It is the foundation of
        data communication for the Web. The development of this standard is done by the
-       IETF and the W3C. The latest version of the standard is HTTP/1.1.
+       IETF and the W3C. The latest version of the standard is HTTP/1.1. In 2014, new
+       RFCs have been published to clarify (and obsolete) 2616: RFCs 7230 to 7235.
 
-       A new version of HTTP called HTTP bis is under development, you can follow
-       the work document at http://datatracker.ietf.org/wg/httpbis/charter/.
-       Basically HTTP bis will be HTTP/1.1 with new features for example a better
-       caching of web pages.
+       A new version of HTTP called HTTP/2 has been released, but RFCs haven't been
+       published yet. Basically HTTP/2 is a radically different protocol but shares
+       the same goals.
 
    Requests
    --------
@@ -2091,7 +2089,7 @@ Does ``thread_pool_timeout`` affect already running threads?
       Or just get the headers of a resource (`HEAD`)?
 
       There are strict rules that apply to the request methods. For instance,
-      a `GET` request can not contain a request body, but a `POST` request
+      a `GET` request should not contain a request body, but a `POST` request
       can.
 
       Similarly, a web server can not attach a request body to a response to a
@@ -2128,7 +2126,7 @@ Does ``thread_pool_timeout`` affect already running threads?
       Whether the server honors these headers will depend on both the server
       in question and the specific header.
 
-      The following is an example of a HTTP request using the `POST` method,
+      The following is an example of an HTTP request using the `POST` method,
       which includes a request body::
 
 	POST /accounts/ServiceLoginAuth HTTP/1.1
@@ -2159,11 +2157,11 @@ Does ``thread_pool_timeout`` affect already running threads?
 
 	   [data]
 
-   - A HTTP response contains the HTTP versions, response code(e.g: 200)  and response
-     message (e.g: OK).
+   - An HTTP response contains the HTTP versions, a status code (e.g: 200) and
+     a reason (e.g: OK)
    - CRLF as line separator
    - A number of headers
-   - Headers are terminated with a blank line.
+   - Headers are terminated with a blank line
    - Optional response body
 
    .. container:: handout
@@ -2191,6 +2189,12 @@ Does ``thread_pool_timeout`` affect already running threads?
       - 5xx: Server Error - The server failed to fulfill an apparently valid
 	request
 
+   .. note::
+
+      The main difference between a request and a response (besides the semantics)
+      is the start line. Both share the same syntax for headers and the body, but
+      some headers are request- or response-specific.
+
    Response example
    ----------------
 
@@ -2212,7 +2216,7 @@ Does ``thread_pool_timeout`` affect already running threads?
        Via: 1.1 varnish
        Connection: keep-alive
 
-       (data)
+       [data]
 
    HTTP request/response control flow
    ----------------------------------
@@ -2770,11 +2774,11 @@ Detailed Varnish Request Flow for the Client Worker Thread
 The VCL Finite State Machine
 ----------------------------
 
-- Each request is processed separately.
-- Each request is independent from others at any given time.
-- States are related, but isolated.
-- ``return(action);`` exits one state and instructs Varnish to proceed to the next state.
-- Default VCL code is always present, appended below your own VCL.
+- Each request is processed separately
+- Each request is independent from others at any given time
+- States are related, but isolated
+- ``return(action);`` exits one state and instructs Varnish to proceed to the next state
+- Built-in VCL code is always present, appended below your own VCL
 
 .. container:: handout
 
@@ -2792,9 +2796,9 @@ VCL Syntax
 ----------
 
 - //, # and /\* foo \*/ for comments
-- Subroutines must start with ``sub``, and names cannot start with ``vcl_``.
+- Subroutines are declared with the ``sub`` keyword
 - No loops, state-limited variables
-- Terminating statements with a keyword for next action, no return values: ``return(action)``.
+- Terminating statements with a keyword for next action, no return values: ``return(action)``
 - Domain-specific
 - Add as little or as much as you want
 
@@ -2803,7 +2807,7 @@ VCL Syntax
    .. comments
 
    Starting with Varnish 4.0, each VCL file must start by declaring its version with a special ``vcl 4.0;`` marker at the top of the file.
-   If you have worked with a programming language or two before, the basic syntax of Varnish should be reasonably straight forward.
+   If you have worked with a programming language or two before, the basic syntax of Varnish should be reasonably straightforward.
    VCL is inspired mainly by C and Perl.
    Blocks are delimited by curly braces, statements end with semicolons, and comments may be written as in C, C++ or Perl according to your own preferences.
 
@@ -2834,7 +2838,7 @@ List of functions and their arguments:
 - ``ban(exp)``
 - ``return(action)``
 - ``hash_data(input)``
-- ``call(subroutine)``
+- ``call subroutine``
 - ``new()``
 - ``synthetic(str)``
 - ``set()``
@@ -2906,7 +2910,7 @@ Variables in VCL subroutines
 
 .. table 14
 
- .. csv-table:: Table :counter:`tables`: Variable Availability in VCL subroutines
+.. csv-table:: Table :counter:`tables`: Variable Availability in VCL subroutines
    :name: Variable Availability in VCL subroutines
    :delim: ,
    :widths: 25,15,15,15,15,15
@@ -2923,19 +2927,19 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 .. container:: handout
 
    `Table 14 <#tables-14>`_ shows the availability of variables in different states of the Varnish finite state machine.
-   In addition to the variable prefixes in Table #, there are other three variables prefixes; ``client.``, ``server.``, and ``storage.``, and one variable ``now``.
-   These additional prefixes and variable are practically accessible every where.
+   In addition to the variable prefixes in `Table 14 <#tables-14>`_, there are other three variables prefixes; ``client.``, ``server.``, and ``storage.``, and one variable ``now``.
+   These additional prefixes and variable are practically accessible everywhere.
 
    Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
    And the ``resp.`` variables are copies of what is about to be returned to the client.
    The values of ``resp.`` variables come possibly from ``obj.``. 
 
    A change to ``beresp.`` variables, in other words, affects ``obj.`` and ``resp.`` variables. 
-   Similar semantics apply to ``bereq.`` and  ``req.`` variables. 
+   Similar semantics apply to ``req.`` and  ``bereq.`` variables.
    
    Variables belonging to the backend request (``bereq.``) are assigned with values from the original request (``req.``).
    However, their values may slightly differ, because Varnish may modify HTTP requests methods.
-   For example, requests with ``HEAD`` methods may be converted to ``GET`` methods.
+   For example, client requests with ``HEAD`` methods may be converted to backend requests with ``GET`` methods.
 
    Many but not all of the variables are self-explanatory.
    To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
@@ -2943,9 +2947,9 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 Summary of VCL
 --------------
 
-- VCL provides a state machine for controlling Varnish.
-- Each request is handled independently.
-- Building a VCL file is done one line at a time.
+- VCL provides a state machine for controlling Varnish
+- Each request is handled independently
+- Building a VCL file is done one line at a time
 
 .. container:: handout
 
@@ -2966,8 +2970,8 @@ Summary of VCL
    having many independent sections that do not interfere with each
    other more than what they have to.
 
-   Remember that there is a default VCL.
-   **If your own VCL code does not have a return statement, the built-in VCL subroutine is executed after yours.**
+   Remember that there is a built-in VCL.
+   **If your own VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.**
    If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
 
 VCL Built-in Subroutines
@@ -2978,7 +2982,7 @@ VCL Built-in Subroutines
 
 - Go through the VCL built-in subroutines: ``vcl_recv``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_pass``, ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
 - Add some "features" with VCL.
-- If your VCL code does not have a return statement, the built-in VCL subroutine is executed after yours.
+- If your VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.
 
 .. container:: handout
 
@@ -3008,7 +3012,7 @@ VCL - ``vcl_recv``
 - Re-write client-data for web applications
 - Decide caching policy based on client-input
 - Access control lists.
-- Security barriers, e.g., SQL injection attacks
+- Security barriers, e.g., against SQL injection attacks
 - Fixing mistakes, e.g., ``index.htlm`` -> ``index.html``
 
 .. container:: handout
@@ -3016,14 +3020,14 @@ VCL - ``vcl_recv``
    ``vcl_recv`` is the first VCL subroutine executed, right after Varnish has parsed the client request into its basic data structure. 
    ``vcl_recv`` has four main uses:
 
-   #. Modifying the client data to reduce cache diversity. E.g., removing any leading "www." in a URL.
-   #. Deciding which web server to use.
-   #. Deciding caching policy based on client data. E.g., not caching POST requests, only caching specific URLs, etc.
-   #. Executing re-write rules needed for specific web applications.
+   #. Modifying the client data to reduce cache diversity. E.g., removing any leading "www." in the ``Host:`` header
+   #. Deciding which web server to use
+   #. Deciding caching policy based on client data. E.g., not caching POST requests, only caching specific URLs, etc
+   #. Executing re-write rules needed for specific web applications
 
    In ``vcl_recv`` you can perform the following terminating actions:
 
-   `pass`: It passes over the cache *lookup* and *purge* subroutines, but it executes the rest of the Varnish request flow.
+   `pass`: It passes over the cache *lookup*, but it executes the rest of the Varnish request flow.
    It does not stores the response from the backend in the cache.
 
    `pipe`: This action creates a full-duplex pipe that forwards the client request to the backend without looking at the content.
@@ -3031,10 +3035,12 @@ VCL - ``vcl_recv``
    Since Varnish does no longer try to map the content to a request, any subsequent request sent over the same keep-alive connection will also be piped.
    Piped requests do not appear in any log.
 
-   `lookup`: It looks up the request in cache.
+   `hash`: It looks up the request in cache.
+
+   `purge`: It looks up the request in cache, in order to remove it.
    
-   `error` - Generate a synthetic response from Varnish. 
-   Typically web page with an error message, redirect message or response to a health check from a load balancer.
+   `synth` - Generate a synthetic response from Varnish.
+   Typically a web page with an error message, redirect message or response to a health check from a load balancer.
 
    It's also common to use ``vcl_recv`` to apply some security measures.
    Varnish is not a replacement for intrusion detection systems, but can still be used to stop some typical attacks early. 
@@ -3066,7 +3072,7 @@ Built-in: ``vcl_recv``
 
    Built-in VCL code is executed right after any user-defined VCL code, and is always present. 
    You can not remove it.
-   However, the default VCL code will not execute if you use one of the terminating actions: pass, pipe, lookup, or error.
+   However, the default VCL code will not execute if you use one of the terminating actions: pass, pipe, hash, or synth.
    These terminating actions return control from the VRT (VCL Run-Time) to Varnish.
 
    For a well-behaving Varnish server, most of the logic in the default VCL is needed, and care should be taken when ``vcl_recv`` is terminated.
@@ -3112,8 +3118,8 @@ Exercise: Rewrite URLs and Host headers
 .......................................
 
 #. Copy the original `Host`-header (``req.http.Host``) and URL
-   (``req.url``) to two new request header of your choice. E.g:
-   ``req.http.x-host`` and ``req.http.x-url``.
+   (``req.url``) to two new request headers: ``req.http.x-host`` and
+   ``req.http.x-url``.
 #. Ensure that `www.example.com` and `example.com` are cached as one, using
    ``regsub()``.
 #. Rewrite all URLs under `http://sport.example.com` to
@@ -3137,7 +3143,7 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
    In point 2, change ``req.http.host`` by calling the function ``regsub(str, regex, sub)``.
    `str` is the input string, in this case, ``req.http.host``.
    `regex` is the regular expression matching whatever content you need to change.
-   Use ``^`` to match all what begins with *www*, and ``.\`` to finish the regular expression, i.e. `^www\.`.
+   Use ``^`` to match what begins with *www*, and ``\.`` to finish the regular expression, i.e. `^www\.`.
    `sub` is what you desire to change it with, an empty string ``""`` can be used to remove what matches `regex`.
 
    In point 3, you can check for host headers with a specific domain name: ``if (req.http.host == "sport.example.com")``.
@@ -3256,14 +3262,14 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    Likewise, you can use information provided by the server to further decide on the caching policy in ``vcl_backend_fetch``.
 
    ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
-   If ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object is cached.
+   If ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
    If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
 
    In the ``vcl_backend_fetch`` subroutine, you may alter the request before it is sent to the backend.
    ``vcl_backend_fetch`` has access to ``bereq.*`` variables.
    
    A relevant variable is ``bereq.uncacheable``.
-   This variable indicates whether the object requested from the backend is going to be cached or not.
+   This variable indicates whether the object requested from the backend may be cached or not.
    However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
 
    ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
@@ -3275,7 +3281,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    That is, the request is in *pass* mode, the fetched object is not cached.
 
    There are alternatives for the *deliver* terminating action.
-   One alternative occurs when the server replies with a HTTP 304 response code.
+   One alternative occurs when the server replies with an HTTP 304 response code.
    The other alternative handles all other responses from the server.
 
    304 responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
@@ -3404,6 +3410,10 @@ It should cover both accessing `/` and `/index.html`
    For `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, but ``req.http.host`` has the value of `www.example.com` and ``req.url`` the value of `/index.html`.
    Note how the leading `/` is included in ``req.url``.
 
+.. raw:: pdf
+
+   PageBreak oneColumn
+
 Solution: Avoid caching a page
 ..............................
 
@@ -3461,7 +3471,7 @@ Solution: Either use s-maxage or set ttl by file type
 .. container:: handout
 
         There are many ways to solve this exercise, and this solution is only one of them.
-	The first part checks that ``s-maxage`` is /not/ present, then handles .jpg and .html files - including cookie removal.
+	The first part checks that ``s-maxage`` is *not* present, then handles .jpg and .html files - including cookie removal.
 	The second part checks if ``s-maxage`` caused Varnish to set a positive TTL and consider it cacheable.
 	Then, we remove the ``Set-Cookie`` header field.
 
@@ -3499,7 +3509,7 @@ VCL - ``vcl_hash``
    Section `hit-for-pass`_ describes the ``hit-for-pass`` action.
 
    .. note::
-      One cache hash my refer to one or many object variations.
+      One cache hash may refer to one or many object variations.
       Object variations are created based on the ``Vary`` header field.
       It is a good practice to keep several variations under one cache hash, than creating one hash per variation.
 
@@ -3535,7 +3545,7 @@ VCL - ``vcl_hit``
    Grace time is explained in Section `Grace Mode`_.
 
    ``restart`` starts again the transaction, and increases the restart counter.
-   If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru* meditation error.
+   If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru meditation* error.
 
    ``synth(status code, reason)`` returns the specified status code to the client and abandon the request.
 
@@ -3647,6 +3657,10 @@ Exercise: Modify the HTTP response header fields
 - Add a header stating either HIT or MISS
 - "Rename" the Age header to X-Age.
 
+.. raw:: pdf
+
+   PageBreak oneColumn
+
 Solution: Modify the HTTP response header fields
 ................................................
 
@@ -3668,6 +3682,10 @@ Exercise: Change the error message
 ----------------------------------
 
 - Make the default error message more friendly.
+
+.. raw:: pdf
+
+   PageBreak oneColumn
 
 Solution: Change the error message
 ..................................
@@ -4114,7 +4132,7 @@ The VCL example code::
   }
 
 In order to keep the web pages in sync with the database, a trigger is set up in the database.
-When an stock keeping unit (SKU) is updated, a HTTP request towards the Varnish server is triggered.
+When an stock keeping unit (SKU) is updated, an HTTP request towards the Varnish server is triggered.
 This request invalidates every cached object with the matching ``X-HashTwo`` header::
 
   GET / HTTP/1.1
