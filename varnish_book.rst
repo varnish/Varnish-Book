@@ -173,7 +173,7 @@ How to Use the Book
    .. Varnish Cache Course
 
    The Varnish Book is designed to be used as training material under the Varnish Plus course taught by a certified instructor.
-   Under the course, the instructor guides you and selects the relevant chapters to learn.
+   Under the course, the instructor guides you and selects the relevant sections to learn.
    However, you can also use this book as self-instructional material.
    .. If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
@@ -542,7 +542,7 @@ Object Lifetime
 Getting Started
 ===============
 
-In this chapter, you will:
+In this section, you will:
 
 - Install Varnish and Apache
 - Configure Varnish to use Apache as backend
@@ -1400,9 +1400,9 @@ Exercise: Try ``varnishstat`` and ``varnishlog`` together
 Tuning
 ======
 
-*This chapter is for the System Administration Course only*
+*This section is for the System Administration Course only*
 
-This chapter covers:
+This section covers:
 
 - Architecture
 - Best practices
@@ -2633,11 +2633,11 @@ VCL Basics
    When a new configuration is loaded, the ``varnishd`` manager process translates the VCL code to C and compiles it to a shared object.
    This shared object is then loaded into the cacher process.
 
-   .. Chapter overview
+   .. Section overview
 
-   This chapter focuses on the most important tasks to write effective VCL code.
+   This section focuses on the most important tasks to write effective VCL code.
    For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
-   All other built-in subroutines are taught in the next chapter.
+   All other built-in subroutines are taught in the next section.
 
    .. tip::
 
@@ -2857,7 +2857,7 @@ All functions are available in all subroutines, except the listed in the table b
 .. container:: handout
 
    VCL offers a handful of simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control from the VCL Run Time (VRT) environment to Varnish.
-   This book describes the most important functions in later chapters, so the description at this point is brief.
+   This book describes the most important functions in later sections, so the description at this point is brief.
 
    .. regsub and regsuball
 
@@ -2986,11 +2986,11 @@ VCL Built-in Subroutines
 
 .. container:: handout
 
-   This chapter covers the VCL subroutines where you customize the behavior of Varnish.
-   However, this chapter does not define caching policies.
+   This section covers the VCL subroutines where you customize the behavior of Varnish.
+   However, this section does not define caching policies.
    VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
 
-   After this chapter, you should know what all the VCL subroutines can be used for.
+   After this section, you should know what all the VCL subroutines can be used for.
    You should also be ready to dive into more advanced features of Varnish and VCL.
 
    .. Note::
@@ -3011,7 +3011,7 @@ VCL - ``vcl_recv``
 - Pick a backend web server
 - Re-write client-data for web applications
 - Decide caching policy based on client-input
-- Access control lists.
+- Access Control Lists (ACL)
 - Security barriers, e.g., against SQL injection attacks
 - Fixing mistakes, e.g., ``index.htlm`` -> ``index.html``
 
@@ -3044,7 +3044,7 @@ VCL - ``vcl_recv``
 
    It's also common to use ``vcl_recv`` to apply some security measures.
    Varnish is not a replacement for intrusion detection systems, but can still be used to stop some typical attacks early. 
-   Simple access control lists can be applied in ``vcl_recv`` too.
+   Simple `Access Control Lists (ACLs)`_ can be applied in ``vcl_recv`` too.
 
    For further discussion about security in VCL, take a look at the Varnish Security Firewall (VSF) application at https://github.com/comotion/VSF.
    The VSF supports Varnish 3 and above.
@@ -3103,7 +3103,8 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
    This normalization, however, leads to loss of detailed information of the browser.
    If you pass the `User-Agent` header without normalization, the cache size may drastically inflate because Varnish would keep possibly hundreds of different variants per object and per tiny `User-Agent` variants.
 
-   For more information on the `Vary`-header, see the HTTP chapter.
+   .. For more information on the `Vary`-header, see the HTTP section.
+   .. TODO for the author: to uncomment the above line when the HTTP section is back.
 
    .. note::
 
@@ -3290,7 +3291,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    - Overriding cache time for certain URLs
    - Stripping Set-Cookie headers that are not needed
    - Stripping bugged Vary headers
-   - Adding helper-headers to the object for use in banning (more information in later chapters)
+   - Adding helper-headers to the object for use in banning (more information in later sections)
    - Applying other caching policies
 
    The ``vcl_backend_response`` built-in subroutine is designed to avoid *request serialization* as described in the `Waiting State`_ section.
@@ -3735,7 +3736,7 @@ There are three mechanism to invalidate caches in Varnish:
    - How long time does it take to replace the content?
    - Is this a regular task, or a one-off task?
 
-   The rest of the chapter gives you the information to pickup the most suitable mechanisms.
+   The rest of this section gives you the information to pickup the most suitable mechanisms.
 
 HTTP PURGE
 ----------
@@ -3786,9 +3787,8 @@ Test your VCL by issuing::
 
 .. container:: handout
 
-   ``acl`` is a reserved keyword that is used to create Access Control Lists (ACLs).
+   ``acl`` is a reserved keyword that is used to create `Access Control Lists (ACLs)`_.
    ACLs are used to control which client IP addresses are allowed to purge cached objects.
-   For more details about ``acl``, refer to Section `Access Control Lists (ACLs)`_.
 
    Note the ``purge`` return action in ``vcl_recv``.
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
@@ -3842,36 +3842,7 @@ Solution : PURGE an article from the backend
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
 
-.. bookmark with TODO: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
-
-Access Control Lists (ACLs)
----------------------------
-
-- An ACL is a list of IP addresses
-- VCL programs can use ACL to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
-- Compare with ``client.ip`` or ``server.ip``
-
-.. include:: vcl/acl.vcl
-   :literal:
-
-.. container:: handout
-
-   An Access Control List (ACL) declaration creates and initializes a named access control list, which can later be used to match client or server IP addresses.
-   ACLs can be used for anything. 
-   ACLs are typically used to control the IP addresses that are allowed to send ``PURGE`` or *ban* requests, or even to avoid the cache entirely.
-
-   Some people have also setup ACLs to differentiate how their Varnish servers behave.
-   You can, for example, have a single VCL program for different Varnish servers.
-   In this case, the VCL program evaluates ``server.ip`` and acts accordingly.
-
-   ACLs are fairly simple to create.
-   A single IP address or hostname should be in quotation marks, as ``"localhost"``.
-   ACL uses CIDR notation to specify IP addresses and their associated routing prefixes.
-   In Varnish's ACLs the slash "``/``" character is appended outside the quoted IP address, for example ``"192.168.1.0"/24``.
-
-   To exclude an IP address or range from an ACL, and exclamation mark "``!`" should precede the IP quoted address.
-   For example ``!"192.168.1.23"``.
-   This is useful when, for example, you want to include all the IP address in a range except the gateway.
+.. TODO for the author: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
 
 PURGE with ``restart`` return action
 ------------------------------------
@@ -4202,33 +4173,43 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
       Purge and Hashtwo work very similar.
       The main difference is that they have they act on different hash keys.
 
-Mechanisms to Handle Backends in Problematic Situations
-=======================================================
+Saving a Request
+================
 
-*This chapter is for the system administration course only*
+*This section is for the system administration course only*
 
-- Directors: loadable VMOD!
-- Health checks
-- Grace mode
-- ``return (retry);``
-- Using ACLs
+.. table 17
+
+.. csv-table:: Table :counter:`tables`: Connotation of Saving a Request
+   :name: connotation_saving_request
+   :header-rows: 1
+   :stub-columns: 1
+   :widths: 40,20,20,20
+   :file: tables/saving_request.csv
 
 .. container:: handout
 
-   Varnish has several mechanisms to handle backends in problematic situations.
-   Varnish can retry a request to a different server, can perform health checks, use an otherwise expired object, and more.
-   This chapter discusses how these features interact with each other and how you can combine them to make your Varnish setup far more robust.
+   Varnish offers many mechanisms to save a request.
+   By saving a request we mean three objectives:
+
+   #. Rescue: mechanisms to handle requests when backends are in problematic situations.
+   #. Economization: mechanisms to spend less resources, i.e., send less requests to the backend.
+   #. Protection: mechanisms to restrict access cache invalidation from unauthorized entities.
+
+   `Table 17 <#tables-17>`_ shows how different mechanisms are mapped to their saving objectives.
+   This section explains how to make your Varnish setup more robust.
 
 Directors
 ---------
 
+- Loadable VMOD
 - Contains 1 or more backends
 - All backends must be known
 - Selection methods:
   
   - round-robin
   - random
-    
+
     - seeded with a random number
     - seeded with a hash key
 
@@ -4261,7 +4242,7 @@ Directors
 
    .. note::
 
-      Health probes are explain in Section `Health Checks`_.
+      Health probes are explain in the `Health Checks`_ section.
 
       .. TODO for the author: Double check that the health checks subsection is explaining health probes.
 
@@ -4345,7 +4326,7 @@ Health Checks
    Issue ``man vsl`` to see its detailed syntax.
 
    When Varnish has no healthy backend available, it attempts to use a *graced* copy of the cached object that a request is looking for.
-   The next subchapter `Grace Mode`_ explains this concept in detail.
+   The next section `Grace Mode`_ explains this concept in detail.
 
    .. include:: vcl/health_request.vcl
      :literal:
@@ -4502,12 +4483,10 @@ Exercise: Grace
       In Varnish 3.0 it is possible to do ``return (restart)`` after the backend response failed.
       This is now called ``return (retry)``, and jumps back up to ``vcl_backend_fetch``.
 
-.. TODO for the author: Think or ask around for meaningful examples of ``restart`` as a mechanism for backends in problematic situations.
+   .. TODO for the author: Think or ask around for meaningful examples of ``restart`` as a mechanism for backends in problematic situations.
 
-Backend properties
-------------------
-
-- Tune backend properties
+Tune Backend Properties
+-----------------------
 
 .. include:: vcl/backend_properties.vcl
    :literal:
@@ -4523,12 +4502,41 @@ Backend properties
       Varnish only accepts hostnames for backend servers that resolve to a maximum of one IPv4 address `and` one IPv6 address.
       The parameter ``prefer_ipv6`` defines which IP address Varnish prefer.
 
+Access Control Lists (ACLs)
+---------------------------
+
+- An ACL is a list of IP addresses
+- VCL programs can use ACL to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
+- Compare with ``client.ip`` or ``server.ip``
+
+.. include:: vcl/acl.vcl
+   :literal:
+
+.. container:: handout
+
+   An Access Control List (ACL) declaration creates and initializes a named access control list, which can later be used to match client or server IP addresses.
+   ACLs can be used for anything. 
+   ACLs are typically used to control the IP addresses that are allowed to send ``PURGE`` or *ban* requests, or even to avoid the cache entirely.
+
+   Some people have also setup ACLs to differentiate how their Varnish servers behave.
+   You can, for example, have a single VCL program for different Varnish servers.
+   In this case, the VCL program evaluates ``server.ip`` and acts accordingly.
+
+   ACLs are fairly simple to create.
+   A single IP address or hostname should be in quotation marks, as ``"localhost"``.
+   ACL uses CIDR notation to specify IP addresses and their associated routing prefixes.
+   In Varnish's ACLs the slash "``/``" character is appended outside the quoted IP address, for example ``"192.168.1.0"/24``.
+
+   To exclude an IP address or range from an ACL, and exclamation mark "``!`" should precede the IP quoted address.
+   For example ``!"192.168.1.23"``.
+   This is useful when, for example, you want to include all the IP address in a range except the gateway.
+
 Content Composition
 ===================
 
-*This chapter is for the webdeveloper course only*
+*This section is for the webdeveloper course only*
 
-This chapter teaches you how to glue content from independent sources into one web page.
+This section teaches you how to glue content from independent sources into one web page.
 
 - Cookies and how to work with them
 - Edge Side Includes (ESI) and how to compose a single client-visible page out of multiple objects
@@ -4559,7 +4567,7 @@ Ask yourself this:
 .. container:: handout
 
    Beginning with the static elements should be easy. 
-   Previous chapters of this book cover how to handle static elements.
+   Previous sections of this book cover how to handle static elements.
    How to proceed with dynamic content?
 
    An easy solution is to only cache content for users that are not logged in.
