@@ -1500,7 +1500,7 @@ Exercise: Try ``varnishstat`` and ``varnishlog`` together
 Tuning
 ======
 
-*This chapter is for the System Administration Course only*
+*This chapter is for the system administration course only*
 
 This section covers:
 
@@ -3362,7 +3362,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
 
-   ```vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
+   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
    When ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
    If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
    
@@ -3790,42 +3790,46 @@ Solution: Change the error message
 Cache Invalidation
 ==================
 
-- You should decide and define the rules on when and how to invalidate cached objects **before caching them** in production environments.
-
-There are three mechanism to invalidate caches in Varnish:
-
-1) HTTP PURGE
-
-  - Use the ``vcl_purge`` subroutine
-  - Invalidate caches explicitly
-  - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
-  - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
-  - The ``restart`` return action can be used to update immediately a purged object
-
-2) Banning
-
-  - Use the built-in function ``ban(expression)``
-  - Invalidates objects in cache that match the regular expression
-  - Does not necessarily free up memory at once
-
-3) Hashtwo -> Varnish Plus only!
-
-  - For websites with the need for cache invalidation at a very large scale 
-  - Varnish Software implementation of surrogate keys
-  - Flexible cache invalidation based on cache tags
-
-4) Force Cache Misses
-
-  - Use ``req.hash_always_miss`` in ``vcl_recv``
-  - If set to true, Varnish disregards any existing objects and always (re)fetches from the backend
-  - May create multiple objects as side effect
-  - Does not necessarily free up memory at once
-
-  - Which to use when?
+- Cache invalidation is an important part of your cache policy
+- Varnish will automatically invalidate expired objects
+- You can however pro-actively invalidate objects with Varnish
+- You should define those rules **before caching objects** in production environments
 
 .. container:: handout
 
-   Whenever you deal with a cache, you have to eventually deal with the challenge of cache invalidation, or refreshing content. 
+   There are three mechanisms to invalidate caches in Varnish:
+
+   1) HTTP PURGE
+
+     - Use the ``vcl_purge`` subroutine
+     - Invalidate caches explicitly, using objects' hashes
+     - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
+     - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
+     - The ``restart`` return action can be used to update immediately a purged object
+
+   2) Banning
+
+     - Use the built-in function ``ban(expression)``
+     - Invalidates objects in cache that match the regular expression
+     - Does not necessarily free up memory at once
+     - Also accessible from the management interface
+
+   3) Force Cache Misses
+
+     - Use ``req.hash_always_miss`` in ``vcl_recv``
+     - If set to true, Varnish disregards any existing objects and always (re)fetches from the backend
+     - May create multiple objects as side effect
+     - Does not necessarily free up memory at once
+
+   4) Hashtwo -> Varnish Plus only!
+
+     - For websites with the need for cache invalidation at a very large scale
+     - Varnish Software's implementation of surrogate keys
+     - Flexible cache invalidation based on cache tags
+
+   Which to use when?
+
+   Whenever you deal with a cache, you have to eventually deal with the challenge of cache invalidation, or refreshing content.
    There are many motives behind such a task.
    Varnish addresses the problem in several slightly different ways.
 
@@ -3836,7 +3840,7 @@ There are three mechanism to invalidate caches in Varnish:
    - How long time does it take to replace the content?
    - Is this a regular task, or a one-off task?
 
-   The rest of this section gives you the information to pickup the most suitable mechanisms.
+   The rest of the chapter gives you the information to pickup the most suitable mechanisms.
 
 HTTP PURGE
 ----------
@@ -3855,7 +3859,7 @@ HTTP PURGE
    Usually a purge is invoked through HTTP with the method PURGE.
    An HTTP PURGE is another request method just as HTTP GET.
    Actually, you can call the PURGE method whatever you like, but most people refer to it as purging.
-   Squid, for example, uses the PURGE method name for the same purpose.
+   Squid, for example, uses the PURGE method name for the same purpose, it has become a de-facto standard.
 
    The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
    That means that if the backend is down, Varnish does not have a copy of the content.
@@ -3871,8 +3875,8 @@ VCL – ``vcl_purge``
 
 .. note::
 
-   Cache invalidation with purges is done via ``return(purge)`` from ``vcl_recv`` in Varnish 4.
-   The ``purge;`` keyword has been retired from Varnish 3.
+   Cache invalidation with purges is done via ``return (purge);`` from ``vcl_recv`` in Varnish 4.
+   The ``purge;`` keyword from Varnish 3 has been retired.
 
 Example: ``PURGE``
 ..................
@@ -3959,7 +3963,7 @@ PURGE with ``restart`` return action
    This is useful in combination with PURGE, in the way that a purged object can be immediately restored with a new fetched object.
 
    Every time a `restart` occurs, Varnish increments the ``req.restarts`` counter.
-   If the number of restarts is higher than the ``max_restarts`` parameter, Varnish emits a guru meditation error.
+   If the number of restarts is higher than the ``max_restarts`` parameter, Varnish emits a *guru meditation* error.
    In this way, Varnish safe guards against infinite loops.
 
    .. warning::
@@ -3973,8 +3977,8 @@ Banning
 - Does not free up memory
 - Examples in CLI:
 
-  - ``ban req.url ~ "/foo"``
-  - ``ban req.http.host ~ "example.com" && obj.http.content-type ~ "text"``
+  - ``ban req.url ~ /foo``
+  - ``ban req.http.host ~ example.com && obj.http.content-type ~ text``
   - ``ban.list``
 
 - Example in VCL:
@@ -4055,17 +4059,19 @@ Banning
       This might impact CPU usage and thereby performance.
 
       Therefore, we recommend you to avoid ``req.*`` variables in your ban expressions, and to use ``obj.*`` variables instead.
-      Ban expressions using only ``obj.*`` are called *lurker friendly bans*.
+      Ban expressions using only ``obj.*`` are called *lurker-friendly bans*.
 
    .. note::
 
       If the cache is completely empty, only the last added ban stays in the ban-list.
 
 
-Lurker Friendly Bans
+Lurker-Friendly Bans
 ....................
 
-- ban expressions that match only against ``obj.*``
+- Ban expressions that match only against ``obj.*``
+- Evaluated asynchronously by the *ban lurker* thread
+- Similar to the concept of *garbage collection*
 
 .. container:: handout
 
@@ -4074,36 +4080,57 @@ Lurker Friendly Bans
    Otherwise, you might accumulate a lot of ban expressions in the ban-list that are never checked.
    The second case is a better alternative because the ban lurker can help you keep the ban list at a manageable size.
    Therefore, we recommend you to create ban expressions that are checked by the ban lurker.
-   Such ban expressions are called *lurker friendly bans*.
+   Such ban expressions are called *lurker-friendly bans*.
 
-   *Lurker friendly ban* expressions are those that use only ``obj.*``, but not ``req.*`` variables.
-   Since *lurker friendly ban* expressions lack of ``req.*``, you might need to copy some of the ``req.*`` variables into the ``obj`` structure.
+   *Lurker-friendly ban* expressions are those that use only ``obj.*``, but not ``req.*`` variables.
+   Since *lurker-friendly ban* expressions lack of ``req.*``, you might need to copy some of the ``req.*`` contents into the ``obj`` structure.
    In fact, this copy operation is a mechanism to preserve the context of client request in the cached object.
    For example, a useful part of the client context is the requested URL.
 
-   The following snippet shows an example on how to preserve the context of a client request in the cached object.
-   The snippet also shows how to insert a *lurker friendly ban* expression into the ban-list in the ``vcl_recv`` subroutine::
+   .. raw:: pdf
+
+      PageBreak oneColumn
+
+   The following snippet shows an example on how to preserve the context of a client request in the cached object::
 
      sub vcl_backend_response {
         set beresp.http.x-url = bereq.url;
      }
 
      sub vcl_deliver {
-        unset resp.http.x-url; # Optional
+        # The X-Url header is for internal use only
+        unset resp.http.x-url;
      }
 
-     sub vcl_recv {
-        # Assumes req.url is a regex. This might be a bit too simple.
-        ban("obj.http.x-url ~ " + req.url);
-     }
+   Now imagine that you just changed the blog post template. To invalidate all
+   blog posts, you can then issue a ban such as::
+
+     $ varnishadm ban 'obj.http.x-url ~ ^/blog'
+
+   Because it uses a *lurker-friendly ban* expression, the ban inserted in the
+   ban-list will be gradually evaluated against all cached objects until all
+   blog posts are invalidated.
+
+   The snippet below also shows how to insert the same expression into the
+   ban-list in the ``vcl_recv`` subroutine::
+
+      sub vcl_recv {
+         if (req.method == "BAN") {
+            # Assumes the ``X-Ban`` header is a regex,
+            # this might be a bit too simple.
+
+            ban("obj.http.x-url ~ " + req.http.x-ban);
+            return(synth(200, "Ban added"));
+         }
+      }
+
 
 Exercise: Write a VCL program using *purge* and *ban*
 -----------------------------------------------------
 
 Write a VCL program that implements both cache invalidation mechanisms: *purge* and *ban*.
-The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker friendly bans*.
+The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker-friendly bans*.
 
-Do you get any artifacts from using smart bans, and can you avoid them?
 
 To build further on this, you can also have a ``REFRESH`` HTTP method that fetches new content, using ``req.hash_always_miss``.
 
@@ -4113,8 +4140,12 @@ To build further on this, you can also have a ``REFRESH`` HTTP method that fetch
 
      http -p hH PURGE http://localhost/testpage
      http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' \
-     'X-Ban-Host: .*\.example\.com'
+                                      'X-Ban-Host: .*\.example\.com'
      http -p hH REFRESH http://localhost/testpage
+
+.. raw:: pdf
+
+   PageBreak oneColumn
 
 Solution: Write a VCL program using *purge* and *ban*
 .....................................................
@@ -4128,7 +4159,7 @@ Solution: Write a VCL program using *purge* and *ban*
 Hashtwo (Varnish Software Implementation of Surrogate Keys)
 -----------------------------------------------------------
 
-- Hashtwo is Varnish' implementation of surrogate keys
+- Hashtwo is Varnish Software's implementation of surrogate keys
 - Cache invalidation based on cache tags
 - Adds patterns easily to be matched against
 - Highly scalable
@@ -4141,13 +4172,13 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    In this way, when you update the price of a certain product or a specific article, you have a key to evict all those objects from the cache.
 
    So far, we have discussed *purges* and *bans* as mechanisms for cache invalidation.
-   Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching regular expressions.
+   Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching expressions.
    However, there are cases where none of these mechanisms are optimal.
 
    *Hashtwo* creates a second hash key to link cached objects based on cache tags.
    This hash keys provide the means to invalidate cached objects with common cache tags.
 
-   In practice, *Hashtwo* create cache invalidation patters, which can be tested and invalidated immediately just as *purges* do.
+   In practice, *Hashtwo* create cache invalidation patterns, which can be tested and invalidated immediately just as *purges* do.
    In addition, *Hashtwo* is much more efficient than *bans* because of two reasons:
    1) looking up *hash keys* is much more efficient than traversing ban-lists, and
    2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
@@ -4163,7 +4194,7 @@ On an e-commerce site the backend application issues a ``X-HashTwo`` HTTP header
 page.
 The header for a certain page might look like this::
 
-  HTTP/1.1 OK
+  HTTP/1.1 200 OK
   Server: Apache/2.2.15
   X-HashTwo: 8155054
   X-HashTwo: 166412
@@ -4192,7 +4223,7 @@ The VCL example code::
   }
 
 In order to keep the web pages in sync with the database, a trigger is set up in the database.
-When an stock keeping unit (SKU) is updated, an HTTP request towards the Varnish server is triggered.
+When a stock keeping unit (SKU) is updated, an HTTP request towards the Varnish server is triggered.
 This request invalidates every cached object with the matching ``X-HashTwo`` header::
 
   GET / HTTP/1.1
@@ -4218,7 +4249,8 @@ The objects are now cleared.
 Force Cache Misses
 ------------------
 
-- ``req.hash_always_miss = true;`` in ``vcl_recv`` causes Varnish to look the object up in cache, but ignore any copy it finds
+- ``set req.hash_always_miss = true;`` in ``vcl_recv``
+- Causes Varnish to look the object up in cache, but ignore any copy it finds
 - Useful way to do a controlled refresh of a specific object
 - If the server is down, the cached object is left untouched
 - Depending on Varnish-version, it may leave extra copies in the cache
@@ -4227,14 +4259,14 @@ Force Cache Misses
 .. container:: handout
 
    Setting a request in *pass* mode instructs Varnish to always ask a backend for content, without storing the fetched object into cache.
-   The ``vcl_purge`` removes removes old content, but what if the web server is down?
+   The ``vcl_purge`` removes old content, but what if the web server is down?
 
-   Using ``req.has_always_miss = true;`` tells Varnish to look up the content in cache, but always miss a hit.
+   Setting ``req.has_always_miss`` to ``true`` tells Varnish to look up the content in cache, but always miss a hit.
    This means that Varnish first calls ``vcl_miss``, then (presumably) fetches the content from the backend, cache the updated object, and deliver the updated content.
 
-   The distinctive behavior of ``hash_always_miss`` occurs when the backend server is down or unresponsive.
+   The distinctive behavior of ``req.hash_always_miss`` occurs when the backend server is down or unresponsive.
    In this case, the current cached object is untouched.
-   Therefore, client requests that do not send ``req.hash_always_miss=true;`` keep getting the old and untouched cached content.
+   Therefore, client requests that do not enable ``req.hash_always_miss`` keep getting the old and untouched cached content.
 
    .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
 
@@ -4245,7 +4277,7 @@ Force Cache Misses
    .. note::
 
       Forcing cache misses do not evict old content.
-      This means that causes Varnish to have  multiple copies of the content in cache. 
+      This means that causes Varnish to have multiple copies of the content in cache.
       The newest copy is always used.
       If you cache your content for a long period of time, the memory usage increases gradually.
 
@@ -4308,6 +4340,7 @@ Directors
 - Selection methods:
   
   - round-robin
+  - fallback
   - random
 
     - seeded with a random number
@@ -4321,30 +4354,30 @@ Directors
 .. container:: handout
 
    Varnish can have several backends defined, and it can set them together into clusters for load balancing purposes.
-   Backend directors, usually just called directors, provide logical groupings of similar web servers.
+   Backend directors, usually just called directors, provide logical groupings of similar web servers by re-using previously defined backends.
    A director must have a name.
 
-   Directors allow you to re-use previously defined backends, or define "anonymous" backends within the director definition. 
-   If a backend is defined explicitly and referred to or from a director, Varnish records data such as the number of connections.
-   The definition of anonymous backends within a director also yields all the normal properties of a backend.
-
-   There are several different director selection methods available, they are: random, round-robin, and hash.
-   The next backend to be selected depends on the selection method.   
-   The simplest directors available are the *round-robin* and the *random* director. 
+   There are several different director selection methods available, they are: random, round-robin, fallback, and hash.
+   The next backend to be selected depends on the selection method.
+   The simplest directors available are the *round-robin* and the *random* director.
 
    A *round-robin* director takes only a backend list as argument.
    This director type picks the first backend for the first request, then the second backend for the second request, and so on.
-   Once the last backend have been selected, backends are selected again from the top. 
-   If a health probe has marked a backend as sick, the round-robin director skip it.
+   Once the last backend have been selected, backends are selected again from the top.
+   If a health probe has marked a backend as sick, a round-robin director skips it.
 
    *Random* directors are seeded with either a random number or a hash key.
    The next `Random directors`_ section explains their commonalities and differences.
 
+   A *fallback* director will always pick the first backend unless it is sick,
+   in which case it would pick the next backend and so on. A director is also
+   considered a backend so you can actually stack directors. You could for
+   instance have use directors for active and passive clusters, and put those
+   directors behind a fallback director.
+
    .. note::
 
       Health probes are explain in the `Health Checks`_ section.
-
-      .. TODO for the author: Double check that the health checks subsection is explaining health probes.
 
    .. note::
 
@@ -4431,6 +4464,18 @@ Health Checks
    .. include:: vcl/health_request.vcl
      :literal:
 
+   .. raw:: pdf
+
+         PageBreak oneColumn
+
+   You can also declare standalone probes and reuse them for several backends.
+   It is particularly useful when you use directors with identical behaviors,
+   or when you use the same health check procedure across different web
+   applications.
+
+   .. include:: vcl/health_standalone.vcl
+     :literal:
+
    .. note::
 
       Varnish does NOT send a Host header with health checks. 
@@ -4457,7 +4502,7 @@ Grace Mode
    When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
    This procedure is also known as ``stale-while-revalidate``.
 
-   The most common reason for Varnish to deliver a `graced object` is when a backend health-probe returns ``FALSE``.
+   The most common reason for Varnish to deliver a `graced object` is when a backend health-probe indicates a sick backend.
    Varnish reads the variable ``obj.grace`` to use a `graced object`.
    The variable ``obj.grace`` can be assigned by two means:
    1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend, or 
@@ -4521,22 +4566,23 @@ When can grace happen
 Exercise: Grace
 ...............
 
-1. Copy the following CGI script in ``/usr/lib/cgi-bin/test.cgi``::
-        #! /bin/sh
-        sleep 15
+#. Copy the following CGI script in ``/usr/lib/cgi-bin/test.cgi``::
+
+        #!/bin/sh
+        sleep 10
         echo "Content-type: text/plain"
-        echo "Cache-control: max-age=15, stale-while-revalidate=30"
+        echo "Cache-control: max-age=10, stale-while-revalidate=20"
         echo
         echo "Hello world"
 	date
 
-2. Make the script executable.
-4. Issue ``varnishlog -g request -i VCL_call,VCL_return`` in one terminal.
-3. Test that the script works outside Varnish by typing ``http http://localhost:8080/cgi-bin/test.cgi`` in another terminal.
-4. Send a single request, this time via Varnish, to cache the response from the CGI script. This should take 15 seconds.
-6. Send three requests: one before the TTL (15 seconds) elapses, another after 15 seconds and before 30 seconds, and a last one after 30 seconds.
-7. Repeat until you understand the output of ``varnishlog``.
-8. Play with the values of ``max-age`` and ``stale-while-revalidate`` in the CGI script, and the ``beresp.grace`` value in the VCL code.
+#. Make the script executable.
+#. Issue ``varnishlog -i VCL_call,VCL_return`` in one terminal.
+#. Test that the script works outside Varnish by typing ``http http://localhost:8080/cgi-bin/test.cgi`` in another terminal.
+#. Send a single request, this time via Varnish, to cache the response from the CGI script. This should take 10 seconds.
+#. Send three requests: one before the TTL (10 seconds) elapses, another after 10 seconds and before 30 seconds, and a last one after 30 seconds.
+#. Repeat until you understand the output of ``varnishlog``.
+#. Play with the values of ``max-age`` and ``stale-while-revalidate`` in the CGI script, and the ``beresp.grace`` value in the VCL code.
 
 .. container:: handout
 

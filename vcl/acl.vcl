@@ -10,7 +10,7 @@ sub vcl_recv {
     if (client.ip ~ local) {
        return(purge);
     } else {
-       return(synth(403, "Access denied."));
+       return(synth(405));
     }
   }
 }

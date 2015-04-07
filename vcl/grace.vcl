@@ -18,7 +18,7 @@ sub vcl_hit {
       // No valid object to deliver
       // No healthy backend to handle request
       // Return error
-      return (synth(500, "Backend is down"));
+      return (synth(503, "Backend is down"));
    }
   }
 }
