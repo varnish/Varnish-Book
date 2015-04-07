@@ -20,7 +20,8 @@ digraph varnishfsm{
 		}
 		label="Frontend (From Client) Workthread";
 		
-		vcl_recv -> vcl_hash [label="lookup"];
+		vcl_recv -> vcl_hash [label="lookup"]
+		vcl_recv -> vcl_hash [label="purge",color=purple];
 		vcl_recv -> vcl_pipe[color=orange];
 		vcl_pipe -> Done[color=orange];
 		vcl_hash -> vcl_hit[label="hit",color=darkgreen];

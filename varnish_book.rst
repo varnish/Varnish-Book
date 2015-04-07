@@ -1540,13 +1540,13 @@ The *Cacher* consists of several different types of threads, including, but not 
 VCL compilation
 ...............
 
-Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL). 
+Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL).
 Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
 Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formatted VCL.
 
-As a result of this, changing configuration while running Varnish is very cheap. 
+As a result of this, changing configuration while running Varnish is very cheap.
 Policies of the new VCL takes effect immediately.
-However, objects created with an older configuration may persist until they have no more old references or the  new configuration acts on them.
+However, objects cached with an older configuration may persist until they have no more old references or the  new configuration acts on them.
 
 A compiled VCL file is kept around until you restart Varnish completely, or until you issue ``vcl.discard`` from the management interface.
 You can only discard compiled VCL files after all references to them are gone.
@@ -1599,8 +1599,6 @@ You can select one method with the ``-s`` option of ``varnishd``.
    The Varnish Massive Storage Engine (MSE) is an improved storage backend for Varnish Plus only.
    Its main improvements are decreased disk IO load and lower storage fragmentation.
    MSE is designed and tested with storage sizes up to 10 TB.
-
-   While `malloc` is used swap to store data to disk, `file` and MSE use memory to cache the data instead. 
 
    .. Choosing the storage backend
 
@@ -2674,7 +2672,7 @@ Varnish Finite State Machine
    `Figure 6 <#figures-6>`_ depicts a simplified version of the Varnish finite state machine.
    This diagram shows the most common state transitions, and it is by no means complete.
    `Figure 7 <#figures-7>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
-   A detailed version of the request flow diagram for the backend worker is in Section `VCL - vcl_backend_fetch and vcl_backend_response`_.
+   A detailed version of the request flow diagram for the backend worker is in the `VCL - vcl_backend_fetch and vcl_backend_response`_ section.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
 
@@ -2743,10 +2741,12 @@ Below is the code of the built-in ``vcl_backend_response``.
 
 The above code avoids *request serialization* by applying rules when fetched objects should not be cached.
 For this purpose, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
-Section `hit-for-pass`_ explains in detail this object type.
+The `hit-for-pass`_ section explains in detail this object type.
 
 If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
 If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
+
+
 
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
@@ -2778,7 +2778,7 @@ The VCL Finite State Machine
 - Each request is independent from others at any given time
 - States are related, but isolated
 - ``return(action);`` exits one state and instructs Varnish to proceed to the next state
-- Built-in VCL code is always present, appended below your own VCL
+- Built-in VCL code is always present and appended below your own VCL
 
 .. container:: handout
 
@@ -3020,15 +3020,15 @@ VCL - ``vcl_recv``
    ``vcl_recv`` is the first VCL subroutine executed, right after Varnish has parsed the client request into its basic data structure. 
    ``vcl_recv`` has four main uses:
 
-   #. Modifying the client data to reduce cache diversity. E.g., removing any leading "www." in the ``Host:`` header
-   #. Deciding which web server to use
-   #. Deciding caching policy based on client data. E.g., not caching POST requests, only caching specific URLs, etc
-   #. Executing re-write rules needed for specific web applications
+   #. Modifying the client data to reduce cache diversity. E.g., removing any leading "www." in the ``Host:`` header.
+   #. Deciding which web server to use.
+   #. Deciding caching policy based on client data. E.g., not caching POST requests, only caching specific URLs, etc.
+   #. Executing re-write rules needed for specific web applications.
 
    In ``vcl_recv`` you can perform the following terminating actions:
 
    `pass`: It passes over the cache *lookup*, but it executes the rest of the Varnish request flow.
-   It does not stores the response from the backend in the cache.
+   `pass` does not store the response from the backend in the cache.
 
    `pipe`: This action creates a full-duplex pipe that forwards the client request to the backend without looking at the content.
    Backend replies are forwarded back to the client without caching the content.
@@ -3037,7 +3037,7 @@ VCL - ``vcl_recv``
 
    `hash`: It looks up the request in cache.
 
-   `purge`: It looks up the request in cache, in order to remove it.
+   `purge`: It looks up the request in cache in order to remove it.
    
    `synth` - Generate a synthetic response from Varnish.
    Typically a web page with an error message, redirect message or response to a health check from a load balancer.
@@ -3256,17 +3256,14 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
 .. container:: handout
 
-   `Figure 8 <#figures-8>`_ shows the ``vcl_backend_fetch`` and ``vcl_backend_response`` subroutines.
+   `Figure 8 <#figures-8>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
-   In ``vcl_recv`` you can use information provided by the client to decide on caching policy.
-   Likewise, you can use information provided by the server to further decide on the caching policy in ``vcl_backend_fetch``.
+   You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
+   An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
 
-   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
-   If ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
+   ```vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
+   When ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
    If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
-
-   In the ``vcl_backend_fetch`` subroutine, you may alter the request before it is sent to the backend.
-   ``vcl_backend_fetch`` has access to ``bereq.*`` variables.
    
    A relevant variable is ``bereq.uncacheable``.
    This variable indicates whether the object requested from the backend may be cached or not.
@@ -3274,20 +3271,18 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
    ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
    The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
+   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
    The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
-   `Figure 9 <#figures-9>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
-   The *deliver* terminating action may or may not insert the object into the cache.
-   That is, the request is in *pass* mode, the fetched object is not cached.
+   `Figure 8 <#figures-8>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
-   There are alternatives for the *deliver* terminating action.
-   One alternative occurs when the server replies with an HTTP 304 response code.
-   The other alternative handles all other responses from the server.
-
-   304 responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
+   Backends might respond with a ``304`` HTTP headers.
+   ``304`` responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
    If the request hits a non fresh object (see `Figure 2 <#figures-2>`_), Varnish adds the ``If-Modified-Since`` header with the value of ``t_origin`` to the request and sends it to the backend.
 
-   304 responses do not contain a message-body, thus, Varnish tries to *steal* the body from cache, merge it with the header response and deliver it.
+   ``304`` responses do not contain a message-body.
+   Thus, Varnish tries to *steal* the body from cache, merge it with the header response and deliver it.
    This process updates the attributes of the cached object.
 
    Typical tasks performed in ``vcl_backend_fetch`` or ``vcl_backend_response`` include:
@@ -3298,21 +3293,15 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    - Adding helper-headers to the object for use in banning (more information in later chapters)
    - Applying other caching policies
 
+   The ``vcl_backend_response`` built-in subroutine is designed to avoid *request serialization* as described in the `Waiting State`_ section.
+   This subroutine also avoids caching conditions that are most probably undesired.
+   For example, it avoids caching responses with cookies, i.e., responses with ``Set-cookie`` HTTP header field.
+
    .. note::
+
       Varnish 3.x has a *hit_for_pass* return action.
-      This action is replaced in Varnish 4 with the variable ``beresp.uncacheable``.
-
-Built-in: ``vcl_backend_response``
-..................................
-
-.. include:: vcl/default-vcl_backend_response.vcl
-   :literal:
-
-.. container:: handout
-
-   The built-in ``vcl_backend_response`` subroutine is designed to avoid caching in many conditions.
-   Notable is the case when the ``Set-cookie`` HTTP header field, because there are very few situations where caching content with a set-cookie header is desirable.
-   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
+      In Varnish 4, this action is achieved by setting ``beresp.uncacheable`` to ``true``.
+      The `hit-for-pass`_ section explains this in more detail.
 
 The initial value of ``beresp.ttl``
 ...................................
