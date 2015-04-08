@@ -73,6 +73,10 @@ Also included are Varnish programs such as ``varnishtop``, and extra material.
    .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
    .. The VMOD course shows how to ???.
 
+.. raw:: pdf
+
+   PageBreak
+
 .. class:: heading2
 
    Necessary Background
@@ -234,6 +238,10 @@ The Webdev course requires that you:
    If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
    You can also contact the Varnish open source community at https://varnish-cache.org.
    To book training, please look at https://varnish-software.com/academy.
+
+.. raw:: pdf
+
+   PageBreak
 
 .. class:: heading2
 
