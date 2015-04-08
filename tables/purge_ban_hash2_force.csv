@@ -1,5 +1,5 @@
 ,Bans,Purge,Hashtwo – Surrogate keys,Force Cache Misses
-Targets,Objects matching patters,One specific object (with all its variants),All objects with a common hashtwo key,One specific object (with all its variants)
+Targets,Objects matching patterns,One specific object (with all its variants),All objects with a common hashtwo key,One specific object (with all its variants)
 Frees memory,"Not designed to free memory, but it does free memory after a request hits an object in cache that matches a ban expression, or the ban luker invalidates cached object.",Immediately,Immediately,No
 Scalability,"High when used properly, e.g., when using lurker friendly bans, having few cached objects, having a short ban-list, or writting and triggering manually a set of bans that target very well identified objects.",High,High,No. Memory usage increases because old objects are not invalidated.
 Flexibility,High,Low,High,Low

@@ -1,6 +1,6 @@
 vcl 4.0;
 
-import directors;    // load the directors
+import directors;    // load the directors VMOD
 
 backend one {
    .host = "localhost";
