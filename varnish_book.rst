@@ -4598,7 +4598,7 @@ Exercise: Grace
 
    With this exercise, you should see that as long as the cached object is within its TTL, Varnish delivers the cached object as normal.
    Once the TTL expires, Varnish delivers the graced copy, and asynchronously fetches an object from the backend.
-   Therefore, after 15 seconds of triggering the asynchronous fetch, an updated object is available in the cache.
+   Therefore, after 10 seconds of triggering the asynchronous fetch, an updated object is available in the cache.
 
 .. TODO for the author: Before, it was a no finished section called: "Demo: Health probes and grace". Should we add it?
 
@@ -4662,7 +4662,7 @@ Access Control Lists (ACLs)
 ---------------------------
 
 - An ACL is a list of IP addresses
-- VCL programs can use ACL to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
+- VCL programs can use ACLs to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
 - Compare with ``client.ip`` or ``server.ip``
 
 .. include:: vcl/acl.vcl
@@ -4670,20 +4670,20 @@ Access Control Lists (ACLs)
 
 .. container:: handout
 
-   An Access Control List (ACL) declaration creates and initializes a named access control list, which can later be used to match client or server IP addresses.
+   An Access Control List (ACL) declaration creates and initializes a named list of IP addresses and ranges, which can later be used to match client or server IP addresses.
    ACLs can be used for anything. 
-   ACLs are typically used to control the IP addresses that are allowed to send ``PURGE`` or *ban* requests, or even to avoid the cache entirely.
+   They are typically used to control the IP addresses that are allowed to send ``PURGE`` or *ban* requests, or even to avoid the cache entirely.
 
-   Some people have also setup ACLs to differentiate how their Varnish servers behave.
+   You may also setup ACLs to differentiate how your Varnish servers behave.
    You can, for example, have a single VCL program for different Varnish servers.
    In this case, the VCL program evaluates ``server.ip`` and acts accordingly.
 
    ACLs are fairly simple to create.
    A single IP address or hostname should be in quotation marks, as ``"localhost"``.
-   ACL uses CIDR notation to specify IP addresses and their associated routing prefixes.
+   ACL uses the CIDR notation to specify IP addresses and their associated routing prefixes.
    In Varnish's ACLs the slash "``/``" character is appended outside the quoted IP address, for example ``"192.168.1.0"/24``.
 
-   To exclude an IP address or range from an ACL, and exclamation mark "``!`" should precede the IP quoted address.
+   To exclude an IP address or range from an ACL, and exclamation mark "``!``" should precede the IP quoted address.
    For example ``!"192.168.1.23"``.
    This is useful when, for example, you want to include all the IP address in a range except the gateway.
 
