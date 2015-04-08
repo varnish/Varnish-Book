@@ -4758,7 +4758,7 @@ Varnish can handle cookies coming from three different sources:
    In other words, the worst is to jeopardize users' privacy for saving backend resources.
    Therefore, it is strongly advised to take your time to write a correct VCL program and test it thoroughly before caching cookies in production deployments.
 
-   Despite cookie-based caching is discouraged, Varnish can be forced to cache content based on cookies.
+   Despite cookie-based caching being discouraged, Varnish can be forced to cache content based on cookies.
    If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
    If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
 
@@ -4806,7 +4806,10 @@ Both a ``Vary: Cookie`` response header and ``hash_data(req.http.Cookie);`` crea
 This exercise is all about ``Vary`` and hash dynamics.
 
 #. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
-#. Test ``cookies.php`` by issuing  ``curl -v --cookie "user=John" http://localhost/cookies.php``.
+#. Test ``cookies.php`` by issuing::
+
+    http -p hH http://localhost/cookies.php "Cookie: user=John"
+
 #. Write a VCL program to force Varnish to cache the response from ``cookies.php``.
 #. Change the cookie, and see if you get a new value.
 #. Make ``cookies.php`` send a ``Vary: Cookie`` header, then try changing the cookie again.
@@ -4841,7 +4844,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   Figure `Figure 9 <#figures-9>`_ depicts this process.
+   `Figure 9 <#figures-9>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -4969,9 +4972,13 @@ Masquerading AJAX requests
 
 .. container:: handout
 
-    With AJAX it is not possible to send requests across another domain.
+    With AJAX it is not possible by default to send requests across another domain.
     This is a security restriction imposed by browsers.
     If this represents an issue for your web pages, you can be easily solve it by using Varnish and VCL.
+
+.. raw:: pdf
+
+      PageBreak
 
 Exercise : write a VCL that masquerades XHR calls
 .................................................
@@ -4986,6 +4993,10 @@ Use the provided ``ajax.html`` page.
 Notice that function ``getNonMasqueraded()`` fails because the origin is distinct to the ``google.com`` domain.
 Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
+
+.. raw:: pdf
+
+      PageBreak
 
 Solution : write a VCL that masquerades XHR calls
 .................................................
