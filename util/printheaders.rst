@@ -7,7 +7,7 @@
       +---+-----------------------+------------------+
       |   | .. class:: centered   | .. class:: right |
       |   |                       |                  |
-      |   | Section ###Section### | Page ###Page###  |
+      |   | Chapter ###Section### | Page ###Page###  |
       +---+-----------------------+------------------+
 
       .. class:: headertable
@@ -15,7 +15,7 @@
       +---------------+---------------------+---+
       |               |.. class:: centered  |   |
       |               |                     |   |
-      |Page ###Page###|Section ###Section###|   |
+      |Page ###Page###|Chapter ###Section###|   |
       +---------------+---------------------+---+
 
 .. footer::

@@ -11,6 +11,7 @@ PICK = "./util/pickchapter2.igawk"
 # the pdfs you can now build.
 
 book = "*"
+slides = "Abstract"
 
 # Selecting chapters in this way does not work.
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
@@ -33,8 +34,9 @@ exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${ex
 
 
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
-sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
+#sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf
+slidest= ${BDIR}/varnish_slides.pdf
 testt= ${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
@@ -57,16 +59,18 @@ common = ${mergedrst} \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = book sysadmin
+targets = slides
 #webdev book sysadmin
 
 all: ${common} ${targets}
 
 webdev: ${webdevt}
 
-sysadmin: ${sysadmint}
+# sysadmin: ${sysadmint}
 
 book: ${bookt}
+
+slides: ${slidest}
 
 test: ${testt}
 
@@ -131,11 +135,11 @@ ${BDIR}:
 
 ${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
 	@echo Building PDFs for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ${RST2PDF} -s ui/pdf.style -b2 -o $@
+	@${PICK} -v inc=${$*} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 -s ui/pdf.style -b2 -o $@
 
-${BDIR}/varnish_slide-%.pdf: ${common} ui/pdf_slide.style
+${BDIR}/varnish_%.pdf: ${common} ui/pdf_slide.style
 	@echo Building PDF slides for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -s ui/pdf_slide.style -b2 -o $@
+	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 -s ui/pdf_slide.style -b2 -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |def_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
@@ -145,14 +149,14 @@ sourceupdate: util/param.rst flowchartupdate
 clean:
 	-rm -r build/
 
-varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slide-%.pdf ${BDIR}/${materialpath}.tar.bz2
+varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slides-%.pdf ${BDIR}/${materialpath}.tar.bz2
 	@echo Preparing $@ ...
 	@target=${BDIR}/dist/varnish_$*-${version}/; \
 	mkdir -p $${target};\
 	mkdir -p $${target}/pdf/;\
 	mkdir -p $${target}/img/;\
 	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
-	cp -r ${BDIR}/varnish_slide-$*.pdf $$target/pdf/varnish_slide_$*-v${version}.pdf;\
+	cp -r ${BDIR}/varnish_slides-$*.pdf $$target/pdf/varnish_slides_$*-v${version}.pdf;\
 	cp -r munin/ $${target};\
 	cp ui/img/cache_fetch.png ui/img/cache_req_fsm.png $${target}/img/; \
 	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \

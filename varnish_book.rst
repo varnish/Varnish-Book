@@ -1,11 +1,11 @@
 .. include:: util/frontpage.rst
 
+.. include:: util/printheaders.rst
+
 .. include:: build/version.rst
 
 .. contents::
    :class: handout
-
-.. include:: util/printheaders.rst
 
 .. include:: util/control.rst
 
@@ -13,12 +13,11 @@
 
 .. raw:: pdf
 
-   PageBreak oneColumn
+   PageBreak coverPage
 
-.. TODO for the editor: To find out how to disable automatic section numbering with ``--no-section-numbering``.
+.. class:: heading1
 
-Abstract
-========
+   Abstract
 
 The Varnish Book is the training material for Varnish Plus courses.
 The book teaches technical staff how to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
@@ -27,8 +26,13 @@ The book explains how to get started with the Varnish, and its Varnish Configura
 Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
 Also included are Varnish programs such as ``varnishtop``, and extra material.
 
-Preface
-=======
+.. raw:: pdf
+
+   PageBreak
+
+.. class:: heading1
+
+   Preface
 
 - Course for Varnish Plus
 - Install and configure a Varnish server
@@ -53,7 +57,7 @@ Preface
    Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
 
    For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
-   There is more information about differences between Varnish Cache and Varnish Cache Plus in Section `Varnish Cache and Varnish Plus`_.
+   There is more information about differences between Varnish Cache and Varnish Cache Plus in the `Varnish Cache and Varnish Plus`_ chapter.
 
    .. instructors goal:
 
@@ -69,8 +73,9 @@ Preface
    .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
    .. The VMOD course shows how to ???.
 
-Necessary Background
---------------------
+.. class:: heading2
+
+   Necessary Background
 
 .. TODO for instructor: tailor this slide!
 
@@ -148,8 +153,13 @@ The Webdev course requires that you:
 
       Note: This organization is still not completely implemented.
 
-How to Use the Book
--------------------
+.. raw:: pdf
+
+   PageBreak
+
+.. class:: heading2
+
+   How to Use the Book
 
 .. At the moment is a section to exclude it from compiling in the Makefile
 
@@ -159,7 +169,7 @@ How to Use the Book
   Open your mind and try to think different when using Varnish.
 - The instructor guides you through the book.
 - Use the *manual pages* and help options.
-- See Section `Appendix E: Varnish Three Letter Acronyms`_ for a list of acronyms.
+- See `Appendix E: Varnish Three Letter Acronyms`_ for a list of acronyms.
 
 .. - To practice the course, use the Fast Track in the following way:
 
@@ -224,6 +234,29 @@ How to Use the Book
    If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
    You can also contact the Varnish open source community at https://varnish-cache.org.
    To book training, please look at https://varnish-software.com/academy.
+
+.. class:: heading2
+
+   Acknowledgements
+
+In addition to the authors, the following deserve special thanks (in no particular order):
+
+- Rubén Romero
+- Dag Haavi Finstad
+- Martin Blix Grydeland
+- Reza Naghibi
+- Federico G. Schwindt
+- Dridi Boukelmoune
+- Per Buer
+- Sevan Janiyan
+- Kacper Wysocki
+- Magnus Hagander
+- Poul-Henning Kamp
+- Everyone who has participated on the training courses
+
+.. raw:: pdf
+
+   PageBreak oneColumn
 
 Introduction
 ============
@@ -298,6 +331,7 @@ Varnish Cache and Varnish Plus
    :name: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
    :delim: ,
    :header-rows: 1
+   :widths: 40,30,30
    :file: tables/varnish_cache_plus_offer_diff.csv
 
 .. container:: handout
@@ -337,7 +371,7 @@ Varnish Cache and Varnish Plus
    .. Covered in this book:
    
    `Table 1 <#tables-1>`_ shows the components covered in this book and their availability for Varnish Cache users and Varnish Plus customers.
-   The covered components of Varnish Plus are described in Section `Varnish Plus Software Components`_.
+   The covered components of Varnish Plus are described in the `Varnish Plus Software Components`_ chapter.
    For more information about the complete Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
 
    .. note::
@@ -537,16 +571,17 @@ Object Lifetime
    *Stale objects* are those within the time period ``TTL`` and ``grace``.
    Objects within ``t_origin`` and  ``keep`` are used when applying conditions with the HTTP header ``If-Modified-Since``.
 
-   Section ``VCL - vcl_backend_fetch and vcl_backend_response`` explains how Varnish handles backend responses and how these duration attributes affect subsequent actions.
+   The `VCL - vcl_backend_fetch and vcl_backend_response`_ section explains how Varnish handles backend responses and how these duration attributes affect subsequent actions.
 
 Getting Started
 ===============
 
-In this section, you will:
+In this chapter, you will:
 
 - Install Varnish and Apache
 - Configure Varnish to use Apache as backend
 - Cover basic configuration
+- Become familiar with utility programs: ``varnishadm``, ``varnishlog``, ``varnishstat``, and ``varnishd``.
 
 .. container:: handout
 
@@ -782,8 +817,8 @@ Installation Test
    You can test your Varnish installation by issuing the command ``http -p Hh localhost``.
    If you see the HTTP response header field ``Via: 1.1 varnish-plus-v4``, then your installation is correct.
 
-The Management Interface
-------------------------
+The Management Interface ``varnishadm``
+---------------------------------------
 
 Varnish offers a management command line interface (CLI) to control a running Varnish instance.
 This interface implements a list of management commands in the ``varnishadm`` utility program.
@@ -1013,7 +1048,7 @@ The Varnish Log
 
    The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
    Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
-   `Table 2 <#tables-2>`_ in Section `Install Varnish and Apache as backend`_ shows the location of the configuration file based on your platform.
+   `Table 2 <#tables-2>`_ in the `Install Varnish and Apache as backend`_ section shows the location of the configuration file based on your platform.
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat`` among others.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
@@ -1063,7 +1098,7 @@ Log Layout
 
    Varnish logs transactions chronologically as `Figure 3 <#figures-3>`_ shows.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
-   The next `Transactions`_ section explains transactions and how to reorder them.
+   Next section explains transactions and how to reorder them.
 
 Transactions
 ------------
@@ -1135,7 +1170,7 @@ Transaction Groups
 
    All these requests together with the client response are arranged in the order they are initiated.
    This arrangement is easier to grasp than when grouping by VXID.
-   Section `Content Composition`_ shows how to analyze the log for Edge Side Includes (ESI) transactions.
+   The `Content Composition`_ section shows how to analyze the log for Edge Side Includes (ESI) transactions.
 
    .. Levels and relationships of transactions
    .. TODO for the author: explain that levels are equal to relationships.
@@ -1167,7 +1202,7 @@ Example of Transaction Grouping with ``varnishlog``
    For simplicity, we use the ``-i`` option to include only the ``Begin`` and ``Link`` tags.
 
    For more information about the format and content of all Varnish shared memory logging (VSL) tags, see the VSL man page by typing ``man vsl``.
-   The workflow of Varnish is detailed in Section `VCL Basics`_.
+   The workflow of Varnish is detailed in the `VCL Basics`_ chapter.
 
    To reproduce the example, issue ``http -p hH http://localhost/``, and then the ``varnishlog`` command as above.
    The ``-d`` option processes all recorded entries in Varnish log.
@@ -1400,7 +1435,7 @@ Exercise: Try ``varnishstat`` and ``varnishlog`` together
 Tuning
 ======
 
-*This section is for the System Administration Course only*
+*This chapter is for the System Administration Course only*
 
 This section covers:
 
@@ -1442,7 +1477,7 @@ Varnish Architecture
    The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
    The Manager's command line interface (CLI) is accessible through:
-   1) ``varnishadm`` as explained in Section `The Management Interface`_, or
+   1) ``varnishadm`` as explained in the `The Management Interface varnishadm`_ section, or
    2) the Varnish Administration Console (VAC) via the Varnish Agent *vagent2*.
    
    The Varnish Agent *vagent2* is an HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
@@ -2635,9 +2670,9 @@ VCL Basics
 
    .. Section overview
 
-   This section focuses on the most important tasks to write effective VCL code.
+   This chapter focuses on the most important tasks to write effective VCL code.
    For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
-   All other built-in subroutines are taught in the next section.
+   All other built-in subroutines are taught in the next chapter.
 
    .. tip::
 
@@ -2868,7 +2903,7 @@ All functions are available in all subroutines, except the listed in the table b
    .. ban
 
    The ``ban()`` function invalidates all objects in cache that match the expression ``exp`` with the ban mechanism.
-   *banning* and *purging* in detailed in the `Cache Invalidation`_ section.
+   *banning* and *purging* in detailed in the `Cache Invalidation`_ chapter.
 
 Legal Return Actions
 --------------------
@@ -2986,11 +3021,11 @@ VCL Built-in Subroutines
 
 .. container:: handout
 
-   This section covers the VCL subroutines where you customize the behavior of Varnish.
-   However, this section does not define caching policies.
+   This chapter covers the VCL subroutines where you customize the behavior of Varnish.
+   However, this chapter does not define caching policies.
    VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
 
-   After this section, you should know what all the VCL subroutines can be used for.
+   After this chapter, you should know what all the VCL subroutines can be used for.
    You should also be ready to dive into more advanced features of Varnish and VCL.
 
    .. Note::
@@ -3402,7 +3437,7 @@ It should cover both accessing `/` and `/index.html`
 
 .. raw:: pdf
 
-   PageBreak oneColumn
+   PageBreak
 
 Solution: Avoid caching a page
 ..............................
@@ -3427,7 +3462,7 @@ Solution: Avoid caching a page
 
    Usually it is most convenient to do as much as possible in ``vcl_recv``.
    The usage of ``bereq.uncacheable`` in ``vcl_backend_fetch`` creates a *hit-for-pass* object.
-   See Section `hit-for-pass`_ for detailed description about this type of object.
+   See the `hit-for-pass`_ section for detailed description about this type of object.
 
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
@@ -3495,8 +3530,8 @@ VCL - ``vcl_hash``
    Depending on what ``lookup`` finds in the cache, it has five possible outcomes:
    ``hit``, ``miss``, ``hit-for-pass``, ``busy``, or ``purge``.
 
-   The following subsections discuss the actions taken based on the outcome of the ``lookup`` operation.
-   Section `hit-for-pass`_ describes the ``hit-for-pass`` action.
+   The following sections discuss the actions taken based on the outcome of the ``lookup`` operation.
+   The `hit-for-pass`_ section describes the ``hit-for-pass`` action.
 
    .. note::
       One cache hash may refer to one or many object variations.
@@ -3532,7 +3567,7 @@ VCL - ``vcl_hit``
    ``deliver`` returns control to ``vcl_deliver`` if the ``TTL + grace time`` of an object has not elapsed.
    If the elapsed time is more than the ``TTL``, but less than the ``TTL + grace time``, then ``deliver`` calls for *background fetch* in parallel to ``vcl_deliver``.
    The background fetch is an asynchronous call that inserts a *fresher* requested object in the cache.
-   Grace time is explained in Section `Grace Mode`_.
+   Grace time is explained in the `Grace Mode`_ section.
 
    ``restart`` starts again the transaction, and increases the restart counter.
    If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru meditation* error.
@@ -3649,7 +3684,7 @@ Exercise: Modify the HTTP response header fields
 
 .. raw:: pdf
 
-   PageBreak oneColumn
+   PageBreak
 
 Solution: Modify the HTTP response header fields
 ................................................
@@ -3675,7 +3710,7 @@ Exercise: Change the error message
 
 .. raw:: pdf
 
-   PageBreak oneColumn
+   PageBreak
 
 Solution: Change the error message
 ..................................
@@ -4176,7 +4211,7 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
 Saving a Request
 ================
 
-*This section is for the system administration course only*
+*This chapter is for the system administration course only*
 
 .. table 16
 
@@ -4197,7 +4232,7 @@ Saving a Request
    #. Protection: mechanisms to restrict access cache invalidation from unauthorized entities.
 
    `Table 16 <#tables-16>`_ shows how different mechanisms are mapped to their saving objectives.
-   This section explains how to make your Varnish setup more robust.
+   This chapter explains how to make your Varnish setup more robust.
 
 Directors
 ---------
@@ -4238,7 +4273,7 @@ Directors
    If a health probe has marked a backend as sick, the round-robin director skip it.
 
    *Random* directors are seeded with either a random number or a hash key.
-   Next Section `Random directors`_ explains their commonalities and differences.
+   The next `Random directors`_ section explains their commonalities and differences.
 
    .. note::
 
@@ -4534,9 +4569,9 @@ Access Control Lists (ACLs)
 Content Composition
 ===================
 
-*This section is for the webdeveloper course only*
+*This chapter is for the webdeveloper course only*
 
-This section teaches you how to glue content from independent sources into one web page.
+This chapter teaches you how to glue content from independent sources into one web page.
 
 - Cookies and how to work with them
 - Edge Side Includes (ESI) and how to compose a single client-visible page out of multiple objects
@@ -4567,7 +4602,7 @@ Ask yourself this:
 .. container:: handout
 
    Beginning with the static elements should be easy. 
-   Previous sections of this book cover how to handle static elements.
+   Previous chapters of this book cover how to handle static elements.
    How to proceed with dynamic content?
 
    An easy solution is to only cache content for users that are not logged in.

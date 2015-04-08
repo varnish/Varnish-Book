@@ -23,24 +23,6 @@ chapters except `Tuning` and `Saving the Request`. The third set of slides,
 labeled `Book`, contains all chapters. All the chapters are written with
 this structure in mind.
 
-Thanks
-------
-
-In addition to the authors, the following deserve special thanks (in no particular order):
-
-- Rubén Romero
-- Dag Haavi Finstad
-- Per Buer
-- Sevan Janiyan
-- Kacper Wysocki
-- Magnus Hagander
-- Martin Blix Grydeland
-- Poul-Henning Kamp
-- Reza Naghibi
-- Federico G. Schwindt
-- Dridi Boukelmoune
-- Everyone who has participated on the training courses
-
 Index
 -----
 
