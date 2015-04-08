@@ -626,13 +626,14 @@ Utility programs part of the Varnish distribution:
    .. varnishd
 
    The central block of Varnish is the Varnish daemon ``varnishd``.
-   This daemon accepts HTTP requests from clients, sends requests to a backend and caches the retured objects.
+   This daemon accepts HTTP requests from clients, sends requests to a backend and caches the returned objects.
    ``varnishd`` is further explained in the `Varnish Architecture`_ section.
 
    .. varnishadm
 
    ``varnishadm`` controls a running Varnish instance.
    The  ``varnishadm``  utility establishes a command line interface (CLI) connection to ``varnishd``.
+   This utility is the only one that may affect a running instance of Varnish.
    You can use ``varnishadm`` to:
 
    - start and stop ``varnishd``,
@@ -661,6 +662,10 @@ Utility programs part of the Varnish distribution:
 
    In addition, there are other utility programs such as ``varnishncsa``, ``varnishtop`` and ``varnishhist``.
    `Appendix B: Varnish Programs`_ explains them.
+
+   .. note::
+
+      There is a delay in the log process, though usually it is not noticeable.
 
 Install Varnish and Apache as backend
 -------------------------------------
@@ -1412,6 +1417,10 @@ Exercise
 
 .. container:: handout
 
+   ``varnishstat`` looks only at counters.
+   These counters are easily found in the SHMLOG, and are typically polled at reasonable interval to give the impression of real-time updates. 
+   Counters, unlike the rest of the log, are not directly mapped to a single request, but represent how many times a specific action has occurred since Varnish started.
+
    ``varnishstat`` gives a good representation of the general health of Varnish.
    Unlike all other tools, ``varnishstat`` does not read log entries, but counters that Varnish updates in real-time.
    It can be used to determine your request rate, memory usage, thread usage, number of failed backend connections, and more.
@@ -1732,6 +1741,7 @@ The SHared Memory Log (SHMLOG)
 
    Varnish' SHared Memory LOG (SHMLOG) is used to log most data. 
    It's sometimes called a `shm-log`, and operates on a circular buffer.
+   The SHMLOG is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
 
    .. I/O operations
 
@@ -1744,7 +1754,6 @@ The SHared Memory Log (SHMLOG)
 
    The SHMLOG is not persistent.    
    You can issue ``varnishlog -d`` to see old log entries.
-   The typical size of the SHMLOG is 80MB. 
    All the content under ``/var/lib/varnish/`` directory is safe to delete.
 
    .. warning::
@@ -2816,37 +2825,7 @@ The *waiting* state is designed to improve response performance.
 However, a counterproductive scenario, namely *request serialization*, may occur if the fetched objects are uncacheable, and so is recursively the next request in the waiting list.
 This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
 Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
-
-The built-in subroutine ``vcl_backend_response`` is designed to avoid *request serialization*.
-Therefore you should always let this built-in subroutine execute.
-Below is the code of the built-in ``vcl_backend_response``.
-
-::
-  
-   sub vcl_backend_response {
-       if (beresp.ttl <= 0s ||
-	 beresp.http.Set-Cookie ||
-	 beresp.http.Surrogate-control ~ "no-store" ||
-	 (!beresp.http.Surrogate-Control &&
-	   beresp.http.Cache-Control ~ "no-cache|no-store|private") ||
-	 beresp.http.Vary == "*") {
-	   /*
-	    * Mark as "Hit-For-Pass" for the next 2 minutes
-	    */
-	   set beresp.ttl = 120s;
-	   set beresp.uncacheable = true;
-       }
-       return (deliver);
-   }
-
-The above code avoids *request serialization* by applying rules when fetched objects should not be cached.
-For this purpose, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
-The `hit-for-pass`_ section explains in detail this object type.
-
-If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
-If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
-
-
+The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
 
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
@@ -3394,9 +3373,40 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    - Adding helper-headers to the object for use in banning (more information in later sections)
    - Applying other caching policies
 
-   The ``vcl_backend_response`` built-in subroutine is designed to avoid *request serialization* as described in the `Waiting State`_ section.
-   This subroutine also avoids caching conditions that are most probably undesired.
+``vcl_backend_response``
+........................
+
+**built-in ``vcl_backend_response``**
+
+::
+  
+   sub vcl_backend_response {
+       if (beresp.ttl <= 0s ||
+	 beresp.http.Set-Cookie ||
+	 beresp.http.Surrogate-control ~ "no-store" ||
+	 (!beresp.http.Surrogate-Control &&
+	   beresp.http.Cache-Control ~ "no-cache|no-store|private") ||
+	 beresp.http.Vary == "*") {
+	   /*
+	    * Mark as "Hit-For-Pass" for the next 2 minutes
+	    */
+	   set beresp.ttl = 120s;
+	   set beresp.uncacheable = true;
+       }
+       return (deliver);
+   }
+
+.. container:: handout
+
+   The ``vcl_backend_response`` built-in subroutine is designed to avoid caching in conditions that are most probably undesired.
    For example, it avoids caching responses with cookies, i.e., responses with ``Set-cookie`` HTTP header field.
+   This built-in subroutine also avoids *request serialization* described in the `Waiting State`_ section.
+
+   To avoid *request serialization*, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
+   The `hit-for-pass`_ section explains in detail this object type.
+
+   If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
+   If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
 
    .. note::
 
@@ -3404,7 +3414,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
       In Varnish 4, this action is achieved by setting ``beresp.uncacheable`` to ``true``.
       The `hit-for-pass`_ section explains this in more detail.
 
-The initial value of ``beresp.ttl``
+The Initial Value of ``beresp.ttl``
 ...................................
 
 Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has already been set to a value. 
@@ -5128,26 +5138,10 @@ Misc:
 .. container:: handout
 
 
-   `Examining Data Provided by Varnish`_ provides large amounts of information, thus it is usually necessary to filter it.
-   For example, "show me only what matches X".
-   ``varnishlog`` does precisely that.
-
-   Varnish also provides several tools to monitor and control Varnish.
-   ``varnishadm`` is used to access the management interface.
-   This tool is the only one that may affect a running instance of Varnish.
-
-   `varnishstat`_ looks only at counters.
-   These counters are easily found in the SHMLOG, and are typically polled at reasonable interval to give the impression of real-time updates. 
-   Counters, unlike the rest of the log, are not directly mapped to a single request, but represent how many times a specific action has occurred since Varnish started.
-
+   ``varnishlog``, ``varnishadm`` and ``varnishstat`` are explained in the `Examining Data Provided by Varnish`_ chapter.
    ``varnishtest`` is used for regression tests, mainly during development.
    This took, however, is outside the scope of this course.
-
-   .. note::
-
-      There is a delay in the log process, though usually it is not noticeable.
-      The SHMLOG is 80MB large by default, which gives a certain history, but remember that it is not persistent unless you instruct Varnish to do otherwise.
-      By default, the persistence of the history depends on the SHMLOG circular rewriting.
+   Next sections explain ``varnishtop``, ``varnishncsa``, and ``varnishhist``.
 
 ``varnishtop``
 --------------
