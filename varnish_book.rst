@@ -24,7 +24,7 @@ The book teaches technical staff how to use Varnish Cache 4 and selected modules
 
 The book explains how to get started with the Varnish, and its Varnish Configuration Language (VCL).
 Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
-Also included are Varnish programs such as ``varnishtop``, and extra material.
+Also included are Varnish utility programs such as ``varnishlog``, and extra material.
 
 .. raw:: pdf
 
