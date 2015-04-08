@@ -15,7 +15,6 @@
 
    PageBreak oneColumn
 
-
 .. TODO for the editor: To find out how to disable automatic section numbering with ``--no-section-numbering``.
 
 Abstract
@@ -175,6 +174,7 @@ How to Use the Book
    The Varnish Book is designed to be used as training material under the Varnish Plus course taught by a certified instructor.
    Under the course, the instructor guides you and selects the relevant sections to learn.
    However, you can also use this book as self-instructional material.
+
    .. If you use the book as self-instructional tutorial, it is recommended to complete the Fast Track of the chapter you want to read.
 
    .. Exercises
@@ -4152,7 +4152,7 @@ Force Cache Misses
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
 
-.. table 16
+.. table 15
 
 .. csv-table:: Table :counter:`tables`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
    :name: purge_ban_hash2_force
@@ -4178,7 +4178,7 @@ Saving a Request
 
 *This section is for the system administration course only*
 
-.. table 17
+.. table 16
 
 .. csv-table:: Table :counter:`tables`: Connotation of Saving a Request
    :name: connotation_saving_request
@@ -4196,7 +4196,7 @@ Saving a Request
    #. Economization: mechanisms to spend less resources, i.e., send less requests to the backend.
    #. Protection: mechanisms to restrict access cache invalidation from unauthorized entities.
 
-   `Table 17 <#tables-17>`_ shows how different mechanisms are mapped to their saving objectives.
+   `Table 16 <#tables-16>`_ shows how different mechanisms are mapped to their saving objectives.
    This section explains how to make your Varnish setup more robust.
 
 Directors
