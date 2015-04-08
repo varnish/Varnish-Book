@@ -665,7 +665,7 @@ Utility programs part of the Varnish distribution:
 
    .. note::
 
-      There is a delay in the log process, though usually it is not noticeable.
+      There is a delay in the log process, but usually not noticeable.
 
 Install Varnish and Apache as backend
 -------------------------------------
@@ -3866,10 +3866,10 @@ HTTP PURGE
    A resource can exist in multiple ``Vary:``-variants.
    For example, you could have a desktop version, a tablet version and a smartphone version of your site, and use the ``Vary`` HTTP header field in combination with device detection to store different variants of the same resource.
 
-   Usually a purge is invoked through HTTP with the method PURGE.
-   An HTTP PURGE is another request method just as HTTP GET.
-   Actually, you can call the PURGE method whatever you like, but most people refer to it as purging.
-   Squid, for example, uses the PURGE method name for the same purpose, it has become a de-facto standard.
+   Usually a purge is invoked through HTTP with the method ``PURGE``.
+   An ``HTTP PURGE`` is another request method just as ``HTTP GET``.
+   Actually, you can call the ``PURGE`` method whatever you like, but ``PURGE`` has become the de-facto naming standard.
+   Squid, for example, uses the ``PURGE`` method name for the same purpose.
 
    The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
    That means that if the backend is down, Varnish does not have a copy of the content.
@@ -4099,7 +4099,7 @@ Lurker-Friendly Bans
 
    .. raw:: pdf
 
-      PageBreak oneColumn
+      PageBreak
 
    The following snippet shows an example on how to preserve the context of a client request in the cached object::
 
@@ -4117,7 +4117,7 @@ Lurker-Friendly Bans
 
      $ varnishadm ban 'obj.http.x-url ~ ^/blog'
 
-   Because it uses a *lurker-friendly ban* expression, the ban inserted in the
+   Since it uses a *lurker-friendly ban* expression, the ban inserted in the
    ban-list will be gradually evaluated against all cached objects until all
    blog posts are invalidated.
 
@@ -4155,7 +4155,7 @@ To build further on this, you can also have a ``REFRESH`` HTTP method that fetch
 
 .. raw:: pdf
 
-   PageBreak oneColumn
+   PageBreak
 
 Solution: Write a VCL program using *purge* and *ban*
 .....................................................
@@ -4382,7 +4382,7 @@ Directors
    A *fallback* director will always pick the first backend unless it is sick,
    in which case it would pick the next backend and so on. A director is also
    considered a backend so you can actually stack directors. You could for
-   instance have use directors for active and passive clusters, and put those
+   instance have directors for active and passive clusters, and put those
    directors behind a fallback director.
 
    .. note::
@@ -4476,7 +4476,7 @@ Health Checks
 
    .. raw:: pdf
 
-         PageBreak oneColumn
+         PageBreak
 
    You can also declare standalone probes and reuse them for several backends.
    It is particularly useful when you use directors with identical behaviors,

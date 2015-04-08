@@ -11,7 +11,7 @@ PICK = "./util/pickchapter2.igawk"
 # the pdfs you can now build.
 
 book = "*"
-slides = "Abstract"
+slides = "*"
 
 # Selecting chapters in this way does not work.
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
