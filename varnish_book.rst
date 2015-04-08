@@ -586,10 +586,10 @@ Getting Started
 
 In this chapter, you will:
 
-- Install Varnish and Apache
-- Configure Varnish to use Apache as backend
-- Cover basic configuration
-- Become familiar with utility programs: ``varnishadm``, ``varnishlog``, ``varnishstat``, and ``varnishd``.
+- learn about the Varnish distribution,
+- install Varnish and Apache,
+- configure Varnish to use Apache as backend, and
+- cover basic configuration.
 
 .. container:: handout
 
@@ -606,6 +606,61 @@ In this chapter, you will:
    This can be any sort of service as long as it understands HTTP. 
    Most of the time, Varnish talks to a web server or an application frontend server.
    In this book, we use backend, web server or application frontend server interchangeably.
+
+Varnish Distribution
+--------------------
+
+Utility programs part of the Varnish distribution:
+
+- ``varnishd``
+- ``varnishadm``
+- ``varnishlog``
+- ``varnishstat``
+- and more
+
+.. container:: handout
+
+   The Varnish distribution includes several utility programs that you will use in this course.
+   You will learn how to use this programs as you progress, but it is useful to have a brief introduction about them before we start.
+
+   .. varnishd
+
+   The central block of Varnish is the Varnish daemon ``varnishd``.
+   This daemon accepts HTTP requests from clients, sends requests to a backend and caches the retured objects.
+   ``varnishd`` is further explained in the `Varnish Architecture`_ section.
+
+   .. varnishadm
+
+   ``varnishadm`` controls a running Varnish instance.
+   The  ``varnishadm``  utility establishes a command line interface (CLI) connection to ``varnishd``.
+   You can use ``varnishadm`` to:
+
+   - start and stop ``varnishd``,
+   - change configuration parameters,
+   - reload the Varnish Configuration Language (VCL),
+   - view the most up-to-date documentation for parameters, and
+   - more.
+
+   `The Management Interface varnishadm`_ section explains in more detail this utility.
+
+   .. varnishlog
+
+   The Varnish log provides large amounts of information, thus it is usually necessary to filter it.
+   For example, "show me only what matches X".
+   ``varnishlog`` does precisely that.
+   You will learn more about ``varnishlog`` in the `Examining Data Provided by Varnish`_ chapter.
+
+   .. varnishstat
+
+   ``varnishstat`` is used to access **global counters**.
+   It provides overall statistics, e.g the number of total requests, number of objects, and more.
+   ``varnishstat`` is particularly useful when using it together with ``varnishlog`` to analyze your Varnish installation.
+   The `varnishstat`_ section explains in detail this utility.
+
+   .. others
+
+   In addition, there are other utility programs such as ``varnishncsa``, ``varnishtop`` and ``varnishhist``.
+   `Appendix B: Varnish Programs`_ explains them.
 
 Install Varnish and Apache as backend
 -------------------------------------
@@ -833,7 +888,7 @@ This interface implements a list of management commands in the ``varnishadm`` ut
 ``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
 You can use ``varnishadm`` to:
 
-- start and stop the cache (aka child) process
+- start and stop the cacher (aka child) process
 - change configuration parameters without restarting Varnish
 - reload the Varnish Configuration Language (VCL) without restarting Varnish 
 - view the most up-to-date documentation for parameters
@@ -1034,20 +1089,24 @@ Exercise: Fetch data through Varnish
 	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
         Therefore, it is useful to double-check web browsers requests with HTTPie.
 
-The Varnish Log
-===============
+Examining Data Provided by Varnish
+==================================
 
-.. In this chapter you will learn about:
+In this chapter you will learn about:
 
-- Log data is in shared memory
-- Varnish logs everything all the time
+- log records,
+- statistics out from global counters and the Varnish log,
+- the log layout,
+- transactions,
+- the query language, and
+- notable counters.
 
 .. container:: handout
    
    .. Log data is in shared memory
 
    Varnish provides log data in real-time, which is accessible through Varnish tools.
-   Varnish logs all its information to the SHared Memory LOG (SHMLOG).
+   Varnish logs all its information to `The SHared Memory LOG (SHMLOG)`_.
    This memory log is overwritten when filled-up in circular order.
 
    The memory log overwriting has two effects.
@@ -1069,14 +1128,14 @@ The Varnish Log
 Log Data Tools
 --------------
 
-Tools to display detailed log records:
+**Tools to display detailed log records:**
 
 - ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
 - ``varnishncsa`` displays Varnish access logs in NCSA Common log format.
 
-Statistical tools:
+**Statistical tools:**
 
-- ``varnishstat`` is used to access **global counters**. It provides overall statistics, e.g the number of total requests, number of objects, and more.
+- ``varnishstat`` is used to access **global counters**.
 - ``varnishtop`` reads the Varnish log and presents a continuously updated list of the most commonly occurring log entries.
 - ``varnishhist`` reads the Varnish log and presents a continuously updated histogram showing the distribution of the last *N* requests by their processing.
 
@@ -1088,8 +1147,6 @@ Statistical tools:
 
    In this course, we focus on the two most important tools: ``varnishlog`` and ``varnishstat``.
    Unlike all other tools, ``varnishstat`` does not read entries from the Varnish log, but from global counters.
-   However, we include ``varnishstat`` in this section, because it is useful to use it with ``varnishlog`` to analyze your Varnish installation.
-
    You can find more details about the other Varnish tools ``varnishncsa``, ``varnishtop`` and ``varnishhist`` in `Appendix B: Varnish Programs`_.
 
 Log Layout
@@ -1235,7 +1292,7 @@ Query Language
   - integer and float matching, e.g.: ``RespStatus == 200``
   - boolean operators, e.g.: ``RespStatus >= 500 and RespStatus < 600``
   - parenthesis hierarchy
-  - Negate using ``not``
+  - negation using ``not``
 
 |
 
@@ -1485,11 +1542,11 @@ Varnish Architecture
    The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
    The Manager's command line interface (CLI) is accessible through:
-   1) ``varnishadm`` as explained in the `The Management Interface varnishadm`_ section, or
-   2) the Varnish Administration Console (VAC) via the Varnish Agent *vagent2*.
+   1) ``varnishadm`` as explained in `The Management Interface varnishadm`_ section, or
+   2) the `Varnish Administration Console (VAC)`_ via the Varnish Agent *vagent2*.
    
    The Varnish Agent *vagent2* is an HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
-   Varnish Software has a commercial offering of a fully functional web UI called Varnish Administration Console (VAC).
+   Varnish Software has a commercial offering of a fully functional web UI called `Varnish Administration Console (VAC)`_.
    Nevertheless, since *vagent2* is open, you can write your own code for it.
 
    For more detailed information about *vagent2*, please visit https://github.com/varnish/vagent2.
@@ -1664,8 +1721,8 @@ You can select one method with the ``-s`` option of ``varnishd``.
    static overhead which you can calculate by starting Varnish without
    any objects. Typically around 100MB.
 
-The shared memory log
----------------------
+The SHared Memory Log (SHMLOG)
+------------------------------
 
 - Avoid I/O operations. 
 - Mount the shared memory log as `tmpfs`.
@@ -5071,10 +5128,9 @@ Misc:
 .. container:: handout
 
 
-   `The Varnish Log`_ provides large amounts of information, thus it is usually necessary to filter it.
+   `Examining Data Provided by Varnish`_ provides large amounts of information, thus it is usually necessary to filter it.
    For example, "show me only what matches X".
    ``varnishlog`` does precisely that.
-   The rest of the tools, however, can process the information further and display running statistical information.
 
    Varnish also provides several tools to monitor and control Varnish.
    ``varnishadm`` is used to access the management interface.
