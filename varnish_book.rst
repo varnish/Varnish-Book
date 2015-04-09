@@ -2758,9 +2758,9 @@ Varnish Finite State Machine
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
-   `Figure 16 <#figures-16>`_ depicts a simplified version of the Varnish finite state machine.
+   `Figure 11 <#figures-11>`_ depicts a simplified version of the Varnish finite state machine.
    This diagram shows the most common state transitions, and it is by no means complete.
-   `Figure 17 <#figures-17>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
+   `Figure 12 <#figures-12>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
    A detailed version of the request flow diagram for the backend worker is in the `VCL - vcl_backend_fetch and vcl_backend_response`_ section.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
@@ -2823,8 +2823,8 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
    Figure :counter:`figures`: Detailed Varnish Request Flow for the Client Worker Thread
 
-   The grayed box in `Figure 17 <#figures-17>`_ shows a very simple version of the backend worker.
-   `Figure 18 <#figures-18>`_ shows its detailed request flow diagram.
+   The grayed box in `Figure 12 <#figures-12>`_ shows a very simple version of the backend worker.
+   `Figure 13 <#figures-13>`_ shows its detailed request flow diagram.
 
 .. raw:: pdf
    
@@ -3320,7 +3320,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 
 .. container:: handout
 
-   `Figure 18 <#figures-18>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
+   `Figure 13 <#figures-13>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
@@ -3338,7 +3338,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
    The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
-   `Figure 18 <#figures-18>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 13 <#figures-13>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
    Backends might respond with a ``304`` HTTP headers.
@@ -4828,7 +4828,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   `Figure 19 <#figures-19>`_ depicts this process.
+   `Figure 14 <#figures-14>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -5037,7 +5037,7 @@ Varnish Administration Console (VAC)
 
 - Single point of control for simultaneous administration of multiple Varnish Cache servers.
 - VAC provides a UI and an API.
-- `Figures 10 <#figures-10>`_, `11 <#figures-11>`_, and `12 <#figures-12>`_ show screenshots of the UI.
+- `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the UI.
 
 .. container:: handout
 
@@ -5083,7 +5083,7 @@ Varnish Custom Statistics (VCS)
 -------------------------------
 
 - Real-time statistics engine to aggregate, display and analyze user web traffic.
-- `Figures 13 <#figures-13>`_, and `14 <#figures-14>`_ are screenshots demos.
+- `Figures 18 <#figures-18>`_, and `19 <#figures-19>`_ are screenshots demos.
 
 .. container:: handout
 
