@@ -1,0 +1,13 @@
+Argument           | Request | Response  
+`no-cache`         | X       | X         
+`no-store`         | X       | X         
+`max-age`          | X       | X         
+`s-maxage`         |         | X         
+`max-stale`        | X       |           
+`min-fresh`        | X       |           
+`no-transform`     | X       | X         
+`only-if-cached`   | X       |           
+`public`           |         | X         
+`private`          |         | X         
+`must-revalidate`  |         | X         
+`proxy-revalidate` |         | X         

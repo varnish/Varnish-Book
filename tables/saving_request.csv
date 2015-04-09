@@ -3,5 +3,5 @@ Directors,x,x,
 Health Checks,x,,
 Grace Mode,x,x,
 The ``retry`` Return Action,x,,
-Tune Backend Properties,x,,
+Tune Backend Properties,,,x
 Access Control Lists (ACL),,,x

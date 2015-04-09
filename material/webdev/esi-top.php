@@ -16,7 +16,10 @@ if( isset($_POST['k']) and $_POST['k'] !== '' and
 }
 ?>
 <html><head><title>ESI top page</title></head><body><h1>ESI Test page</h1>
-<p>This is content on the top-page of the ESI page. The top page is cached for 1 hour in Varnish, but only 30 seconds on the client.</p> <p>The time when the top-element was created:</p><h3>
+<p>This is content on the top-page of the ESI page.
+The top page is cached for 1 hour in Varnish,
+but only 30 seconds on the client.</p>
+<p>The time when the top-element was created:</p><h3>
 
 <?php echo "$now"; ?>
 
@@ -33,4 +36,5 @@ foreach( $_COOKIE as $name => $value )
     print( "<li>${name} : ${value}</li>\n" );
 ?>
 
-<table border="1"><tr><td><esi:include src="/esi-user.php" /></td></tr></table></body></html>
+<table border="1"><tr><td><esi:include src="/esi-user.php" /></td></tr>
+</table></body></html>

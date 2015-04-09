@@ -1,0 +1,10 @@
+Header            | Request | Response 
+Expires           |         | X        
+Cache-Control     | X       | X        
+Last-Modified     |         | X        
+If-Modified-Since | X       |          
+If-None-Match     | X       |          
+Etag              |         | X        
+Pragma            | X       | X        
+Vary              |         | X        
+Age               |         | X        
