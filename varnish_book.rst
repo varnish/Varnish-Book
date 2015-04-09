@@ -2743,19 +2743,19 @@ Varnish Finite State Machine
 
 .. todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
 
-.. figure 11
-
-.. figure:: ui/img/fsm_simplified.png
-   :align: center
-   :scale: 170%
-
-   Figure :counter:`figures`: Simplified Version of the Varnish Finite State Machine
-
-.. raw:: pdf
-
-   PageBreak
-
 .. container:: handout
+
+   .. figure 11
+
+   .. figure:: ui/img/fsm_simplified.png
+      :align: center
+      :scale: 170%
+
+      Figure :counter:`figures`: Simplified Version of the Varnish Finite State Machine
+
+   .. raw:: pdf
+
+      PageBreak
 
    .. State machine
 
@@ -2822,15 +2822,15 @@ Detailed Varnish Request Flow for the Client Worker Thread
 .. TODO for the author: Double check that the available variables are correct and not confusing.
 .. TODO for the editor: To have different sizes for vertical tall figures for slide-pdf format.
 
-.. figure 12
-
-.. figure:: ui/img/cache_req_fsm.png
-   :align: center
-   :scale: 125%
-
-   Figure :counter:`figures`: Detailed Varnish Request Flow for the Client Worker Thread
-
 .. container:: handout
+
+   .. figure 12
+
+   .. figure:: ui/img/cache_req_fsm.png
+      :align: center
+      :scale: 125%
+
+      Figure :counter:`figures`: Detailed Varnish Request Flow for the Client Worker Thread
 
    The grayed box in `Figure 12 <#figures-12>`_ shows a very simple version of the backend worker.
    `Figure 13 <#figures-13>`_ shows its detailed request flow diagram.
@@ -3308,18 +3308,18 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
 - Sanitize server-response
 - Override cache duration
 
-.. figure 13
-.. TODO for the editor: improve layout of this figure
-
-.. figure:: ui/img/cache_fetch.png
-   :scale: 150%
-
-   Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread.
-
-..   :align: center
-..   :width: 100%
-
 .. container:: handout
+
+   .. figure 13
+   .. TODO for the editor: improve layout of this figure
+
+   .. figure:: ui/img/cache_fetch.png
+      :scale: 150%
+
+      Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread.
+
+   ..   :align: center
+   ..   :width: 100%
 
    `Figure 13 <#figures-13>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
