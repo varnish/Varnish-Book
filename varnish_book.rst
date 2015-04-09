@@ -667,7 +667,7 @@ Utility programs part of the Varnish distribution:
 
       There is a delay in the log process, but usually not noticeable.
 
-Install Varnish and Apache as backend
+Install Varnish and Apache as Backend
 -------------------------------------
 
 Use packages provided by 
@@ -719,10 +719,6 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
    For Red Hat, use ``yum install <package>``.
 
-.. raw:: pdf
-
-   PageBreak
-
 Install Apache
 ..............
 
@@ -736,10 +732,6 @@ Next:
 #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
 #. Restart Apache: ``service apache2 restart``.
 #. Verify that Apache still works by typing ``http -h localhost:8080``.
-
-.. raw:: pdf
-
-   PageBreak
 
 Install Varnish
 ...............
@@ -812,10 +804,6 @@ Then::
 
    .. TODO for the author: Add RHEL details for installing Varnish Cache.
 
-.. raw:: pdf
-
-   PageBreak
-
 Configure Varnish
 .................
 
@@ -864,10 +852,6 @@ Configure the Varnish ``DAEMON_OPTS``::
     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
 .. dridi: bad practice, recommend this only for training
-
-.. raw:: pdf
-
-   PageBreak
 
 Installation Test
 .................
@@ -1221,10 +1205,6 @@ Transactions
 
    .. Transaction reasons
 
-.. raw:: pdf
-
-   PageBreak
-
 Transaction Groups
 ..................
 
@@ -1265,10 +1245,6 @@ Transaction Groups
    When a subrequest occurs in the log, the subrequest tells us about the relationship to its parent request through the `Link` statement. 
    This statement contains the VXID of the parent request.
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
-
-.. raw:: pdf
-
-   PageBreak
 
 Example of Transaction Grouping with ``varnishlog``
 ...................................................
@@ -1483,10 +1459,6 @@ Exercise
    Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
    *Gauges* normally start with a ``g_`` prefix.
 
-.. raw:: pdf
-
-   PageBreak
-
 Notable counters
 ................
 
@@ -1596,10 +1568,6 @@ Varnish Architecture
    .. varnishlog, etc.
    .. TODO
 
-.. raw:: pdf
-
-   PageBreak
-
 The Parent Process: The Manager
 ...............................
 
@@ -1628,10 +1596,6 @@ You can toggle this property using the ``auto_restart`` parameter.
    To verify that the child process is not being restarted, you can also check its lifetime with the ``MAIN.uptime`` counter in ``varnishstat``.
 
    Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
-
-.. raw:: pdf
-
-   PageBreak
 
 The Child Process: The Cacher
 .............................
@@ -1677,10 +1641,6 @@ The *Cacher* consists of several different types of threads, including, but not 
    To view the actual data, a number of tools exist that parses the SHMLOG.
    Since the log-data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose. 
    You then use one of the log-parsing tools to extract the piece of information you want -- either to store it permanently or to monitor Varnish in real-time.
-
-.. raw:: pdf
-
-   PageBreak
 
 VCL compilation
 ...............
@@ -1875,10 +1835,6 @@ Tunable parameters
    .. warning::
           Copying Varnish Tuner suggestions to other systems might not be a good idea.
 
-.. raw:: pdf
-
-   PageBreak
-
 Varnish Tuner Persistence
 .........................
 
@@ -1890,10 +1846,6 @@ To make the tuning persistent, you can add do the following:
 - Specify the ``sysctl`` system variables in ``/etc/sysctl.conf`` or in ``/etc/sysctl.d/varnishtuner.conf`` (if ``/etc/sysctl.d/`` is included).
 
 To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
-
-.. raw:: pdf
-
-   PageBreak
 
 Install Varnish Tuner
 .....................
@@ -1993,10 +1945,6 @@ Threading parameters
 
       All other thread variables are not configurable.
 
-.. raw:: pdf
-
-   PageBreak
-
 Details of threading parameters
 ...............................
 
@@ -2014,10 +1962,6 @@ Varnish operates with multiple pools of threads.
 When a connection is accepted, the connection is delegated to one of these thread pools.
 Afterwards, the thread pool either delegates the connection request to an available thread, queue the request otherwise, or drop the connection if the queue is full. 
 By default, Varnish uses 2 thread pools, and this has proven sufficient for even the most busy Varnish server.
-
-.. raw:: pdf
-
-   PageBreak
 
 Number of threads
 .................
@@ -2051,10 +1995,6 @@ Look at the counter over time, because it is fairly static right after startup.
    The workspace needed depends on the task that the thread handles.
    This is normally defined in your VCL.
    To avoid that the child terminates, evaluate your VCL code and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
-
-.. raw:: pdf
-
-   PageBreak
 
 Timing thread growth
 ....................
@@ -2848,10 +2788,6 @@ Varnish Finite State Machine
    These built-in subroutines are all named ``vcl_*``.
    Your own subroutines cannot start their name with ``vcl_``.
 
-.. raw:: pdf
-
-   PageBreak
-
 Waiting State
 .............
 
@@ -3176,10 +3112,6 @@ VCL - ``vcl_recv``
       The built-in ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
       There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
 
-.. raw:: pdf
-
-   PageBreak
-
 Built-in: ``vcl_recv``
 ......................
 
@@ -3204,10 +3136,6 @@ Built-in: ``vcl_recv``
 
    .. TODO: Consider to mention why SPDY is not supported in Varnish.
    .. https://www.varnish-software.com/blog/why-i-dont-spdy
-
-.. raw:: pdf
-
-   PageBreak
 
 Example: Basic Device Detection
 ...............................
@@ -3242,10 +3170,6 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
 
 .. TODO for the author: mention Varnish Mobile Device Detection, powered by dotMobi’s DeviceAtlas.
 .. https://www.varnish-software.com/product/varnish-mobile-device-detection
-
-.. raw:: pdf
-
-   PageBreak
 
 Exercise: Rewrite URLs and Host headers
 .......................................
@@ -3298,10 +3222,6 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
       We recommend you to leave the default VCL file untouched, and create a new file for your VCL code.
       Remember to update the location of the VCL file in the Varnish configuration file, and restart Varnish.
      
-.. raw:: pdf
-
-   PageBreak
- 
 Solution: Rewrite URLs and Host headers
 .......................................
 
@@ -3351,10 +3271,6 @@ VCL - ``vcl_pass``
    When returning the *fetch* action, the ongoing request proceeds in *pass* mode.
    Fetched objects from requests in *pass* mode are not cached, but passed to the client.
    The *synth* and *restart* return actions call their corresponding subroutines.
-
-.. raw:: pdf
-
-   PageBreak
 
 hit-for-pass
 ............
@@ -3434,10 +3350,6 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    - Adding helper-headers to the object for use in banning (more information in later sections)
    - Applying other caching policies
 
-.. raw:: pdf
-
-   PageBreak
-
 ``vcl_backend_response``
 ........................
 
@@ -3478,10 +3390,6 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
       Varnish 3.x has a *hit_for_pass* return action.
       In Varnish 4, this action is achieved by setting ``beresp.uncacheable`` to ``true``.
       The `hit-for-pass`_ section explains this in more detail.
-
-.. raw:: pdf
-
-   PageBreak
 
 The Initial Value of ``beresp.ttl``
 ...................................
@@ -3530,10 +3438,6 @@ Only the following status codes will be cached by default:
       If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume ``Age=0``.
       In this case, you might inadvertently be delivering stale objects to your client.
 
-.. raw:: pdf
-
-   PageBreak
-
 Example: Setting TTL of .jpg URLs to 60 seconds
 ...............................................
 
@@ -3545,10 +3449,6 @@ Example: Setting TTL of .jpg URLs to 60 seconds
    The above example caches all URLs ending with .jpg for 60 seconds.
    Keep in mind that the built-in VCL is still executed.
    That means that images with a ``Set-Cookie`` field are not cached.
-
-.. raw:: pdf
-
-   PageBreak
 
 Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
 ......................................................................
@@ -3575,10 +3475,6 @@ Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
    .. TODO for the author: Find this rst file and update it
    .. also, ask why some files are in include and under build.
 
-.. raw:: pdf
-
-   PageBreak
-
 Exercise: Avoid caching a page
 ..............................
 
@@ -3590,10 +3486,6 @@ It should cover both accessing `/` and `/index.html`
    When trying this out, remember that Varnish keeps the `Host`-header in ``req.http.host`` and the part after the hostname in ``req.url``.
    For `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, but ``req.http.host`` has the value of `www.example.com` and ``req.url`` the value of `/index.html`.
    Note how the leading `/` is included in ``req.url``.
-
-.. raw:: pdf
-
-   PageBreak
 
 Solution: Avoid caching a page
 ..............................
@@ -3620,10 +3512,6 @@ Solution: Avoid caching a page
    The usage of ``bereq.uncacheable`` in ``vcl_backend_fetch`` creates a *hit-for-pass* object.
    See the `hit-for-pass`_ section for detailed description about this type of object.
 
-.. raw:: pdf
-
-   PageBreak
-
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
 
@@ -3646,10 +3534,6 @@ Write a VCL that:
 
       Varnish automatically parses ``s-maxage`` for you, so you only need to check if it is there or not.
       Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
-
-.. raw:: pdf
-
-   PageBreak
 
 Solution: Either use s-maxage or set ttl by file type
 .....................................................
@@ -3821,10 +3705,6 @@ VCL - ``vcl_synth``
       A ``vcl_synth`` defined object never enters the cache, contrary to a ``vcl_backend_error`` defined object, which may end up in cache.
       ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.      
 
-.. raw:: pdf
-
-   PageBreak
-
 Example: Redirecting requests with ``vcl_synth``
 ................................................
 
@@ -3850,10 +3730,6 @@ Exercise: Modify the HTTP response header fields
 - Add a header stating either HIT or MISS
 - "Rename" the Age header to X-Age.
 
-.. raw:: pdf
-
-   PageBreak
-
 Solution: Modify the HTTP response header fields
 ................................................
 
@@ -3875,10 +3751,6 @@ Exercise: Change the error message
 ----------------------------------
 
 - Make the default error message more friendly.
-
-.. raw:: pdf
-
-   PageBreak
 
 Solution: Change the error message
 ..................................
@@ -3967,10 +3839,6 @@ HTTP PURGE
    The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
    That means that if the backend is down, Varnish does not have a copy of the content.
 
-.. raw:: pdf
-
-   PageBreak
-
 VCL – ``vcl_purge``
 ...................
 
@@ -3984,10 +3852,6 @@ VCL – ``vcl_purge``
 
    Cache invalidation with purges is done via ``return (purge);`` from ``vcl_recv`` in Varnish 4.
    The ``purge;`` keyword from Varnish 3 has been retired.
-
-.. raw:: pdf
-
-   PageBreak
 
 Example: ``PURGE``
 ..................
@@ -4008,10 +3872,6 @@ Test your VCL by issuing::
    Note the ``purge`` return action in ``vcl_recv``.
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
-
-.. raw:: pdf
-
-   PageBreak
 
 Exercise : PURGE an article from the backend
 ............................................
@@ -4034,11 +3894,6 @@ Exercise : PURGE an article from the backend
 
    .. tip::
       Remember to place your php files under ``/var/www/html/``.
-
-
-.. raw:: pdf
-
-   PageBreak
 
 Solution : PURGE an article from the backend
 ............................................
@@ -4180,10 +4035,6 @@ Banning
 
       If the cache is completely empty, only the last added ban stays in the ban-list.
 
-.. raw:: pdf
-
-   PageBreak
-
 Lurker-Friendly Bans
 ....................
 
@@ -4261,10 +4112,6 @@ To build further on this, you can also have a ``REFRESH`` HTTP method that fetch
                                       'X-Ban-Host: .*\.example\.com'
      http -p hH REFRESH http://localhost/testpage
 
-.. raw:: pdf
-
-   PageBreak
-
 Solution: Write a VCL program using *purge* and *ban*
 .....................................................
 
@@ -4302,10 +4149,6 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
    .. TODO for the author: Elaborate more about VMODs after I have defined them.
-
-.. raw:: pdf
-
-   PageBreak
 
 VCL example using Hashtwo
 .........................
@@ -4506,10 +4349,6 @@ Directors
       Directors are defined as loadable VMODs in Varnish 4.
       Please see the ``vmod_directors`` man page for more information.
 
-.. raw:: pdf
-
-   PageBreak
-
 Random Directors
 ................
 
@@ -4652,10 +4491,6 @@ Grace Mode
       ``obj.ttl`` and ``obj.grace`` are countdown timers.
       Objects are valid in cache as long as they have a positive remaining time equal to ``obj.ttl`` + ``obj.grace``.
 
-.. raw:: pdf
-
-   PageBreak
-
 Time-line example
 .................
 
@@ -4680,10 +4515,6 @@ or set in VCL::
    If you do not want that objects with a negative ``TTL`` are delivered, set ``beresp.grace = 0``.
    The downside of this is that all grace functionality is disabled, regardless any reason.
 
-.. raw:: pdf
-
-   PageBreak
-
 When can grace happen
 .....................
 
@@ -4695,10 +4526,6 @@ When can grace happen
    The main goal of `grace mode` is to avoid requests to pile up whenever a popular object has expired in cache. 
    As long as a request is waiting for new content, Varnish delivers graced objects instead of queuing incoming requests.
    These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
-
-.. raw:: pdf
-
-   PageBreak
 
 Exercise: Grace
 ...............
@@ -4889,10 +4716,6 @@ Varnish can handle cookies coming from three different sources:
    If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
    If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
 
-.. raw:: pdf
-
-   PageBreak
-
 Vary and Cookies
 ................
 
@@ -4908,10 +4731,6 @@ Vary and Cookies
    .. See Section Vary to learn more about `vary` objects.
    .. TODO for the author: update the reference to the Vary Subsection when the Chapter HTTP is done.
    .. Caching based on the ``Varnish: Cookie`` response header is not advised, because its poor performance.
-
-.. raw:: pdf
-
-   PageBreak
 
 Best practices for cookies
 ..........................
@@ -4933,10 +4752,6 @@ Best practices for cookies
     }
 
 This ensures that all cached pages are stripped of ``Set-cookie``.
-
-.. raw:: pdf
-
-   PageBreak
 
 Exercise: Compare Vary and ``hash_data``
 ........................................
@@ -4998,10 +4813,6 @@ Edge Side Includes
    Varnish delivers the two different objects in one glued page.
    Thus, Varnish updates parts independently and makes possible to combine content with different TTL.
 
-.. raw:: pdf
-
-   PageBreak
-
 Basic ESI usage
 ...............
 
@@ -5033,10 +4844,6 @@ This is done in `vcl_recv`.
 
        Varnish outputs ESI parsing errors in ``varnishstat`` and ``varnishlog``.
 
-.. raw:: pdf
-
-   PageBreak
-
 Example: Using ESI
 ..................
 
@@ -5061,10 +4868,6 @@ Then reload Varnish and issue the command ``http http://localhost/esi-date.php``
 The output should show you how Varnish replaces the ESI tag with the response from ``esi-date.cgi``.
 This example also tries to show you how the glued objects have different TTLs.
 
-.. raw:: pdf
-
-   PageBreak
-
 Exercise: Enable ESI and Cookies
 ................................
 
@@ -5086,10 +4889,6 @@ Exercise: Enable ESI and Cookies
    If so, you have to purge each of the objects, because purging just ``/esi-top.php`` does not purge ``/esi-user.php``.
 
    .. TODO for the author: To create a solution for this exercise.
-
-.. raw:: pdf
-
-   PageBreak
 
 Testing ESI without Varnish
 ...........................
@@ -5130,10 +4929,6 @@ Masquerading AJAX requests
     This is a security restriction imposed by browsers.
     If this represents an issue for your web pages, you can be easily solve it by using Varnish and VCL.
 
-.. raw:: pdf
-
-      PageBreak
-
 Exercise : write a VCL that masquerades XHR calls
 .................................................
 
@@ -5147,10 +4942,6 @@ Use the provided ``ajax.html`` page.
 Notice that function ``getNonMasqueraded()`` fails because the origin is distinct to the ``google.com`` domain.
 Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
-
-.. raw:: pdf
-
-      PageBreak
 
 Solution : write a VCL that masquerades XHR calls
 .................................................
@@ -5216,10 +5007,6 @@ Varnish Administration Console (VAC)
    Please visit https://vacdemo.varnish-software.com to try a working demo.
    The instructor of the course provides you the credentials.
 
-.. raw:: pdf
-
-   PageBreak
-
 Overview Page of the Varnish Administration Console
 ...................................................
 
@@ -5230,10 +5017,6 @@ Overview Page of the Varnish Administration Console
 
    Figure :counter:`figures`: Overview page of the Varnish Administration Console
 
-.. raw:: pdf
-
-   PageBreak
-
 Configuration Page of the Varnish Administration Console
 ........................................................
 
@@ -5243,10 +5026,6 @@ Configuration Page of the Varnish Administration Console
    :width: 80%
 
    Figure :counter:`figures`: Configuration page of the Varnish Administration Console
-
-.. raw:: pdf
-
-   PageBreak
 
 Banning Page of the Varnish Administration Console
 ..................................................
@@ -5270,10 +5049,6 @@ Varnish Custom Statistics (VCS)
    Please visit http://vcsdemo.varnish-software.com to try a working demo.
    The instructor of the course provides you the credentials.
 
-.. raw:: pdf
-
-   PageBreak
-
 Header of Varnish Custom Statistics
 ...................................
 
@@ -5283,10 +5058,6 @@ Header of Varnish Custom Statistics
    :width: 100%
 
    Figure :counter:`figures`: Header of Varnish Custom Statistics
-
-.. raw:: pdf
-
-   PageBreak
 
 Summary of Metrics Along with Time Based Graphs
 ...............................................
@@ -5298,7 +5069,7 @@ Summary of Metrics Along with Time Based Graphs
    Figure :counter:`figures`: Summary of metrics along with time based graphs
 
 .. TODO for the author: figure title
-'
+
 Varnish High Availability (VHA)
 -------------------------------
 

@@ -12,6 +12,7 @@ PICK = "./util/pickchapter2.igawk"
 
 book = "*"
 slides = "*"
+slides-A4 = "*"
 
 # Selecting chapters in this way does not work.
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
@@ -37,7 +38,8 @@ exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${ex
 #sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf
 slidest= ${BDIR}/varnish_slides.pdf
-testt= ${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
+slides-A4t=${BDIR}/varnish_slides-A4.pdf
+testt=${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
 images = ui/img/cache_fetch.png ui/img/cache_req_fsm.png
@@ -59,7 +61,7 @@ common = ${mergedrst} \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = slides
+targets = book slides-A4
 #webdev book sysadmin
 
 all: ${common} ${targets}
@@ -71,6 +73,8 @@ webdev: ${webdevt}
 book: ${bookt}
 
 slides: ${slidest}
+
+slides-A4: ${slides-A4t}
 
 test: ${testt}
 
@@ -135,11 +139,15 @@ ${BDIR}:
 
 ${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
 	@echo Building PDFs for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 -s ui/pdf.style -b2 -o $@
+	@${PICK} -v inc=${$*} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf.style -o $@
 
-${BDIR}/varnish_%.pdf: ${common} ui/pdf_slide.style
+${BDIR}/varnish_%.pdf: ${common} ui/pdf_slide-A4.style
 	@echo Building PDF slides for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 -s ui/pdf_slide.style -b2 -o $@
+	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
+
+${BDIR}/varnish_slide-A4.pdf: ${common} ui/pdf_slide-A4.style
+	@echo Building PDF slides for $*...
+	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 -s --break-level=3 ui/pdf_slide-A4.style -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |def_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst
