@@ -1405,6 +1405,20 @@ Exercise
    Count of cache hits.   A cache hit indicates that an object has been delivered to a  client without fetching it from a
    backend server.
 
+.. raw:: pdf
+
+   PageBreak
+
+.. table 6
+
+.. csv-table:: Table :counter:`tables`: Columns displayed in central area of ``varnishstat``
+   :name: columns_central_area
+   :delim: ;
+   :widths: 20, 80
+   :header-rows: 1
+   :file: tables/columns_central_area.csv
+
+
 .. container:: handout
 
    ``varnishstat`` looks only at counters.
@@ -1439,15 +1453,6 @@ Exercise
    In the example above, the interval is one second.
    The hitrate average ``avg(n)`` show data for the last 10, 100, and 438 seconds.
    The average hitrate is 0.9967 (or 99.67%) for the last 10 seconds, 0.5686 for the last 100 seconds and 0.3870 for the last 438 seconds.
-
-   .. table 6
-
-   .. csv-table:: Table :counter:`tables`: Columns displayed in central area of ``varnishstat``
-      :name: columns_central_area
-      :delim: ;
-      :widths: 20, 80
-      :header-rows: 1
-      :file: tables/columns_central_area.csv
 
    In the above example Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
    Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
@@ -2439,18 +2444,18 @@ described):
 - `must-revalidate`: Indicates that a stale cache item can not be serviced
   without revalidation with the origin server first;
 
+.. table 11
+
+.. csv-table:: Table :counter:`tables`: Cache-control argument for each context
+   :name: Cache-control argument for each context
+   :delim: |
+   :header-rows: 1
+   :file: tables/cache-control.csv
+
 .. container:: handout
 
-	Unlike `Expires`, `Cache-Control` is both a **request** and a **response**
-	header, here is the list of arguments you may use for each context:
-
-	.. table 11
-
-	.. csv-table:: Table :counter:`tables`: Cache-control argument for each context
-	   :name: Cache-control argument for each context
-	   :delim: |
-	   :header-rows: 1
-	   :file: tables/cache-control.csv
+	Unlike `Expires`, `Cache-Control` is both a **request** and a **response** header.
+	`Table 11 <#tables-11>`_  summarizes the arguments you may use for each context.
 
 	Example of a `Cache-Control` header::
 
