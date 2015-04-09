@@ -1,0 +1,107 @@
+{
+  "pageSetup" : {
+       "firstTemplate": "coverPage",
+       "margin-top": "1mm",
+       "margin-bottom": "1mm",
+       "margin-left": "2mm",
+       "margin-right": "2mm",
+       "spacing-header": "5mm",
+       "spacing-footer": "5mm",
+       "margin-gutter": "0cm"
+  },
+  "pageTemplates" : {
+    "coverPage": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/front_page_book.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "vclPage": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        // "background" : "ui/img/cache_req_fsm.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "introPages": {
+	    "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "showHeader" : false,
+        "showFooter" : false
+    },
+    "oneColumn": {
+	    "showHeader": false,
+	    "showFooter": false
+    }
+  },
+    "styles" : [
+    ["bodytext", {
+            "fontName": "Open Sans",
+            "fontSize": 10,
+            "borderPadding": 0
+        }
+        ],
+    ["title", {
+        "fontName": "Open Sans",
+        "fontSize": 48
+    }],
+    ["tinycode", {
+        "fontSize": 6,
+      	"parent": normal,
+      	"leftIndent": 0,
+      	"spaceBefore": 8,
+      	"spaceAfter": 8,
+      	"backColor": beige,
+      	"borderColor": darkgray,
+      	"borderWidth": 0.5,
+      	"borderPadding": 6,
+        "fontName": stdMono,
+        "firstLineIndent": 0,
+        "hyphenation": false,
+        "wordWrap": null
+    }],
+    ["figformat",{
+	"alignment": "center",
+        "width": "218mm",
+	"height": "10mm",
+	"commands": [
+             ["VALIGN", [ 0, 0 ], [ -1, -1 ], "TOP" ],
+             ["ALIGN", [ 0, 0 ], [ -1, -1 ], "CENTER" ],
+             ["BOX", [ 0, 0 ], [ -1, -1 ], 0.25, "black" ]
+        ],
+	"colWidths": ["3cm",null]
+    }],
+    ["thin" , {
+        "parent" : "bodytext",
+	"width" : "65%",
+	"alignment": "TA_JUSTIFY",
+	"hyphenation": true
+    }],
+    ["right", {
+        "parent": "bodytext",
+        "alignment": "right"
+    }],
+    ["centered", {
+        "parent": "bodytext",
+        "alignment": "center"
+    }],
+    ["left", {
+        "parent": "bodytext",
+        "alignment": "left"
+    }],
+    ["headertable" , {
+        "parent" : "table",
+	"colWidths": ["20%","60%","20%"],
+	"commands": []
+    }],
+    ["footer" , {
+        "textColor": "red"
+    }]
+   ]
+}

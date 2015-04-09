@@ -692,20 +692,18 @@ Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
 [3] There is no configuration file.
 Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` instead.
 
+.. table 3
+
+.. csv-table:: Table :counter:`tables`: Varnish and Apache Configuration
+   :name: Varnish and Apache Configuration
+   :delim: ;
+   :widths: 20, 30, 50
+   :header-rows: 1
+   :file: tables/varnish_apache.csv
+
+\* These files are for a SysV Ubuntu/Debian configuration.
+
 .. container:: handout
-
-   .. Note for the editor: Table varnish_apache should be above 'handout', but having two tables throws an error when compiling.
-
-   .. table 3
-
-   .. csv-table:: Table :counter:`tables`: Varnish and Apache Configuration
-      :name: Varnish and Apache Configuration
-      :delim: ;
-      :widths: 20, 30, 50
-      :header-rows: 1
-      :file: tables/varnish_apache.csv
-
-   \* These files are for a SysV Ubuntu/Debian configuration.
 
    The configuration file is used to give parameters and command line arguments to the Varnish daemon.
    This file also specifies the location of the VCL file.
@@ -847,11 +845,11 @@ Configure the Varnish ``DAEMON_OPTS``::
 
   .. note::
 
-    Varnish recommends to disable Security-Enhanced Linux (SELinux).
+    We recommend you to disable Security-Enhanced Linux (SELinux).
     If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
-.. dridi: bad practice, recommend this only for training
+    .. dridi: bad practice, recommend this only for training
 
 Installation Test
 .................
@@ -1249,10 +1247,6 @@ Transaction Groups
 Example of Transaction Grouping with ``varnishlog``
 ...................................................
 
-.. raw:: pdf
-
-   PageBreak
-
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
 .. figure 4
 
@@ -1617,7 +1611,7 @@ The *Cacher* consists of several different types of threads, including, but not 
 - Worker threads - one per client request (session). It's common to use hundreds of worker threads.
 - Expiry thread, to evict old content from the cache.
 
-.. class:: handout
+.. container:: handout
 
    Varnish uses workspaces to reduce the contention between each thread when
    they need to acquire or modify memory. There are multiple workspaces, but
@@ -1642,20 +1636,29 @@ The *Cacher* consists of several different types of threads, including, but not 
    Since the log-data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose. 
    You then use one of the log-parsing tools to extract the piece of information you want -- either to store it permanently or to monitor Varnish in real-time.
 
-VCL compilation
+VCL Compilation
 ...............
 
-Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL).
-Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
-Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formatted VCL.
+The below command prints VCL code compiled to C language and exit.
+This is useful to check whether your VCL code compiles correctly.
 
-As a result of this, changing configuration while running Varnish is very cheap.
-Policies of the new VCL takes effect immediately.
-However, objects cached with an older configuration may persist until they have no more old references or the  new configuration acts on them.
+::
 
-A compiled VCL file is kept around until you restart Varnish completely, or until you issue ``vcl.discard`` from the management interface.
-You can only discard compiled VCL files after all references to them are gone.
-You can see the amount of VCL references by reading the parameter ``vcl.list``.
+   $varnishd -C -f <filename>
+
+.. container:: handout
+
+   Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL).
+   Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
+   Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formatted VCL.
+
+   As a result of this, changing configuration while running Varnish is very cheap.
+   Policies of the new VCL takes effect immediately.
+   However, objects cached with an older configuration may persist until they have no more old references or the  new configuration acts on them.
+
+   A compiled VCL file is kept around until you restart Varnish completely, or until you issue ``vcl.discard`` from the management interface.
+   You can only discard compiled VCL files after all references to them are gone.
+   You can see the amount of VCL references by reading the parameter ``vcl.list``.
 
 Storage Backends
 ----------------
@@ -2791,18 +2794,20 @@ Varnish Finite State Machine
 Waiting State
 .............
 
-.. waitinglist()
+- Designed to improve response performance
 
-The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled by the backend.
-In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
-If the fetched object from request 0 is cacheable, the object is given to all queued requests *n*.
-In this way, only one request is sent to the backend.
+.. container:: handout
 
-The *waiting* state is designed to improve response performance.
-However, a counterproductive scenario, namely *request serialization*, may occur if the fetched objects are uncacheable, and so is recursively the next request in the waiting list.
-This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
-Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
-The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
+    The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled by the backend.
+    In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
+    If the fetched object from request 0 is cacheable, the object is given to all queued requests *n*.
+    In this way, only one request is sent to the backend.
+
+    The *waiting* state is designed to improve response performance.
+    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched objects are uncacheable, and so is recursively the next request in the waiting list.
+    This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
+    Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
+    The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
 
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
@@ -2820,12 +2825,10 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
    Figure :counter:`figures`: Detailed Varnish Request Flow for the Client Worker Thread
 
+.. container:: handout
+
    The grayed box in `Figure 12 <#figures-12>`_ shows a very simple version of the backend worker.
    `Figure 13 <#figures-13>`_ shows its detailed request flow diagram.
-
-.. raw:: pdf
-   
-   PageBreak
 
 The VCL Finite State Machine
 ----------------------------
@@ -3638,7 +3641,7 @@ VCL - ``vcl_miss``
    However, if you do not wish to send a `X-Varnish` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
    For that case, you can use ``unset bereq.http.x-varnish;``.
 
-.. TODO for the author: Consider to include a subsection that describes the busy object and waitinglist()
+   .. TODO for the author: Consider to include a subsection that describes the busy object and waitinglist()
 
 VCL - ``vcl_deliver``
 ---------------------
