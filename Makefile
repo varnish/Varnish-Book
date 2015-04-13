@@ -3,6 +3,9 @@ BDIR=build
 CACHECENTERC=../varnish-cache-3.0/bin/varnishd/cache_center.c
 PICK = "./util/pickchapter2.igawk"
 
+pdf_slide_style = ui/pdf_slide.style
+pdf_style = ui/pdf.style
+
 # The following are chapter lists for the relevant versions of the PDFs.
 # Please note that they need to be exact. No extra spaces, case sensitive
 # etc.
@@ -14,9 +17,10 @@ book = "*"
 slides = "*"
 slides-A4 = "*"
 
+#"Introduction,Design Principles,Getting Started,Examining Data Provided by Varnish,Tuning,HTTP,VCL Basics,VCL Built-in Subroutines,Cache Invalidation,Saving a Request,Content Composition,Varnish Plus Software Components,Appendix A: Resources,Appendix B: Varnish Programs,Appendix C: Extra Material,Appendix D: From Varnish 3 to Varnish 4,Appendix E: Varnish Three Letter Acronyms"
+
 # Selecting chapters in this way does not work.
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
-#"Abstract,Preface,Introduction,Getting Started,The Varnish Log,Tuning,VCL Basics,VCL Built-in Subroutines,Cache Invalidation,Mechanisms to Handle Backends in Problematic Situations,Content Composition,Appendix A: Resources,Appendix B: Varnish Programs,Appendix C: Extra Material,Appendix D: From Varnish 3 to Varnish 4"
 
 test = "The Varnish Log"
 #test = "Varnish request flow for the client worker thread"
@@ -32,7 +36,6 @@ exercises_task = $(addprefix ${BDIR}/exercises/,$(addsuffix .rst,${exercises}))
 exercises_vtc = $(addprefix ${BDIR}/exercises/,$(addsuffix .vtc,${exercises}))
 exercises_complete = $(addprefix ${BDIR}/exercises/complete-,$(addsuffix .rst,${exercises}))
 exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${excercises_handouts}
-
 
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 #sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
@@ -61,7 +64,7 @@ common = ${mergedrst} \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = book slides-A4
+targets = book slides
 #webdev book sysadmin
 
 all: ${common} ${targets}
@@ -78,7 +81,7 @@ slides-A4: ${slides-A4t}
 
 test: ${testt}
 
-src/conf.py: src/conf.py.in build/version.rst
+src/conf.py: src/conf.py.in ${BDIR}/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
 
 sphinx: ${common} src/conf.py
@@ -137,17 +140,17 @@ ${BDIR}/img:
 ${BDIR}:
 	@mkdir -p ${BDIR}
 
-${BDIR}/varnish-%.pdf: ${common} ui/pdf.style
-	@echo Building PDFs for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf.style -o $@
+${BDIR}/varnish-book.pdf: ${common} ${pdf_style}
+	@echo Building PDFs for book...
+	@${PICK} -v inc=${book} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ${pdf_style} -o $@
 
-${BDIR}/varnish_%.pdf: ${common} ui/pdf_slide-A4.style
-	@echo Building PDF slides for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
+${BDIR}/varnish_slides.pdf: ${common} ${pdf_slide_style}
+	@echo Building PDF slidesfor slides...
+	@${PICK} -v inc=${slides} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ${pdf_slide_style} -o $@
 
-${BDIR}/varnish_slide-A4.pdf: ${common} ui/pdf_slide-A4.style
-	@echo Building PDF slides for $*...
-	@${PICK} -v inc=${$*} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 -s --break-level=3 ui/pdf_slide-A4.style -o $@
+${BDIR}/varnish_slides-A4.pdf: ${common} ui/pdf_slide-A4.style
+	@echo Building PDF slides for slides-A4...
+	@${PICK} -v inc=${slides-A4} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
 
 util/param.rst:
 	( sleep 2; echo param.show ) | varnishd -n /tmp/meh -a localhost:2211 -d | gawk -v foo=0 '(foo == 2) && (/^[a-z]/) {  printf ".. |def_"$$1"| replace:: "; gsub($$1,""); print; } /^200 / { foo++;}' > util/param.rst

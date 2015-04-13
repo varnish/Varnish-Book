@@ -5006,11 +5006,11 @@ Varnish Administration Console (VAC)
 
 - Single point of control for simultaneous administration of multiple Varnish Cache servers.
 - VAC provides a UI and an API.
-- `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the UI.
 
 .. container:: handout
 
    The Varnish Administration Console (VAC) provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
+   `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the UI.
 
    Please visit https://vacdemo.varnish-software.com to try a working demo.
    The instructor of the course provides you the credentials.
@@ -5049,13 +5049,12 @@ Varnish Custom Statistics (VCS)
 -------------------------------
 
 - Real-time statistics engine to aggregate, display and analyze user web traffic.
-- `Figures 18 <#figures-18>`_, and `19 <#figures-19>`_ are screenshots demos.
 
 .. container:: handout
 
    Varnish Custom Statistics (VCS) is an extremely flexible engine that allows you to group statistics easily using the Varnish Configuration Language (VCL).
-   Please visit http://vcsdemo.varnish-software.com to try a working demo.
-   The instructor of the course provides you the credentials.
+   `Figures 18 <#figures-18>`_, and `19 <#figures-19>`_ are screenshots from the demo on http://vcsdemo.varnish-software.com.
+   Your instructor can provide you credential for you to try the demo online.
 
 Header of Varnish Custom Statistics
 ...................................
