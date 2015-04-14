@@ -1,6 +1,7 @@
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
-CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
+#CACHECENTERC is not in Varnish-Cache-Plus github
+#CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
 PICK = "./util/pickchapter2.igawk"
 
 pdf_slide_style = ui/pdf_slide.style
@@ -126,8 +127,8 @@ ui/img/%.png: ui/img/%.dot
 ui/img/%.svg: ui/img/%.dot
 	dot -Tsvg < $< > $@
 
-flowchartupdate:
-	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/detailed_fsm.dot
+#flowchartupdate:
+#	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/detailed_fsm.dot
 
 ${BDIR}/ui:
 	@mkdir -p ${BDIR}

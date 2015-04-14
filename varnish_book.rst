@@ -440,6 +440,52 @@ Varnish timeline:
    For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
    This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
+What Is New in Varnish 4
+------------------------
+
+- Version statement ``vcl 4.0;``
+- ``req.request`` is now ``req.method``
+- ``vcl_fetch`` is now ``vcl_backend_response``
+- Directors have been moved to the vmod_directors
+- Hash directors as a client directors 
+- ``vcl_error`` is now ``vcl_backend_error``
+- ``error()`` is now ``synth()``, and you must explicitly return it: ``return (synth(999, "Response"));``
+- Synthetic responses in ``vcl_synth``
+- Setting headers on synthetic response bodies made in ``vcl_synth`` are now done on ``resp.http`` instead of ``obj.http``.
+- ``obj.*`` in ``vcl_error`` replaced by ``beresp.*`` in ``vcl_backend_error``
+- ``hit_for_pass`` objects are created using ``beresp.uncacheable``
+- ``req.*`` not available in ``vcl_backend_response``
+- ``bereq.*`` in ``vcl_backend_response``
+- ``vcl_*`` prefix reserved for builtin subroutines
+- ``req.backend.healthy`` replaced by ``std.healthy(req.backend_hint)``
+- ``client.port`` and ``server.port`` replaced by ``std.port(client.ip)`` and ``std.port(server.ip)``
+- Cache invalidation with purges is now done via ``return(purge)`` in ``vcl_recv``
+- ``obj.*`` is now read-only
+- ``obj.last_use`` is retired
+- ``vcl_recv`` must now return ``hash`` instead of ``lookup``
+- ``vcl_hash`` must now return ``lookup`` instead of ``hash``
+- ``vcl_pass`` must now return ``fetch`` instead of ``pass``
+- ``restart`` in the backend is now ``retry``, this is now called ``return(retry)``, and jumps back up to ``vcl_backend_fetch``
+- `default` VCL is not called `builtin` VCL
+- The builtin VCL now honors ``Cache-Control: no-cache`` (and friends) to indicate uncacheable content from the backend
+- ``remove`` keyword replaced by ``unset``
+- ``X-Forwarded-For`` is now set before ``vcl_recv``
+- ``session_linger`` has been renamed to ``timeout_linger`` and it is in seconds now (previously was milliseconds)
+- ``sess_timeout`` is renamed to ``timeout_idle``
+- Increasing ``sess_workspace`` is not longer necessary, you may need to increase either `workspace_backend` or `workspace_client`
+- ``thread_pool_purge_delay`` is renamed to ``thread_pool_destroy_delay`` and it is in seconds now
+- ``thread_pool_add_delay`` and ``thread_pool_fail_delay`` are in seconds now
+- New parameter ``vcc_allow_inline_c`` to disable inline C in your VCL
+- New query language to filter logs: ``-m`` option replaced by ``-q``
+
+.. container:: handout
+
+   The above list tries to summarize the most important changes from Varnish 3 to Varnish 4.
+   For more information, please visit: https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
+
+   If you want to migrate your VCL code from Varnish 3 to Varnish 4, you may be interested in looking at the `varnish3to4 <https://github.com/fgsch/varnish3to4>`_ script.
+   See the `VCL Migrator from Varnish 3 to Varnish 4`_ section for more information.
+
 Design Principles
 =================
 
@@ -5318,11 +5364,6 @@ set-cookie.php
 
 .. include:: material/webdev/set-cookie.php
    :literal:
-
-Appendix D: From Varnish 3 to Varnish 4
-=======================================
-
-Please visit: https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 
 VCL Migrator from Varnish 3 to Varnish 4
 ----------------------------------------
