@@ -12,11 +12,29 @@
         "showFooter" : false,
 	"fontSize": 0
     },
-    "vclPage": {
+    "simplifiedFSM": {
         "frames": [
             ["0cm", "0cm", "100%", "100%"]
           ],
-        // "background" : "ui/img/cache_req_fsm.pdf",
+        "background" : "ui/img/simplified_fsm.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "detailedFSM": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/detailed_fsm.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "detailedFSM_backend": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/detailed_fsm_backend.pdf",
         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0
@@ -31,7 +49,6 @@
     "oneColumn": {
         "showFooter" : true
     }
-
   },
   "styles" : [
     ["bodytext", {

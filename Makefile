@@ -1,6 +1,6 @@
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
-CACHECENTERC=../varnish-cache-3.0/bin/varnishd/cache_center.c
+CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
 PICK = "./util/pickchapter2.igawk"
 
 pdf_slide_style = ui/pdf_slide.style
@@ -45,7 +45,7 @@ slides-A4t=${BDIR}/varnish_slides-A4.pdf
 testt=${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
-images = ui/img/cache_fetch.png ui/img/cache_req_fsm.png
+images = ui/img/simplified_fsm.png ui/img/detailed_fsm.png ui/img/detailed_fsm_backend.png
 mergedrst = ${BDIR}/merged_book.rst
 
 common = ${mergedrst} \
@@ -112,7 +112,7 @@ mrproper: clean all
 .git/COMMIT_EDITMSG:
 	touch .git/COMMIT_EDITMSG
 
-${mergedrst}: ${BDIR} ${rstsrc} ${BDIR}/version.rst
+${mergedrst}: ${BDIR} ${rstsrc} ${BDIR}/version.rst util/frontpage.rst
 	util/parse.pl < ${rstsrc} > $@
 
 ${BDIR}/version.rst: util/version.sh ${mergedrst} .git/COMMIT_EDITMSG
@@ -127,7 +127,7 @@ ui/img/%.svg: ui/img/%.dot
 	dot -Tsvg < $< > $@
 
 flowchartupdate:
-	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/cache_req_fsm.dot
+	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/detailed_fsm.dot
 
 ${BDIR}/ui:
 	@mkdir -p ${BDIR}
@@ -169,7 +169,7 @@ varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slides
 	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
 	cp -r ${BDIR}/varnish_slides-$*.pdf $$target/pdf/varnish_slides_$*-v${version}.pdf;\
 	cp -r munin/ $${target};\
-	cp ui/img/cache_fetch.png ui/img/cache_req_fsm.png $${target}/img/; \
+	cp ${} $${target}/img/; \
 	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
 	cp NEWS ${mergedrst} README.rst LICENSE $$target;\
 	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/

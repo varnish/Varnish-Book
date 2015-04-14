@@ -2747,7 +2747,7 @@ Varnish Finite State Machine
 
    .. figure 11
 
-   .. figure:: ui/img/fsm_simplified.png
+   .. figure:: ui/img/simplified_fsm.png
       :align: center
       :scale: 170%
 
@@ -2826,7 +2826,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
    .. figure 12
 
-   .. figure:: ui/img/cache_req_fsm.png
+   .. figure:: ui/img/detailed_fsm.png
       :align: center
       :scale: 125%
 
@@ -3313,7 +3313,7 @@ VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
    .. figure 13
    .. TODO for the editor: improve layout of this figure
 
-   .. figure:: ui/img/cache_fetch.png
+   .. figure:: ui/img/detailed_fsm_backend.png
       :scale: 150%
 
       Figure :counter:`figures`: Varnish Request Flow for the Backend Worker Thread.
