@@ -72,7 +72,6 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
    Besides that, other courses may also be taught with this book.
 
    .. TODO for author: "as visitors' requests scales": can we state a magnitude number? or at what level of scalability are we talking about?
-   .. The VMOD course shows how to ???.
 
 .. raw:: pdf
 
@@ -226,11 +225,23 @@ The Webdev course requires that you:
    .. formats
 
    The book is written with different formatting conventions.
-   Varnish Configuration Language (VCL) text is in verbatim mode.
+   Varnish Configuration Language (VCL) code uses the monospaced font type inside boxes::
 
-   .. TODO for the author: insert an example of VCL code here.
+      vcl 4.0;
 
-   Important notes and tips are stated inside boxes throughout the book.
+      backend default {
+	  .host = "127.0.0.1";
+	  .port = "8080";
+      }
+
+      sub vcl_recv {
+	  # Do request header transformations here.
+	  if (req.url ~ "/admin") {
+	      return(pass);
+	  }
+      }
+
+   Important notes, tips and warnings are also inside boxes, but they use the normal bodytext font type.
 
    .. Ask for help
 
@@ -255,6 +266,7 @@ In addition to the authors, the following deserve special thanks (in no particul
 - Reza Naghibi
 - Federico G. Schwindt
 - Dridi Boukelmoune
+- Lasse Karstensen
 - Per Buer
 - Sevan Janiyan
 - Kacper Wysocki
@@ -480,7 +492,7 @@ What Is New in Varnish 4
 
 .. container:: handout
 
-   The above list tries to summarize the most important changes from Varnish 3 to Varnish 4.
+   The above list tries to summarize the most important changes from Varnish Cache 3 to Varnish Cache 4.
    For more information, please visit: https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 
    If you want to migrate your VCL code from Varnish 3 to Varnish 4, you may be interested in looking at the `varnish3to4 <https://github.com/fgsch/varnish3to4>`_ script.
@@ -502,78 +514,74 @@ Varnish is designed to:
 
 .. container:: handout
 
-	.. run on modern hardware
-        
-	The focus of Varnish has always been performance and flexibility.
-        Varnish is designed for hardware that you buy today, not the
-        hardware you bought 15 years ago. Varnish is designed to run
-        on 64-bit architectures and scales almost proportional to
-        the number of CPU cores you have available. Though CPU-power
-        is rarely a problem.
+   .. run on modern hardware
 
-        If you choose to run Varnish on a 32-bit system, you are limited to
-        3GB of virtual memory address space, which puts a limit on the
-        number of threads you can run and the size of your cache. This is a
-        trade-off to gain a simpler design and reduce the amount of work
-        Varnish needs to do. The 3GB limit depends on the operating system (OS)
-        kernel. The theoretical maximum is 4GB, but your OS reserves
-        some of that for the kernel. This is called the user/kernel  memory split.
+   The focus of Varnish has always been performance and flexibility.
+   Varnish is designed for hardware that you buy today, not the
+   hardware you bought 15 years ago. Varnish is designed to run
+   on 64-bit architectures and scales almost proportional to
+   the number of CPU cores you have available. Though CPU-power
+   is rarely a problem.
 
-	.. work with the kernel
-        
-	Varnish does not keep track of whether your cache is on disk or in
-        memory. Instead, Varnish requests a large chunk of memory and
-        leave it to the operating system to figure out where that memory
-        really is. The operating system can generally do a better job than
-        a user-space program.
+   If you choose to run Varnish on a 32-bit system, you are limited to
+   3GB of virtual memory address space, which puts a limit on the
+   number of threads you can run and the size of your cache. This is a
+   trade-off to gain a simpler design and reduce the amount of work
+   Varnish needs to do. The 3GB limit depends on the operating system (OS)
+   kernel. The theoretical maximum is 4GB, but your OS reserves
+   some of that for the kernel. This is called the user/kernel  memory split.
 
-        Accept ``filters``, ``epoll`` and ``kqueue`` are advanced features of the
-        operating system that are designed for high-performance services
-        like Varnish. By using these, Varnish can move a lot of the
-        complexity into the OS kernel which is also better positioned to
-        know what threads are ready to execute when.
+   .. work with the kernel
 
-        .. VCL   
-	
-	In addition, Varnish uses a configuration language (VCL) that is translated to C programming language code.
-	This code is compiled with a standard C compiler and then dynamically linked directly into Varnish at run-time. 
-	This has several advantages.
-	The most practical is the freedom you get as system administrator.
-	
-	You can use VCL to decide how you want to interact with Varnish, instead of having a developer trying to predict every possible caching scenario.
-	The fact that VCL is translated to C code, gives Varnish a very high performance.
-	You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
-	In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
+   Varnish does not keep track of whether your cache is on disk or in
+   memory. Instead, Varnish requests a large chunk of memory and
+   leave it to the operating system to figure out where that memory
+   really is. The operating system can generally do a better job than
+   a user-space program.
 
-	.. VMODs
-        
-	Varnish allows integration of Varnish Modules or simply VMODs.
-	These modules let you extend the functionality of VCL by pulling in custom-written features.
-	Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
+   Accept ``filters``, ``epoll`` and ``kqueue`` are advanced features of the
+   operating system that are designed for high-performance services
+   like Varnish. By using these, Varnish can move a lot of the
+   complexity into the OS kernel which is also better positioned to
+   know what threads are ready to execute when.
 
-	.. shared memory
-        
-	The shared memory log (SHMLOG) allows Varnish to log large amounts of
-        information at almost no cost by having other applications parse
-        the data and extract the useful bits. This reduces the
-        lock-contention in the heavily threaded environment of Varnish.
-        Lock-contention is also one of the reasons why Varnish uses a
-        workspace-oriented memory-model instead of allocating the
-        exact amount of space it needs at run-time.
+   .. VCL   
 
-	.. TODO for the author: Move to fast track
-        
-	To summarize: Varnish is designed to run on modern hardware
-        under real work-loads and to solve real problems. Varnish does not
-        cater to the "I want to make Varnish run on my 486 just
-        because"-crowd. If it does work on your 486, then that's fine, but
-        that's not where you will see our focus. Nor will you see us
-        sacrifice performance or simplicity for the sake of niche use-cases
-        that can easily be solved by other means -- like using a 64-bit OS.
+   In addition, Varnish uses a configuration language (VCL) that is translated to C programming language code.
+   This code is compiled with a standard C compiler and then dynamically linked directly into Varnish at run-time. 
+   This has several advantages.
+   The most practical is the freedom you get as system administrator.
 
-.. TODO for the author: Sub-subtitles do not start in a new page
-.. raw: PageBreak does not work because the script util/strip-class.gawk ignores .. container: handout
-.. The solution should not be to make sub-subtitles into subtitles, but to find the way to break the page.
+   You can use VCL to decide how you want to interact with Varnish, instead of having a developer trying to predict every possible caching scenario.
+   The fact that VCL is translated to C code, gives Varnish a very high performance.
+   You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
+   In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
+
+   .. VMODs
+
+   Varnish allows integration of Varnish Modules or simply VMODs.
+   These modules let you extend the functionality of VCL by pulling in custom-written features.
+   Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
+
+   .. shared memory
+
+   The shared memory log (SHMLOG) allows Varnish to log large amounts of
+   information at almost no cost by having other applications parse
+   the data and extract the useful bits. This reduces the
+   lock-contention in the heavily threaded environment of Varnish.
+   Lock-contention is also one of the reasons why Varnish uses a
+   workspace-oriented memory-model instead of allocating the
+   exact amount of space it needs at run-time.
+
+   .. TODO for the author: Move to fast track
+
+   To summarize: Varnish is designed to run on modern hardware
+   under real work-loads and to solve real problems. Varnish does not
+   cater to the "I want to make Varnish run on my 486 just
+   because"-crowd. If it does work on your 486, then that's fine, but
+   that's not where you will see our focus. Nor will you see us
+   sacrifice performance or simplicity for the sake of niche use-cases
+   that can easily be solved by other means -- like using a 64-bit OS.
 
 How objects are stored
 ----------------------
@@ -787,7 +795,7 @@ To use the **varnish-software.com** repository and install **Varnish Cache Plus*
   #. curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
      | apt-key add -
 
-Put the following in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
+Add the repositories for Varnish Cache Plus and VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
 
    # Remember to replace DISTRO and RELEASE with what applies to your system.
    # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
@@ -807,8 +815,11 @@ Then::
 
 .. container:: handout
 
-   Varnish is distributed in Ubuntu package repositories, but the Varnish version in those repositories might be out of date.
-   We generally recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
+   All software related to **Varnish Cache Plus** including VMODs are available in Redhat and Debian package repositories.
+   These repositories are available on http://repo.varnish-software.com/, using your customer specific username and password.
+
+   Varnish is already distributed in many package repositories, but those packages might contain an outdated Varnish version.
+   Therefore, we recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
    Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
    However, these packages might still work fine on newer releases.
 
@@ -1118,7 +1129,7 @@ Defining a backend in VCL
 Exercise: Use the administration interface to learn, review and set Varnish parameters
 --------------------------------------------------------------------------------------
 
-#. Use ``varnishadm`` to see the default value for the ``default_ttl`` parameter, and what it does.
+#. Use ``varnishadm`` to see the default value for the ``default_ttl`` parameter and what it does.
 
 .. TODO for the author: This exercise is too short and simple. Consider to remove it or elaborate it.
 
@@ -2102,7 +2113,7 @@ Timers
       :header-rows: 1
       :file: tables/timers.csv
 
-.. TODO for the author: verify what means hiccoughs, and "web page generation" in the table.
+.. TODO for the author: verify the meaning of hiccoughs and "web page generation" in the table to be sure it is correct to use those words.
 
 .. container:: handout
 
@@ -2851,11 +2862,12 @@ Waiting State
 
     The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled by the backend.
     In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
-    If the fetched object from request 0 is cacheable, the object is given to all queued requests *n*.
+    If the fetched object from request 0 is cacheable, all *n* requests in the waiting list call the lookup operation again.
+    This retry will hopefully hit the desired object in cache.
     In this way, only one request is sent to the backend.
 
     The *waiting* state is designed to improve response performance.
-    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched objects are uncacheable, and so is recursively the next request in the waiting list.
+    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched object is uncacheable, and so is recursively the next request in the waiting list.
     This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
     Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
     The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
@@ -2880,6 +2892,10 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
    The grayed box in `Figure 12 <#figures-12>`_ shows a very simple version of the backend worker.
    `Figure 13 <#figures-13>`_ shows its detailed request flow diagram.
+
+.. raw:: pdf
+
+   PageBreak oneColumn
 
 The VCL Finite State Machine
 ----------------------------
@@ -2983,8 +2999,6 @@ All functions are available in all subroutines, except the listed in the table b
 Legal Return Actions
 --------------------
 
-.. TODO for the editor: scale or change the font size of this table.
-
 .. table 14
 
 .. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns on the client side
@@ -3087,11 +3101,7 @@ Summary of VCL
 VCL Built-in Subroutines
 ========================
 
-.. TODO for the author: double check that the subroutines list is congruent with the chapter.
-.. TODO for the author: consider to add ``vcl_init``, and ``vcl_init``.
-
-- Go through the VCL built-in subroutines: ``vcl_recv``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_pass``, ``vcl_hash``, ``vcl_pipe``, ``vcl_miss``, ``vcl_hit``, ``vcl_purge``, ``vcl_backend_error``, ``vcl_synth`` and ``vcl_deliver``.
-- Add some "features" with VCL.
+- Cover the VCL built-in subroutines: ``vcl_recv``, ``vcl_pass``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_hash``, ``vcl_hit``, ``vcl_miss``, ``vcl_deliver``, and ``vcl_synth``
 - If your VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.
 
 .. container:: handout
@@ -3212,9 +3222,7 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
    It might be tempting to just send ``Vary: User-Agent``, but that requires you to normalize the `User-Agent` header itself because there are many tiny variations in the description of *similar* `User-Agents`.
    This normalization, however, leads to loss of detailed information of the browser.
    If you pass the `User-Agent` header without normalization, the cache size may drastically inflate because Varnish would keep possibly hundreds of different variants per object and per tiny `User-Agent` variants.
-
-   .. For more information on the `Vary`-header, see the HTTP section.
-   .. TODO for the author: to uncomment the above line when the HTTP section is back.
+   For more information on the ``Vary`` HTTP response header, see the `Vary`_ section.
 
    .. note::
 
@@ -3526,9 +3534,6 @@ Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
    The default parsing and TTL assignment are done before ``vcl_backend_response`` is executed.
    The TTL changing process is recorded in the ``TTL`` tag of ``varnishlog``.
 
-   .. TODO for the author: Find this rst file and update it
-   .. also, ask why some files are in include and under build.
-
 Exercise: Avoid caching a page
 ..............................
 
@@ -3629,16 +3634,24 @@ VCL - ``vcl_hash``
 
    The ``vcl_hash`` subroutine returns the ``lookup`` action keyword.
    Unlike other action keywords, ``lookup`` is an operation, not a subroutine.
-   Depending on what ``lookup`` finds in the cache, it has five possible outcomes:
-   ``hit``, ``miss``, ``hit-for-pass``, ``busy``, or ``purge``.
+   Depending on what ``lookup`` finds in the cache, it has four possible outcomes:
+   ``hit``, ``miss``, ``hit-for-pass``, or ``purge``.
 
-   The following sections discuss the actions taken based on the outcome of the ``lookup`` operation.
-   The `hit-for-pass`_ section describes the ``hit-for-pass`` action.
+   .. busy object
+
+   When the lookup operation does not match any hash, it creates an object with a `busy` flag and inserts it in cache.
+   Then, the request is sent to the `vcl_miss`__ subroutine.
+   The `busy` flag is removed once the request is handled, and the object is updated with the response from the backend.
+
+   Subsequent similar requests that hit `busy` flagged objects are sent into a *waiting list*.
+   This waiting list is designed to improve response performance, and it is explain the `Waiting State`_ section.
 
    .. note::
       One cache hash may refer to one or many object variations.
       Object variations are created based on the ``Vary`` header field.
       It is a good practice to keep several variations under one cache hash, than creating one hash per variation.
+
+__ `VCL - vcl_miss`_
 
 VCL - ``vcl_hit``
 -----------------
@@ -3691,8 +3704,6 @@ VCL - ``vcl_miss``
    It is rare that you customize them, because modification of HTTP request headers is typically done in ``vcl_recv``.
    However, if you do not wish to send a `X-Varnish` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
    For that case, you can use ``unset bereq.http.x-varnish;``.
-
-   .. TODO for the author: Consider to include a subsection that describes the busy object and waitinglist()
 
 VCL - ``vcl_deliver``
 ---------------------
@@ -4182,7 +4193,8 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
 - Cache invalidation based on cache tags
 - Adds patterns easily to be matched against
 - Highly scalable
-- Varnish Plus only!
+- Hashtwo is distributed as a VMOD for Varnish Plus only!
+- Install the Varnish Plus VMODs
 
 .. container:: handout
 
@@ -4202,12 +4214,27 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    1) looking up *hash keys* is much more efficient than traversing ban-lists, and
    2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
-   .. TODO for the author: Elaborate more about VMODs after I have defined them.
+   The hashtwo VMOD is prebuilt for supported versions and can be installed using regular package managers from `Varnish Software repositories`__.
+   Once the repository is in place you can issue the following commands to install the VMOD:
+
+   On Debian or Ubuntu::
+   
+     apt-get install libvmod-hashtwo
+
+   On Red Hat Enterprise Linux::
+   
+     yum install libvmod-hashtwo
+
+   Finally, you can use this VMOD by importing it in your VCL code::
+
+     import hashtwo;
+
+   __ `Install Varnish`_
 
 VCL example using Hashtwo
 .........................
 
-.. The content of this side comes from ``man vmod_hashtwo``.
+.. The content of this page comes from ``man vmod_hashtwo``.
 
 On an e-commerce site the backend application issues a ``X-HashTwo`` HTTP header field for every product that is referenced on that
 page.
