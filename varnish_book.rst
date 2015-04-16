@@ -3303,7 +3303,7 @@ Solution: Rewrite URLs and Host headers
      /* Alternative 1 */
      if (req.http.host == "sport.example.com") {
          set req.http.host = "example.com";
-         set req.url = regsub(req.url, "^", "/sport");
+         set req.url = "/sport" + req.url;
       }
 
       /* Alternative 2 */

@@ -1,12 +1,12 @@
 acl purgers {
-        "127.0.0.1";
-        "192.168.0.0"/24;
+    "127.0.0.1";
+    "192.168.0.0"/24;
 }
 
 sub vcl_recv {
     # allow PURGE from localhost and 192.168.55...
     if (req.restarts == 0) {
-                unset req.http.X-purger;
+                unset req.http.X-Purger;
     }
 
     if (req.method == "PURGE") {
@@ -18,7 +18,13 @@ sub vcl_recv {
 }
 
 sub vcl_purge {
-   set req.method = "GET";
-   set req.http.X-purger = "Purged";
-   return (restart);
+    set req.method = "GET";
+    set req.http.X-Purger = "Purged";
+    return (restart);
+}
+
+sub vcl_deliver {
+    if (req.http.X-Purger) {
+       set resp.http.X-Purger = req.http.X-Purger;
+    }
 }

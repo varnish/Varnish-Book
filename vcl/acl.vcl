@@ -2,7 +2,7 @@
 acl local {
     "localhost";      /* myself */
     "192.168.1.0"/24; /* and everyone on the local network */
-    !"192.168.1.23"; /* except for the dialin router */
+    !"192.168.1.23";  /* except for the dialin router */
 }
 
 sub vcl_recv {
