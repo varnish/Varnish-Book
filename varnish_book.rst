@@ -1,4 +1,4 @@
-.. include:: util/frontpage.rst
+ .. include:: util/frontpage.rst
 
 .. include:: util/printheaders.rst
 
@@ -104,7 +104,8 @@ The Webdev course requires that you:
    This part is perhaps the most UNIX-centric part of the course.
    If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
-..
+.. Todo for the author: This organization is for the book as self instructive.
+.. At the moment, the book is desinged to be used under trainig.
    Organization of the Book and Course
    -----------------------------------
 
@@ -213,6 +214,11 @@ The Webdev course requires that you:
    This documentation provides you extended details on the topics covered in this book and more.
    To access to this documentation, please visit http://varnish-software.com/resources.
 
+   .. Ubuntu
+
+   The Varnish installation described in this book uses Ubuntu Linux 14.04 LTS (trusty), therefore most of the commands instructed in this book are for this Linux distribution.
+   We point out some differences on how to configure Varnish for other Linux distributions, but you should reference your linux distribution's documentation for more details.
+   
    .. Installation required
 
    To complete this book, you need the following installation:
@@ -243,16 +249,30 @@ The Webdev course requires that you:
 
    Important notes, tips and warnings are also inside boxes, but they use the normal bodytext font type.
 
-   .. Ask for help
-
-   This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
-   If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
-   You can also contact the Varnish open source community at https://varnish-cache.org.
-   To book training, please look at https://varnish-software.com/academy.
-
 .. raw:: pdf
 
    PageBreak
+
+.. class:: heading2
+
+   Resources, and Errata
+
+- https://varnish-cache.org
+- https://varnish-software.com/academy
+-  `#varnish-hacking` and `#varnish` on `irc.linpro.net`.
+- https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4
+
+.. container:: handout
+
+This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
+If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
+You can also contact the Varnish open source community at https://varnish-cache.org.
+To book training, please look at https://varnish-software.com/academy.
+
+For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
+This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
+
+Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4.
 
 .. class:: heading2
 
@@ -449,9 +469,6 @@ Varnish timeline:
    As of December 2014, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
    On a day-to-day basis, there is little need to interfere with the general flow of development.
 
-   For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
-   This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
-
 What Is New in Varnish 4
 ------------------------
 
@@ -646,10 +663,6 @@ In this chapter, you will:
 - cover basic configuration.
 
 .. container:: handout
-
-   This course is independent of the operating system in use.
-   However, there are some differences between Linux distributions that Varnish supports.
-   Those differences are stated when necessary.
 
    Most of the commands you will type in this course require root privileges.
    You can get temporary root privileges by typing ``sudo <command>``, or permanent root privileges by typing ``sudo -i``.
@@ -5490,3 +5503,16 @@ VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
 .. content:: handout
+
+Appendix E: Regular Expressions in Varnish
+==========================================
+
+This chapter is Work in progres...
+
+.. content:: handout
+
+   This appendix is a brief introduction and usage of regular expressions for VCL.
+   Regular expressions are available in VCL.
+   They allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
+
+   To learn more about regular expressions, we recommend you the book Mastering Regular Expressions by Jeffrey E. F. Friedl.
