@@ -5090,15 +5090,49 @@ __ https://www.varnish-software.com/what-is-varnish-plus
 Varnish Administration Console (VAC)
 ------------------------------------
 
-- Single point of control for simultaneous administration of multiple Varnish Cache servers.
-- VAC provides a UI and an API.
+- Single point of control for simultaneous administration of multiple Varnish Cache servers
+- VAC provides a UI and an API
+- Super Fast Purger
+- VAC has its own documentation
 
 .. container:: handout
 
-   The Varnish Administration Console (VAC) provides UI and API and is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
-   `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the UI.
+   .. introduction
 
-   Please visit https://vacdemo.varnish-software.com to try a working demo.
+   The Varnish Administration Console (VAC) provides a UI and an API via ``varnish-agent``.
+   VAC is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
+   VAC is a management console for groups of Varnish Cache servers, also known as cache groups.
+   A cache group is a collection of Varnish Cache servers that have identical configuration.
+   Attributes on a cache group includes:
+
+   - One or more Varnish Cache servers.
+   - Active Varnish Configuration Language (VCL) file.
+   - Parameter changeset are enforced.
+
+   VAC distributes and store VCL files for you.
+   A parameter set is a list of Varnish cache parameters.
+   These parameters can be applied to one or more cache groups simultaneously, as long as all cache groups consist of cache servers of the same version.
+
+   VAC ships with a JSON-based RESTful API to integrate your own systems with the VAC.
+   All actions performed via the user interface can be replicated with direct access to the API.
+   This includes fetching all real-time graph data.
+
+   .. The Super Fast Purger
+
+   The Super Fast Purger is a plugin to VAC that is capable of distributing purge requests to cache groups via the Restful interface.
+   The initial rationale behind the Super Fast Purger is to provide high performance purging, specific for Varnish Cache, and across data centers.
+
+   .. installation
+
+   In order to install VAC on either Debian/Ubuntu or Red Hat Enterprise, one would require access to the Varnish Plus Software repository.
+   As a Varnish Plus customer, you have access to the installation guide document.
+   This document has instructions to install, configure, maintain, and troubleshoot your VAC installation
+   If you have any questions on how to set up your repository or where to obtain the VAC installation guide, please ask the instructor or send us an email to support@varnish-software.com.
+
+   .. more resources
+
+   `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the UI.
+   You may also be interested in trying the VAC demo at https://vacdemo.varnish-software.com.
    The instructor of the course provides you the credentials.
 
 Overview Page of the Varnish Administration Console
@@ -5512,7 +5546,7 @@ This chapter is Work in progres...
 .. content:: handout
 
    This appendix is a brief introduction and usage of regular expressions for VCL.
-   Regular expressions are available in VCL.
+   Regular expressions are very powerful and they are available in VCL.
    They allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
 
    To learn more about regular expressions, we recommend you the book Mastering Regular Expressions by Jeffrey E. F. Friedl.
