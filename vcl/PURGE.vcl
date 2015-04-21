@@ -4,7 +4,7 @@ acl purgers {
 }
 
 sub vcl_recv {
-    # allow PURGE from localhost and 192.168.55...
+    # allow PURGE from localhost and 192.168.0...
 
     if (req.method == "PURGE") {
         if (!client.ip ~ purgers) {
