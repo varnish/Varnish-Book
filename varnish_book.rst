@@ -1528,6 +1528,31 @@ Exercise
    Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
    *Gauges* normally start with a ``g_`` prefix.
 
+   .. tip::
+
+      You can also see many parameters in real-time graphs with the `Varnish Administration Console (\
+VAC)`_.
+      Here are screenshots:
+
+      .. figure:: ui/img/vac_hit_meter.png
+         :width: 70%
+
+         Cache Hit Meter
+
+      .. figure:: ui/img/vac_hitrate.png
+         :width: 100%
+
+         Hit vs Miss vs Hit for Pass
+
+      .. figure:: ui/img/vac_hitrate_req.png
+         :width: 100%
+
+         Req/sec, and Hit/sec
+
+      .. figure:: ui/img/vac_realtime_counters.png
+
+         Real Time Counters
+
 Notable counters
 ................
 
