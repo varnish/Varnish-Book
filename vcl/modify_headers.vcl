@@ -1,4 +1,4 @@
-sub vcl_deliver{
+sub vcl_deliver {
     set resp.http.X-Age = resp.http.Age;
     unset resp.http.Age;
 

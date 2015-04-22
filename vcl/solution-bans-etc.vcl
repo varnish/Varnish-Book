@@ -6,7 +6,7 @@ sub vcl_recv {
     if (req.method == "BAN") {
         ban("obj.http.x-url ~ " + req.http.x-ban-url +
             " && obj.http.x-host ~ " + req.http.x-ban-host);
-        return(synth(200, "Ban added"));
+        return (synth(200, "Ban added"));
     }
 
     if (req.method == "REFRESH") {

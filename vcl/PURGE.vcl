@@ -8,7 +8,7 @@ sub vcl_recv {
 
     if (req.method == "PURGE") {
         if (!client.ip ~ purgers) {
-            return(synth(405));
+            return (synth(405));
         }
         return (purge);
     }

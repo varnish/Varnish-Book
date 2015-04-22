@@ -6,11 +6,11 @@ acl local {
 }
 
 sub vcl_recv {
-  if (req.method == "PURGE") {
-    if (client.ip ~ local) {
-       return(purge);
-    } else {
-       return(synth(405));
+    if (req.method == "PURGE") {
+        if (client.ip ~ local) {
+            return (purge);
+        } else {
+            return (synth(405));
+        }
     }
-  }
 }
