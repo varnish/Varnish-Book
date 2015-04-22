@@ -3850,7 +3850,7 @@ Cache Invalidation
 
 .. container:: handout
 
-   There are three mechanisms to invalidate caches in Varnish:
+   There are four mechanisms to invalidate caches in Varnish:
 
    1) HTTP PURGE
 
@@ -4199,6 +4199,41 @@ Solution: Write a VCL program using *purge* and *ban*
 .. include:: vcl/solution-bans-etc.vcl
    :literal:
 
+Force Cache Misses
+------------------
+
+- ``set req.hash_always_miss = true;`` in ``vcl_recv``
+- Causes Varnish to look the object up in cache, but ignore any copy it finds
+- Useful way to do a controlled refresh of a specific object
+- If the server is down, the cached object is left untouched
+- Depending on Varnish-version, it may leave extra copies in the cache
+- Useful to refresh slowly generated content
+
+.. container:: handout
+
+   Setting a request in *pass* mode instructs Varnish to always ask a backend for content, without storing the fetched object into cache.
+   The ``vcl_purge`` removes old content, but what if the web server is down?
+
+   Setting ``req.has_always_miss`` to ``true`` tells Varnish to look up the content in cache, but always miss a hit.
+   This means that Varnish first calls ``vcl_miss``, then (presumably) fetches the content from the backend, cache the updated object, and deliver the updated content.
+
+   The distinctive behavior of ``req.hash_always_miss`` occurs when the backend server is down or unresponsive.
+   In this case, the current cached object is untouched.
+   Therefore, client requests that do not enable ``req.hash_always_miss`` keep getting the old and untouched cached content.
+
+   .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
+
+   Two important use-cases for using ``req.hash_always_miss`` are:
+   1) control who takes the penalty for waiting around for the updated content (e.g. a script you control), and 
+   2) ensure that content is not evicted before there it is updated.
+
+   .. note::
+
+      Forcing cache misses do not evict old content.
+      This means that causes Varnish to have multiple copies of the content in cache.
+      The newest copy is always used.
+      If you cache your content for a long period of time, the memory usage increases gradually.
+
 Hashtwo (Varnish Software Implementation of Surrogate Keys)
 -----------------------------------------------------------
 
@@ -4304,41 +4339,6 @@ The objects are now cleared.
 .. warning::
 
    You should protect purges with ACLs from unauthorized hosts.
-
-Force Cache Misses
-------------------
-
-- ``set req.hash_always_miss = true;`` in ``vcl_recv``
-- Causes Varnish to look the object up in cache, but ignore any copy it finds
-- Useful way to do a controlled refresh of a specific object
-- If the server is down, the cached object is left untouched
-- Depending on Varnish-version, it may leave extra copies in the cache
-- Useful to refresh slowly generated content
-
-.. container:: handout
-
-   Setting a request in *pass* mode instructs Varnish to always ask a backend for content, without storing the fetched object into cache.
-   The ``vcl_purge`` removes old content, but what if the web server is down?
-
-   Setting ``req.has_always_miss`` to ``true`` tells Varnish to look up the content in cache, but always miss a hit.
-   This means that Varnish first calls ``vcl_miss``, then (presumably) fetches the content from the backend, cache the updated object, and deliver the updated content.
-
-   The distinctive behavior of ``req.hash_always_miss`` occurs when the backend server is down or unresponsive.
-   In this case, the current cached object is untouched.
-   Therefore, client requests that do not enable ``req.hash_always_miss`` keep getting the old and untouched cached content.
-
-   .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
-
-   Two important use-cases for using ``req.hash_always_miss`` are:
-   1) control who takes the penalty for waiting around for the updated content (e.g. a script you control), and 
-   2) ensure that content is not evicted before there it is updated.
-
-   .. note::
-
-      Forcing cache misses do not evict old content.
-      This means that causes Varnish to have multiple copies of the content in cache.
-      The newest copy is always used.
-      If you cache your content for a long period of time, the memory usage increases gradually.
 
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
