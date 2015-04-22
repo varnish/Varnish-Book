@@ -997,6 +997,22 @@ You can read about other usages by issuing the ``help`` command after you connec
       To learn more about ``varnishadm``, issue ``man varnishadm``.
       To check the Varnish CLI manual page, issue ``man varnish-cli``.
 
+   .. tip::
+
+      You can also access the ``varnishadm`` via the `Varnish Administration Console (VAC)`_.
+      To do that, you just have to navigate to the `CONFIGURE` tab and click on the Varnish server you want to administrate.
+      Then, ``varnishadm`` is ready to use in a terminal emulator right in your web browser.
+      
+      .. figure:: ui/img/vac_varnishadm.png
+         :width: 100%
+
+	 Access to ``varnishadm`` by clicking on the Varnish server that you want to administrate.
+
+      .. figure:: ui/img/vac_cli.png
+         :width: 100%
+
+	 Terminal emulator in your web browser.
+
 More about Varnish Configuration
 --------------------------------
 
@@ -1530,8 +1546,7 @@ Exercise
 
    .. tip::
 
-      You can also see many parameters in real-time graphs with the `Varnish Administration Console (\
-VAC)`_.
+      You can also see many parameters in real-time graphs with the `Varnish Administration Console (VAC)`_.
       Here are screenshots:
 
       .. figure:: ui/img/vac_hit_meter.png
@@ -1893,8 +1908,8 @@ Tunable parameters
 	These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
 	They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
 
-``Varnish Tuner``
------------------
+Varnish Tuner
+-------------
 
 - Command ``varnishtuner``
 - Suggested values for system variables and Varnish parameters are **installation specific**
