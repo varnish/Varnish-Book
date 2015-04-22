@@ -1,4 +1,4 @@
- .. include:: util/frontpage.rst
+.. include:: util/frontpage.rst
 
 .. include:: util/printheaders.rst
 
@@ -264,15 +264,15 @@ The Webdev course requires that you:
 
 .. container:: handout
 
-This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
-If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
-You can also contact the Varnish open source community at https://varnish-cache.org.
-To book training, please look at https://varnish-software.com/academy.
+   This book is meant to be understandable to everyone who takes a Varnish Plus course and has the required skills.
+   If you find something unclear, do not be shy and blame yourself, ask your instructor for help.
+   You can also contact the Varnish open source community at https://varnish-cache.org.
+   To book training, please look at https://varnish-software.com/academy.
 
-For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
-This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
+   For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
+   This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
-Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4.
+   Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4.
 
 .. class:: heading2
 
@@ -5536,14 +5536,12 @@ VWP
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
-.. content:: handout
-
 Appendix E: Regular Expressions in Varnish
 ==========================================
 
 This chapter is Work in progres...
 
-.. content:: handout
+.. container:: handout
 
    This appendix is a brief introduction and usage of regular expressions for VCL.
    Regular expressions are very powerful and they are available in VCL.
