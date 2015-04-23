@@ -1520,7 +1520,7 @@ Exercise
    To increase the usefulness of ``varnishstat``, only counters with a value different from 0 is shown by default.
 
    ``varnishstat`` can be used interactively, or it can display the current values of all the counters with the ``-1`` option.
-   Both methods allow you to specify specific counters using ``-f field1,field2,...`` to limit the list.
+   Both methods allow you to specify specific counters using ``-f field1 -f field2 ..`` to limit the list.
 
    In interactive mode, ``varnishstat`` has three areas.
    The top area shows process uptime and hitrate information.
