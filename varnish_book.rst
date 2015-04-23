@@ -212,7 +212,7 @@ The Webdev course requires that you:
 
    In addition, you should refer to the documentation of Varnish Cache and Varnish Cache Plus.
    This documentation provides you extended details on the topics covered in this book and more.
-   To access to this documentation, please visit http://varnish-software.com/resources.
+   To access to this documentation, please visit https://www.varnish-software.com/resources.
 
    .. Ubuntu
 
@@ -5261,18 +5261,18 @@ Appendix A: Resources
 
 Community driven:
 
-- http://varnish-cache.org
-- http://varnish-cache.org/docs/
+- https://www.varnish-cache.org
+- https://www.varnish-cache.org/docs/
 - http://repo.varnish-cache.org/
-- http://varnish-cache.org/wiki/VCLExamples
-- Public mailing lists: http://varnish-cache.org/wiki/MailingLists
+- https://www.varnish-cache.org/trac/wiki/VCLExamples
+- Public mailing lists: https://www.varnish-cache.org/trac/wiki/MailingLists
 - Public IRC channel: #varnish at irc.linpro.no
 
 Commercial:
 
-- http://www.varnish-software.com/resources/
+- https://www.varnish-software.com/resources/
 - http://planet.varnish-cache.org/
-- http://www.varnish-software.com
+- https://www.varnish-software.com
 - http://repo.varnish-software.com (for service agreement customers)
 - support@varnish-software.com (for existing customers, with SLA)
 - sales@varnish-software.com
