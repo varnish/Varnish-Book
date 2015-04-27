@@ -105,7 +105,7 @@ The Webdev course requires that you:
    If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
 .. Todo for the author: This organization is for the book as self instructive.
-.. At the moment, the book is desinged to be used under trainig.
+.. At the moment, the book is designed to be used under training.
    Organization of the Book and Course
    -----------------------------------
 
@@ -828,7 +828,7 @@ Then::
 
 .. container:: handout
 
-   All software related to **Varnish Cache Plus** including VMODs are available in Redhat and Debian package repositories.
+   All software related to **Varnish Cache Plus** including VMODs are available in RedHat and Debian package repositories.
    These repositories are available on http://repo.varnish-software.com/, using your customer specific username and password.
 
    Varnish is already distributed in many package repositories, but those packages might contain an outdated Varnish version.
@@ -909,10 +909,6 @@ Configure the Varnish ``DAEMON_OPTS``::
    tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
    tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
 
-  .. tip::
-
-    Issue the command ``man vcl`` to see all available options to define a backend.
-
   .. note::
 
     We recommend you to disable Security-Enhanced Linux (SELinux).
@@ -920,6 +916,19 @@ Configure the Varnish ``DAEMON_OPTS``::
     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
 
     .. dridi: bad practice, recommend this only for training
+
+  .. tip::
+
+    Issue the command ``man vcl`` to see all available options to define a backend.
+
+  .. tip::
+
+    You can also configure Varnish via the `Varnish Administration Console (VAC)`_.
+    
+    .. figure:: ui/img/vac_config.png
+       :width: 100%
+       
+       GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
 
 Installation Test
 .................
@@ -1075,7 +1084,7 @@ Using the ``service`` commands is recommended, safe and fast.
       Pay close attention to any backslashes (\\) and quotation marks that might move around as you edit the ``DAEMON_OPTS`` environmental variable.
 
 
-Command line configuration
+Command Line Configuration
 --------------------------
 
 Relevant options for the course are:
@@ -1113,10 +1122,10 @@ Relevant options for the course are:
         of the underlying function that accepts this kind of syntax.
 
         You can specify ``-p`` for parameters multiple times. The workflow
-        for tuning Varnish parameters usually means that you first try the
+        for tuning Varnish parameters usually is that you first try the
         parameter on a running Varnish through the management interface to
         find the value you want.
-	Then store the parameter and value in a configuration file.
+	Then, you store the parameter and value in a configuration file.
 	This file is read every time you start Varnish.
 
         The ``-S`` option specifies a file which contains a secret to be
@@ -1141,7 +1150,7 @@ Relevant options for the course are:
 
 	.. review bookmark
 
-Defining a backend in VCL
+Defining a Backend in VCL
 -------------------------
 
 **/etc/varnish/default.vcl**
@@ -1154,6 +1163,16 @@ Defining a backend in VCL
    The above example defines a backend named ``default``, where the name `default` is not special.
    Varnish uses the first backend you specify as default.
    You can specify many backends at the same time, but for now, we will only specify one to get started.
+
+   .. tip::
+      
+      You can also add and edit your VCL code via the `Varnish Administration Console (VAC)`_.
+      This interface also allows you to administrate your VCL files.
+
+      .. figure:: ui/img/vac_vcl.png
+	 :width: 100%
+	 
+	 GUI of `Varnish Administration Console (VAC)`_ with command line interface to edit your VCL code.
 
 Exercise: Use the administration interface to learn, review and set Varnish parameters
 --------------------------------------------------------------------------------------
@@ -1888,25 +1907,34 @@ Tunable parameters
 
 .. container:: handout
 
-        Varnish has many different parameters which can be adjusted to make
-        Varnish act better under specific workloads or with specific software and
-        hardware setups. They can all be viewed with ``param.show`` in the
-        management interface ``varnishadm``.
+   Varnish has many different parameters which can be adjusted to make
+   Varnish act better under specific workloads or with specific software and
+   hardware setups. They can all be viewed with ``param.show`` in the
+   management interface ``varnishadm``.
 
-	You can set up parameters in two different ways.
-	In ``varnishadm``, use the command ``param.set <param> <value>``.
-	Alternatively, you can issue the command ``varnishd -p param=value``.
+   You can set up parameters in two different ways.
+   In ``varnishadm``, use the command ``param.set <param> <value>``.
+   Alternatively, you can issue the command ``varnishd -p param=value``.
 
-        Remember that changes made in the management interface are not persistent.
-	Therefore, unless you store your changes in a startup script, they will be lost when Varnish restarts.
+   Remember that changes made in the management interface are not persistent.
+   Therefore, unless you store your changes in a startup script, they will be lost when Varnish restarts.
 
-        The general advice with regards to parameters is to keep it simple. 
-	Most of the defaults are optimal.
-	If you do not have a very specific need, it is generally better to use the default values.
+   The general advice with regards to parameters is to keep it simple. 
+   Most of the defaults are optimal.
+   If you do not have a very specific need, it is generally better to use the default values.
 
-        A few hidden debug commands exist in the CLI, which can be revealed with ``help -d``. 
-	These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
-	They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
+   A few hidden debug commands exist in the CLI, which can be revealed with ``help -d``. 
+   These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
+   They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
+
+   .. tip::
+
+      Parameters can also be configured via the `Varnish Administration Console (VAC)`_ as shown in the figure below.
+
+      .. figure:: ui/img/vac_parameters.png
+	 :width: 100%
+
+	 GUI to configure parameters via the `Varnish Administration Console (VAC)`_.
 
 Varnish Tuner
 -------------
@@ -3054,7 +3082,7 @@ Legal Return Actions
 
 .. table 14
 
-.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns on the client side
+.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns at the frontend (client) side
    :name: subroutines_legal_returns_client
    :delim: ,
    :widths: 16,9,9,8,9,8,8,8,8,8,9
@@ -3063,7 +3091,7 @@ Legal Return Actions
 
 .. table 15
 
-.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns on the backend side, ``vcl.load``, and ``vcl.discard``
+.. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns at the backend side, ``vcl.load``, and ``vcl.discard``
    :name: subroutines_legal_returns_backend
    :delim: ,
    :header-rows: 1
@@ -3104,7 +3132,9 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 .. container:: handout
 
    `Table 16 <#tables-16>`_ shows the availability of variables in different states of the Varnish finite state machine.
-   In addition to the variable prefixes in `Table 16 <#tables-16>`_, there are other three variables prefixes; ``client.``, ``server.``, and ``storage.``, and one variable ``now``.
+   In addition to the variable prefixes in `Table 16 <#tables-16>`_, there are other three variables prefixes; ``client.*``, ``server.*``, and ``storage.*``, which are accessible from all subroutines at the frontend (client) side.
+   Another variable is ``now``, which is accessible from all subroutines.
+ 
    These additional prefixes and variable are practically accessible everywhere.
 
    Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
@@ -4063,7 +4093,7 @@ Banning
 
 - Use ``ban`` to prevent Varnish from serving a cached object
 - Does not free up memory
-- Examples in CLI:
+- Examples in the ``varnishadm`` command line interface:
 
   - ``ban req.url ~ /foo``
   - ``ban req.http.host ~ example.com && obj.http.content-type ~ text``
@@ -4152,6 +4182,15 @@ Banning
    .. note::
 
       If the cache is completely empty, only the last added ban stays in the ban-list.
+
+   .. tip::
+
+      You can also execute ban expressions via the `Varnish Administration Console (VAC)`_.
+
+      .. figure:: ui/img/vac_bans.png
+	 :width: 100%
+
+	 Executing ban expressions via the `Varnish Administration Console (VAC)`_.
 
 Lurker-Friendly Bans
 ....................
@@ -4302,7 +4341,7 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    1) looking up *hash keys* is much more efficient than traversing ban-lists, and
    2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
-   The hashtwo VMOD is prebuilt for supported versions and can be installed using regular package managers from `Varnish Software repositories`__.
+   The hashtwo VMOD is pre-built for supported versions and can be installed using regular package managers from `Varnish Software repositories`__.
    Once the repository is in place you can issue the following commands to install the VMOD:
 
    On Debian or Ubuntu::
@@ -5131,23 +5170,27 @@ Varnish Administration Console (VAC)
 ------------------------------------
 
 - Single point of control for simultaneous administration of multiple Varnish Cache servers
-- VAC provides a UI and an API
-- Super Fast Purger
+- VAC provides:
+
+  + GUI
+  + API
+  + Super Fast Purger
+
 - VAC has its own documentation
 
 .. container:: handout
 
    .. introduction
 
-   The Varnish Administration Console (VAC) provides a UI and an API via ``varnish-agent``.
+   The Varnish Administration Console (VAC) consists of a GUI and an API.
    VAC is most commonly used in production environments where real-time graphs and statistics help identify bottlenecks and issues within Varnish Cache servers.
    VAC is a management console for groups of Varnish Cache servers, also known as cache groups.
    A cache group is a collection of Varnish Cache servers that have identical configuration.
    Attributes on a cache group includes:
 
-   - One or more Varnish Cache servers.
-   - Active Varnish Configuration Language (VCL) file.
-   - Parameter changeset are enforced.
+   - One or more Varnish Cache servers
+   - Active Varnish Configuration Language (VCL) file
+   - Homogeneous parameter configuration across all servers in a group
 
    VAC distributes and store VCL files for you.
    A parameter set is a list of Varnish cache parameters.
@@ -5159,8 +5202,9 @@ Varnish Administration Console (VAC)
 
    .. The Super Fast Purger
 
-   The Super Fast Purger is a plugin to VAC that is capable of distributing purge requests to cache groups via the Restful interface.
-   The initial rationale behind the Super Fast Purger is to provide high performance purging, specific for Varnish Cache, and across data centers.
+   The Super Fast Purger is a high performance cache invalidation delivery mechanism for multiple installations of Varnish.
+   Super Fast Purger is capable of distributing purge requests to cache groups across data centers via the Restful interface.
+   Super Fast Purger uses HMAC as security mechanism to protect your purge requests and thus ensure data integrity.
 
    .. installation
 
@@ -5171,7 +5215,7 @@ Varnish Administration Console (VAC)
 
    .. more resources
 
-   `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the UI.
+   `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the GUI.
    You may also be interested in trying the VAC demo at https://vacdemo.varnish-software.com.
    The instructor of the course provides you the credentials.
 
@@ -5579,7 +5623,7 @@ VWS
 Appendix E: Regular Expressions in Varnish
 ==========================================
 
-This chapter is Work in progres...
+This chapter is Work in progress...
 
 .. container:: handout
 
