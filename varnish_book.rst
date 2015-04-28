@@ -650,7 +650,7 @@ Object Lifetime
    *Stale objects* are those within the time period ``TTL`` and ``grace``.
    Objects within ``t_origin`` and  ``keep`` are used when applying conditions with the HTTP header ``If-Modified-Since``.
 
-   The `VCL - vcl_backend_fetch and vcl_backend_response`_ section explains how Varnish handles backend responses and how these duration attributes affect subsequent actions.
+   The `VCL – vcl_backend_fetch and vcl_backend_response`_ section explains how Varnish handles backend responses and how these duration attributes affect subsequent actions.
 
 Getting Started
 ===============
@@ -2904,7 +2904,7 @@ Varnish Finite State Machine
    `Figure 11 <#figures-11>`_ depicts a simplified version of the Varnish finite state machine.
    This diagram shows the most common state transitions, and it is by no means complete.
    `Figure 12 <#figures-12>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
-   A detailed version of the request flow diagram for the backend worker is in the `VCL - vcl_backend_fetch and vcl_backend_response`_ section.
+   A detailed version of the request flow diagram for the backend worker is in the `VCL – vcl_backend_fetch and vcl_backend_response`_ section.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
 
@@ -3207,7 +3207,7 @@ VCL Built-in Subroutines
       Built-in subroutines are in the file ``/usr/share/doc/varnish/examples/builtin.vcl.gz`` or ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
       The first location may change depending on your distro.
 
-VCL - ``vcl_recv``
+VCL – ``vcl_recv``
 ------------------
 
 - Normalize client-input
@@ -3398,7 +3398,7 @@ Solution: Rewrite URLs and Host headers
 
 .. TOVERIFY: Solution was in a separate file. To verify why and if not needed, remove it from the repository.
 
-VCL - ``vcl_pass``
+VCL – ``vcl_pass``
 ------------------
 
 - Called upon entering *pass* mode
@@ -3439,7 +3439,7 @@ hit-for-pass
    As any other cached object, *hit-for-pass* objects have a TTL.
    Once the object's TTL has elapsed, the object is removed from the cache.
 
-VCL - ``vcl_backend_fetch`` and ``vcl_backend_response``
+VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 --------------------------------------------------------
 
 - Sanitize server-response
@@ -3690,8 +3690,8 @@ Solution: Either use s-maxage or set ttl by file type
 	The second part checks if ``s-maxage`` caused Varnish to set a positive TTL and consider it cacheable.
 	Then, we remove the ``Set-Cookie`` header field.
 
-VCL - ``vcl_hash``
-------------------
+VCL – ``vcl_hash``
+-------------------
 
 - Defines what is unique about a request.
 - Executed after ``vcl_recv`` returns a ``hash`` action keyword.
@@ -3731,12 +3731,12 @@ VCL - ``vcl_hash``
 
    .. note::
       One cache hash may refer to one or many object variations.
-      Object variations are created based on the ``Vary`` header field.
+      Object variations are created based on the `Vary`_ header field.
       It is a good practice to keep several variations under one cache hash, than creating one hash per variation.
 
-__ `VCL - vcl_miss`_
+__ `VCL – vcl_miss`_
 
-VCL - ``vcl_hit``
+VCL – ``vcl_hit``
 -----------------
 
 - Executed after the lookup operation, called by ``vcl_hash``, finds (hits) an object in the cache.
@@ -3772,7 +3772,7 @@ VCL - ``vcl_hit``
 
    ``synth(status code, reason)`` returns the specified status code to the client and abandon the request.
 
-VCL - ``vcl_miss``
+VCL – ``vcl_miss``
 ------------------
 
 - Subroutine called if a requested object is not found by the lookup operation.
@@ -3788,7 +3788,7 @@ VCL - ``vcl_miss``
    However, if you do not wish to send a `X-Varnish` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
    For that case, you can use ``unset bereq.http.x-varnish;``.
 
-VCL - ``vcl_deliver``
+VCL – ``vcl_deliver``
 ---------------------
 
 - Common last exit point for all request workflows, except requests through ``vcl_pipe``
@@ -3821,7 +3821,7 @@ VCL - ``vcl_deliver``
    ``req.restarts``
         The number of restarts issued in VCL - 0 if none were made.
 
-VCL - ``vcl_synth``
+VCL – ``vcl_synth``
 -------------------
 
 - Used to generate content from within Varnish, without talking to a web server
