@@ -914,6 +914,7 @@ Configure the Varnish ``DAEMON_OPTS``::
     We recommend you to disable Security-Enhanced Linux (SELinux).
     If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
+    Also, be aware that SELinux defines the ports 6081 and 6082 for ``varnishd``.
 
     .. dridi: bad practice, recommend this only for training
 
@@ -2737,11 +2738,7 @@ client.
 
    .. note::
 
-      From Varnish version 3, Varnish handles `Accept-Encoding` and ``Vary:
-      Accept-Encoding`` for you. This is because Varnish 3 has support for
-      gzip compression. In Varnish 2 it was necessary to normalize the
-      `Accept-Encoding`-header, but this is redundant in Varnish 3.
-
+      Varnish can handle `Accept-Encoding` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
 
 Age
 ---
@@ -4905,7 +4902,7 @@ Vary and Cookies
    .. TODO for the author: update the reference to the Vary Subsection when the Chapter HTTP is done.
    .. Caching based on the ``Varnish: Cookie`` response header is not advised, because its poor performance.
 
-Best practices for cookies
+Best Practices for Cookies
 ..........................
 
 - Remove all cookies that you do not need

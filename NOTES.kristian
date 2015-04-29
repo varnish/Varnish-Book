@@ -1,3 +1,5 @@
+These notes have already been reviewed, and those still relevant for the Varnish-Book-v4 are moved to *issues* in github.
+
 - Juster Process Architecture
 - hosts-fil hacking blir en overraskelse i 5.8 / øvelse for rewrite
 - libwww-perl vs curl
