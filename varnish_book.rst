@@ -223,9 +223,10 @@ The Webdev course requires that you:
 
    To complete this book, you need the following installation:
 
-   - Varnish Cache or Varnish Cache Plus 4.0 or later
+   - Varnish Cache 4.x or Varnish Cache Plus 4.x
    - Apache/2.4 or later
    - HTTPie 0.8.0 or later
+   - PHP 5.4 or later
    - curl - command line tool for transferring data with URL syntax
 
    .. formats
@@ -1676,14 +1677,34 @@ Varnish Architecture
    The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
 
    The Manager's command line interface (CLI) is accessible through:
-   1) ``varnishadm`` as explained in `The Management Interface varnishadm`_ section, or
-   2) the `Varnish Administration Console (VAC)`_ via the Varnish Agent *vagent2*.
-   
-   The Varnish Agent *vagent2* is an HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
-   Varnish Software has a commercial offering of a fully functional web UI called `Varnish Administration Console (VAC)`_.
-   Nevertheless, since *vagent2* is open, you can write your own code for it.
+   1) ``varnishadm`` as explained in `The Management Interface varnishadm`_ section,
+   2) the Varnish Agent *vagent2*, or
+   2) the `Varnish Administration Console (VAC)`_ (via *vagent2*).
 
-   For more detailed information about *vagent2*, please visit https://github.com/varnish/vagent2.
+   .. vagent2
+   
+   The Varnish Agent *vagent2* is an open source HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
+   *vagent2* offers a web UI as shown in `Figure 6 <#figures-6>`_, but you can write your own UI since *vagent2* is an open interface.
+   Some features of the *vagent2* are:
+
+   - VCL uploading, downloading, persisting (storing to disk).
+   - parameter viewing, storing (not persisting yet)
+   - show/clear of panic messages
+   - start/stop/status of ``varnishd``
+   - banning
+   - ``varnishstat`` in JON format
+
+   .. figure 6
+
+   .. figure:: ui/img/vagent2.png
+      :width: 100%
+
+      Figure :counter:`figures`: Varnish Agent's HTML interface; designed to showcase the various features of the Varnish Agent.
+
+   For more information about *vagent2* and installation instructions, please visit https://github.com/varnish/vagent2.
+
+   Varnish Software has a commercial offering of a fully functional web UI called `Varnish Administration Console (VAC)`_.
+   For more information about VAC, refer to the `Varnish Administration Console (VAC)`_ section.
 
    .. C-compiler
    .. TODO
@@ -2467,7 +2488,7 @@ Response example
 HTTP request/response control flow
 ----------------------------------
 
-.. figure 6
+.. figure 7
 
 .. figure:: ui/img/httprequestflow.png
    :align: center
@@ -2646,7 +2667,7 @@ Example of an `If-Modified-Since` header: ::
 
     If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
-.. figure 7
+.. figure 8
 
 .. figure:: ui/img/httpifmodifiedsince.png
    :align: center
@@ -2674,7 +2695,7 @@ Example of an `If-None-Match` header : ::
 
     If-None-Match: "1edec-3e3073913b100"
 
-.. figure 8
+.. figure 9
 
 .. figure:: ui/img/httpifnonematch.png
    :align: center
@@ -2790,7 +2811,7 @@ Cache-hit and misses
 There is a cache-hit when Varnish returns a page from its cache instead of
 forwarding the request to the origin server.
 
-.. figure 9
+.. figure 10
 
 .. figure:: ui/img/httpcachehit.png
    :align: center
@@ -2803,7 +2824,7 @@ forwarding the request to the origin server.
 There is a cache-miss when Varnish has to forward the request to the origin
 server so the page can be serviced.
 
-.. figure 10
+.. figure 11
 
 .. figure:: ui/img/httpcachemiss.png
    :align: center
@@ -2880,7 +2901,7 @@ Varnish Finite State Machine
 
 .. container:: handout
 
-   .. figure 11
+   .. figure 12
 
    .. figure:: ui/img/simplified_fsm.png
       :align: center
@@ -2898,9 +2919,9 @@ Varnish Finite State Machine
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
-   `Figure 11 <#figures-11>`_ depicts a simplified version of the Varnish finite state machine.
+   `Figure 12 <#figures-12>`_ depicts a simplified version of the Varnish finite state machine.
    This diagram shows the most common state transitions, and it is by no means complete.
-   `Figure 12 <#figures-12>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
+   `Figure 13 <#figures-13>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
    A detailed version of the request flow diagram for the backend worker is in the `VCL – vcl_backend_fetch and vcl_backend_response`_ section.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
@@ -2960,7 +2981,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
 .. container:: handout
 
-   .. figure 12
+   .. figure 13
 
    .. figure:: ui/img/detailed_fsm.png
       :align: center
@@ -3444,7 +3465,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 
 .. container:: handout
 
-   .. figure 13
+   .. figure 14
    .. TODO for the editor: improve layout of this figure
 
    .. figure:: ui/img/detailed_fsm_backend.png
@@ -3455,7 +3476,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
    ..   :align: center
    ..   :width: 100%
 
-   `Figure 13 <#figures-13>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
+   `Figure 14 <#figures-14>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
@@ -3473,7 +3494,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
    The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
    The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
-   `Figure 13 <#figures-13>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 14 <#figures-14>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
    Backends might respond with a ``304`` HTTP headers.
@@ -4956,7 +4977,7 @@ Edge Side Includes
 - How to use ESI?
 - Testing ESI without Varnish
 
-.. figure 14
+.. figure 15
 
 .. figure:: ui/img/esi.png
    :align: center
@@ -4968,7 +4989,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   `Figure 14 <#figures-14>`_ depicts this process.
+   `Figure 15 <#figures-15>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -5212,14 +5233,14 @@ Varnish Administration Console (VAC)
 
    .. more resources
 
-   `Figures 15 <#figures-15>`_, `16 <#figures-16>`_, and `17 <#figures-17>`_ show screenshots of the GUI.
+   `Figures 16 <#figures-16>`_, `17 <#figures-17>`_, and `18 <#figures-18>`_ show screenshots of the GUI.
    You may also be interested in trying the VAC demo at https://vacdemo.varnish-software.com.
    The instructor of the course provides you the credentials.
 
 Overview Page of the Varnish Administration Console
 ...................................................
 
-.. figure 15
+.. figure 16
 
 .. figure:: ui/img/vac_screenshot_1.png
    :width: 80%
@@ -5229,7 +5250,7 @@ Overview Page of the Varnish Administration Console
 Configuration Page of the Varnish Administration Console
 ........................................................
 
-.. figure 16
+.. figure 17
 
 .. figure:: ui/img/vac_screenshot_2.png
    :width: 80%
@@ -5239,7 +5260,7 @@ Configuration Page of the Varnish Administration Console
 Banning Page of the Varnish Administration Console
 ..................................................
 
-.. figure 17
+.. figure 18
 
 .. figure:: ui/img/vac_screenshot_3.png
    :width: 80%
@@ -5254,13 +5275,13 @@ Varnish Custom Statistics (VCS)
 .. container:: handout
 
    Varnish Custom Statistics (VCS) is an extremely flexible engine that allows you to group statistics easily using the Varnish Configuration Language (VCL).
-   `Figures 18 <#figures-18>`_, and `19 <#figures-19>`_ are screenshots from the demo on http://vcsdemo.varnish-software.com.
+   `Figures 19 <#figures-19>`_, and `20 <#figures-20>`_ are screenshots from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
 
 Header of Varnish Custom Statistics
 ...................................
 
-.. figure 18
+.. figure 19
 
 .. figure:: ui/img/vcsui_header_2.png
    :width: 100%
@@ -5270,7 +5291,7 @@ Header of Varnish Custom Statistics
 Summary of Metrics Along with Time Based Graphs
 ...............................................
 
-.. figure 19
+.. figure 20
 
 .. figure:: ui/img/vcsui_4.png
 
@@ -5344,8 +5365,9 @@ Misc:
 
 
    ``varnishlog``, ``varnishadm`` and ``varnishstat`` are explained in the `Examining Data Provided by Varnish`_ chapter.
-   ``varnishtest`` is used for regression tests, mainly during development.
-   This took, however, is outside the scope of this course.
+   ``varnishtest`` is used for regression tests, mainly during development, but it also useful to learn more about Varnish's behaviour.
+   For more information about ``varnishtest``, see its man page.
+
    Next sections explain ``varnishtop``, ``varnishncsa``, and ``varnishhist``.
 
 ``varnishtop``
