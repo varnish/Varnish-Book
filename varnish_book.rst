@@ -262,6 +262,7 @@ The Webdev course requires that you:
 - https://varnish-software.com/academy
 -  `#varnish-hacking` and `#varnish` on `irc.linpro.net`.
 - https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4
+- https://www.varnish-cache.org/docs/trunk/users-guide/troubleshooting.html
 
 .. container:: handout
 
@@ -1792,6 +1793,12 @@ The *Cacher* consists of several different types of threads, including, but not 
    Since the log-data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose. 
    You then use one of the log-parsing tools to extract the piece of information you want -- either to store it permanently or to monitor Varnish in real-time.
 
+   .. TODO for the author: this can be an exercise.
+   .. TODO for the author: consider to move panics to a troubleshooting section.
+
+   If something goes wrong in the *Cacher*, it logs a detailed panic message to ``syslog``.
+   For testing, you can induce panic to ``varnishd`` by issuing the command ``varnishadm debug.panic.worker`` or by pressing the *Induce Panic* button in the Varnish Agent web interface.
+
 VCL Compilation
 ...............
 
@@ -1917,7 +1924,7 @@ The SHared Memory Log (SHMLOG)
       Those distribution set a path that puts the storage file in the same directory as the shm-log.
       We discourage this practice.
 
-Tunable parameters
+Tunable Parameters
 ------------------
 
 - In the CLI::
@@ -2055,7 +2062,7 @@ To install Varnish Plus on RHEL6, put the following lines into ``/etc/yum.repos.
   enabled=1
   gpgcheck=0
 
-Threading model
+Threading Model
 ---------------
 
 - The child process runs multiple threads in two tread pools
@@ -2113,7 +2120,7 @@ Threading parameters
 
       All other thread variables are not configurable.
 
-Details of threading parameters
+Details of Threading Parameters
 ...............................
 
 .. TODO for the author: create slide version.
@@ -2131,7 +2138,7 @@ When a connection is accepted, the connection is delegated to one of these threa
 Afterwards, the thread pool either delegates the connection request to an available thread, queue the request otherwise, or drop the connection if the queue is full. 
 By default, Varnish uses 2 thread pools, and this has proven sufficient for even the most busy Varnish server.
 
-Number of threads
+Number of Threads
 .................
 
 .. TODO for the author: create slide version.
@@ -2164,7 +2171,7 @@ Look at the counter over time, because it is fairly static right after startup.
    This is normally defined in your VCL.
    To avoid that the child terminates, evaluate your VCL code and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
 
-Timing thread growth
+Timing Thread Growth
 ....................
 
 Varnish can use several thousand threads, and has had this capability from the very beginning. 
@@ -2180,7 +2187,7 @@ This only applies if you have more threads than the minimum, and is rarely chang
 Another less important parameter is the ``thread_pool_fail_delay``.
 After the operating system fails to create a new thread, ``thread_pool_fail_delay`` defines how long to wait for a re-trial.
 
-System parameters
+System Parameters
 -----------------
 
 As Varnish has matured, fewer and fewer parameters require tuning.
