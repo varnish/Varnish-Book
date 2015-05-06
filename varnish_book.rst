@@ -5372,7 +5372,7 @@ Misc:
 
 
    ``varnishlog``, ``varnishadm`` and ``varnishstat`` are explained in the `Examining Data Provided by Varnish`_ chapter.
-   ``varnishtest`` is used for regression tests, mainly during development, but it also useful to learn more about Varnish's behaviour.
+   ``varnishtest`` is used for regression tests, mainly during development, but it also useful to learn more about Varnish's behavior.
    For more information about ``varnishtest``, see its man page.
 
    Next sections explain ``varnishtop``, ``varnishncsa``, and ``varnishhist``.
