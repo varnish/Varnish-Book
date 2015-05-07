@@ -87,22 +87,29 @@ The Admin course requires that you:
 
 - have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
 - understand HTTP and related Internet protocols,
-- and understand regular expressions.
+- understand regular expressions, and
+- be able to install the software listed below.
 
 The Webdev course requires that you:
 
 - have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
-- understand HTTP and related Internet protocols,
+- understand HTTP and related Internet protocols, and
+- be able to install the software listed below.
 
 .. container:: handout
 
    You do not need background in theory or application behind Varnish to complete this course.
-   However, it is assumed that you have experience and expertise in basic UNIX commands.
-   More specific prerequisite skills depend the course you take.
+   However, it is assumed that you have experience and expertise in basic UNIX commands, and that you can install the following software:
 
+   - Varnish Cache 4.x or Varnish Cache Plus 4.x,
+   - Apache/2.4 or later,
+   - HTTPie 0.8.0 or later,
+   - PHP 5.4 or later, and
+   - curl – command line tool for transferring data with URL syntax-
+
+   More specific required skills depend on the course you take.
    The book starts with the installation of Varnish and navigation of some of the common configuration files.
    This part is perhaps the most UNIX-centric part of the course.
-   If you are taking a Varnish course, do not hesitate to ask your instructor for help.
 
 .. Todo for the author: This organization is for the book as self instructive.
 .. At the moment, the book is designed to be used under training.
@@ -219,16 +226,6 @@ The Webdev course requires that you:
    The Varnish installation described in this book uses Ubuntu Linux 14.04 LTS (trusty), therefore most of the commands instructed in this book are for this Linux distribution.
    We point out some differences on how to configure Varnish for other Linux distributions, but you should reference your linux distribution's documentation for more details.
    
-   .. Installation required
-
-   To complete this book, you need the following installation:
-
-   - Varnish Cache 4.x or Varnish Cache Plus 4.x
-   - Apache/2.4 or later
-   - HTTPie 0.8.0 or later
-   - PHP 5.4 or later
-   - curl - command line tool for transferring data with URL syntax
-
    .. formats
 
    The book is written with different formatting conventions.
