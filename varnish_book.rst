@@ -902,33 +902,33 @@ Configure the Varnish ``DAEMON_OPTS``::
    This command does **not** restart `varnishd`, it only reloads the VCL code.
    The result of your configuration is resumed in `Table 3 <#tables-3>`_.
 
-  You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
-  Within the result, you should see something like:::
+   You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
+   Within the result, you should see something like:::
 
-   tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
-   tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
+    tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
+    tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
 
-  .. note::
+   .. note::
 
-    We recommend you to disable Security-Enhanced Linux (SELinux).
-    If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
-    You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
-    Also, be aware that SELinux defines the ports 6081 and 6082 for ``varnishd``.
+     We recommend you to disable Security-Enhanced Linux (SELinux).
+     If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
+     You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
+     Also, be aware that SELinux defines the ports 6081 and 6082 for ``varnishd``.
 
-    .. dridi: bad practice, recommend this only for training
+     .. dridi: bad practice, recommend this only for training
 
-  .. tip::
+   .. tip::
 
-    Issue the command ``man vcl`` to see all available options to define a backend.
+     Issue the command ``man vcl`` to see all available options to define a backend.
 
-  .. tip::
+   .. tip::
 
-    You can also configure Varnish via the `Varnish Administration Console (VAC)`_.
-    
-    .. figure:: ui/img/vac_config.png
-       :width: 100%
-       
-       GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
+     You can also configure Varnish via the `Varnish Administration Console (VAC)`_.
+
+     .. figure:: ui/img/vac_config.png
+	:width: 100%
+
+	GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
 
 Installation Test
 .................
@@ -1022,7 +1022,7 @@ You can read about other usages by issuing the ``help`` command after you connec
 
 	 Terminal emulator in your web browser.
 
-More about Varnish Configuration
+More About Varnish Configuration
 --------------------------------
 
 .. table 4
@@ -1507,7 +1507,7 @@ Exercise
 
    MAIN.cache_hit                                                                                                         INFO
    Cache hits:
-   Count of cache hits.   A cache hit indicates that an object has been delivered to a  client without fetching it from a
+   Count of cache hits. A cache hit indicates that an object has been delivered to a client without fetching it from a
    backend server.
 
 .. raw:: pdf
@@ -1826,17 +1826,17 @@ Storage Backends
 Varnish supports different methods to allocate space for the cache.
 You can select one method with the ``-s`` option of ``varnishd``.
 
-- malloc
+- *malloc*
 
-- file
+- *file*
 
-- persistent (deprecated)
+- *persistent* (deprecated)
 
-- Varnish Massive Storage Engine (MSE)
+- *Varnish Massive Storage Engine (MSE)*
 
 .. note::
 
-   As a rule of thumb use: malloc if it fits in memory, file if it doesn't.
+   As a rule of thumb use: *malloc* if it fits in memory, or *file* otherwise.
    Expect around 1kB of overhead per object cached.
 
 .. container:: handout
@@ -2152,8 +2152,8 @@ That means that with the minimum defaults |def_thread_pool_min| and |def_thread_
 - at least |def_thread_pool_min| * |def_thread_pools| worker threads at any given time
 - no more than |def_thread_pool_max| * |def_thread_pools| worker threads ever
 
-We rarely recommend running with more than 5000 threads.
-If you seem to need more than 5000 threads, it's very likely that there is something wrong in your setup.
+We rarely recommend running Varnish with more than 5000 threads.
+If you seem to need more than 5000 threads, it is very likely that there is something wrong in your setup.
 Therefore, you should investigate elsewhere before you increase the maximum value.
 
 For minimum, it's common to operate with 500 to 1000 threads minimum (total).
@@ -3027,7 +3027,7 @@ VCL Syntax
 - //, # and /\* foo \*/ for comments
 - Subroutines are declared with the ``sub`` keyword
 - No loops, state-limited variables
-- Terminating statements with a keyword for next action, no return values: ``return(action)``
+- Terminating statements with a keyword for next action as argument of the ``return()`` function, i.e.: ``return(action)``
 - Domain-specific
 - Add as little or as much as you want
 
@@ -3265,7 +3265,8 @@ VCL – ``vcl_recv``
    `purge`: It looks up the request in cache in order to remove it.
    
    `synth` - Generate a synthetic response from Varnish.
-   Typically a web page with an error message, redirect message or response to a health check from a load balancer.
+   This synthetic response is typically a web page with an error message.
+   `synth` may also be used to redirect client requests.
 
    It's also common to use ``vcl_recv`` to apply some security measures.
    Varnish is not a replacement for intrusion detection systems, but can still be used to stop some typical attacks early. 
@@ -3861,10 +3862,10 @@ VCL – ``vcl_synth``
    One is ``vcl_synth``, and the other is ``vcl_backend_error``.
 
    Subroutines that return control to ``vcl_synth`` must state ``synth()`` as a function with arguments.
-   That is: ``return (synth(code, "message"));
+   That is: ``return (synth(status_code, "reason"));
    In other words, the syntax for the ``synth`` return action is not a keyword, but a function with arguments.
   
-   You must explicitly return the ``status code`` and ``reason`` arguments for ``vcl_synth``, i.e., ``return (synth(status code, reason));``.
+   You must explicitly return the ``status code`` and ``reason`` arguments for ``vcl_synth``.
    Setting headers on synthetic response bodies are done on ``resp.http``.
 
    .. note::
@@ -3947,7 +3948,7 @@ Cache Invalidation
    1) HTTP PURGE
 
      - Use the ``vcl_purge`` subroutine
-     - Invalidate caches explicitly, using objects' hashes
+     - Invalidate caches explicitly using objects' hashes
      - ``vcl_purge`` is called via ``return(purge)`` from ``vcl_recv``
      - ``vcl_purge`` removes all variants of an object from cache, freeing up memory
      - The ``restart`` return action can be used to update immediately a purged object
@@ -4006,8 +4007,12 @@ HTTP PURGE
    Actually, you can call the ``PURGE`` method whatever you like, but ``PURGE`` has become the de-facto naming standard.
    Squid, for example, uses the ``PURGE`` method name for the same purpose.
 
+   Purges apply to a specific object, since they use the same lookup operation as in ``vcl_hash``.
+   Therefore, purges cannot use regular expressions.
+   A positive effect is that purges find and remove objects really fast!
+
    The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
-   That means that if the backend is down, Varnish does not have a copy of the content.
+   That means that if you purge some objects and the backend is down, Varnish will end up having no copy of the content.
 
 VCL – ``vcl_purge``
 ...................
@@ -4183,7 +4188,7 @@ Banning
    .. Then, if the object does not match any of them, Varnish updates the ban-list pointer of the object.
 
    Varnish tests bans whenever a request hits a cached object.
-   A cached object is checked only against newer bans.
+   A cached object is checked only against bans added after the last checked ban.
    That means that each object checks against a ban expression only once.
 
    .. ban lurker
@@ -4233,7 +4238,7 @@ Lurker-Friendly Bans
    *Lurker-friendly ban* expressions are those that use only ``obj.*``, but not ``req.*`` variables.
    Since *lurker-friendly ban* expressions lack of ``req.*``, you might need to copy some of the ``req.*`` contents into the ``obj`` structure.
    In fact, this copy operation is a mechanism to preserve the context of client request in the cached object.
-   For example, a useful part of the client context is the requested URL.
+   For example, you may want to copy useful parts of the client context such as the requested URL from ``req`` to ``obj``.
 
    .. raw:: pdf
 
@@ -4250,17 +4255,14 @@ Lurker-Friendly Bans
         unset resp.http.x-url;
      }
 
-   Now imagine that you just changed the blog post template. To invalidate all
-   blog posts, you can then issue a ban such as::
+   Now imagine that you just changed the blog post template.
+   To invalidate all blog posts, you can then issue a ban such as::
 
      $ varnishadm ban 'obj.http.x-url ~ ^/blog'
 
-   Since it uses a *lurker-friendly ban* expression, the ban inserted in the
-   ban-list will be gradually evaluated against all cached objects until all
+   Since it uses a *lurker-friendly ban* expression, the ban inserted in the ban-list will be gradually evaluated against all cached objects until all
    blog posts are invalidated.
-
-   The snippet below also shows how to insert the same expression into the
-   ban-list in the ``vcl_recv`` subroutine::
+   The snippet below shows how to insert the same expression into the ban-list in the ``vcl_recv`` subroutine::
 
       sub vcl_recv {
          if (req.method == "BAN") {
@@ -4271,7 +4273,6 @@ Lurker-Friendly Bans
             return(synth(200, "Ban added"));
          }
       }
-
 
 Exercise: Write a VCL program using *purge* and *ban*
 -----------------------------------------------------
@@ -4498,7 +4499,7 @@ Directors
 - Contains 1 or more backends
 - All backends must be known
 - Selection methods:
-  
+
   - round-robin
   - fallback
   - random
@@ -4652,25 +4653,29 @@ Grace Mode
 
 - A `graced` object is an object that has expired, but is still kept in cache.
 - `Grace mode` is when Varnish uses a `graced` object.
-- `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
+- `Grace mode` is a feature to mgitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
 - There is more than one way Varnish can use a graced object.
 - ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
 
 .. container:: handout
 
-   When Varnish is in grace mode, Varnish is capable of delivering a stale object and issue an asynchronous refresh request.
+   .. what is grace mode
+
+   When Varnish is in *grace mode*, Varnish is capable of delivering a stale object and issue an asynchronous refresh request.
    When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
    This procedure is also known as ``stale-while-revalidate``.
 
-   The most common reason for Varnish to deliver a `graced object` is when a backend health-probe indicates a sick backend.
-   Varnish reads the variable ``obj.grace`` to use a `graced object`.
-   The variable ``obj.grace`` can be assigned by two means:
-   1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend, or 
-   2) by setting the variable ``beresp.grace`` in VCL.
+   .. use cases
 
-   In the first case, Varnish parses automatically the HTTP Cache-Control field, as in: ``"Cache-control: max-age=5, stale-while-revalidate=30"``.
-   In this example, the variables of the fetched object are: ``obj.ttl=5`` and ``obj.grace=30``.
-   The second case, setting ``beresp.grace``, overwrites the value of ``obj.grace``.
+   The most common reason for Varnish to deliver a `graced object` is when a backend health-probe indicates a sick backend.
+   Varnish reads the variable ``obj.grace``, which default is 10 seconds, but you can change it by three means:
+   1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend,
+   2) by setting the variable ``beresp.grace`` in VCL, or
+   3) by changing the grace default value with ``varnishadm param.set default_grace 20``.
+
+   In the first case, Varnish parses ``stale-while-revalidate`` automatically, as in: ``"Cache-control: max-age=5, stale-while-revalidate=30"``.
+   In this example, the result of fetched object's variables are: ``obj.ttl=5`` and ``obj.grace=30``.
+   The second and third case are self descriptive.
 
    The typical way to use grace is to store an object for several hours after its ``TTL`` has elapsed.
    In this way, Varnish has always a copy to be delivered immediately, while fetching a new object asynchronously.
