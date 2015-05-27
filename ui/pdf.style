@@ -8,7 +8,7 @@
             ["0cm", "0cm", "100%", "100%"]
           ],
         "background" : "ui/img/front_page_book.pdf",
-        "showHeader" : false,
+         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0
     },

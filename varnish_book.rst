@@ -87,7 +87,7 @@ The Admin course requires that you:
 
 - have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
 - understand HTTP and related Internet protocols,
-- understand regular expressions, and
+- understand regular-expressions, and
 - be able to install the software listed below.
 
 The Webdev course requires that you:
@@ -182,6 +182,7 @@ The Webdev course requires that you:
 - The instructor guides you through the book.
 - Use the *manual pages* and help options.
 - See `Appendix E: Varnish Three Letter Acronyms`_ for a list of acronyms.
+- `Appendix F: Regular-Expressions in Varnish`_ explains basic concepts typically needed when administrating Varnish.
 
 .. - To practice the course, use the Fast Track in the following way:
 
@@ -246,6 +247,12 @@ The Webdev course requires that you:
       }
 
    Important notes, tips and warnings are also inside boxes, but they use the normal bodytext font type.
+
+   .. regex
+
+   If you have some regular-expression experience, must of the overview in `Appendix F: Regular-Expressions in Varnish`_ will not be new.
+   Even if this is the case, please glance over it anyway.
+   Althought you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new.
 
 .. raw:: pdf
 
@@ -335,7 +342,8 @@ What is Varnish?
    .. Benefits:
 
    At the same time, Varnish is flexible.
-   The Varnish Configuration Language (VCL) is lightning fast and allows system administrators to express their wanted policy rather than being constrained by what the Varnish developers want to cater for or could think of.
+   The Varnish Configuration Language (VCL) compiles and executes lightning fast.
+   VCL allows system administrators to express their wanted policy rather than being constrained by what the Varnish developers want to cater for or could think of.
    Varnish has shown itself to work well both on large (and expensive) servers and tiny appliances.
 
    .. Varnish use
@@ -3091,7 +3099,7 @@ All functions are available in all subroutines, except the listed in the table b
    .. regsub and regsuball
 
    ``regsub()`` and ``regsuball()`` have the same syntax and does the almost same thing:
-   They both take a string ``str`` as input, search it with a regular expression ``regex`` and replace it with another string.
+   They both take a string ``str`` as input, search it with a regular-expression ``regex`` and replace it with another string.
    The difference between ``regsub()`` and ``regsuball()`` is that the latter changes all occurrences while the former only affects the first match.
 
    .. ban
@@ -3367,8 +3375,8 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
 
    In point 2, change ``req.http.host`` by calling the function ``regsub(str, regex, sub)``.
    `str` is the input string, in this case, ``req.http.host``.
-   `regex` is the regular expression matching whatever content you need to change.
-   Use ``^`` to match what begins with *www*, and ``\.`` to finish the regular expression, i.e. `^www\.`.
+   `regex` is the regular-expression matching whatever content you need to change.
+   Use ``^`` to match what begins with *www*, and ``\.`` to finish the regular-expression, i.e. `^www\.`.
    `sub` is what you desire to change it with, an empty string ``""`` can be used to remove what matches `regex`.
 
    In point 3, you can check for host headers with a specific domain name: ``if (req.http.host == "sport.example.com")``.
@@ -3773,17 +3781,13 @@ VCL – ``vcl_hit``
    ``deliver``, ``restart``, or ``synth``.
 
    .. <<, or ``pass``.
-   .. XXX ``fetch`` and ``pass`` are other possible action returns inside ``vcl_hit``.
+   .. ``fetch`` and ``pass`` are other possible action returns inside ``vcl_hit``.
    .. The ``fetch`` return action typically returns control to the ``vcl_miss`` or ``vcl_pass`` subroutines.
    .. ``fetch`` may return control to the ``vcl_miss`` or ``vcl_pass`` subroutine.
    .. If the requested object has a *busy* state, it is handled by ``vcl_miss``, because ...
    .. Otherwise, the client request is handled by ``vcl_pass``, because ...
    .. The second case happens when ..
-   .. .. note:
-   .. Although ``vcl_hit`` can return control to ``vcl_pass``, the semantics are **not** the same as the *hit-for-pass* concept.
-   .. ``vcl_hit`` subroutine is not executed if the lookup function finds a *hit-for-pass* object.
-   .. For more information about *hit-for-pass* objects, refer to Section #.
-   .. TODO for the author: update reference to Section #.
+   ..
 
    ``deliver`` returns control to ``vcl_deliver`` if the ``TTL + grace time`` of an object has not elapsed.
    If the elapsed time is more than the ``TTL``, but less than the ``TTL + grace time``, then ``deliver`` calls for *background fetch* in parallel to ``vcl_deliver``.
@@ -3794,6 +3798,16 @@ VCL – ``vcl_hit``
    If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru meditation* error.
 
    ``synth(status code, reason)`` returns the specified status code to the client and abandon the request.
+
+
+   .. TODO for the author: to include this note, include the explanation about ``fetch`` and ``pass`` as possible return actions in ``vcl_fetch``.
+
+   .. note:
+      
+      Although ``vcl_hit`` can return control to ``vcl_pass``, the semantics are **not** the same as the *hit-for-pass* concept.
+      ``vcl_hit`` subroutine is not executed if the lookup function finds a *hit-for-pass* object.
+      For more information about *hit-for-pass* objects, refer to Section #.
+      TODO for the author: update reference to Section #.
 
 VCL – ``vcl_miss``
 ------------------
@@ -3956,7 +3970,7 @@ Cache Invalidation
    2) Banning
 
      - Use the built-in function ``ban(expression)``
-     - Invalidates objects in cache that match the regular expression
+     - Invalidates objects in cache that match the regular-expression
      - Does not necessarily free up memory at once
      - Also accessible from the management interface
 
@@ -4008,7 +4022,7 @@ HTTP PURGE
    Squid, for example, uses the ``PURGE`` method name for the same purpose.
 
    Purges apply to a specific object, since they use the same lookup operation as in ``vcl_hash``.
-   Therefore, purges cannot use regular expressions.
+   Therefore, purges cannot use regular-expressions.
    A positive effect is that purges find and remove objects really fast!
 
    The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
@@ -4143,10 +4157,10 @@ Banning
 
 .. container:: handout
 
-   .. ban regexps
+   .. ban regex
 
    Banning in the context of Varnish refers to adding a *ban expression* that prohibits Varnish to serve certain objects from the cache.
-   Ban expressions are more useful when using regular expressions.
+   Ban expressions are more useful when using regular-expressions.
    
    .. making cached objects obsolete
 
@@ -4508,6 +4522,8 @@ Directors
     - seeded with a hash key
 
 |
+
+**Round-robin director example:**
 
 .. include:: vcl/director_example.vcl
    :literal:
@@ -5604,7 +5620,7 @@ VLU
    Varnish Line Up -- library functions to collect stream of bytes into lines for processing. (lib/libvarnish/vlu.c)
 
 VRE
-   Varnish Regular Expression -- library functions for regular expression based matching and substring replacement. (lib/libvarnish/vre.c)
+   Varnish Regular-Expression -- library functions for regular-expression based matching and substring replacement. (lib/libvarnish/vre.c)
 
 VRT
    Varnish Run Time -- functions called from compiled code. (bin/varnishd/cache_vrt.c)
@@ -5648,15 +5664,33 @@ VWP
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
-Appendix E: Regular Expressions in Varnish
+Appendix F: Regular-Expressions in Varnish
 ==========================================
 
-This chapter is Work in progress...
+This chapter is work in progress...
+
+- Used to filter results in ``varnishlog``, specially when using queries.
+- Used to match strings bans and purges.
 
 .. container:: handout
 
-   This appendix is a brief introduction and usage of regular expressions for VCL.
-   Regular expressions are very powerful and they are available in VCL.
-   They allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
+   This appendix is a brief introduction and usage of regular-expressions for Varnish.
+   A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
+   They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
+   Regular-expressions are commonly used by ``varnishlog``, bans, purges, ``regsub()``, and ``regsuball()``.
+   Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
 
-   To learn more about regular expressions, we recommend you the book Mastering Regular Expressions by Jeffrey E. F. Friedl.
+   Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
+   Regular-expressions are built up from small building block units.
+   You can combine them in an infinite number of ways to achieve a particular goal.
+   This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
+
+   In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
+
+   ``ban req.url ~ ^/foo$``
+   ``ReqMethod ~ "GET|POST"``
+   ``set req.http.host = regsub(req.http.host,"^sport\.", "");``
+   ``ban("obj.http.x-url ~ " + req.http.x-ban);``
+   where ``req.http.x-ban`` is a regular-expression.
+   
+   To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
