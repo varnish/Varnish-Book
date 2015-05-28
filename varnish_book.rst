@@ -1595,6 +1595,16 @@ Exercise
 
          Real Time Counters
 
+
+      .. TODO for the author: State differences between VAC and VCS
+
+      .. tip:: 
+
+	 If you need to collect statistics from more than a single Varnish server, `Varnish Custom Statistics (VCS)`_ allows you to do that.
+	 In addition, `VCS`__ allows you to collect aggrated statistics for specific host names, applications or URLs.
+
+__ `Varnish Custom Statistics (VCS)`_
+
 Notable counters
 ................
 
@@ -5295,13 +5305,154 @@ Banning Page of the Varnish Administration Console
 Varnish Custom Statistics (VCS)
 -------------------------------
 
-- Real-time statistics engine to aggregate, display and analyze user web traffic.
+.. bookmark: Working on this chapter.
+
+- Data stream management system (DSMS) for your Varnish servers
+- Real-time statistics engine to aggregate, display and analyze user web traffic
 
 .. container:: handout
 
-   Varnish Custom Statistics (VCS) is an extremely flexible engine that allows you to group statistics easily using the Varnish Configuration Language (VCL).
+   Varnish Custom Statistics (VCS) is our data stream management system (DSMS) implementation for Varnish.
+   VCS allows you to aggregate and analyze data that passes through your Varnish servers by executing continous queries.
+   These queries are built in VCS and search for transactions with the ``vcs-key`` tags in the VSL.
+   Specific data from transactions with the sharing key ``vcs-key`` are aggragated in a window time.
+   These data are:
+
+   vcs-key
+      common key name for transactions making this record
+   
+   timestamp
+      Timestamp at the start of the window
+
+   n_req
+      Number of requests
+
+   n_req_uniq
+      Number of unique requests, if configured
+
+   n_miss
+      Number of backend requests (i.e. cache misses)
+      Number of hits can be calculated as ``n_hit = n_req - n_miss``
+
+   avg_restart
+      Average number of VCL restarts triggered per request
+
+   n_bodybytes
+      Total number of bytes transferred for the response bodies
+
+   ttfb_miss
+      Average time to first byte for requests that ended up with a backend request
+
+   ttb_hit
+      Average time to first byte for requests that were served directly from varnish cache
+
+   You can think of the output of the query, namely each aggragated window, as a record of a traditional database that resides in memory.
+   This database is dynamic, since the query producing it executes continously and therefore the database is updated every time a new window (record) is available.
+   If you want to query this database, VCS provides an API that delivers the results in JSON format.
+   The VCS API mechanisms to retrieve data from this database allows you to retrieve data based on a single key, all, or regular-expression matching.
+
+   Advantages of VCS:
+
+   .. TODO for the author: add more advantages.
+
+   - Handle potentially infinite and rapidly changing data streams in real-time
+
+   .. add keys to your stream in VCL
+
+   .. windows
+
+   .. examples:
+
+   VCS can be used to produce statistical data or even apply complex event processing techniques.
+   Thus, VCS offers endless opportunities for tracking all aspects of websites' behavior.
+   Typical cases include:
+
+   - Track slow pages and cache misses
+   - Analyse what is "hot" right now in a news website
+   - Track changes in currency conversions in e-commerce
+   - Track changes in Stock Keeping Units (SKUs) benaviour in e-commerce
+   - Track number of unique consumers of HLS/HDS/DASH video streams
+
+
+Time-based Tumbling Windows
+...........................
+
+.. csv-table:: Table :counter:`tables`: Database in VCS
+   :name: Database in VCS
+   :delim: ,
+   :stub-columns: 1
+   :file: tables/vcs-db.csv
+
+The table is a representation of two windows seen as two records in a conventional database.
+In this example, data shows two windows of 30 second based on the ``example.com`` ``csv-key``.
+The distribution of this table is of a database grows from left to right.
+
+.. container:: handout
+
+   VCS uses the time-based tumbling windows technique to segment the data stream into finite parts.
+   These windows are created based on the keys that you specify in your VCL code.
+   Each window aggragates the data within a configurable period of time.
+
+   VCS provides an API to retrieve this data from the table above in JSON format::
+
+      {
+       "example.com": [
+	   {
+	       "timestamp": "2013-09-18T09:58:30",
+	       "n_req": 76,
+	       "n_req_uniq": "NaN",
+	       "n_miss": 1,
+	       "avg_restarts": 0.000000,
+	       "n_bodybytes": 10950,
+	       "ttfb_miss": 0.000440,
+	       "ttfb_hit": 0.000054,
+	       "resp_1xx": 0,
+	       "resp_2xx": 76,
+	       "resp_3xx": 0,
+	       "resp_4xx": 0,
+	       "resp_5xx": 0
+	   },
+	   {
+	       "timestamp": "2013-09-18T09:58:00",
+	       "n_req": 84,
+	       "n_req_uniq": "NaN",
+	       "n_miss": 0,
+	       "avg_restarts": 0.000000,
+	       "n_bodybytes": 12264,
+	       "ttfb_miss": "NaN",
+	       "ttfb_hit": 0.000048,
+	       "resp_1xx": 0,
+	       "resp_2xx": 84,
+	       "resp_3xx": 0,
+	       "resp_4xx": 0,
+	       "resp_5xx": 0
+	   },
+
+	   ...
+	   ]
+      }
+
+   Thus, VCS allows you to group statistics easily based on transaction keys.
+   You can add these keys in your VCL code.
+   This is an advantage in comparison to ``varnishstat`` and ``varnishncsa``.
+   VCS is also able to collect stats from more than a single Varnish server.
+
+   .. demo
+
    `Figures 19 <#figures-19>`_, and `20 <#figures-20>`_ are screenshots from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
+
+Query Processing
+................
+
+- VCS continously queries all data that passes through Varnish based on the rules that you defined in VCL
+- VCS' queries are used to create windows of data grouped by the ``csv-keys`` that you defined in VCL
+- Windows are available via an API, and presented in JSON format.
+- To analyze your data, you can filter the windows by ``key`` or regular-expression matching.
+
+.. container:: handout
+
+   Handouts come here.
 
 Header of Varnish Custom Statistics
 ...................................
@@ -5677,7 +5828,7 @@ This chapter is work in progress...
    This appendix is a brief introduction and usage of regular-expressions for Varnish.
    A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
    They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
-   Regular-expressions are commonly used by ``varnishlog``, bans, purges, ``regsub()``, and ``regsuball()``.
+   Regular-expressions are commonly used by ``varnishlog``, bans, purges, ``regsub()``, ``regsuball()``, and VCS.
    Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
 
    Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.

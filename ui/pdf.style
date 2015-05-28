@@ -85,7 +85,7 @@
         ]
     }],
     ["tinytable",{
-        "fontSize": 4,
+        "fontSize": 6,
       	"parent": table
     }],
     ["thin" , {
