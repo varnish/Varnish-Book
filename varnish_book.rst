@@ -252,7 +252,7 @@ The Webdev course requires that you:
 
    If you have some regular-expression experience, must of the overview in `Appendix F: Regular-Expressions in Varnish`_ will not be new.
    Even if this is the case, please glance over it anyway.
-   Althought you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new.
+   Although you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new.
 
 .. raw:: pdf
 
@@ -1592,18 +1592,25 @@ Exercise
          Req/sec, and Hit/sec
 
       .. figure:: ui/img/vac_realtime_counters.png
+         :width: 70%
 
          Real Time Counters
 
 
       .. TODO for the author: State differences between VAC and VCS
 
-      .. tip:: 
+   .. tip:: 
 
-	 If you need to collect statistics from more than a single Varnish server, `Varnish Custom Statistics (VCS)`_ allows you to do that.
-	 In addition, `VCS`__ allows you to collect aggrated statistics for specific host names, applications or URLs.
+      If you need to collect statistics from more than a single Varnish server, `Varnish Custom Statistics (VCS)`_ allows you to do that.
+      In addition, VCS allows you to define your metrics to collect and analyze aggregated statistics, for example:
 
-__ `Varnish Custom Statistics (VCS)`_
+        - A/B testing
+        - Measuring click-trhough rate
+	- Track slow pages and cache misses
+	- Analyze what is "hot" right now in a news website
+	- Track changes in currency conversions in e-commerce
+	- Track changes in Stock Keeping Units (SKUs) <behavior in e-commerce
+	- Track number of unique consumers of HLS/HDS/DASH video streams
 
 Notable counters
 ................
@@ -4679,7 +4686,7 @@ Grace Mode
 
 - A `graced` object is an object that has expired, but is still kept in cache.
 - `Grace mode` is when Varnish uses a `graced` object.
-- `Grace mode` is a feature to mgitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
+- `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
 - There is more than one way Varnish can use a graced object.
 - ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
 
@@ -5305,94 +5312,135 @@ Banning Page of the Varnish Administration Console
 Varnish Custom Statistics (VCS)
 -------------------------------
 
-.. bookmark: Working on this chapter.
-
 - Data stream management system (DSMS) for your Varnish servers
 - Real-time statistics engine to aggregate, display and analyze user web traffic
+- Provides an API to retrieve statistics
+- Provides a GUI that presents lists and charts to get a quick overview of the key metrics that matters you
+
+.. figure 19
+
+.. figure:: ui/img/vcs-dsms.png
+   :width: 100%
+
+   Figure :counter:`figures`: VCS Data Flow
 
 .. container:: handout
 
    Varnish Custom Statistics (VCS) is our data stream management system (DSMS) implementation for Varnish.
-   VCS allows you to aggregate and analyze data that passes through your Varnish servers by executing continous queries.
-   These queries are built in VCS and search for transactions with the ``vcs-key`` tags in the VSL.
-   Specific data from transactions with the sharing key ``vcs-key`` are aggragated in a window time.
-   These data are:
+   VCS allows you to analyze the traffic from multiple Varnish servers in near real-time to compute traffic statistics and detect critical conditions.
+   This is possible by continuously extracting transactions with the ``vcs-key`` tags in your VSL.
+   Thus, VCS does not slow down your Varnish servers.
 
-   vcs-key
-      common key name for transactions making this record
-   
-   timestamp
-      Timestamp at the start of the window
+   .. vcs-key
 
-   n_req
-      Number of requests
+   You can add multiple as many custom ``vcs-key`` tags as you need in your VCL code.
+   Therefore, you can define your own metrics to collect and analyze aggregated data.
 
-   n_req_uniq
-      Number of unique requests, if configured
-
-   n_miss
-      Number of backend requests (i.e. cache misses)
-      Number of hits can be calculated as ``n_hit = n_req - n_miss``
-
-   avg_restart
-      Average number of VCL restarts triggered per request
-
-   n_bodybytes
-      Total number of bytes transferred for the response bodies
-
-   ttfb_miss
-      Average time to first byte for requests that ended up with a backend request
-
-   ttb_hit
-      Average time to first byte for requests that were served directly from varnish cache
-
-   You can think of the output of the query, namely each aggragated window, as a record of a traditional database that resides in memory.
-   This database is dynamic, since the query producing it executes continously and therefore the database is updated every time a new window (record) is available.
-   If you want to query this database, VCS provides an API that delivers the results in JSON format.
-   The VCS API mechanisms to retrieve data from this database allows you to retrieve data based on a single key, all, or regular-expression matching.
-
-   Advantages of VCS:
-
-   .. TODO for the author: add more advantages.
-
-   - Handle potentially infinite and rapidly changing data streams in real-time
-
-   .. add keys to your stream in VCL
-
-   .. windows
-
-   .. examples:
+   .. Examples:
 
    VCS can be used to produce statistical data or even apply complex event processing techniques.
    Thus, VCS offers endless opportunities for tracking all aspects of websites' behavior.
    Typical cases include:
 
+   - A/B testing
+   - Measuring click-trhough rate
    - Track slow pages and cache misses
-   - Analyse what is "hot" right now in a news website
+   - Analyze what is "hot" right now in a news website
    - Track changes in currency conversions in e-commerce
-   - Track changes in Stock Keeping Units (SKUs) benaviour in e-commerce
+   - Track changes in Stock Keeping Units (SKUs) <behavior in e-commerce
    - Track number of unique consumers of HLS/HDS/DASH video streams
 
+   .. demo
+   
+   `Figure 20 <#figures-20>`_, and `Figure 21 <#figures-21>`_ are screenshots of the VCS GUI.
+   These screenshots are from the demo on http://vcsdemo.varnish-software.com.
+   Your instructor can provide you credential for you to try the demo online.
 
-Time-based Tumbling Windows
-...........................
+   .. note::
+      
+      For further details on VCS, please look at its own documentation at https://www.varnish-software.com/resources/.
 
-.. csv-table:: Table :counter:`tables`: Database in VCS
+VCS Data Model
+..............
+
+- Represents a finite relation from an infinite stream.
+- Uses time-based tumbling windows
+- API to query data model
+- API outputs in JSON and JSONP format
+
+.. table 19
+
+.. csv-table:: Table :counter:`tables`: Data model in VCS
    :name: Database in VCS
    :delim: ,
    :stub-columns: 1
    :file: tables/vcs-db.csv
 
-The table is a representation of two windows seen as two records in a conventional database.
-In this example, data shows two windows of 30 second based on the ``example.com`` ``csv-key``.
-The distribution of this table is of a database grows from left to right.
 
 .. container:: handout
 
-   VCS uses the time-based tumbling windows technique to segment the data stream into finite parts.
-   These windows are created based on the keys that you specify in your VCL code.
-   Each window aggragates the data within a configurable period of time.
+   .. Time-based Tumbling Windows
 
+   VCS uses the time-based tumbling windows technique to segment the data stream into finite parts.
+   These windows are created based on the ``vcs-key`` tag that you specify in your VCL code.
+   Each window aggregates the data within a configurable period of time.
+
+   .. table description
+
+   `Table 19 <#tables-19>`_ shows the data model in VCS.
+   This table is basically a representation of two windows seen as two records in a conventional database.
+   In this example, data shows two windows of 30 second based on the ``example.com`` ``vcs-key``.
+   For presentation purposes in this page, the distribution of this table is of a database that grows from left to right.
+
+   .. Data Model
+
+   The VCS data model has the following fields:
+
+   ``vcs-key``
+      common key name for transactions making this record
+   
+   ``timestamp``
+      Timestamp at the start of the window
+
+   ``n_req``
+      Number of requests
+
+   ``n_req_uniq``
+      Number of unique requests, if configured
+
+   ``n_miss``
+      Number of backend requests (i.e. cache misses)
+      Number of hits can be calculated as ``n_hit = n_req - n_miss``
+
+   ``avg_restart``
+      Average number of VCL restarts triggered per request
+
+   ``n_bodybytes``
+      Total number of bytes transferred for the response bodies
+
+   ``ttfb_miss``
+      Average time to first byte for requests that ended up with a backend request
+
+   ``ttb_hit``
+      Average time to first byte for requests that were served directly from varnish cache
+
+   ``resp_1xx`` -- ``resp_5xx``
+      Counters for response status codes.
+
+   ``reqbytes``
+      Number of bytes received from clients.
+
+   ``respbytes``
+      Number of bytes transmitted to clients.
+
+   ``berespbytes``
+      Number of bytes received from backends.
+
+   ``bereqbytes``
+      Number of bytes transmitted to backends.
+
+   You can think of each window as a record of a traditional database that resides in memory.
+   This database is dynamic, since the engine of VCS updates it every time a new window (record) is available.
    VCS provides an API to retrieve this data from the table above in JSON format::
 
       {
@@ -5432,48 +5480,106 @@ The distribution of this table is of a database grows from left to right.
 	   ]
       }
 
-   Thus, VCS allows you to group statistics easily based on transaction keys.
-   You can add these keys in your VCL code.
-   This is an advantage in comparison to ``varnishstat`` and ``varnishncsa``.
-   VCS is also able to collect stats from more than a single Varnish server.
+VCS API
+.......
 
-   .. demo
+- API provides ready-to-use queries
+- Queries over HTTP
+- Top most sorting
+- Results in JSON and JSONP format
 
-   `Figures 19 <#figures-19>`_, and `20 <#figures-20>`_ are screenshots from the demo on http://vcsdemo.varnish-software.com.
-   Your instructor can provide you credential for you to try the demo online.
+Examples:
 
-Query Processing
-................
+For ``vcs-key`` with names ending with ``.gif``, retrieve a list of the top 10::
 
-- VCS continously queries all data that passes through Varnish based on the rules that you defined in VCL
-- VCS' queries are used to create windows of data grouped by the ``csv-keys`` that you defined in VCL
-- Windows are available via an API, and presented in JSON format.
-- To analyze your data, you can filter the windows by ``key`` or regular-expression matching.
+   /match/(.*)%5C.gif$/top
+
+
+Find a list of the top 50 slowest backend requests::
+
+   /all/top_ttfb/50
 
 .. container:: handout
 
-   Handouts come here.
+   The VCS API queries the VCS data model and the output is in JSON format.
+   The API responds to requests for the following URLs:
 
-Header of Varnish Custom Statistics
-...................................
+   ``/key/<vcs-key>``
+      Retrieves stats for a single ``vcs-key``.
+      ``<vcs-key>`` name must be URL encoded.
 
-.. figure 19
+   ``/match/<regex>``
+      Retrieves a list of ``vcs-key`` matching the URL encoded regular-expression. 
+      Accepts the query parameter ``verbose=1``, which displays all stats collected for the ``<vcs-keys>`` matched.
 
-.. figure:: ui/img/vcsui_header_2.png
-   :width: 100%
+   ``/all``
+      Retrieves a list of all the ``<vcs-keys>`` currently in the data model.
 
-   Figure :counter:`figures`: Header of Varnish Custom Statistics
+   For ``/match/<regex>`` and ``/all``, VCS can produce sorted lists.
+   For that, you can append one of the following sorting commands.
 
-Summary of Metrics Along with Time Based Graphs
-...............................................
+   ``/top``
+      Sort based on number of requests.
 
-.. figure 20
+   ``/top_ttfb``
+      Sort based on the ``ttfb_miss`` field.
 
-.. figure:: ui/img/vcsui_4.png
+   ``/top_size``
+      Sort based on the ``n_bodybytes`` field.
 
-   Figure :counter:`figures`: Summary of metrics along with time based graphs
+   ``/top_miss``
+      Sort based on the ``n_miss`` field.
 
-.. TODO for the author: figure title
+   ``/top_respbytes``
+      Sort based on number of bytes transmitted to clients.
+
+   ``/top_reqbytes``
+      Sort based on number of bytes received from clients.
+
+   ``/top_berespbytes``
+      Sort based on number of bytes fetched from backends.
+
+   ``/top_bereqbytes``
+      Sort based on number of bytes transmitted to backends.
+
+   ``/top_restarts``
+      Sort based on the ``avg_restarts`` field.
+
+   ``/top_5xx``, ``/top_4xx``, ..., ``/top_1xx``
+      Sort based on number of HTTP response codes returned to clients for 5xx, 4xx, 3xx, etc.
+
+   ``/top_uniq``
+      Sort based on the ``n_req_uniq`` field.
+
+   Further, a ``/k`` parameter can be appended, which specifies the number of keys to include in the top list.
+   If no ``k`` value is provided, the top 10 is displayed.
+
+   .. note::
+
+      For more details on the API, please read the documentation of ``vstatd``.
+
+Screenshots of GUI
+..................
+
+- VCS provides its own GUI
+- You can interact with the API via this GUI
+- Screenshots from http://vcsdemo.varnish-software.com/
+
+.. container:: handout
+
+   .. figure 20
+
+   .. figure:: ui/img/vcsui_header_2.png
+      :width: 100%
+
+      Figure :counter:`figures`: Header of Varnish Custom Statistics
+
+   .. figure 21
+
+   .. figure:: ui/img/vcsui_4.png
+      :width: 50%
+
+      Figure :counter:`figures`: Summary of metrics along with time based graphs
 
 Varnish High Availability (VHA)
 -------------------------------
