@@ -1402,8 +1402,6 @@ Query Language
   - parenthesis hierarchy
   - negation using ``not``
 
-|
-
 Examples of Varnish log queries::
 
    varnishlog -q 'RespStatus < 500'
@@ -1852,11 +1850,8 @@ Varnish supports different methods to allocate space for the cache.
 You can select one method with the ``-s`` option of ``varnishd``.
 
 - *malloc*
-
 - *file*
-
 - *persistent* (deprecated)
-
 - *Varnish Massive Storage Engine (MSE)*
 
 .. note::
@@ -4504,6 +4499,9 @@ Saving a Request
 
 .. table 18
 
+.. TODO for the editor: sub-columns is not reflected in PDF formats
+.. A temporary solution is using bold in the first column
+
 .. csv-table:: Table :counter:`tables`: Connotation of Saving a Request
    :name: connotation_saving_request
    :header-rows: 1
@@ -4537,8 +4535,6 @@ Directors
 
     - seeded with a random number
     - seeded with a hash key
-
-|
 
 **Round-robin director example:**
 
@@ -4583,8 +4579,6 @@ Random Directors
 
 - *Random* director: seeded with a random number
 - *Hash* director: seeded with hash key from typically a URL or a client identity string
-
-|
 
 *Hash director that uses client identity for backend selection*
 
@@ -5194,27 +5188,13 @@ Varnish Plus Software Components
 
 The Varnish Plus offer of software products includes:
 
-   - `Varnish Massive Storage Engine (MSE)`__,
-
-__ `Storage Backends`_
-
-   - `hashtwo (surrogate keys)`__,
-
-__ `Hashtwo (Varnish Software Implementation of Surrogate Keys)`_
-
-   - `Varnish Tuner`__,
-
-__ `Varnish Tuner`_
-
+   - Varnish Massive Storage Engine (MSE), described in the `Storage Backends`_ section.
+   - `Hashtwo (Varnish Software Implementation of Surrogate Keys)`_
+   - `Varnish Tuner`_
    - `Varnish Administration Console (VAC)`_,
-
-
    - `Varnish Custom Statistics (VCS)`_,
-
-
    - `Varnish High Availability (VHA)`_,
-
-
+   - `SSL/TLS Support`_,
    - and `more`__.
 
 __ https://www.varnish-software.com/what-is-varnish-plus
@@ -5370,6 +5350,9 @@ VCS Data Model
 
 .. table 19
 
+.. TODO for the editor: sub-columns is not reflected in PDF formats
+.. A temporary solution is using bold in the first column
+
 .. csv-table:: Table :counter:`tables`: Data model in VCS
    :name: Database in VCS
    :delim: ,
@@ -5458,7 +5441,8 @@ VCS Data Model
 	       "resp_2xx": 76,
 	       "resp_3xx": 0,
 	       "resp_4xx": 0,
-	       "resp_5xx": 0
+	       "resp_5xx": 0,
+	       ...
 	   },
 	   {
 	       "timestamp": "2013-09-18T09:58:00",
@@ -5473,7 +5457,8 @@ VCS Data Model
 	       "resp_2xx": 84,
 	       "resp_3xx": 0,
 	       "resp_4xx": 0,
-	       "resp_5xx": 0
+	       "resp_5xx": 0,
+	       ...
 	   },
 
 	   ...
@@ -5576,29 +5561,79 @@ Screenshots of GUI
 
    .. figure 21
 
-   .. figure:: ui/img/vcsui_4.png
-      :width: 50%
+| 
+
+|
+
+   .. figure:: ui/img/vcs-ui-chart.png
+      :width: 100%
 
       Figure :counter:`figures`: Summary of metrics along with time based graphs
 
 Varnish High Availability (VHA)
 -------------------------------
 
-The Varnish High Availability agent (*vha-agent*) is a content replicator with the aim of copying the cached objects from an origin Varnish server to a neighboring Varnish server.
-This increases resiliency and performance.
+- Content replicator
+- Increases resiliency and performance
+- Two-server, circular, multi-master replication
+- Requests to replicate content against Varnish servers, not the backend
 
-.. What about increased complexity?
+.. figure 
 
-*vha-agent* reads the log of Varnish, and for each object insertion detected it fires a request to the neighboring Varnish server.
-This server fetches the object from the origin Varnish server.
-As a result, the same object is cached in both servers with only one single backend fetch.
+.. figure:: ui/img/vha.png
+   :width: 80%
 
-This solution requires *vha-agent* to be installed on the origin Varnish server, and some simple VCL configuration on the replicated Varnish server.
-Ideally, *vha-agent* is installed on both servers so they can both replicate object insertions from each other in an active/active configuration.
+   Figure :counter:`figures`: VHA Sequence Diagram
 
-The replication of cached objects may bring the need for multiple cache invalidation.
-For that purpose, you can use the `Varnish Administration Console (VAC)`_.
-Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
+.. container:: handout
+
+   The Varnish High Availability agent (*vha-agent*) is a content replicator with the aim of copying the cached objects from an origin Varnish server to a neighboring Varnish server.
+   This increases resiliency and performance, specially when backend traffic surges.
+
+   .. What about increased complexity?
+
+   *vha-agent* reads the log of Varnish, and for each object insertion detected it fires a request to the neighboring Varnish server.
+   This server fetches the object from the origin Varnish server.
+   As a result, the same object is cached in both servers with only one single backend fetch.
+
+   This solution requires *vha-agent* to be installed on the origin Varnish server, and some simple VCL configuration on the replicated Varnish server.
+   Ideally, *vha-agent* is installed on both servers so they can both replicate object insertions from each other in an active/active configuration.
+
+   Typical uses of VHA include:
+
+   - Business critical Varnish Plus installations
+   - Any multi-cache Varnish setup
+   - Two/three node CDN POP installations
+
+   The replication of cached objects may bring the need for multiple cache invalidation.
+   For that purpose, you can use the `Varnish Administration Console (VAC)`_.
+   Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
+
+SSL/TLS Support
+---------------
+
+- SSL/TLS support on both the HTTP backend and client side.
+- Easy configuration::
+
+    backend default {
+        .host = "host.name";
+        .port = "https";                # This defaults to https when SSL
+        .ssl = 1;                       # Turns on SSL support
+        .ssl_nosni = 1;                 # Disable SNI extension
+        .ssl_noverify = 1;              # Don't verify peer
+    }
+
+.. container:: handout
+
+   Varnish Plus allows you to improve your website security without having to rely on third-party solutions.
+   As a consequence, you can simplify your security  web architectures and ultimately save time and money.
+
+   Varnish Plus allows you to encrypt and secure communication on both the front and backend as Varnish acts as both HTTP server and client.
+   On the client side, the HTTP server intercepts web requests before they reach a web server.
+   The SSL/TLS support on this side enables traffic encryption between the client and Varnish. 
+
+   On the backend, the HTTP client fetches content missing in the cache from the web server.
+   This enables content to be fetched over the encrypted SSL/TLS, which particularly benefits customers who run a fully encrypted data center or have web servers that reside in a different location to their Varnish Plus servers.
 
 Appendix A: Resources
 =====================
