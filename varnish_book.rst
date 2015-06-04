@@ -252,7 +252,7 @@ The Webdev course requires that you:
 
    If you have some regular-expression experience, must of the overview in `Appendix F: Regular-Expressions in Varnish`_ will not be new.
    Even if this is the case, please glance over it anyway.
-   Although you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new.
+   Although you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new for you.
 
 .. raw:: pdf
 
@@ -360,15 +360,6 @@ What is Varnish?
    - quick fix for unstable backends, and
    - HTTP router.
 
-   At the moment of writing this book, Varnish Plus is supporting the following Linux distributions:
-
-   - RedHat Enterprise Linux 5, 6 and 7.
-   - Ubuntu Linux 12.04 LTS (precise)
-   - Ubuntu Linux 14.04 LTS (trusty)
-   - Debian Linux 7 (wheezy)
-
-   Varnish Cache Plus is supported on 64-bit systems.
-
 Varnish Cache and Varnish Plus
 ------------------------------
 
@@ -392,17 +383,7 @@ Varnish Cache and Varnish Plus
 
    Varnish Cache is developed and tested on GNU/Linux and FreeBSD. 
    The code-base is kept as self-contained as possible to avoid introducing out-side bugs and unneeded complexity. 
-   As a consequence of this, Varnish uses very few external libraries.
-
-   At the moment of writing this book, Varnish Cache is supporting the following operating systems and Linux distributions:
-
-   - Debian Linux 7 (wheezy)
-   - Debian Linux 8 (jessie)
-   - Ubuntu Linux 12.04 (precise)
-   - Ubuntu Linux 14.04 (trusty)
-   - RedHat Enterprise Linux 6
-   - FreeBSD 9
-   - FreeBSD 10
+   Therefore, Varnish uses very few external libraries.
 
    .. Varnish Software:
 
@@ -421,11 +402,25 @@ Varnish Cache and Varnish Plus
    The covered components of Varnish Plus are described in the `Varnish Plus Software Components`_ chapter.
    For more information about the complete Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
 
+   .. Supported platforms
+
+   At the moment of writing this book, Varnish Cache supports the operating systems and Linux distributions listed in `Table 2 <#tables-2>`_.
+
+   .. table 2
+
+   .. csv-table:: Table :counter:`tables`: Varnish Cache and Varnish Plus supported platforms
+      :name: Varnish Cache and Varnish Plus supported platforms
+      :delim: ,
+      :header-rows: 1
+      :widths: 50,25,25
+      :file: tables/supported_platforms.csv
+
+   Varnish Cache and Varnish Plus support only 64-bit systems.
+
    .. note::
 
       Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
       Varnish Cache Plus is one of the software components available for Varnish Plus customers.
-
 
 Varnish Software
 ----------------
@@ -749,7 +744,7 @@ Use packages provided by
 - varnish-software.com for Varnish Cache Plus
 - varnish-cache.org for Varnish Cache
 
-.. table 2
+.. table 3
 
 .. csv-table:: Table :counter:`tables`: Different Locations of the Varnish Configuration File
    :name: Different Locations of the Varnish Configuration File
@@ -766,7 +761,7 @@ Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
 [3] There is no configuration file.
 Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` instead.
 
-.. table 3
+.. table 4
 
 .. csv-table:: Table :counter:`tables`: Varnish and Apache Configuration
    :name: Varnish and Apache Configuration
@@ -784,7 +779,7 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    Modifications to this file require to run ``service varnish restart`` for the changes to take effect.
 
    The location of the Varnish configuration file depends on the operating system and whether it uses the ``init`` system of `SysV`, or `systemd`.
-   `Table 2 <#tables-2>`_ shows the locations for each system installation.
+   `Table 3 <#tables-3>`_ shows the locations for each system installation.
 
    .. Introduction to apt-get and yum
 
@@ -889,7 +884,7 @@ Configure the Varnish ``DAEMON_OPTS``::
 
 .. container:: handout
 
-   See `Table 2 <#tables-2>`_ and locate the Varnish configuration file for your installation.
+   See `Table 3 <#tables-3>`_ and locate the Varnish configuration file for your installation.
    Open and edit that file to listen on port ``80`` and have a management interface on port `1234`.
    This is configured with the variable  ``DAEMON_OPTS``, and options ``-a`` and ``-T`` respectively.
 
@@ -908,7 +903,7 @@ Configure the Varnish ``DAEMON_OPTS``::
 
    After changing a VCL file, you can run ``service varnish reload``.
    This command does **not** restart `varnishd`, it only reloads the VCL code.
-   The result of your configuration is resumed in `Table 3 <#tables-3>`_.
+   The result of your configuration is resumed in `Table 4 <#tables-4>`_.
 
    You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
    Within the result, you should see something like:::
@@ -995,7 +990,7 @@ You can read about other usages by issuing the ``help`` command after you connec
    2. Changes are not persistent across restarts of Varnish. 
       If you change a parameter and you want the change to persist after you restart Varnish,
       you need to store your changes in the configuration file of the boot script.
-      The location of the configuration file is is in `Table 2 <#tables-2>`_
+      The location of the configuration file is is in `Table 3 <#tables-3>`_
 
    ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
    You can now provide access to the interface on a per user basis by adjusting the read permission on the secret file.
@@ -1033,7 +1028,7 @@ You can read about other usages by issuing the ``help`` command after you connec
 More About Varnish Configuration
 --------------------------------
 
-.. table 4
+.. table 5
 
 .. csv-table:: Table :counter:`tables`: Varnish Configuration Types
    :name: configuration_types
@@ -1042,9 +1037,9 @@ More About Varnish Configuration
    :header-rows: 1
    :file: tables/configuration_type.csv
 
-The location of the configuration file is in `Table 2 <#tables-2>`_.
+The location of the configuration file is in `Table 3 <#tables-3>`_.
 
-.. table 5
+.. table 6
 
 .. csv-table:: Table :counter:`tables`: How to reload Varnish
    :name: varnish_reload
@@ -1231,7 +1226,7 @@ In this chapter you will learn about:
 
    The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
    Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
-   `Table 2 <#tables-2>`_ in the `Install Varnish and Apache as backend`_ section shows the location of the configuration file based on your platform.
+   `Table 3 <#tables-3>`_ in the `Install Varnish and Apache as backend`_ section shows the location of the configuration file based on your platform.
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat`` among others.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
@@ -1520,7 +1515,7 @@ Exercise
 
    PageBreak
 
-.. table 6
+.. table 7
 
 .. csv-table:: Table :counter:`tables`: Columns displayed in central area of ``varnishstat``
    :name: columns_central_area
@@ -1613,7 +1608,7 @@ Exercise
 Notable counters
 ................
 
-.. table 7
+.. table 8
 
 .. csv-table:: Table :counter:`tables`: Notable counters in ``varnishstat``
    :name: notable_counters
@@ -1625,7 +1620,7 @@ Notable counters
 .. container:: handout
 
    Varnish provides a large number of counters for information, and debugging purposes.
-   `Table 7 <#tables-7>`_ presents counters that are typically important.
+   `Table 8 <#tables-8>`_ presents counters that are typically important.
    Other counters may be relevant only for Varnish developers when providing support.
 
    Counters also provide feedback to Varnish developers on how Varnish works in production environments.
@@ -2086,7 +2081,7 @@ Threading Model
 - Worker threads are the bread and butter of the Varnish architecture
 - Utility-threads
 
-.. table 8
+.. table 9
 
 .. csv-table:: Table :counter:`tables`: Relevant threads in Varnish
    :name: relevant_threads
@@ -2099,7 +2094,7 @@ Threading Model
 
    The child process runs multiple threads in two thread pools.
    The threads of these pools are called worker threads.
-   `Table 8 <#tables-8>`_ presents relevant threads.
+   `Table 9 <#tables-9>`_ presents relevant threads.
    
 Threading parameters
 --------------------
@@ -2109,7 +2104,7 @@ Threading parameters
 - Start them sooner rather than later
 - Maximum and minimum values are per thread pool
 
-.. table 9
+.. table 10
 
 .. csv-table:: Table :counter:`tables`: Threads parameters
    :name: thread_params
@@ -2231,7 +2226,7 @@ The ``workspace_client`` and ``workspace_backend`` are parameters that could sti
 Timers
 ------
 
-.. table 10
+.. table 11
 
 .. csv-table:: Table :counter:`tables`: Timers
       :name: timers
@@ -2628,7 +2623,7 @@ described):
 - `must-revalidate`: Indicates that a stale cache item can not be serviced
   without revalidation with the origin server first;
 
-.. table 11
+.. table 12
 
 .. csv-table:: Table :counter:`tables`: Cache-control argument for each context
    :name: Cache-control argument for each context
@@ -2639,7 +2634,7 @@ described):
 .. container:: handout
 
 	Unlike `Expires`, `Cache-Control` is both a **request** and a **response** header.
-	`Table 11 <#tables-11>`_  summarizes the arguments you may use for each context.
+	`Table 12 <#tables-12>`_  summarizes the arguments you may use for each context.
 
 	Example of a `Cache-Control` header::
 
@@ -2819,7 +2814,7 @@ Header availability summary
 The table below lists HTTP headers seen above and whether they are a request
 header or a response one.
 
-.. table 12
+.. table 13
 
 .. csv-table:: Table :counter:`tables`: Header availability summary
    :name: Header availability summary
@@ -3095,7 +3090,7 @@ List of functions and their arguments:
 
 All functions are available in all subroutines, except the listed in the table below.
 
-.. table 13
+.. table 14
 
 .. csv-table:: Table :counter:`tables`: Specific Function Availability
    :name: Specific Function Availability
@@ -3122,7 +3117,7 @@ All functions are available in all subroutines, except the listed in the table b
 Legal Return Actions
 --------------------
 
-.. table 14
+.. table 15
 
 .. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns at the frontend (client) side
    :name: subroutines_legal_returns_client
@@ -3131,7 +3126,7 @@ Legal Return Actions
    :header-rows: 1
    :file: tables/subroutine_legal_returns_client.csv
 
-.. table 15
+.. table 16
 
 .. csv-table:: Table :counter:`tables`: VCL built-in subroutines and their legal returns at the backend side, ``vcl.load``, and ``vcl.discard``
    :name: subroutines_legal_returns_backend
@@ -3155,7 +3150,7 @@ Legal Return Actions
 Variables in VCL subroutines
 ----------------------------
 
-.. table 16
+.. table 17
 
 .. csv-table:: Table :counter:`tables`: Variable Availability in VCL subroutines
    :name: Variable Availability in VCL subroutines
@@ -3173,8 +3168,8 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 
 .. container:: handout
 
-   `Table 16 <#tables-16>`_ shows the availability of variables in different states of the Varnish finite state machine.
-   In addition to the variable prefixes in `Table 16 <#tables-16>`_, there are other three variables prefixes; ``client.*``, ``server.*``, and ``storage.*``, which are accessible from all subroutines at the frontend (client) side.
+   `Table 17 <#tables-17>`_ shows the availability of variables in different states of the Varnish finite state machine.
+   In addition to the variable prefixes in `Table 17 <#tables-17>`_, there are other three variables prefixes; ``client.*``, ``server.*``, and ``storage.*``, which are accessible from all subroutines at the frontend (client) side.
    Another variable is ``now``, which is accessible from all subroutines.
  
    These additional prefixes and variable are practically accessible everywhere.
@@ -4471,7 +4466,7 @@ The objects are now cleared.
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
 
-.. table 17
+.. table 18
 
 .. csv-table:: Table :counter:`tables`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
    :name: purge_ban_hash2_force
@@ -4497,7 +4492,7 @@ Saving a Request
 
 *This chapter is for the system administration course only*
 
-.. table 18
+.. table 19
 
 .. TODO for the editor: sub-columns is not reflected in PDF formats
 .. A temporary solution is using bold in the first column
@@ -4518,7 +4513,7 @@ Saving a Request
    #. Economization: mechanisms to spend less resources, i.e., send less requests to the backend.
    #. Protection: mechanisms to restrict access cache invalidation from unauthorized entities.
 
-   `Table 18 <#tables-18>`_ shows how different mechanisms are mapped to their saving objectives.
+   `Table 19 <#tables-19>`_ shows how different mechanisms are mapped to their saving objectives.
    This chapter explains how to make your Varnish setup more robust.
 
 Directors
@@ -5194,6 +5189,7 @@ The Varnish Plus offer of software products includes:
    - `Varnish Administration Console (VAC)`_,
    - `Varnish Custom Statistics (VCS)`_,
    - `Varnish High Availability (VHA)`_,
+   - `Varnish API Engine`_,
    - `SSL/TLS Support`_,
    - and `more`__.
 
@@ -5313,8 +5309,8 @@ Varnish Custom Statistics (VCS)
 
    .. vcs-key
 
-   You can add multiple as many custom ``vcs-key`` tags as you need in your VCL code.
-   Therefore, you can define your own metrics to collect and analyze aggregated data.
+   You can add as many custom ``vcs-key`` tags as you need in your VCL code.
+   This allows you to define your own metrics.
 
    .. Examples:
 
@@ -5348,7 +5344,7 @@ VCS Data Model
 - API to query data model
 - API outputs in JSON and JSONP format
 
-.. table 19
+.. table 20
 
 .. TODO for the editor: sub-columns is not reflected in PDF formats
 .. A temporary solution is using bold in the first column
@@ -5370,7 +5366,7 @@ VCS Data Model
 
    .. table description
 
-   `Table 19 <#tables-19>`_ shows the data model in VCS.
+   `Table 20 <#tables-20>`_ shows the data model in VCS.
    This table is basically a representation of two windows seen as two records in a conventional database.
    In this example, data shows two windows of 30 second based on the ``example.com`` ``vcs-key``.
    For presentation purposes in this page, the distribution of this table is of a database that grows from left to right.
@@ -5578,10 +5574,10 @@ Varnish High Availability (VHA)
 - Two-server, circular, multi-master replication
 - Requests to replicate content against Varnish servers, not the backend
 
-.. figure 
+.. figure 22
 
 .. figure:: ui/img/vha.png
-   :width: 80%
+   :width: 100%
 
    Figure :counter:`figures`: VHA Sequence Diagram
 
@@ -5608,6 +5604,25 @@ Varnish High Availability (VHA)
    The replication of cached objects may bring the need for multiple cache invalidation.
    For that purpose, you can use the `Varnish Administration Console (VAC)`_.
    Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
+
+Varnish API Engine
+------------------
+
+.. figure 23
+
+.. figure:: ui/img/api.png
+   :width: 100%
+
+   Figure :counter:`figures`: High level overview of an environment running the Varnish API Engine
+
+.. container:: handout
+
+   Varnish API Engine is a high performance HTTP API gateway with features such as caching, authentication, authorization and throttling of client requests. 
+   A variety of real time counters are available for integration with third party monitoring tools.
+   The centralized management is used to configure backends, directors, endpoints and rules, and is available through its own REST API.
+   A command line tool to interface with this REST API is included.
+   The API Engine is highly configurable and tunable by design. 
+   Being modular, it is easy to scale horizontally for increased fault tolerance and performance.
 
 SSL/TLS Support
 ---------------

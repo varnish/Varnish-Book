@@ -13,8 +13,10 @@ ban,Yes,Yes
 force cache misses,Yes,Yes
 vagent2,Yes,Yes
 Massive Storage Engine (MSE),No,Yes
-Tuner,No,Yes
-Varnish High Availability (VHA),No,Yes
-Varnish Custom Statistics (VCS),No,Yes
-Varnish Administration Console (VAC),No,Yes
-hashtwo (surrogate keys),No,Yes
+`Varnish Administration Console (VAC)`_,No,Yes
+`Varnish Tuner`_,No,Yes
+`Hashtwo (Varnish Software Implementation of Surrogate Keys)`_,No,Yes
+`Varnish Custom Statistics (VCS)`_,No,Yes
+`Varnish High Availability (VHA)`_,No,Yes
+`Varnish API Engine`_,No,Yes
+`SSL/TLS Support`_,No,Yes
