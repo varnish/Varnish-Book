@@ -358,6 +358,8 @@ What is Varnish?
    - DDoS attacks defender,
    - load balancer,
    - integration point,
+   - single sign-on gateway,
+   - authentication and authorization policy mechanism,
    - quick fix for unstable backends, and
    - HTTP router.
 
@@ -4781,7 +4783,7 @@ Exercise: Grace
 
 .. TODO for the author: To mention that saintmode is gone in Varnish 4?
 
-``retry`` return action
+Retry ``retry`` return action
 -----------------------
 
 - Available in ``vcl_backend_response`` and ``vcl_backend_error``
