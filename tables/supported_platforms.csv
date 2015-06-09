@@ -1,7 +1,7 @@
 ,Varnish Cache,Varnish Plus
-RedHat Enterprise Linux 5,No,Yes
+RedHat Enterprise Linux 5,Deprecated,Deprecated
 RedHat Enterprise Linux 6,Yes,Yes
-RedHat Enterprise Linux 7,No,Yes
+RedHat Enterprise Linux 7,Comming soon,Coming soon
 Ubuntu Linux 12.04 LTS (precise),Yes,Yes
 Ubuntu Linux 14.04 LTS (trusty),Yes,Yes
 Debian Linux 7 (wheezy),Yes,Yes
