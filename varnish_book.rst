@@ -86,14 +86,15 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
 The Admin course requires that you:
 
 - have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
-- understand HTTP and related Internet protocols,
+- understand HTTP cache headers,
 - understand regular-expressions, and
 - be able to install the software listed below.
 
 The Webdev course requires that you:
 
 - have expertise in a shell on a Linux/UNIX machine, including editing text files and starting daemons,
-- understand HTTP and related Internet protocols, and
+- understand HTTP cache headers,
+- understand regular-expressions, and
 - be able to install the software listed below.
 
 .. container:: handout
@@ -718,7 +719,7 @@ Utility programs part of the Varnish distribution:
    The Varnish log provides large amounts of information, thus it is usually necessary to filter it.
    For example, "show me only what matches X".
    ``varnishlog`` does precisely that.
-   You will learn more about ``varnishlog`` in the `Examining Data Provided by Varnish`_ chapter.
+   You will learn more about ``varnishlog`` in the `Examining Varnish Server's Output`_ chapter.
 
    .. varnishstat
 
@@ -1200,8 +1201,8 @@ Exercise: Fetch data through Varnish
 	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
         Therefore, it is useful to double-check web browsers requests with HTTPie.
 
-Examining Data Provided by Varnish
-==================================
+Examining Varnish Server's Output
+=================================
 
 In this chapter you will learn about:
 
@@ -5189,7 +5190,6 @@ The Varnish Plus offer of software products includes:
    - `Varnish Administration Console (VAC)`_,
    - `Varnish Custom Statistics (VCS)`_,
    - `Varnish High Availability (VHA)`_,
-   - `Varnish API Engine`_,
    - `SSL/TLS Support`_,
    - and `more`__.
 
@@ -5605,24 +5605,24 @@ Varnish High Availability (VHA)
    For that purpose, you can use the `Varnish Administration Console (VAC)`_.
    Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
 
-Varnish API Engine
-------------------
+.. Varnish API Engine
+   ------------------
 
-.. figure 23
+   .. figure 23
 
-.. figure:: ui/img/api.png
-   :width: 100%
+   .. figure:: ui/img/api.png
+      :width: 100%
 
-   Figure :counter:`figures`: High level overview of an environment running the Varnish API Engine
+      Figure :counter:`figures`: High level overview of an environment running the Varnish API Engine
 
-.. container:: handout
+   .. container:: handout
 
-   Varnish API Engine is a high performance HTTP API gateway with features such as caching, authentication, authorization and throttling of client requests. 
-   A variety of real time counters are available for integration with third party monitoring tools.
-   The centralized management is used to configure backends, directors, endpoints and rules, and is available through its own REST API.
-   A command line tool to interface with this REST API is included.
-   The API Engine is highly configurable and tunable by design. 
-   Being modular, it is easy to scale horizontally for increased fault tolerance and performance.
+      Varnish API Engine is a high performance HTTP API gateway with features such as caching, authentication, authorization and throttling of client requests. 
+      A variety of real time counters are available for integration with third party monitoring tools.
+      The centralized management is used to configure backends, directors, endpoints and rules, and is available through its own REST API.
+      A command line tool to interface with this REST API is included.
+      The API Engine is highly configurable and tunable by design. 
+      Being modular, it is easy to scale horizontally for increased fault tolerance and performance.
 
 SSL/TLS Support
 ---------------
@@ -5696,7 +5696,7 @@ Misc:
 .. container:: handout
 
 
-   ``varnishlog``, ``varnishadm`` and ``varnishstat`` are explained in the `Examining Data Provided by Varnish`_ chapter.
+   ``varnishlog``, ``varnishadm`` and ``varnishstat`` are explained in the `Examining Varnish Server's Output`_ chapter.
    ``varnishtest`` is used for regression tests, mainly during development, but it also useful to learn more about Varnish's behavior.
    For more information about ``varnishtest``, see its man page.
 

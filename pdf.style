@@ -1,0 +1,17 @@
+{
+  "styles" : [
+      ["tinytable",
+         {
+	    "fontSize": 20,
+            "commands": [
+	          ["FONTSIZE", [0, 0], [-1, -1], "10"]
+               ]
+         }
+      ],
+      ["bullet-list",
+         {
+	     "spaceAfter":8
+	 }
+      ]
+  ]
+}
