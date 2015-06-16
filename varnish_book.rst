@@ -539,33 +539,24 @@ Varnish is designed to:
    .. run on modern hardware
 
    The focus of Varnish has always been performance and flexibility.
-   Varnish is designed for hardware that you buy today, not the
-   hardware you bought 15 years ago. Varnish is designed to run
-   on 64-bit architectures and scales almost proportional to
-   the number of CPU cores you have available. Though CPU-power
-   is rarely a problem.
+   Varnish is designed for hardware that you buy today, not the hardware you bought 15 years ago. 
+   This is a trade-off to gain a simpler design and focus resources on modern hardware.
+   Varnish is designed to run on 64-bit architectures and scales almost proportional to the number of CPU cores you have available. 
+   Though CPU-power is rarely a problem.
 
-   If you choose to run Varnish on a 32-bit system, you are limited to
-   3GB of virtual memory address space, which puts a limit on the
-   number of threads you can run and the size of your cache. This is a
-   trade-off to gain a simpler design and reduce the amount of work
-   Varnish needs to do. The 3GB limit depends on the operating system (OS)
-   kernel. The theoretical maximum is 4GB, but your OS reserves
-   some of that for the kernel. This is called the user/kernel  memory split.
+   .. memory
+
+   32-bit systems, in comparison to 64-bit systems, allow you to allocate less amount of virtual memory space and less number of threads.
+   The theoretical maximum space depends on the operating system (OS) kernel, but 32-bit systems usually are bounded to 4GB.
+   You may get, however, about 3GB because the OS reserves some space for the kernel.
 
    .. work with the kernel
 
-   Varnish does not keep track of whether your cache is on disk or in
-   memory. Instead, Varnish requests a large chunk of memory and
-   leave it to the operating system to figure out where that memory
-   really is. The operating system can generally do a better job than
-   a user-space program.
+   Varnish uses a workspace-oriented memory-model instead of allocating the exact amount of space it needs at run-time.
+   Varnish does not manage its allocated memory, but it delegates this task to the OS because the kernel can normally do this task better than a user-space program.
 
-   Accept ``filters``, ``epoll`` and ``kqueue`` are advanced features of the
-   operating system that are designed for high-performance services
-   like Varnish. By using these, Varnish can move a lot of the
-   complexity into the OS kernel which is also better positioned to
-   know what threads are ready to execute when.
+   Event filters and notifications facilities such as ``epoll`` and ``kqueue`` are advanced features of the OS that are designed for high-performance services like Varnish. 
+   By using these, Varnish can move a lot of the complexity into the OS kernel which is also better positioned to decide which threads are ready to execute and when.
 
    .. VCL   
 
@@ -587,13 +578,8 @@ Varnish is designed to:
 
    .. shared memory
 
-   The shared memory log (SHMLOG) allows Varnish to log large amounts of
-   information at almost no cost by having other applications parse
-   the data and extract the useful bits. This reduces the
-   lock-contention in the heavily threaded environment of Varnish.
-   Lock-contention is also one of the reasons why Varnish uses a
-   workspace-oriented memory-model instead of allocating the
-   exact amount of space it needs at run-time.
+   The shared memory log (SHMLOG) allows Varnish to log large amounts of information at almost no cost by having other applications parse the data and extract the useful bits.
+   This design and other mechanisms decrease lock-contention in the heavily threaded environment of Varnish.
 
    .. TODO for the author: Move to fast track
 
@@ -1601,11 +1587,11 @@ Exercise
       In addition, VCS allows you to define your metrics to collect and analyze aggregated statistics, for example:
 
         - A/B testing
-        - Measuring click-trhough rate
+        - Measuring click-through rate
 	- Track slow pages and cache misses
 	- Analyze what is "hot" right now in a news website
 	- Track changes in currency conversions in e-commerce
-	- Track changes in Stock Keeping Units (SKUs) <behavior in e-commerce
+	- Track changes in Stock Keeping Units (SKUs) behavior in e-commerce
 	- Track number of unique consumers of HLS/HDS/DASH video streams
 
 Notable counters
@@ -1917,7 +1903,7 @@ The SHared Memory Log (SHMLOG)
 .. container:: handout
 
    Varnish' SHared Memory LOG (SHMLOG) is used to log most data. 
-   It's sometimes called a `shm-log`, and operates on a circular buffer.
+   It is sometimes called a `shm-log`, and operates on a circular buffer.
    The SHMLOG is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
 
    .. I/O operations
@@ -5321,7 +5307,7 @@ Varnish Custom Statistics (VCS)
    Typical cases include:
 
    - A/B testing
-   - Measuring click-trhough rate
+   - Measuring click-through rate
    - Track slow pages and cache misses
    - Analyze what is "hot" right now in a news website
    - Track changes in currency conversions in e-commerce
@@ -5601,7 +5587,7 @@ Varnish High Availability (VHA)
 
    - Business critical Varnish Plus installations
    - Any multi-cache Varnish setup
-   - Two/three node CDN POP installations
+   - Multi node CDN POP installations
 
    The replication of cached objects may bring the need for multiple cache invalidation.
    For that purpose, you can use the `Varnish Administration Console (VAC)`_.
@@ -5643,9 +5629,7 @@ SSL/TLS Support
 .. container:: handout
 
    Varnish Plus allows you to improve your website security without having to rely on third-party solutions.
-   As a consequence, you can simplify your security  web architectures and ultimately save time and money.
-
-   Varnish Plus allows you to encrypt and secure communication on both the front and backend as Varnish acts as both HTTP server and client.
+   SSL/TLS support allows you to encrypt and secure communication on both the front and backend as Varnish acts as both HTTP server and client.
    On the client side, the HTTP server intercepts web requests before they reach a web server.
    The SSL/TLS support on this side enables traffic encryption between the client and Varnish. 
 
