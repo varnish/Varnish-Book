@@ -4769,7 +4769,7 @@ Exercise: Grace
 
 .. TODO for the author: To mention that saintmode is gone in Varnish 4?
 
-Retry ``retry`` return action
+``retry`` return action
 -----------------------
 
 - Available in ``vcl_backend_response`` and ``vcl_backend_error``
@@ -5960,10 +5960,10 @@ VWS
 Appendix F: Regular-Expressions in Varnish
 ==========================================
 
-This chapter is work in progress...
+[This chapter is work in progress]
 
 - Used to filter results in ``varnishlog``, specially when using queries.
-- Used to match strings bans and purges.
+- Used to match string for bans and purges.
 
 .. container:: handout
 
@@ -5979,11 +5979,12 @@ This chapter is work in progress...
    This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
 
    In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
+   See the regular-expression matching in::
 
-   ``ban req.url ~ ^/foo$``
-   ``ReqMethod ~ "GET|POST"``
-   ``set req.http.host = regsub(req.http.host,"^sport\.", "");``
-   ``ban("obj.http.x-url ~ " + req.http.x-ban);``
-   where ``req.http.x-ban`` is a regular-expression.
+      ban req.url ~ ^/foo$
+      ReqMethod ~ "GET|POST"
+      set req.http.host = regsub(req.http.host,"^sport\.", "");
+      ban("obj.http.x-url ~ " + req.http.x-ban);
+      where req.http.x-ban`` is a regular-expression.
    
    To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
