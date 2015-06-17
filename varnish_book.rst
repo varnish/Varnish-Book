@@ -895,7 +895,7 @@ Configure the Varnish ``DAEMON_OPTS``::
    The result of your configuration is resumed in `Table 4 <#tables-4>`_.
 
    You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
-   Within the result, you should see something like:::
+   Within the result, you should see something like::
 
     tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
     tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
@@ -2507,17 +2507,17 @@ HTTP request/response control flow
 The client sends an HTTP request to the server which returns an HTTP response
 with the message body.
 
-Statelesness and idempotence
-----------------------------
+Statelessness and idempotence
+-----------------------------
 
-**statelesness**
+**statelessness**
     HTTP is by definition a stateless protocol which means that in theory
     your browser has to reconnect to the server for every request. In practice
     there is a header called `Keep-Alive` you may use if you want to keep the
     connection open between the client (your browser) and the server.
 
 **idempotence**
-    Imdempotence means that an operation can be applied multiple times without
+    Idempotence means that an operation can be applied multiple times without
     changing the result. `GET` and `PUT` HTTP request are expected to be
     idempotent whereas `POST` requests are not. In other words, you can not
     cache `POST` HTTP responses.
@@ -2656,7 +2656,7 @@ at which the origin server believes the variant was last modified. This
 headers may be used in conjunction with `If-Modified-Since` and
 `If-None-Match`.
 
-Example of a `Last-Modified` header: ::
+Example of a `Last-Modified` header::
 
     Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
 
@@ -2671,7 +2671,7 @@ make it conditional:
 - **instead**, a 304 (not modified) response will be returned without any
   message-body.
 
-Example of an `If-Modified-Since` header: ::
+Example of an `If-Modified-Since` header::
 
     If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
@@ -2699,7 +2699,7 @@ information with a minimum amount of transaction overhead. It is also used
 to prevent a method (e.g. PUT) from inadvertently modifying an existing
 resource when the client believes that the resource does not exist.
 
-Example of an `If-None-Match` header : ::
+Example of an `If-None-Match` header::
 
     If-None-Match: "1edec-3e3073913b100"
 
@@ -2718,7 +2718,7 @@ The `ETag` **response** header field provides the current value of the
 entity tag for the requested variant.  The idea behind `Etag` is to provide
 a unique value for a resource's contents.
 
-Example of an `Etag` header: ::
+Example of an `Etag` header::
 
     Etag: "1edec-3e3073913b100"
 
@@ -3020,7 +3020,7 @@ The VCL Finite State Machine
    Next, Varnish separates the request method from headers, verifying that it's a valid HTTP request and so on.
 
    When the basic parsing has completed, the very first policies are checked to make decisions.
-   Policies are a set of rules that the the VCL code uses to make a decision.
+   Policies are a set of rules that the VCL code uses to make a decision.
    Policies help to answer questions such as: should Varnish even attempt to find the requested resource in the cache?
    In this example, the policies are in the ``vcl_recv`` subroutine.
 
