@@ -23,6 +23,8 @@ function chapter_done(chap) {
 	path = dst chapterclean ".rst"
 	print ".. include:: util/param.rst" > path
 	print "" >> path
+	print ".. _" chapterclean ":" >> path
+	print "" >> path
 	print_chapter(chap,path)
 	print "\t" chapterclean >> aidx
 }
