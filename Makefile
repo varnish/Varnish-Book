@@ -97,8 +97,11 @@ sphinx: ${common} src/conf.py
 		rm $$a; \
 		touch $$a; \
 	done
+
 	util/splitchapters.igawk -v dst=src/ < ${mergedrst}
+	#Removes '.. class:: handout' from src/*.rst
 	sed -i 's/\.\. class:: handout//' src/*.rst
+
 	sphinx-build -b html -d build/doctrees   src/ build/html
 
 sphinx-dist: sphinx book

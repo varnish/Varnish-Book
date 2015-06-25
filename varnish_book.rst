@@ -2531,7 +2531,7 @@ Cache related headers
 ---------------------
 
 HTTP provides a list of headers dedicated to page caching and cache
-invalidation. The most important ones are :
+invalidation. The most important ones are:
 
 - Expires
 - Cache-Control
