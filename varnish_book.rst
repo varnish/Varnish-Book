@@ -3752,7 +3752,7 @@ VCL – ``vcl_hash``
    .. busy object
 
    When the lookup operation does not match any hash, it creates an object with a `busy` flag and inserts it in cache.
-   Then, the request is sent to the `vcl_miss`__ subroutine.
+   Then, the request is sent to the ``vcl_miss`` subroutine.
    The `busy` flag is removed once the request is handled, and the object is updated with the response from the backend.
 
    Subsequent similar requests that hit `busy` flagged objects are sent into a *waiting list*.
@@ -3762,8 +3762,6 @@ VCL – ``vcl_hash``
       One cache hash may refer to one or many object variations.
       Object variations are created based on the `Vary`_ header field.
       It is a good practice to keep several variations under one cache hash, than creating one hash per variation.
-
-__ `VCL – vcl_miss`_
 
 VCL – ``vcl_hit``
 -----------------
@@ -4376,7 +4374,7 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    1) looking up *hash keys* is much more efficient than traversing ban-lists, and
    2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
-   The hashtwo VMOD is pre-built for supported versions and can be installed using regular package managers from `Varnish Software repositories`__.
+   The hashtwo VMOD is pre-built for supported versions and can be installed using regular package managers from the Varnish Software repositories.
    Once the repository is in place you can issue the following commands to install the VMOD:
 
    On Debian or Ubuntu::
@@ -4390,8 +4388,6 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    Finally, you can use this VMOD by importing it in your VCL code::
 
      import hashtwo;
-
-   __ `Install Varnish`_
 
 VCL example using Hashtwo
 .........................
@@ -5181,9 +5177,7 @@ The Varnish Plus offer of software products includes:
    - `Varnish Custom Statistics (VCS)`_,
    - `Varnish High Availability (VHA)`_,
    - `SSL/TLS Support`_,
-   - and `more`__.
-
-__ https://www.varnish-software.com/what-is-varnish-plus
+   - and more.
 
 .. container:: handout
 

@@ -68,12 +68,12 @@ function print_chapter(chap,output) {
 			print ".. _"subsec":" >> output
 		    }
 		 #Matching references to chapters, sections, and subsections, but not figures nor tables
-		if(match(content[chap,i],/`.*`_/) != 0 && match(content[chap,i],/`Figure.*>`_/) == 0 && match(content[chap,i],/`Table.*>`_/) == 0){
-		    match(content[chap,i],/(`.*`_)/,tmp)
+		if(match(content[chap,i],/`[^`]+`_/) != 0 && match(content[chap,i],/`Figure.*>`_/) == 0 && match(content[chap,i],/`Table.*>`_/) == 0){
+		    match(content[chap,i],/(`[^`]+`_)/,tmp)
 		    gsub("[^`a-zA-Z0-9]","_",tmp[1])
 		    gsub(/_$/,"",tmp[1])
 		    tmp[1]=":ref:"tmp[1]
-		    gsub(/(`.*`_)/,tmp[1],content[chap,i])
+		    gsub(/(`[^`]+`_)/,tmp[1],content[chap,i])
 		 }
 		#Matching references to figures
 		else if(match(content[chap,i],/`Figure.*>`_/) != 0){
@@ -132,7 +132,7 @@ function chapter_done(chap) {
     path = dst"build/chapters/"chapterclean ".rst"
     
     #includes definition of Varnish parameters to be replaced in rst
-    print ".. include:: util/param.rst" > path
+    print ".. include:: ../../util/param.rst" > path
     
     print "" >> path
     print ".. _" chapterclean ":" >> path

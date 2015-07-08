@@ -121,6 +121,9 @@ Try to use only `tip`, `warning` and `note` boxes.
 
 To change the layout, change ``ui/pdf.style`` or ``ui/pdf_slide.style``.
 
+The sintax for indirect hyperlink targets (double underscores ``__``) is not the same for rst and sphinx.
+Thefore, for simplicity, avoid them.
+
 Legal
 -----
 
