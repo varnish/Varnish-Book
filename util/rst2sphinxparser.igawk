@@ -1,0 +1,151 @@
+#!/usr/bin/igawk -f
+
+# Splits chapters into individual files for each chapter and create an index page for sphinx.
+#
+# Usage: util/rst2sphinxparser.igawk -v dst=src/ < merged_varnish_book.rst
+# Note the ending slash in for the value of 'dst'.
+# 'dst' is the directory where *.rst files are going to be stored by chapter_done()
+# *.rst files are read by conf.py
+#
+# Example: #/vagrant/Varnish-Book/tmp/rst2sphinxparser.igawk -v dst=`pwd`/ < source.rst
+#
+# The order of the rules and functions matters!
+
+BEGIN {
+    chapter=""
+    pos=0
+    last=""
+
+    # aidx contains the table of content to be included in index.rst
+    # after preparation of aidx, "clean" chapters' names are added to aidx.
+    aidx = dst "build/autoindex.rst"
+    print ".. toctree::" > aidx
+    print "\t:maxdepth: 1" >> aidx
+    print "" >> aidx
+}
+
+# Rule that searches for chapter identifier
+/^==+$/ {
+    # An example:
+    # last = 'Chapter 1'
+    # $0 =   '========='
+    if (length(last) == length($0)) {
+	    chapter_done(chapter);
+	    chapterindex[nchapterindex++] = chapter
+	    subchapterindex[nsubchapterindex++] = chapter
+	    chapter=last;
+	    subchapter=chapter
+    }
+}
+
+# Stores the chapter content in the multidimensinoal array 'content'.
+# 'content' is used to write chapters into separate .rst file
+{
+    content[chapter,linum[chapter]++] = last
+    last = $0
+}
+
+# Function: print_chapter
+#
+# Arguments:
+# chap: chapter in the multimedimentional array
+# output: file to store chapter
+#
+# Description:
+# Writes each line belonging to a chapter to the output file.
+# Adds references ':ref:`Chapter`' above each chapter, section or subsection
+# Changes references from `Section 1`_ to :ref:`Section_1`
+function print_chapter(chap,output) {
+    for (i=0;i<linum[chap];i++) {
+	    if (output != "") {
+
+		# Adds reference to each section and subsection
+		if (content[chap,i+2] ~ /^--+$/ || content[chap,i+2] ~ /^\.\.+$/)
+		    if (length(content[chap,i+1]) == length(content[chap,i+2])){
+			subsec = content[chap,i+1]
+			gsub("[^a-zA-Z0-9]","_",subsec)
+			print "" >> output
+			print ".. _"subsec":" >> output
+		    }
+		 #Matching references to chapters, sections, and subsections, but not figures nor tables
+		if(match(content[chap,i],/`.*`_/) != 0 && match(content[chap,i],/`Figure.*>`_/) == 0 && match(content[chap,i],/`Table.*>`_/) == 0){
+		    match(content[chap,i],/(`.*`_)/,tmp)
+		    gsub("[^`a-zA-Z0-9]","_",tmp[1])
+		    gsub(/_$/,"",tmp[1])
+		    tmp[1]=":ref:"tmp[1]
+		    gsub(/(`.*`_)/,tmp[1],content[chap,i])
+		 }
+		#Matching references to figures
+		else if(match(content[chap,i],/`Figure.*>`_/) != 0){
+		    match(content[chap,i],/(`Figure.*>`_)/,tmp)
+		    split(tmp[1], tmp2, "#")
+		    gsub(/>`_$/,"",tmp2[2])
+		    tmp2[2]=":numref:`"tmp2[2]"`"
+		    gsub(/(`Figure.*>`_)/,tmp2[2],content[chap,i])
+		 }
+
+		#Matching references to tables
+		else if(match(content[chap,i],/`Table.*>`_/) != 0){
+		    match(content[chap,i],/(`Table.*>`_)/,tmp)
+		    split(tmp[1], tmp2, "#")
+		    gsub(/>`_$/,"",tmp2[2])
+		    tmp2[2]=":numref:`"tmp2[2]"`"
+		    gsub(/(`Table.*>`_)/,tmp2[2],content[chap,i])
+		 }
+		
+		#Matching .. figure #
+		# the identifier must be in the form of the following example: ".. figure 1"
+		else if(match(content[chap,i],/^.. figure .+/) != 0){
+		    split(content[chap,i],tmp," ")
+		    gsub(/^.. figure .+/,".. _figure-"tmp[3]":",content[chap,i])
+		}
+
+		#Matching .. table #
+		# the identifier must be in the form of the following example: ".. table 1"
+		else if(match(content[chap,i],/^.. table .+/) != 0){
+		    split(content[chap,i],tmp," ")
+		    gsub(/^.. table .+/,".. _table-"tmp[3]":",content[chap,i])
+		}
+
+		#Removing figure :counter:
+		gsub(/Figure :counter:`figure`: /,"", content[chap,i])
+		#Removing table :counter:
+		gsub(/Table :counter:`table`: /,"", content[chap,i])
+		
+		#prints chapter into its own file
+		printf("%s\n",content[chap,i]) >> output
+	    }
+	    # There is no file where to write
+	    else {
+		    printf("**This content is lost: %s\n",content[chap,i])
+	    }
+    }
+}
+
+# Prints a chapter into its own file and adds it to the index
+function chapter_done(chap) {
+    if (chap == "") {
+	return
+    }
+    chapterclean=chap
+    gsub("[^a-zA-Z0-9]","_",chapterclean)
+    path = dst"build/chapters/"chapterclean ".rst"
+    
+    #includes definition of Varnish parameters to be replaced in rst
+    print ".. include:: util/param.rst" > path
+    
+    print "" >> path
+    print ".. _" chapterclean ":" >> path
+    print "" >> path
+    
+    print_chapter(chap,path)
+    
+    #Add chapter filename to index.rst
+    print "\t" chapterclean >> aidx
+}
+
+END {
+    #Prepares and prints the last chapter.
+    content[chapter,linum[chapter]++] = last
+    chapter_done(chapter);
+}
