@@ -86,20 +86,25 @@ src/conf.py: src/conf.py.in ${BDIR}/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
 
 sphinx: ${common} src/conf.py
-	mkdir -p src/util
-	mkdir -p src/build
 	for a in ui util/* vcl material build/version.rst ; do \
 		if [ ! -e src/$$a ]; then \
 			ln -s ${PWD}/$$a src/$$a ;\
 		fi; \
 	done;
+
+#This loop should be improved! This clears out frontpage.rst and printheaders.rst and creates wrong pdf later.
 	for a in src/util/frontpage.rst src/util/printheaders.rst; do \
 		rm $$a; \
 		touch $$a; \
 	done
 
-	util/splitchapters.igawk -v dst=src/ < ${mergedrst}
-	#Removes '.. class:: handout' from src/*.rst
+#Splits chapters into individual files, and creates the index page for sphinx.
+	mkdir -p src/build/chapters
+	ln -sf ${PWD}/ui build/chapters/
+	ln -sf ${PWD}/tables build/chapters/
+	util/rst2sphinxparser.igawk -v dst=${PWD}/src/ < ${mergedrst}
+
+#Removes '.. class:: handout' from src/*.rst
 	sed -i 's/\.\. class:: handout//' src/*.rst
 
 	sphinx-build -b html -d build/doctrees   src/ build/html

@@ -55,26 +55,35 @@ BEGIN {
 # Writes each line belonging to a chapter to the output file.
 # Adds references ':ref:`Chapter`' above each chapter, section or subsection
 # Changes references from `Section 1`_ to :ref:`Section_1`
+#
+# TODO:
+# To support more than two references per sentence.
+# Example 1:    `Table 3 <#table-3>`_ in the `Install Varnish and Apache as backend` section shows that ..
+# In Example 1, only the first reference is handled.
 function print_chapter(chap,output) {
     for (i=0;i<linum[chap];i++) {
 	    if (output != "") {
-
 		# Adds reference to each section and subsection
 		if (content[chap,i+2] ~ /^--+$/ || content[chap,i+2] ~ /^\.\.+$/)
 		    if (length(content[chap,i+1]) == length(content[chap,i+2])){
 			subsec = content[chap,i+1]
-			gsub("[^a-zA-Z0-9]","_",subsec)
+			#removing simple quotes from sections and subsections titles
+			gsub("`","",subsec)
+			#Allows alphanumeric characters and apostrophe
+			gsub("[^[:alnum:]']","_",subsec)
 			print "" >> output
 			print ".. _"subsec":" >> output
 		    }
-		 #Matching references to chapters, sections, and subsections, but not figures nor tables
+		
+                #Matching references to chapters, sections, and subsections, but not figures nor tables
 		if(match(content[chap,i],/`[^`]+`_/) != 0 && match(content[chap,i],/`Figure.*>`_/) == 0 && match(content[chap,i],/`Table.*>`_/) == 0){
 		    match(content[chap,i],/(`[^`]+`_)/,tmp)
-		    gsub("[^`a-zA-Z0-9]","_",tmp[1])
+		    gsub("[^`[:alnum:]]","_",tmp[1])
 		    gsub(/_$/,"",tmp[1])
 		    tmp[1]=":ref:"tmp[1]
 		    gsub(/(`[^`]+`_)/,tmp[1],content[chap,i])
 		 }
+
 		#Matching references to figures
 		else if(match(content[chap,i],/`Figure.*>`_/) != 0){
 		    match(content[chap,i],/(`Figure.*>`_)/,tmp)
@@ -127,21 +136,24 @@ function chapter_done(chap) {
     if (chap == "") {
 	return
     }
-    chapterclean=chap
-    gsub("[^a-zA-Z0-9]","_",chapterclean)
+    chapterclean=chapterref=chap
+    # Let apostrophes and alphanumeric characters in chapter reference titles
+    gsub("[^[:alnum:]']","_",chapterref)
+    #clean chaptername to contain only alphanumeric characters for their filenames
+    gsub("[^[:alnum:]]","_",chapterclean)
     path = dst"build/chapters/"chapterclean ".rst"
     
     #includes definition of Varnish parameters to be replaced in rst
     print ".. include:: ../../util/param.rst" > path
     
     print "" >> path
-    print ".. _" chapterclean ":" >> path
+    print ".. _" chapterref ":" >> path
     print "" >> path
     
     print_chapter(chap,path)
     
     #Add chapter filename to index.rst
-    print "\t" chapterclean >> aidx
+    print "\tbuild/chapters/" chapterclean >> aidx
 }
 
 END {

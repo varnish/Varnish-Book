@@ -370,7 +370,7 @@ Varnish Cache and Varnish Plus
 
 .. table 1
 
-.. csv-table:: Table :counter:`tables`: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
+.. csv-table:: Table :counter:`table`: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
    :name: Topics Covered in This Book and Their Availability in Varnish Cache and Varnish Plus
    :delim: ,
    :header-rows: 1
@@ -1217,7 +1217,7 @@ In this chapter you will learn about:
 
    The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
    Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
-   `Table 3 <#table-3>`_ in the `Install Varnish and Apache as backend`_ section shows the location of the configuration file based on your platform.
+   `Table 3 <#table-3>`_ in the `Install Varnish and Apache as backend` section shows the location of the configuration file based on your platform.
 
    Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat`` among others.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
@@ -1596,13 +1596,13 @@ Exercise
 	- Track changes in Stock Keeping Units (SKUs) behavior in e-commerce
 	- Track number of unique consumers of HLS/HDS/DASH video streams
 
-Notable counters
+Notable Counters
 ................
 
 .. table 8
 
 .. csv-table:: Table :counter:`table`: Notable counters in ``varnishstat``
-   :name: notable_counters
+   :name: notable_counters_table
    :delim: ;
    :widths: 30, 70
    :header-rows: 1
@@ -2220,7 +2220,7 @@ Timers
 .. table 11
 
 .. csv-table:: Table :counter:`table`: Timers
-      :name: timers
+      :name: timers table
       :delim: ;
       :widths: 30,20,35,15
       :header-rows: 1
@@ -5235,7 +5235,10 @@ Varnish Administration Console (VAC)
 
    .. more resources
 
-   `Figures 16 <#figure-16>`_, `17 <#figure-17>`_, and `18 <#figure-18>`_ show screenshots of the GUI.
+   .. TODO: Figure 17 and 18 should be links.
+   .. For this, rst2sphinx.iawk should support multiple targets in one sentence.
+
+   `Figures 16 <#figure-16>`_, 17 and 18 show screenshots of the GUI.
    You may also be interested in trying the VAC demo at https://vacdemo.varnish-software.com.
    The instructor of the course provides you the credentials.
 
@@ -5312,7 +5315,10 @@ Varnish Custom Statistics (VCS)
 
    .. demo
    
-   `Figure 20 <#figure-20>`_, and `Figure 21 <#figure-21>`_ are screenshots of the VCS GUI.
+   .. TODO: Figure 21
+   .. For this, rst2sphinx.iawk should support multiple targets in one sentence.
+
+   `Figure 20 <#figure-20>`_ and 21 are screenshots of the VCS GUI.
    These screenshots are from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
 
