@@ -30,13 +30,6 @@ test = "The Varnish Log"
 
 #webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
-exercises = $(basename $(notdir $(wildcard exercises/*test)))
-exercises_solutions = $(addprefix ${BDIR}/exercises/solution-,$(addsuffix .rst,${exercises}))
-exercises_handouts = $(addprefix ${BDIR}/exercises/handout-,$(addsuffix .rst,${exercises}))
-exercises_task = $(addprefix ${BDIR}/exercises/,$(addsuffix .rst,${exercises}))
-exercises_vtc = $(addprefix ${BDIR}/exercises/,$(addsuffix .vtc,${exercises}))
-exercises_complete = $(addprefix ${BDIR}/exercises/complete-,$(addsuffix .rst,${exercises}))
-exercise_stuff = ${exercises_solutions} ${exercises_task} ${excercises_vtc} ${excercises_handouts}
 
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 #sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
@@ -58,7 +51,7 @@ common = ${mergedrst} \
 	 util/control.rst \
 	 util/frontpage.rst \
 	 util/printheaders.rst \
-	 ${exercises_complete} \
+	 #${exercises_complete} \
 	 ${exercises_stuff} \
 	 material/webdev/*
 
@@ -193,31 +186,6 @@ ${BDIR}/${materialpath}.tar.bz2: material/webdev/index.html ${BDIR} material/ ma
 	mkdir -p ${BDIR}/${materialpath}
 	cp -a material/webdev/* ${BDIR}/${materialpath}
 	tar -hC ${BDIR}/ -cjf $@ ${materialpath}
-
-${BDIR}/exercises: ${BDIR}
-	mkdir -p ${BDIR}/exercises
-
-${BDIR}/exercises/%.vtc: exercises/%.test Makefile ${BDIR}/exercises
-	util/pickchapter2.igawk -v "inc=VARNISHTEST" $<  | egrep -v '^[^[:blank:]]' > $@
-
-${BDIR}/exercises/desc-%.rst: exercises/%.test ${BDIR}/exercises
-	util/pickchapter2.igawk -v "inc=RST DESCRIPTION" $< | egrep -v '(RST DESCRIPTION|===============)' > $@
-
-${BDIR}/exercises/solution-%.rst: ${BDIR}/exercises/%.vtc ${BDIR}/exercises
-	awk '/} -start/ { p=0 }; p == 1; /varnish v1 -vcl\+backend {/ { p=1 };' $< > $@
-
-${BDIR}/exercises/handout-%.rst: exercises/%.test ${BDIR}/exercises
-	util/pickchapter2.igawk -v "inc=RST HANDOUT" $< | egrep -v '(RST HANDOUT|==========)' > $@
-
-${BDIR}/exercises/solution-extra-%.rst: exercises/%.test ${BDIR}/exercises
-	util/pickchapter2.igawk -v "inc=SOLUTION EXTRA" $< | egrep -v '^(SOLUTION EXTRA|==============)$$' > $@
-
-${BDIR}/exercises/complete-%.rst: ${BDIR}/exercises/solution-%.rst ${BDIR}/exercises/desc-%.rst ${BDIR}/exercises/handout-%.rst ${BDIR}/exercises/solution-extra-%.rst util/exercise_builder.sh
-	util/exercise_builder.sh "$*"
-
-vclcheck: ${exercises_vtc}
-	@$(MAKE) -C vcl/
-	varnishtest -j3 ${exercises_vtc}
 
 materialcheck:
 	@$(MAKE) -C material/
