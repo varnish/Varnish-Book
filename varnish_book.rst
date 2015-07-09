@@ -519,7 +519,7 @@ What Is New in Varnish 4
    The above list tries to summarize the most important changes from Varnish Cache 3 to Varnish Cache 4.
    For more information, please visit: https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
 
-   If you want to migrate your VCL code from Varnish 3 to Varnish 4, you may be interested in looking at the `varnish3to4 <https://github.com/fgsch/varnish3to4>`_ script.
+   If you want to migrate your VCL code from Varnish 3 to Varnish 4, you may be interested in looking at the *varnish3to4* script.
    See the `VCL Migrator from Varnish 3 to Varnish 4`_ section for more information.
 
 Design Principles
@@ -3476,8 +3476,9 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 
 .. container:: handout
 
-   .. figure 14
    .. TODO for the editor: improve layout of this figure
+
+   .. figure 14
 
    .. figure:: ui/img/detailed_fsm_backend.png
       :scale: 150%
@@ -4479,10 +4480,10 @@ Saving a Request
 
 *This chapter is for the system administration course only*
 
-.. table 19
-
 .. TODO for the editor: sub-columns is not reflected in PDF formats
 .. A temporary solution is using bold in the first column
+
+.. table 19
 
 .. csv-table:: Table :counter:`table`: Connotation of Saving a Request
    :name: connotation_saving_request
@@ -5334,10 +5335,10 @@ VCS Data Model
 - API to query data model
 - API outputs in JSON and JSONP format
 
-.. table 20
-
 .. TODO for the editor: sub-columns is not reflected in PDF formats
 .. A temporary solution is using bold in the first column
+
+.. table 20
 
 .. csv-table:: Table :counter:`table`: Data model in VCS
    :name: Database in VCS
@@ -5865,7 +5866,7 @@ set-cookie.php
 VCL Migrator from Varnish 3 to Varnish 4
 ----------------------------------------
 
-`varnish3to4 <https://github.com/fgsch/varnish3to4>`_ is a script to assist you migrating a VCL file from Varnish 3 to 4.
+*varnish3to4* is a script to assist you migrating a VCL file from Varnish 3 to 4.
 The script aims to replace most of the syntactical changes in VCL code from Varnish 3 to Varnish 4, but it is not exhaustive.
 That said, you should use it under your own responsibility.
 

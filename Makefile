@@ -94,7 +94,13 @@ sphinx: ${common} src/conf.py
 #Splits chapters into individual files, and creates the index page for sphinx.
 	mkdir -p src/build/chapters
 	ln -sf ${PWD}/ui build/chapters/
-	ln -sf ${PWD}/tables build/chapters/
+
+#update references in tables:
+	mkdir -p src/build/chapters/tables
+	for a in tables/*; do \
+		util/rst2sphinxparser_tables.awk -v dst="src/build/chapters/"$$a < ${PWD}/$$a; \
+	done
+
 	util/rst2sphinxparser.igawk -v dst=${PWD}/src/ < ${mergedrst}
 
 #Removes '.. class:: handout' from src/*.rst

@@ -125,6 +125,15 @@ The syntax for indirect hyperlink targets (double underscores ``__``) is not the
 Thefore, for simplicity, avoid them.
 More than two refereces per sentence is not supported by ``rst2sphinxparser.igawk``.
 
+Figures and tables must have a counter right before their directive.
+The counter must be as the following example::
+
+  .. figure 1
+
+or::
+
+  .. table 1
+
 Legal
 -----
 
