@@ -251,11 +251,14 @@ The Webdev course requires that you:
    File names are indicated like this: ``/path/to/yourfile``.
    Important notes, tips and warnings are also inside boxes, but they use the normal bodytext font type.
 
+   .. TODO: To uncomment this when Appendix E is ready
+
    .. regex
 
-   If you have some regular-expression experience, must of the overview in `Appendix E: Regular-Expressions in Varnish`_ will not be new.
-   Even if this is the case, please glance over it anyway.
-   Although you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new for you.
+   ..
+      If you have some regular-expression experience, must of the overview in `Appendix E: Regular-Expressions in Varnish`_ will not be new.
+      Even if this is the case, please glance over it anyway.
+      Although you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new for you.
 
 .. raw:: pdf
 
@@ -5978,34 +5981,37 @@ VWP
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
-Appendix E: Regular-Expressions in Varnish
-==========================================
+.. TODO:
 
-[This chapter is work in progress]
+..
+   Appendix E: Regular-Expressions in Varnish
+   ==========================================
 
-- Used to filter results in ``varnishlog``, specially when using queries.
-- Used to match string for bans and purges.
+   [This chapter is work in progress]
 
-.. container:: handout
+   - Used to filter results in ``varnishlog``, specially when using queries.
+   - Used to match string for bans and purges.
 
-   This appendix is a brief introduction and usage of regular-expressions for Varnish.
-   A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
-   They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
-   Regular-expressions are commonly used by ``varnishlog``, bans, purges, ``regsub()``, ``regsuball()``, and VCS.
-   Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
+   .. container:: handout
 
-   Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
-   Regular-expressions are built up from small building block units.
-   You can combine them in an infinite number of ways to achieve a particular goal.
-   This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
+      This appendix is a brief introduction and usage of regular-expressions for Varnish.
+      A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
+      They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
+      Regular-expressions are commonly used by ``varnishlog``, bans, purges, ``regsub()``, ``regsuball()``, and VCS.
+      Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
 
-   In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
-   See the regular-expression matching in::
+      Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
+      Regular-expressions are built up from small building block units.
+      You can combine them in an infinite number of ways to achieve a particular goal.
+      This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
 
-      ban req.url ~ ^/foo$
-      ReqMethod ~ "GET|POST"
-      set req.http.host = regsub(req.http.host,"^sport\.", "");
-      ban("obj.http.x-url ~ " + req.http.x-ban);
-      where req.http.x-ban`` is a regular-expression.
-   
-   To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
+      In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
+      See the regular-expression matching in::
+
+	 ban req.url ~ ^/foo$
+	 ReqMethod ~ "GET|POST"
+	 set req.http.host = regsub(req.http.host,"^sport\.", "");
+	 ban("obj.http.x-url ~ " + req.http.x-ban);
+	 where req.http.x-ban`` is a regular-expression.
+
+      To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
