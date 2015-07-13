@@ -8,3 +8,4 @@ varnish_sysadmin-*.tar.bz2
 varnish_webdev-*.tar.bz2
 varnish_tutorial-*.tar.bz2
 *.DS_Store
+*~

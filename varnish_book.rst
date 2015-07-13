@@ -919,10 +919,12 @@ Configure the Varnish ``DAEMON_OPTS``::
 
      You can also configure Varnish via the `Varnish Administration Console (VAC)`_.
 
+     .. figure 3
+
      .. figure:: ui/img/vac_config.png
 	:width: 100%
 
-	GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
+	Figure :counter:`figure`: GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
 
 Installation Test
 .................
@@ -1006,15 +1008,19 @@ You can read about other usages by issuing the ``help`` command after you connec
       To do that, you just have to navigate to the `CONFIGURE` tab and click on the Varnish server you want to administrate.
       Then, ``varnishadm`` is ready to use in a terminal emulator right in your web browser.
       
+      .. figure 4
+
       .. figure:: ui/img/vac_varnishadm.png
          :width: 100%
 
-	 Access to ``varnishadm`` by clicking on the Varnish server that you want to administrate.
+	 Figure :counter:`figure`: Access to ``varnishadm`` by clicking on the Varnish server that you want to administrate.
+
+      .. figure 5
 
       .. figure:: ui/img/vac_cli.png
          :width: 100%
 
-	 Terminal emulator in your web browser.
+	 Figure :counter:`figure`: Terminal emulator in your web browser.
 
 More About Varnish Configuration
 --------------------------------
@@ -1163,10 +1169,12 @@ Defining a Backend in VCL
       You can also add and edit your VCL code via the `Varnish Administration Console (VAC)`_.
       This interface also allows you to administrate your VCL files.
 
+      .. figure 6
+
       .. figure:: ui/img/vac_vcl.png
 	 :width: 100%
 	 
-	 GUI of `Varnish Administration Console (VAC)`_ with command line interface to edit your VCL code.
+	 Figure :counter:`figure`: GUI of `Varnish Administration Console (VAC)`_ with command line interface to edit your VCL code.
 
 Exercise: Use the administration interface to learn, review and set Varnish parameters
 --------------------------------------------------------------------------------------
@@ -1254,7 +1262,7 @@ Log Data Tools
 Log Layout
 ----------
 
-.. figure 3
+.. figure 7
 
 .. figure:: ui/img/log_layout.png
    :align: center
@@ -1263,7 +1271,7 @@ Log Layout
 
 .. container:: handout
 
-   Varnish logs transactions chronologically as `Figure 3 <#figure-3>`_ shows.
+   Varnish logs transactions chronologically as `Figure 7 <#figure-7>`_ shows.
    The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
    Next section explains transactions and how to reorder them.
 
@@ -1347,7 +1355,8 @@ Example of Transaction Grouping with ``varnishlog``
 ...................................................
 
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
-.. figure 4
+
+.. figure 8
 
 .. figure:: ui/img/cache_miss_request_grouping.png
    :width: 70%
@@ -1356,7 +1365,7 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. container:: handout
 
-   `Figure 4 <#figure-4>`_ shows a client request in a *cache miss* scenario.
+   `Figure 8 <#figure-8>`_ shows a client request in a *cache miss* scenario.
    In the figure, ``varnishlog`` returns records grouped by request.
    For simplicity, we use the ``-i`` option to include only the ``Begin`` and ``Link`` tags.
 
@@ -1560,25 +1569,33 @@ Exercise
       You can also see many parameters in real-time graphs with the `Varnish Administration Console (VAC)`_.
       Here are screenshots:
 
+      .. figure 9
+
       .. figure:: ui/img/vac_hit_meter.png
          :width: 70%
 
-         Cache Hit Meter
+         Figure :counter:`figure`: Cache Hit Meter
+
+      .. figure 10
 
       .. figure:: ui/img/vac_hitrate.png
          :width: 100%
 
-         Hit vs Miss vs Hit for Pass
+         Figure :counter:`figure`: Hit vs Miss vs Hit for Pass
+
+      .. figure 11
 
       .. figure:: ui/img/vac_hitrate_req.png
          :width: 100%
 
-         Req/sec, and Hit/sec
+         Figure :counter:`figure`: Req/sec, and Hit/sec
+
+      .. figure 12
 
       .. figure:: ui/img/vac_realtime_counters.png
          :width: 70%
 
-         Real Time Counters
+         Figure :counter:`figure`: Real Time Counters
 
 
       .. TODO for the author: State differences between VAC and VCS
@@ -1665,7 +1682,7 @@ This section covers:
 Varnish Architecture
 --------------------
 
-.. figure 5
+.. figure 13
 
 .. figure:: ui/img/architecture.png
    :align: center
@@ -1676,7 +1693,7 @@ Varnish Architecture
 
    .. TODO for the author: Add some of the description from https://www.varnish-cache.org/docs/trunk/phk/barriers.html
 
-   `Figure 5 <#figure-5>`_ shows a block diagram of the Varnish architecture.
+   `Figure 13 <#figure-13>`_ shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
    The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
@@ -1691,7 +1708,7 @@ Varnish Architecture
    .. vagent2
    
    The Varnish Agent *vagent2* is an open source HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
-   *vagent2* offers a web UI as shown in `Figure 6 <#figure-6>`_, but you can write your own UI since *vagent2* is an open interface.
+   *vagent2* offers a web UI as shown in `Figure 14 <#figure-14>`_, but you can write your own UI since *vagent2* is an open interface.
    Some features of the *vagent2* are:
 
    - VCL uploading, downloading, persisting (storing to disk).
@@ -1701,7 +1718,7 @@ Varnish Architecture
    - banning
    - ``varnishstat`` in JON format
 
-   .. figure 6
+   .. figure 14
 
    .. figure:: ui/img/vagent2.png
       :width: 100%
@@ -1963,10 +1980,12 @@ Tunable Parameters
 
       Parameters can also be configured via the `Varnish Administration Console (VAC)`_ as shown in the figure below.
 
+      .. figure 15
+
       .. figure:: ui/img/vac_parameters.png
 	 :width: 100%
 
-	 GUI to configure parameters via the `Varnish Administration Console (VAC)`_.
+	 Figure :counter:`figure`: GUI to configure parameters via the `Varnish Administration Console (VAC)`_.
 
 Varnish Tuner
 -------------
@@ -2498,7 +2517,7 @@ Response example
 HTTP request/response control flow
 ----------------------------------
 
-.. figure 7
+.. figure 16
 
 .. figure:: ui/img/httprequestflow.png
    :align: center
@@ -2677,7 +2696,7 @@ Example of an `If-Modified-Since` header::
 
     If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
-.. figure 8
+.. figure 17
 
 .. figure:: ui/img/httpifmodifiedsince.png
    :align: center
@@ -2705,7 +2724,7 @@ Example of an `If-None-Match` header::
 
     If-None-Match: "1edec-3e3073913b100"
 
-.. figure 9
+.. figure 18
 
 .. figure:: ui/img/httpifnonematch.png
    :align: center
@@ -2821,7 +2840,7 @@ Cache-hit and misses
 There is a cache-hit when Varnish returns a page from its cache instead of
 forwarding the request to the origin server.
 
-.. figure 10
+.. figure 19
 
 .. figure:: ui/img/httpcachehit.png
    :align: center
@@ -2834,7 +2853,7 @@ forwarding the request to the origin server.
 There is a cache-miss when Varnish has to forward the request to the origin
 server so the page can be serviced.
 
-.. figure 11
+.. figure 20
 
 .. figure:: ui/img/httpcachemiss.png
    :align: center
@@ -2911,7 +2930,7 @@ Varnish Finite State Machine
 
 .. container:: handout
 
-   .. figure 12
+   .. figure 21
 
    .. figure:: ui/img/simplified_fsm.png
       :align: center
@@ -2929,9 +2948,9 @@ Varnish Finite State Machine
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
-   `Figure 12 <#figure-12>`_ depicts a simplified version of the Varnish finite state machine.
-   This diagram shows the most common state transitions, and it is by no means complete.
-   `Figure 13 <#figure-13>`_ shows a detailed and complete version of the state machine for the frontend worker as a request flow diagram.
+   `Figure 21 <#figure-21>`_ shows a simplified version of the Varnish finite state machine.
+   This version shows by no means all possible transitions, but only a traditional set of them.
+   `Figure 22 <#figure-22>`_ shows a detailed version of the state machine for the frontend worker as a request flow diagram.
    A detailed version of the request flow diagram for the backend worker is in the `VCL – vcl_backend_fetch and vcl_backend_response`_ section.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
@@ -2991,7 +3010,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
 .. container:: handout
 
-   .. figure 13
+   .. figure 22
 
    .. figure:: ui/img/detailed_fsm.png
       :align: center
@@ -2999,8 +3018,8 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
       Figure :counter:`figure`: Detailed Varnish Request Flow for the Client Worker Thread
 
-   The grayed box in `Figure 12 <#figure-12>`_ shows a very simple version of the backend worker.
-   `Figure 13 <#figure-13>`_ shows its detailed request flow diagram.
+   `Figure 22 <#figure-22>`_ shows the detailed request flow diagram of the backend worker.
+   This diagram details the grayed grayed box in `Figure 21 <#figure-21>`_.
 
 .. raw:: pdf
 
@@ -3478,7 +3497,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 
    .. TODO for the editor: improve layout of this figure
 
-   .. figure 14
+   .. figure 23
 
    .. figure:: ui/img/detailed_fsm_backend.png
       :scale: 150%
@@ -3488,7 +3507,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
    ..   :align: center
    ..   :width: 100%
 
-   `Figure 14 <#figure-14>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
+   `Figure 23 <#figure-23>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
@@ -3506,7 +3525,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
    The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
    The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
-   `Figure 14 <#figure-14>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 24 <#figure-24>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
    Backends might respond with a ``304`` HTTP headers.
@@ -4225,10 +4244,12 @@ Banning
 
       You can also execute ban expressions via the `Varnish Administration Console (VAC)`_.
 
+      .. figure 24
+
       .. figure:: ui/img/vac_bans.png
 	 :width: 100%
 
-	 Executing ban expressions via the `Varnish Administration Console (VAC)`_.
+	 Figure :counter:`figure`: Executing ban expressions via the `Varnish Administration Console (VAC)`_.
 
 Lurker-Friendly Bans
 ....................
@@ -4996,7 +5017,7 @@ Edge Side Includes
 - How to use ESI?
 - Testing ESI without Varnish
 
-.. figure 15
+.. figure 25
 
 .. figure:: ui/img/esi.png
    :align: center
@@ -5008,7 +5029,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   `Figure 15 <#figure-15>`_ depicts this process.
+   `Figure 25 <#figure-25>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -5239,14 +5260,14 @@ Varnish Administration Console (VAC)
    .. TODO: Figure 17 and 18 should be links.
    .. For this, rst2sphinx.iawk should support multiple targets in one sentence.
 
-   `Figures 16 <#figure-16>`_, 17 and 18 show screenshots of the GUI.
+   `Figures 26 <#figure-26>`_, 27 and 28 show screenshots of the GUI.
    You may also be interested in trying the VAC demo at https://vacdemo.varnish-software.com.
    The instructor of the course provides you the credentials.
 
 Overview Page of the Varnish Administration Console
 ...................................................
 
-.. figure 16
+.. figure 26
 
 .. figure:: ui/img/vac_screenshot_1.png
    :width: 80%
@@ -5256,7 +5277,7 @@ Overview Page of the Varnish Administration Console
 Configuration Page of the Varnish Administration Console
 ........................................................
 
-.. figure 17
+.. figure 27
 
 .. figure:: ui/img/vac_screenshot_2.png
    :width: 80%
@@ -5266,7 +5287,7 @@ Configuration Page of the Varnish Administration Console
 Banning Page of the Varnish Administration Console
 ..................................................
 
-.. figure 18
+.. figure 28
 
 .. figure:: ui/img/vac_screenshot_3.png
    :width: 80%
@@ -5281,7 +5302,7 @@ Varnish Custom Statistics (VCS)
 - Provides an API to retrieve statistics
 - Provides a GUI that presents lists and charts to get a quick overview of the key metrics that matters you
 
-.. figure 19
+.. figure 29
 
 .. figure:: ui/img/vcs-dsms.png
    :width: 100%
@@ -5316,10 +5337,7 @@ Varnish Custom Statistics (VCS)
 
    .. demo
    
-   .. TODO: Figure 21
-   .. For this, rst2sphinx.iawk should support multiple targets in one sentence.
-
-   `Figure 20 <#figure-20>`_ and 21 are screenshots of the VCS GUI.
+   `Figure 30 <#figure-30>`_ and 31 are screenshots of the VCS GUI.
    These screenshots are from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
 
@@ -5539,18 +5557,18 @@ Screenshots of GUI
 
 .. container:: handout
 
-   .. figure 20
+   .. figure 30
 
    .. figure:: ui/img/vcsui_header_2.png
       :width: 100%
 
       Figure :counter:`figure`: Header of Varnish Custom Statistics
 
-   .. figure 21
-
 | 
 
 |
+
+   .. figure 31 
 
    .. figure:: ui/img/vcs-ui-chart.png
       :width: 100%
@@ -5565,7 +5583,7 @@ Varnish High Availability (VHA)
 - Two-server, circular, multi-master replication
 - Requests to replicate content against Varnish servers, not the backend
 
-.. figure 22
+.. figure 32
 
 .. figure:: ui/img/vha.png
    :width: 100%
