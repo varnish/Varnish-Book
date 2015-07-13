@@ -4495,14 +4495,14 @@ Saving a Request
 .. container:: handout
 
    Varnish offers many mechanisms to save a request.
-   By saving a request we mean three objectives:
+   By saving a request we mean:
 
    #. Rescue: mechanisms to handle requests when backends are in problematic situations.
    #. Economization: mechanisms to spend less resources, i.e., send less requests to the backend.
    #. Protection: mechanisms to restrict access cache invalidation from unauthorized entities.
 
-   `Table 19 <#table-19>`_ shows how different mechanisms are mapped to their saving objectives.
-   This chapter explains how to make your Varnish setup more robust.
+   `Table 19 <#table-19>`_ shows how different mechanisms are mapped to their saving meaning.
+   This chapter explains how to make your Varnish setup more robust by using these mechanisms.
 
 Directors
 ---------
@@ -4546,7 +4546,7 @@ Directors
    directors behind a fallback director.
 
    *Random* directors are seeded with either a random number or a hash key.
-   The next `Random Directors`_ section explains their commonalities and differences.
+   Next section explains their commonalities and differences.
 
    .. note::
 
