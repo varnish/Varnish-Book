@@ -27,3 +27,11 @@
 {% if theme_collapsiblesidebar|tobool %}
 {% set script_files = script_files + ['_static/sidebar.js'] %}
 {% endif %}
+
+{% block footer %}
+<div align="center">
+        <a href="http://info.varnish-software.com/signature">
+	  <img src="http://files.varnish-software.com/signature.png">
+	</a>
+</div>
+{% endblock %}
