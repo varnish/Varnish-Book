@@ -183,7 +183,8 @@ The Webdev course requires that you:
 - The instructor guides you through the book.
 - Use the *manual pages* and help options.
 - See `Appendix D: Varnish Three Letter Acronyms`_ for a list of acronyms.
-- `Appendix E: Regular-Expressions in Varnish`_ explains basic concepts typically needed when administrating Varnish.
+
+.. - `Appendix E: Regular-Expressions in Varnish`_ explains basic concepts typically needed when administrating Varnish.
 
 .. - To practice the course, use the Fast Track in the following way:
 
