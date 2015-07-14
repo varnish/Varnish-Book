@@ -2566,8 +2566,8 @@ invalidation. The most important ones are:
 - Vary
 - Age
 
-Exercise : Test various Cache headers
--------------------------------------
+Exercise: Test various Cache headers
+------------------------------------
 
 Before we talk about all the various cache headers and cache mechanisms, we
 will use `httpheadersexample.php` to experiment and get a sense of what
@@ -3880,34 +3880,35 @@ VCL – ``vcl_deliver``
 VCL – ``vcl_synth``
 -------------------
 
-- Used to generate content from within Varnish, without talking to a web server
+- Used to generate content from within Varnish, without talking to the backend
 - Error messages go here by default
 - Other use cases: Redirecting users (301/302 redirects)
 
 .. include:: vcl/default-vcl_synth.vcl
    :literal:
 
-.. TODO for the author: Create a title and numeration for the code.
+.. TODO for the editor: Create a title and numeration for the code.
 
 .. container:: handout
 
    To make a distinction between VCL synthetic responses and internally generated errors (when trying to fetch an object), there are two subroutines that handle errors in Varnish.
    One is ``vcl_synth``, and the other is ``vcl_backend_error``.
+   To return control to ``vcl_synth``,call the ``synth()`` function like this::
 
-   Subroutines that return control to ``vcl_synth`` must state ``synth()`` as a function with arguments.
-   That is: ``return (synth(status_code, "reason"));
-   In other words, the syntax for the ``synth`` return action is not a keyword, but a function with arguments.
+     return (synth(status_code, "reason"));
+
+   Note that the syntax ``synth`` is not a keyword, but a function with arguments.
   
    You must explicitly return the ``status code`` and ``reason`` arguments for ``vcl_synth``.
    Setting headers on synthetic response bodies are done on ``resp.http``.
 
    .. note::
-      Note how you can use {" and "} to make multi-line strings. 
-      This is not limited to synthetic, but can be used anywhere.
+      Note how you can use ``{"`` and ``"}`` to make multi-line strings. 
+      This is not limited to the ``synthetic()`` function, but can be used anywhere.
 
    .. note::
-      A ``vcl_synth`` defined object never enters the cache, contrary to a ``vcl_backend_error`` defined object, which may end up in cache.
-      ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.      
+      A ``vcl_synth`` defined object is never stored in cache, contrary to a ``vcl_backend_error`` defined object, which may end up in cache.
+      ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.
 
 Example: Redirecting requests with ``vcl_synth``
 ................................................
@@ -4024,8 +4025,8 @@ Cache Invalidation
 HTTP PURGE
 ----------
 
-- If you know exactly what to remove, use ``HTTP PURGE``.
-- Frees up memory, removes all ``Vary:``-variants of the object.
+- If you know exactly what to remove, use ``HTTP PURGE``
+- Frees up memory, removes all ``Vary:``-variants of the object
 - Leaves it to the next client to refresh the content
 - Often combined with ``return(restart);``
 
@@ -4036,7 +4037,7 @@ HTTP PURGE
    For example, you could have a desktop version, a tablet version and a smartphone version of your site, and use the ``Vary`` HTTP header field in combination with device detection to store different variants of the same resource.
 
    Usually a purge is invoked through HTTP with the method ``PURGE``.
-   An ``HTTP PURGE`` is another request method just as ``HTTP GET``.
+   A ``HTTP PURGE`` is another request method just as ``HTTP GET``.
    Actually, you can call the ``PURGE`` method whatever you like, but ``PURGE`` has become the de-facto naming standard.
    Squid, for example, uses the ``PURGE`` method name for the same purpose.
 
@@ -4081,10 +4082,10 @@ Test your VCL by issuing::
    This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
 
-Exercise : PURGE an article from the backend
-............................................
+Exercise: ``PURGE`` an article from the backend
+...............................................
 
-- Send a PURGE request to Varnish from your backend server after an article is published. 
+- Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
 
   - Simulate the article publication.
   - The result is that the article is evicted in Varnish.
@@ -4103,8 +4104,8 @@ Exercise : PURGE an article from the backend
    .. tip::
       Remember to place your php files under ``/var/www/html/``.
 
-Solution : PURGE an article from the backend
-............................................
+Solution: PURGE an article from the backend
+...........................................
 
 **purgearticle.php**
 
@@ -5067,7 +5068,7 @@ This is done in `vcl_recv`.
     Varnish only supports three ESI tags:
 
     - ``<esi:include>``: calls the page defined in the ``src`` attribute and replaces the ESI tag with the content of ``src``.
-    - ``<esi:remove>`` : removes any code inside this opening and closing tag.
+    - ``<esi:remove>``: removes any code inside this opening and closing tag.
     - ``<!--esi ``(content)`` -->``: Leaves ``(content)`` unparsed. E.g., the following does not process the ``<esi:include>`` tag::
 
         <!--esi
@@ -5163,8 +5164,8 @@ Masquerading AJAX requests
     This is a security restriction imposed by browsers.
     If this represents an issue for your web pages, you can be easily solve it by using Varnish and VCL.
 
-Exercise : write a VCL that masquerades XHR calls
-.................................................
+Exercise: write a VCL that masquerades XHR calls
+................................................
 
 ``material/webdev/ajax.html``
 
@@ -5177,8 +5178,8 @@ Notice that function ``getNonMasqueraded()`` fails because the origin is distinc
 Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
-Solution : write a VCL that masquerades XHR calls
-.................................................
+Solution: write a VCL that masquerades XHR calls
+................................................
 
 ``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
 
