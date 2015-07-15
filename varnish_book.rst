@@ -20,7 +20,7 @@
    Abstract
 
 The Varnish Book is the training material for Varnish Plus courses.
-The book teaches technical staff how to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
+This book teaches technical staff how to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
 
 The book explains how to get started with Varnish, and its Varnish Configuration Language (VCL).
 Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
@@ -48,14 +48,13 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
 
    **After finishing this course, you will be able to install and configure the Varnish server, and write effective VCL code.**
    The Varnish Book is designed for attendees of Varnish Plus courses.
-   Varnish Plus is a commercial suite by Varnish Software that offers products for scalability, customization, monitoring, and expert support services.
-   The engine of Varnish Plus is Varnish Cache Plus, which is the enhanced commercial edition of Varnish Cache.
-
-   Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
-   Varnish Cache Plus is one of the software components available for Varnish Plus customers.
-
    Most of the presented material in this book applies to both, the open source Varnish Cache and the commercial edition Varnish Cache Plus.
    Therefore, you can also refer to the Varnish Cache documentation at https://www.varnish-cache.org/docs/4.0/.
+
+   Varnish Plus is a commercial suite by Varnish Software that offers products for scalability, customization, monitoring, and expert support services.
+   The engine of Varnish Plus is Varnish Cache Plus, which is the enhanced commercial edition of Varnish Cache.
+   Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
+   Varnish Cache Plus is one of the software components available for Varnish Plus customers.
 
    For simplicity, the book refers to *Varnish Cache* or *Varnish Cache Plus* as **Varnish** when there is no difference between them.
    There is more information about differences between Varnish Cache and Varnish Cache Plus in the `Varnish Cache and Varnish Plus`_ chapter.
