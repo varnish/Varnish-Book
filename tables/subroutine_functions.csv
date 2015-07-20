@@ -1,0 +1,4 @@
+Function,Subroutines
+hash_data,vcl_hash
+new,vcl_init
+synthetic,"vcl_synth, vcl_backend_error"

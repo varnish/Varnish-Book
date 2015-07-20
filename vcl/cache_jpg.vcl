@@ -1,5 +1,5 @@
-sub vcl_fetch {
-	if (req.url ~ "\.jpg$") {
-		set beresp.ttl = 60s;
-	}
+sub vcl_backend_response {
+    if (bereq.url ~ "\.jpg$") {
+        set beresp.ttl = 60s;
+    }
 }

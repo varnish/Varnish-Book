@@ -5,13 +5,18 @@ header('Vary: Cookie');
 $date = new DateTime();
 $now = $date->format( DateTime::RFC2822 );
 ?>
-<p>This is content on the user-specific ESI-include. This part of the page is can be cached in Varnish separately since it emits a "Vary: Cookie"-header. We can not affect the client-cache of this sub-page, since that is determined by the cache-control headers on the top-element.</p>
+<p>This is content on the user-specific ESI-include. This part of 
+the page is can be cached in Varnish separately since it emits 
+a "Vary: Cookie"-header. We can not affect the client-cache of 
+this sub-page, since that is determined by the cache-control 
+headers on the top-element.</p>
 <p>The time when the user-specific-element was created:</p><h3>
 
 <?php echo "$now"; ?>
 
 
-</h3><p>The user-specific page received the following Cookies:</p><ul>
+</h3><p>The user-specific page received the following Cookies:
+</p><ul>
 
 <?php
 

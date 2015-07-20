@@ -1,16 +1,16 @@
-acl management {
-	"172.16.0.0"/16;
-}
-
-acl sysadmins {
-	"192.168.0.0"/16;
-	! "192.168.0.1";
+# Who is allowed to purge....
+acl local {
+    "localhost";      /* myself */
+    "192.168.1.0"/24; /* and everyone on the local network */
+    !"192.168.1.23";  /* except for the dialin router */
 }
 
 sub vcl_recv {
-	if (client.ip ~ management) {
-		set req.url = regsub(req.url, "^","/proper-stuff");
-	} elsif (client.ip ~ sysadmins) {
-		set req.url = regsub(req.url, "^","/cool-stuff");
-	}
+    if (req.method == "PURGE") {
+        if (client.ip ~ local) {
+            return (purge);
+        } else {
+            return (synth(405));
+        }
+    }
 }

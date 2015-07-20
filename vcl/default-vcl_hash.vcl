@@ -5,5 +5,5 @@ sub vcl_hash {
     } else {
         hash_data(server.ip);
     }
-    return (hash);
+    return (lookup);
 }

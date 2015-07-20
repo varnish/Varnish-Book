@@ -1,0 +1,21 @@
+Topic,Varnish Cache,Varnish Plus
+VCL,Yes,Yes
+varnishlog,Yes,Yes
+varnishadm,Yes,Yes
+varnishncsa,Yes,Yes
+varnishstat,Yes,Yes
+varnishhist,Yes,Yes
+varnishtest,Yes,Yes
+varnishtop,Yes,Yes
+directors,Yes,Yes
+purge,Yes,Yes
+ban,Yes,Yes
+force cache misses,Yes,Yes
+vagent2,Yes,Yes
+Massive Storage Engine (MSE),No,Yes
+`Varnish Administration Console (VAC)`_,No,Yes
+`Varnish Tuner`_,No,Yes
+`Hashtwo (Varnish Software Implementation of Surrogate Keys)`_,No,Yes
+`Varnish Custom Statistics (VCS)`_,No,Yes
+`Varnish High Availability (VHA)`_,No,Yes
+`SSL/TLS Support`_,No,Yes

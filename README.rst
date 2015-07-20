@@ -1,10 +1,12 @@
 Training material and related tools
 ===================================
 
+This Github branch holds work in progress to update The Varnish Book for Varnish Plus.
+
 This repository contains:
 
-* The training material used for our Varnish training (the source for the
-  slides and printed version)
+* Training material used for Varnish Plus training
+* Source for the slides and book version
 * A snapshot of munin graphs for use by instructors.
 * PHP example-code for testing Varnish
 * Build system for said training material
@@ -21,33 +23,15 @@ chapters except `Tuning` and `Saving the Request`. The third set of slides,
 labeled `Book`, contains all chapters. All the chapters are written with
 this structure in mind.
 
-Thanks
-------
-
-In addition to the authors, the following deserve special thanks (in no
-particular order):
-
-- Rubén Romero
-- Sevan Janiyan
-- Kacper Wysocki
-- Magnus Hagander
-- Martin Blix Grydeland
-- Poul-Henning Kamp
-- Everyone who has participated on the training courses
-
-
 Index
 -----
 
-* build/ - Created on make, contains PDF output, html-output and necessary
-  images
+* build/ - Created on make, contains PDF output, html-output and necessary images
 * Makefile
 * material/ - PHP files, mainly used by the web-dev material
-* misc/ - Contains strange stuff. Including the old course (Linpro-source)
-  and a patch for rst2s5 needed (and a pre-patched version).
+* misc/ - Contains strange stuff. Including the old course (Linpro-source) and a patch for rst2s5 needed (and a pre-patched version).
 * munin/ - Anonymized munin graphs for instructors
-* NEWS - List of changes _instructors_ should be be aware of from version
-  to version.
+* NEWS - List of changes instructors should be be aware of from version to version.
 * README - This file
 * TODO
 * ui/ - Images, style-definitions for PDFs and CSS for the slides.
@@ -62,19 +46,37 @@ Index
 Building the material
 ---------------------
 
-The following tools are needed:
+Install the following packages with their dependencies.
 
 - rst2pdf
-- gawk (old awk is not sufficient)
-- bash (I'm lazy)
-- git (somewhat optional, I believe)
-- make (possibly GNU make. Not tested)
-- dot (for images)
-- varnishd
+- gawk
+- git
+- make
+- graphviz
 - php5
+- python3-sphinx
+- python-docutils
 
-All build-stuff is handled by make. The following is an incomplete list of
-targets:
+You also need the "Open Source" font type.
+To check whether you have it, type ``fc-match "Open Sans"`` in the terminal.
+The command should output ``OpenSans-Regular.ttf: "Open Sans" "Regular"``.
+Otherwise, download it and install it.
+
+Download the source code of this book::
+
+  git clone https://github.com/varnish/Varnish-Book.git
+
+Get into the right branch::
+
+  cd Varnish-Book
+  git checkout Varnish-Book-v4
+
+Compile the book::
+
+  make book
+
+All build-stuff is handled by make.
+The following is an incomplete list of targets:
 
 ``make check``
         Does syntax-checking on VCL and php-files. Ensures that they are
@@ -84,7 +86,7 @@ targets:
         Builds all PDFs (not sphinx)
 
 ``make dist``
-        Builds tar-balls for use by instructurs, which contain PDFs,
+        Builds tar-balls for use by instructors, which contain PDFs,
         munin-snapshot, www-examples (material/), NEWS and a bit more.
 
 ``make clean``
@@ -113,32 +115,30 @@ targets:
 Updating the training material
 ------------------------------
 
-The first thing you should do, is grab a copy of the various RST
-documentation out there. Sadly enough, you will need it for some of the
-finer points.
+Read NEWS, and make sure you always add significant content changes in this file, so the instructor(s) can keep track of changes without reading commit logs.
 
-The second thing you should do, is read NEWS, and make sure you always
-add significant content changes there, so the instructor(s) can keep track
-of what changes between version-1.5 and version-1.7 without reading commit
-logs which also contain edits to Makefile and whatnot.
+Try to use only `tip`, `warning` and `note` boxes.
 
-- rst2pdf
+To change the layout, change ``ui/pdf.style`` or ``ui/pdf_slide.style``.
 
-rst2pdf generates the PDF, and needs a bit of help to get page numbering
-properly formated, that's where the oddeven stuff at the top comes in.
-The problem with that, is that it is not proper rst, so other tools will
-complain about it.
+The syntax for indirect hyperlink targets (double underscores ``__``) is not the same for rst as for sphinx.
+Thefore, for simplicity, avoid them.
+More than two refereces per sentence is not supported by ``rst2sphinxparser.igawk``.
 
-I have tried to use `tip`, `warning` and `note`, and no further
-"boxes".
+Figures and tables must have a counter right before their directive.
+The counter must be as the following example::
 
-To change the look of the PDF, change ui/pdf.style.
+  .. figure 1
+
+or::
+
+  .. table 1
 
 Legal
 -----
 
-This material is provided under a CC-BY-NC-SA license. The license is
-available from:
+This material is provided under a CC-BY-NC-SA license.
+The license is available from:
 
 http://creativecommons.org/licenses/by-nc-sa/3.0/
 

@@ -1,0 +1,12 @@
+Parameter;Default;Description
+thread_pool_add_delay;|def_thread_pool_add_delay|;Period of time to wait for subsequent thread creation.
+thread_pool_destroy_delay;1 second;Added time to ``thread_pool_timeout``.
+thread_pool_fail_delay;|def_thread_pool_fail_delay|;Period of time before retrying the creation of a thread. This after the creation of a thread failed.
+thread_pool_max;|def_thread_pool_max|;Maximum number of worker threads per pool.
+thread_pool_min;|def_thread_pool_min|;Minimum number of worker threads per pool.
+thread_pool_stack;|def_thread_pool_stack|;Worker thread stack size.
+thread_pool_timeout;|def_thread_pool_timeout|;Period of time before idle threads are destroyed.
+thread_pools;|def_thread_pools|;Number of worker thread pools.
+thread_queue_limit;20 requests;Permitted queue length per thread-pool.
+thread_stats_rate;|def_thread_stats_rate|;Maximum number of jobs a worker thread may handle before it is forced to dump its accumulated stats into the global counters.
+workspace_thread;|def_workspace_thread|;Bytes of auxillary workspace per thread.

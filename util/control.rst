@@ -2,5 +2,5 @@
 
 .. raw:: pdf
 
-   PageBreak oneColumn
+   PageBreak
 

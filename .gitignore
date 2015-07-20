@@ -1,3 +1,4 @@
+src/conf.py
 build/
 material/webdev/index.html
 misc/rst2s5-patch/python-docutils-0.6-prepatched/dist/
@@ -6,19 +7,5 @@ misc/rst2s5-patch/python-docutils-0.6-prepatched/setup.pyc
 varnish_sysadmin-*.tar.bz2
 varnish_webdev-*.tar.bz2
 varnish_tutorial-*.tar.bz2
-src/AJAX.rst
-src/Appendix_A__Varnish_Programs.rst
-src/Appendix_B__Extra_Material.rst
-src/Cache_invalidation.rst
-src/Cookies.rst
-src/Content_Composition.rst
-src/Finishing_words.rst
-src/Getting_started.rst
-src/HTTP.rst
-src/Introduction.rst
-src/Saving_a_request.rst
-src/Tuning.rst
-src/VCL_Basics.rst
-src/VCL_functions.rst
-src/Varnish_Programs.rst
-src/conf.py
+*.DS_Store
+*~

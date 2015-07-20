@@ -1,0 +1,28 @@
+{
+  "pageSetup" : {
+    "firstTemplate": "coverPage"
+  },
+  "pageTemplates" : {
+    "coverPage": {
+        "frames": [
+            ["0cm", "0cm", "100%", "70%"]
+          ],
+	
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 10,
+	"background" : "bluebg.png"
+    }
+  },
+ ￼"embeddedFonts" : [ "Open Sans" ],
+  "styles" : [
+    ["cover", {
+	"fontName": "Open Sans",
+        "fontSize": 30,
+	"textColor": white,
+	"alignment":"center",
+	"spaceBefore":50
+     }
+    ]
+  ]
+}

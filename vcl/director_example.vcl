@@ -1,20 +1,27 @@
+vcl 4.0;
+
+import directors;    // load the directors VMOD
 
 backend one {
-   .host = "localhost";
-   .port = "80";
+    .host = "localhost";
+    .port = "80";
 }
 
 backend two {
-   .host = "127.0.0.1";
-   .port = "81";
+    .host = "127.0.0.1";
+    .port = "81";
 }
 
-director localhosts round-robin {
-	{ .backend = one; }
-	{ .backend = two; }
-	{ .backend = { .host = "localhost"; .port = "82"; } }
+sub vcl_init {
+    new round_robin_director = directors.round_robin();
+    round_robin_director.add_backend(one);
+    round_robin_director.add_backend(two);
+
+    new random_director = directors.random();
+    random_director.add_backend(one, 10);  # 2/3 to backend one
+    random_director.add_backend(two, 5);   # 1/3 to backend two
 }
 
 sub vcl_recv {
-	set req.backend = localhosts;
+    set req.backend_hint = round_robin_director.backend();
 }

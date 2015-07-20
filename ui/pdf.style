@@ -8,15 +8,33 @@
             ["0cm", "0cm", "100%", "100%"]
           ],
         "background" : "ui/img/front_page_book.pdf",
+         "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "simplifiedFSM": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/simplified_fsm.pdf",
         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0
     },
-    "vclPage": {
+    "detailedFSM": {
         "frames": [
             ["0cm", "0cm", "100%", "100%"]
           ],
-        "background" : "ui/img/request.pdf",
+        "background" : "ui/img/detailed_fsm.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
+    "detailedFSM_backend": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/detailed_fsm_backend.pdf",
         "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0
@@ -31,18 +49,45 @@
     "oneColumn": {
         "showFooter" : true
     }
-
   },
   "styles" : [
     ["bodytext", {
+            "fontName": "Open Sans",
+	    "fontSize": 10,
 	    "borderPadding": 0
 	}
 	],
     ["title", {
-        "fontName": "White Rabbit",
+        "fontName": "Open Sans",
         "fontSize": 48
     }],
-        
+    ["tinycode",{
+        "fontSize": 6,
+      	"parent": normal,
+      	"leftIndent": 0,
+      	"spaceBefore": 8,
+      	"spaceAfter": 8,
+      	"backColor": beige,
+      	"borderColor": darkgray,
+      	"borderWidth": 0.5,
+      	"borderPadding": 6,
+        "fontName": stdMono,
+        "firstLineIndent": 0,
+        "hyphenation": false,
+        "wordWrap": null
+    }],
+    ["figformat",{
+	"width": 100%,
+	"commands": [
+	     ["VALIGN", [ 0, 0 ], [ -1, -1 ], "TOP" ],
+             ["ALIGN", [ 0, 0 ], [ -1, -1 ], "CENTER" ],
+             ["BOX", [ 0, 0 ], [ -1, -1 ], 0.25, "black" ]
+        ]
+    }],
+    ["tinytable",{
+        "fontSize": 6,
+      	"parent": table
+    }],
     ["thin" , {
     "parent" : "bodytext",
     "width" : "65%",
@@ -58,6 +103,10 @@
         "parent": "bodytext",
         "alignment": "center"
     }],
+    ["left", {
+        "parent": "bodytext",
+        "alignment": "left"
+    }],
     ["headertable" , {
     "parent" : "table",
     "colWidths": ["20%","60%","20%"],
@@ -67,7 +116,16 @@
     ["footer" , {
 	    "textColor": "red"
     }
+    ],
+    ["bullet-list",
+         {
+             "spaceAfter":8
+         }
+    ],
+    ["item-list",
+         {
+             "spaceAfter":8
+         }
     ]
    ]
 }
-
