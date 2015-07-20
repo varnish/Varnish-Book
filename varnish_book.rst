@@ -1575,7 +1575,7 @@ Exercise
       .. figure 9
 
       .. figure:: ui/img/vac_hit_meter.png
-         :figwidth: 70%
+         :width: 70%
 
          Figure :counter:`figure`: Cache Hit Meter
 
