@@ -49,11 +49,12 @@ common = ${mergedrst} \
 	 Makefile \
 	 vcl/*.vcl \
 	 util/control.rst \
-	 util/frontpage.rst \
-	 util/printheaders.rst \
 	 #${exercises_complete} \
 	 ${exercises_stuff} \
 	 material/webdev/*
+
+bookutil =  util/frontpage.rst \
+	    util/printheaders.rst
 
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
@@ -61,7 +62,7 @@ versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 targets = book slides
 #webdev book sysadmin
 
-all: ${common} ${targets}
+all: ${common} ${bookutil} ${targets}
 
 webdev: ${webdevt}
 
@@ -86,10 +87,10 @@ sphinx: ${common} src/conf.py
 	done;
 
 #This loop should be improved! This clears out frontpage.rst and printheaders.rst and creates wrong pdf later.
-	for a in src/util/frontpage.rst src/util/printheaders.rst; do \
-		rm $$a; \
-		touch $$a; \
-	done
+#	for a in src/util/frontpage.rst src/util/printheaders.rst; do \
+#		rm $$a; \
+#		touch $$a; \
+#	done
 
 #Splits chapters into individual files, and creates the index page for sphinx.
 	mkdir -p src/build/chapters
@@ -106,7 +107,7 @@ sphinx: ${common} src/conf.py
 #Removes '.. class:: handout' from src/*.rst
 	sed -i 's/\.\. class:: handout//' src/*.rst
 
-	sphinx-build -b html -d build/doctrees   src/ build/html
+	sphinx-build -b html -d build/doctrees src/ build/html
 
 sphinx-dist: sphinx book
 	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/
@@ -148,15 +149,15 @@ ${BDIR}/img:
 ${BDIR}:
 	@mkdir -p ${BDIR}
 
-${BDIR}/varnish-book.pdf: ${common} ${pdf_style}
+${BDIR}/varnish-book.pdf: ${common} ${bookutil} ${pdf_style}
 	@echo Building PDFs for book...
 	@${PICK} -v inc=${book} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ${pdf_style} -o $@
 
-${BDIR}/varnish_slides.pdf: ${common} ${pdf_slide_style}
+${BDIR}/varnish_slides.pdf: ${common} ${bookutil} ${pdf_slide_style}
 	@echo Building PDF slidesfor slides...
 	@${PICK} -v inc=${slides} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ${pdf_slide_style} -o $@
 
-${BDIR}/varnish_slides-A4.pdf: ${common} ui/pdf_slide-A4.style
+${BDIR}/varnish_slides-A4.pdf: ${common} ${bookutil} ui/pdf_slide-A4.style
 	@echo Building PDF slides for slides-A4...
 	@${PICK} -v inc=${slides-A4} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
 

@@ -332,6 +332,7 @@ What is Varnish?
 .. figure:: ui/img/reverse_proxy.png
    :alt: Reverse Proxy
    :align: center
+   :figwidth: image
 
    Figure :counter:`figure`: Reverse Proxy
 
@@ -1570,12 +1571,11 @@ Exercise
    .. tip::
 
       You can also see many parameters in real-time graphs with the `Varnish Administration Console (VAC)`_.
-      Here are screenshots:
 
       .. figure 9
 
       .. figure:: ui/img/vac_hit_meter.png
-         :width: 70%
+         :figwidth: 70%
 
          Figure :counter:`figure`: Cache Hit Meter
 
