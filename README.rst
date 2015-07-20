@@ -64,11 +64,6 @@ Download the source code of this book::
 
   git clone https://github.com/varnish/Varnish-Book.git
 
-Get into the right branch::
-
-  cd Varnish-Book
-  git checkout Varnish-Book-v4
-
 Compile the book::
 
   make book
