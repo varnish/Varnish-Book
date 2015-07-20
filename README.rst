@@ -1,8 +1,6 @@
 Training material and related tools
 ===================================
 
-This Github branch holds work in progress to update The Varnish Book for Varnish Plus.
-
 This repository contains:
 
 * Training material used for Varnish Plus training
