@@ -71,39 +71,44 @@ Compile the book::
 All build-stuff is handled by make.
 The following is an incomplete list of targets:
 
-``make check``
-        Does syntax-checking on VCL and php-files. Ensures that they are
-        used too.
+``make book``
+        Builds book in PDF format
 
-``make all``
-        Builds all PDFs (not sphinx)
-
-``make dist``
-        Builds tar-balls for use by instructors, which contain PDFs,
-        munin-snapshot, www-examples (material/), NEWS and a bit more.
+``make sphinx``
+        Builds book in HTML format
 
 ``make clean``
         removes build/
 
-``make sphinx``
-        Builds sphinx into build/html/
+..
+   ``make check``
+	   Does syntax-checking on VCL and php-files. Ensures that they are
+	   used too.
 
-``make sphinx-dist``
-        Pushes the sphinx-build to the official server. Requires access to
-        the right servers, naturally.
+   ``make all``
+	   Builds all PDFs (not sphinx)
 
-``make flowchartupdate``
-        Updates the VCL flowcharts from varnish source-code, assuming the
-        correct .c-file (e.g: varnish source-code) is located where
-        Makefile checks. (read Makefile).
 
-``make util/param.rst``
-        Might require deleting the file first. Fetches varnish-parameters
-        from varnishd (as found in your PATH) and updates the
-        util/param.rst with the correct macros.
+   ``make dist``
+	   Builds tar-balls for use by instructors, which contain PDFs,
+	   munin-snapshot, www-examples (material/), NEWS and a bit more.
 
-``make sourceupdate``
-        Does both the util/param.rst-thing and flowchartupdate.
+   ``make sphinx-dist``
+	   Pushes the sphinx-build to the official server. Requires access to
+	   the right servers, naturally.
+
+   ``make flowchartupdate``
+	   Updates the VCL flowcharts from varnish source-code, assuming the
+	   correct .c-file (e.g: varnish source-code) is located where
+	   Makefile checks. (read Makefile).
+
+   ``make util/param.rst``
+	   Might require deleting the file first. Fetches varnish-parameters
+	   from varnishd (as found in your PATH) and updates the
+	   util/param.rst with the correct macros.
+
+   ``make sourceupdate``
+	   Does both the util/param.rst-thing and flowchartupdate.
 
 Updating the training material
 ------------------------------
