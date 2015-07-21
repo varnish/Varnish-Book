@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'The Varnish Book'
-copyright = u'2012, Varnish Software. CC-BY-NC-SA'
+copyright = u'2015, Varnish Software. CC-BY-NC-SA'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -67,7 +67,9 @@ release = '@@VERSION@@'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = [ 'util/*.rst', 'build/*.rst' ]
+# build/.rst and build/chapters/*.rst are needed because they are already read by the symbolic links:
+# 'src/build' and 'src/build/chapters'
+exclude_patterns = [ 'util/*.rst', 'build/*.rst', 'build/chapters/*.rst', 'chapters/ui/img/*.rst', 'build/chapters/ui/img/*rst', 'ui/img/*.rst']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

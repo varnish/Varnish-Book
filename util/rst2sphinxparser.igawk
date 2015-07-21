@@ -144,7 +144,7 @@ function chapter_done(chap) {
     gsub("[^[:alnum:]']","_",chapterref)
     #clean chaptername to contain only alphanumeric characters for their filenames
     gsub("[^[:alnum:]]","_",chapterclean)
-    path = dst"build/chapters/"chapterclean ".rst"
+    path = dst"chapters/"chapterclean ".rst"
     
     #includes definition of Varnish parameters to be replaced in rst
     print ".. include:: ../../util/param.rst" > path
@@ -156,7 +156,7 @@ function chapter_done(chap) {
     print_chapter(chap,path)
     
     #Add chapter filename to index.rst
-    print "\tbuild/chapters/" chapterclean >> aidx
+    print "\tchapters/" chapterclean >> aidx
 }
 
 END {

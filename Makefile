@@ -80,7 +80,7 @@ src/conf.py: src/conf.py.in ${BDIR}/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
 
 sphinx: ${common} src/conf.py
-	for a in ui util/* vcl material build/version.rst ; do \
+	for a in util/* vcl material build/version.rst ; do \
 		if [ ! -e src/$$a ]; then \
 			ln -s ${PWD}/$$a src/$$a ;\
 		fi; \
@@ -93,13 +93,13 @@ sphinx: ${common} src/conf.py
 #	done
 
 #Splits chapters into individual files, and creates the index page for sphinx.
-	mkdir -p src/build/chapters
-	ln -sf ${PWD}/ui build/chapters/
+	mkdir -p build/chapters
+	ln -sf ../../ui build/chapters/
 
 #update references in tables:
-	mkdir -p src/build/chapters/tables
+	mkdir -p src/chapters/tables
 	for a in tables/*; do \
-		util/rst2sphinxparser_tables.awk -v dst="src/build/chapters/"$$a < ${PWD}/$$a; \
+		util/rst2sphinxparser_tables.awk -v dst="src/chapters/"$$a < ${PWD}/$$a; \
 	done
 
 	util/rst2sphinxparser.igawk -v dst=${PWD}/src/ < ${mergedrst}
