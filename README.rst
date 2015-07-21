@@ -11,15 +11,10 @@ This repository contains:
 
 This is the training material Varnish Software uses for professional
 Varnish training courses. It is made available under a Creative Commons
-CC-BY-NC-SA license (See the LICENSE file for details) as a book.
+CC-BY-NC-SA license (see the LICENSE file for details) as a book.
 
-The build system produces different sets of PDFs. Varnish Software
-currently offers two different two-day courses: `Varnish System
-Administration`, which contains all chapters except the `HTTP` chapter and
-`Content Composition`; and `Varnish for Web Developers` which contains all
-chapters except `Tuning` and `Saving the Request`. The third set of slides,
-labeled `Book`, contains all chapters. All the chapters are written with
-this structure in mind.
+The build system produces the book in PDF and HTML formats.
+The PDF format includes two editions, one as the book for trainees, and the other as slides for the trainer.
 
 Index
 -----
@@ -76,6 +71,10 @@ The following is an incomplete list of targets:
 
 ``make sphinx``
         Builds book in HTML format
+
+``make slides``
+        Builds slides in PDF format.
+	This slides are to be used in a training course.
 
 ``make clean``
         removes build/
