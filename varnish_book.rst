@@ -1255,7 +1255,7 @@ Log Data Tools
 
 .. container:: handout
 
-   If you have multiple Varnish instances on the same machine, you need to specify ``-n <name>`` both when starting Varnish and when using the tools.
+   If you have multiple Varnish instances running in the same machine, you need to specify ``-n <name>`` both when starting Varnish and when using the tools.
    This option is used to specify the instance of ``varnishd``, or the location of the shared memory log.
    All tools (including ``varnishadm``) can also take a ``-n`` option.
 

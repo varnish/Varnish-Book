@@ -34,7 +34,7 @@ Index
 * vcl/ - VCL files used in the course. Not a copy. Included directly as-is,
   and verified by make check. (note: If 'backend' is missing, a generic
   backend will be added on the fly during make check).
-
+* src/ - Resource files for sphinx to export the book in HTML version.
 
 Building the material
 ---------------------
