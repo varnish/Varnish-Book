@@ -72,7 +72,7 @@ The following is an incomplete list of targets:
         Builds book in PDF format
 
 ``make sphinx``
-        Builds book in HTML format
+        Builds book in HTML and ePub format
 
 ``make slides``
         Builds slides in PDF format.
