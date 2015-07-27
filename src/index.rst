@@ -6,6 +6,13 @@ Contents:
 
 .. include:: build/autoindex.rst
 
+.. TODO for the editor: listoffigures and listoftables do not work when their captions have references :ref:
+
+   .. raw:: latex
+
+      \listoffigures
+      \listoftables
+
 Version and copyright
 =====================
 

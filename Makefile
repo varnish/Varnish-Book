@@ -107,7 +107,9 @@ sphinx: ${common} src/conf.py
 #Removes '.. class:: handout' from src/*.rst
 	sed -i 's/\.\. class:: handout//' src/*.rst
 
-	sphinx-build -b html -d build/doctrees src/ build/html
+#	sphinx-build -b html -d build/doctrees src/ build/html
+	@$(MAKE) -C src/ html
+	@$(MAKE) -C src/ epub
 
 sphinx-dist: sphinx book
 	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/

@@ -35,6 +35,8 @@ Index
   and verified by make check. (note: If 'backend' is missing, a generic
   backend will be added on the fly during make check).
 * src/ - Resource files for sphinx to export the book in HTML version.
+  This folder contains a Makefile to build the book in different formats.
+  Enter to the directory and type ``make`` to see the building targets.
 
 Building the material
 ---------------------
@@ -130,6 +132,18 @@ The counter must be as the following example::
 or::
 
   .. table 1
+
+Known issues
+------------
+
+This subsection includes known **issues for building the book in different formats**.
+
+Building with `sphinx`
+......................
+
+- List of figures and list of tables do not work when the figure or table caption includes a reference.
+  This is a limitation to create the PDF with sphinx.
+- Fonts are not resized in notes or other cases such ``:class: tinycode``.
 
 Legal
 -----
