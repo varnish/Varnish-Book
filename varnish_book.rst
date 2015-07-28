@@ -1380,12 +1380,12 @@ Example of Transaction Grouping with ``varnishlog``
    The ``-d`` option processes all recorded entries in Varnish log.
    To learn more about the available ``varnishlog`` options, enter ``varnishlog -h`` or see the ``varnishlog`` man page.
 
-  ``varnishlog`` accepts all options that are syntactically correct.
-  The output, however, might be different from your first interpretation.
-  Therefore, you should make sure that your results make sense.
+   ``varnishlog`` accepts all options that are syntactically correct.
+   The output, however, might be different from your first interpretation.
+   Therefore, you should make sure that your results make sense.
 
-  Options ``-b`` and ``-c`` display only transactions coming from the backend and client communication respectively.
-  You can verify the meaning of your results by double checking the filters, and separating your results with the ``-b`` and ``-c`` options.
+   Options ``-b`` and ``-c`` display only transactions coming from the backend and client communication respectively.
+   You can verify the meaning of your results by double checking the filters, and separating your results with the ``-b`` and ``-c`` options.
 
 Query Language
 --------------
@@ -1416,8 +1416,8 @@ Examples of Varnish log queries::
    It works together with the grouping so that if the query matches some part of any of the work items in the transaction group, the whole group matches and gets displayed.
 
    Query expressions can be combined using boolean functions.
-   There are many output control options, such as ``-i`` *taglist*.
-   These options are output filters, they do not affect transaction matching.
+   In addition, there are many output control options, such as ``-i`` *taglist*.
+   These options are output filters, thus they do not affect transaction matching.
    Output controls are applied last.
 
    .. syntax
@@ -2113,7 +2113,6 @@ Threading parameters
 --------------------
 
 - Thread pools can safely be ignored
-- Maximum: roughly 5000 (total)
 - Start them sooner rather than later
 - Maximum and minimum values are per thread pool
 
@@ -2128,89 +2127,90 @@ Threading parameters
 
 .. container:: handout
 
-   To tune Varnish, think about the expected traffic. 
+   When tuning Varnish, think about the expected traffic. 
    The most important thread setting is the number of cache-worker threads.
    You may configure ``thread_pool_min`` and ``thread_pool_max``.
    These parameters are per thread pool.
 
    Although Varnish threading model allows you to use multiple thread pools, we recommend you to do not modify this parameter.
-   Time and experience shows that 2 thread pools are enough.
-   Adding more pools will not increase performance.
+   Based on our experience and tests, we have seen that 2 thread pools are enough.
+   Adding more pools does not increase performance.
 
    .. note::
 
       If you run across the tuning advice that suggests to have a thread pool per CPU core, rest assured that this is old advice. 
-      Experiments and data from production environments have revealed that as long as you have two thread pools (which is the default), there is nothing to gain by increasing the number of thread pools.
-      Still, you may increase the number of threads per pool.
-
-      All other thread variables are not configurable.
+      We recommend to have at most 2 thread pools, but you may increase the number of threads per pool.
 
 Details of Threading Parameters
 ...............................
 
-.. TODO for the author: create slide version.
+- Default values have proved to be sufficient in most cases
+- ``thread_pool_min``, ``thread_pool_max`` and ``thread_pools`` are the most common threading parameters to tune.
+- Run extra threads to avoid creating them on demand
 
-Most parameters can be left to the defaults with the exception is the number of threads.
-Varnish will use one thread for each session and the number of threads you let Varnish use is directly proportional to how many requests Varnish can serve concurrently.
+.. container:: handout
 
-Among these, ``thread_pool_min`` and ``thread_pool_max`` are the most important parameters.
-Values of these parameters are per thread pool.
-The ``thread_pools`` parameter is mainly used to calculate the total number of threads.
-For the sake of keeping things simple, the current best practice is to leave thread_pools at the default |def_thread_pools|.
+   Varnish runs one thread per session, so the maximum number of threads is equal to the number of maximum sessions that Varnish can serve concurrently.
+   If you seem to need more threads than the default, it is very likely that there is something wrong in your setup.
+   Therefore, you should investigate elsewhere before you increase the maximum value.
 
-Varnish operates with multiple pools of threads. 
-When a connection is accepted, the connection is delegated to one of these thread pools.
-Afterwards, the thread pool either delegates the connection request to an available thread, queue the request otherwise, or drop the connection if the queue is full. 
-By default, Varnish uses 2 thread pools, and this has proven sufficient for even the most busy Varnish server.
+   You can observe if the default values are enough by looking at ``MAIN.sess_queued`` through ``varnishstat``.
+   Look at the counter over time, because it is fairly static right after startup.
 
-Number of Threads
-.................
+   .. pools
 
-.. TODO for the author: create slide version.
+   When tuning the number of threads, ``thread_pool_min`` and ``thread_pool_max`` are the most important parameters.
+   Values of these parameters are per thread pool.
+   The ``thread_pools`` parameter is mainly used to calculate the total number of threads.
+   For the sake of keeping things simple, the current best practice is to leave ``thread_pools`` at the default |def_thread_pools|.
 
-Varnish has the ability to spawn new worker threads on demand, and remove them once the load is reduced. 
-This is mainly intended for traffic spikes.
-It's a better approach to try to always keep a few threads idle during regular traffic than it is to run on a minimum amount of threads and constantly spawn and destroy threads as demand changes.
-As long as you are on a 64-bit system, the cost of running a few hundred threads extra is very low.
+   Varnish operates with multiple pools of threads. 
+   When a connection is accepted, the connection is delegated to one of these thread pools.
+   Afterwards, the thread pool either delegates the connection request to an available thread, queue the request otherwise, or drop the connection if the queue is full. 
+   By default, Varnish uses 2 thread pools, and this has proven sufficient for even the most busy Varnish server.
 
-The ``thread_pool_min`` parameter defines how many threads will be running for each thread pool even when there is no load. 
-``thread_pool_max`` defines the maximum amount of threads that will be used per thread pool.
-That means that with the minimum defaults |def_thread_pool_min| and |def_thread_pool_max| of minimum and maximums threads per pool respectively, you have:
+   .. Number of threads
 
-- at least |def_thread_pool_min| * |def_thread_pools| worker threads at any given time
-- no more than |def_thread_pool_max| * |def_thread_pools| worker threads ever
+   Varnish has the ability to spawn new worker threads on demand, and remove them once the load is reduced. 
+   This is mainly intended for traffic spikes.
+   It's a better approach to keep a few threads idle during regular traffic, than to run on a minimum amount of threads and constantly spawn and destroy threads as demand changes.
+   As long as you are on a 64-bit system, the cost of running a few hundred threads extra is very low.
 
-We rarely recommend running Varnish with more than 5000 threads.
-If you seem to need more than 5000 threads, it is very likely that there is something wrong in your setup.
-Therefore, you should investigate elsewhere before you increase the maximum value.
+   The ``thread_pool_min`` parameter defines how many threads run for each thread pool even when there is no load. 
+   ``thread_pool_max`` defines the maximum amount of threads that could be used per thread pool.
+   That means that with the minimum defaults |def_thread_pool_min| and |def_thread_pool_max| of minimum and maximums threads per pool respectively, you have:
 
-For minimum, it's common to operate with 500 to 1000 threads minimum (total).
-You can observe if those values are enough by looking at ``MAIN.sess_queued`` through ``varnishstat``.
-Look at the counter over time, because it is fairly static right after startup.
+   - at least |def_thread_pool_min| * |def_thread_pools| worker threads at any given time
+   - no more than |def_thread_pool_max| * |def_thread_pools| worker threads ever
 
-.. warning::
 
-   New threads use preallocated workspace.
-   If threads have not enough workspace, the child process is unable to process the task and it terminates.
-   The workspace needed depends on the task that the thread handles.
-   This is normally defined in your VCL.
-   To avoid that the child terminates, evaluate your VCL code and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
+   .. warning::
 
-Timing Thread Growth
-....................
+      New threads use preallocated workspace, which should be enough for the required task.
+      If threads have not enough workspace, the child process is unable to process the task and it terminates.
+      To avoid that this situation, evaluate your setup and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
 
-Varnish can use several thousand threads, and has had this capability from the very beginning. 
-However, not all operating system kernels were prepared to deal with this capability.
-Therefore the parameter ``thread_pool_add_delay`` was added to ensure that there is a small delay between each thread that spawns.
-As operating systems have matured, this has become less important and the default value of ``thread_pool_add_delay`` has been reduced dramatically,
-from 20 ms to 2 ms.
+Time Overhead per Thread Creation
+.................................
 
-There are a few, less important parameters related to thread timing. 
-The ``thread_pool_timeout`` is how long a thread is kept around when there is no work for it before it is removed.
-This only applies if you have more threads than the minimum, and is rarely changed.
+- ``thread_pool_add_delay``: Wait at least this long after creating a thread.
+- ``thread_pool_timeout``: Thread idle threshold.
+- ``thread_pool_fail_delay``: After a failed thread creation, wait at least this long before trying to create another thread.
 
-Another less important parameter is the ``thread_pool_fail_delay``.
-After the operating system fails to create a new thread, ``thread_pool_fail_delay`` defines how long to wait for a re-trial.
+.. container:: handout
+
+   Varnish can use several thousand threads, and has had this capability from the very beginning. 
+   However, not all operating system kernels were prepared to deal with this capability.
+   Therefore the parameter ``thread_pool_add_delay`` was added to ensure that there is a small delay between each thread that spawns.
+   As operating systems have matured, this has become less important and the default value of ``thread_pool_add_delay`` has been reduced dramatically,
+   from 20 ms to 2 ms.
+
+   There are a few, less important parameters related to thread timing. 
+   The ``thread_pool_timeout`` is how long a thread is kept around when there is no work for it before it is removed.
+   This only applies if you have more threads than the minimum, and is rarely changed.
+
+   Another less important parameter is the ``thread_pool_fail_delay``.
+   After the operating system fails to create a new thread, ``thread_pool_fail_delay`` defines how long to wait for a re-trial.
 
 System Parameters
 -----------------
@@ -3275,7 +3275,8 @@ VCL – ``vcl_recv``
 
    #. Modifying the client data to reduce cache diversity. E.g., removing any leading "www." in the ``Host:`` header.
    #. Deciding which web server to use.
-   #. Deciding caching policy based on client data. E.g., not caching POST requests, only caching specific URLs, etc.
+   #. Deciding caching policy based on client data.
+      For example; no caching POST requests but only caching specific URLs.
    #. Executing re-write rules needed for specific web applications.
 
    In ``vcl_recv`` you can perform the following terminating actions:
@@ -5751,7 +5752,7 @@ Misc:
    Some other possibly useful examples are:
 
    - ``varnishtop -i ReqUrl``: displays what URLs are most frequently requested from clients.
-   - ``varnishtop -i ReqHeader -I 'User-Agent:.*Linux.*'``: lists User-Agent headers with "Linux" in it.
+   - ``varnishtop -i ReqHeader -C -I 'User-Agent:.*Linux.*'``: lists ``User-Agent`` headers that contain the ignoring case ``Linux`` string.
      This example is useful for Linux users, since most web browsers in Linux report themselves as Linux.
    - ``varnishtop -i RespStatus``: lists status codes received in clients from backends.
    - ``varnishtop -i VCL_call``: shows what VCL functions are used.
