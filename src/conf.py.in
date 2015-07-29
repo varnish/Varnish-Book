@@ -241,7 +241,7 @@ man_pages = [
 # Bibliographic Dublin Core info.
 epub_title = project
 epub_author = author
-epub_publisher = author
+epub_publisher = "Varnish Software"
 epub_copyright = copyright
 
 # The basename for the epub file. It defaults to the project name.
