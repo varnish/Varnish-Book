@@ -4008,20 +4008,43 @@ Cache Invalidation
      - Varnish Software's implementation of surrogate keys
      - Flexible cache invalidation based on cache tags
 
-   Which to use when?
+Purge vs. Bans vs. Hashtwo vs. Cache Misses
+-------------------------------------------
 
-   Whenever you deal with a cache, you have to eventually deal with the challenge of cache invalidation, or refreshing content.
-   There are many motives behind such a task.
+Which one to use and when?
+
+.. table 18
+
+.. csv-table:: Table :counter:`table`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
+   :name: purge_ban_hash2_force
+   :header-rows: 1
+   :widths: 14,29,19,19,19
+   :file: tables/purge_ban_hash2_force.csv
+
+.. container:: handout
+
+   Whenever you deal with caching, you have to eventually deal with the challenge of cache invalidation, or content update.
+   There are many reasons for this.
    Varnish addresses the problem in several slightly different ways.
 
-   To decide which cache invalidation mechanism to use, answer the following questions:
+   There is rarely a need to pick only one solution, as you can implement many of them.
+   However, you can try to answer the following questions:
 
    - Am I invalidating one specific object, or many?
    - Do I need to free up memory, or just replace the content?
    - How long time does it take to replace the content?
    - Is this a regular task, or a one-off task?
 
+   or follow these guidelines:
+
+   - If you need to invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
+   - If it takes a long time to pull content from the backend into Varnish, consider to force cache misses by using ``req.hash_always_miss``.
+
    The rest of the chapter gives you the information to pickup the most suitable mechanisms.
+
+   .. note::
+      Purge and Hashtwo work very similar.
+      The main difference is that they have and act on different hash keys.
 
 HTTP PURGE
 ----------
@@ -4362,16 +4385,16 @@ Force Cache Misses
 
    .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
 
-   Two important use-cases for using ``req.hash_always_miss`` are:
+   Two important use cases for using ``req.hash_always_miss`` are when you want to:
    1) control who takes the penalty for waiting around for the updated content (e.g. a script you control), and 
-   2) ensure that content is not evicted before there it is updated.
+   2) ensure that content is not evicted before it is updated.
 
    .. note::
 
       Forcing cache misses do not evict old content.
       This means that causes Varnish to have multiple copies of the content in cache.
       The newest copy is always used.
-      If you cache your content for a long period of time, the memory usage increases gradually.
+      If you cache your content for a long period of time, the memory usage will increase gradually.
 
 Hashtwo (Varnish Software Implementation of Surrogate Keys)
 -----------------------------------------------------------
@@ -4476,30 +4499,6 @@ The objects are now cleared.
 .. warning::
 
    You should protect purges with ACLs from unauthorized hosts.
-
-Purge vs. Bans vs. Hashtwo vs. Cache Misses
--------------------------------------------
-
-.. table 18
-
-.. csv-table:: Table :counter:`table`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
-   :name: purge_ban_hash2_force
-   :header-rows: 1
-   :widths: 14,29,19,19,19
-   :file: tables/purge_ban_hash2_force.csv
-
-.. container:: handout
-
-   There is rarely a need to pick only one solution, as you can implement many of them.
-   Some guidelines for selection, though:
-
-   - Any frequent automated or semi-automated cache invalidation most likely require VCL changes for the best effect.
-   - If you need to invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
-   - If it takes a long time to pull content from the backend into Varnish, consider to use ``req.hash_always_miss``. 
-
-   .. note::
-      Purge and Hashtwo work very similar.
-      The main difference is that they have they act on different hash keys.
 
 Saving a Request
 ================
