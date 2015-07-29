@@ -163,9 +163,8 @@ ${BDIR}/varnish_slides-A4.pdf: ${common} ${bookutil} ui/pdf_slide-A4.style
 	@echo Building PDF slides for slides-A4...
 	@${PICK} -v inc=${slides-A4} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
 
-#FIXME: The command of this rule works if executed directly in the shell, but not in here.
 util/param.rst:
-	varnishadm param.show | gawk 'NF {$NF=""; printf ".. |def_"$$1"| replace::\t"; print substr($$0,index($$0,$$2))}' | column -ts $$'\t' > util/param.rst_tmp
+	varnishadm param.show | gawk 'NF {$$NF=""; printf ".. |def_"$$1"| replace::\t"; print substr($$0,index($$0,$$2))}' | column -ts "$$(printf '\t')"> util/param.rst
 
 sourceupdate: util/param.rst flowchartupdate
 

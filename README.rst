@@ -81,6 +81,13 @@ The following is an incomplete list of targets:
 ``make clean``
         removes build/
 
+``make util/param.rst``
+        Updates the default values of your Varnish installation.
+	These values are the ones to be used in your book building.
+
+``make sourceupdate``
+        Calls ``util/param.rst`` rule and will call other rules to update the sources of the book.
+
 ..
    ``make check``
 	   Does syntax-checking on VCL and php-files. Ensures that they are
@@ -107,9 +114,6 @@ The following is an incomplete list of targets:
 	   Might require deleting the file first. Fetches varnish-parameters
 	   from varnishd (as found in your PATH) and updates the
 	   util/param.rst with the correct macros.
-
-   ``make sourceupdate``
-	   Does both the util/param.rst-thing and flowchartupdate.
 
 Updating the training material
 ------------------------------
