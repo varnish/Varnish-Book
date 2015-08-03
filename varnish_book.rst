@@ -1,4 +1,4 @@
-.. include:: util/frontpage.rst
+w.. include:: util/frontpage.rst
 
 .. include:: util/printheaders.rst
 
@@ -3972,9 +3972,9 @@ Cache Invalidation
 ==================
 
 - Cache invalidation is an important part of your cache policy
-- Varnish will automatically invalidate expired objects
+- Varnish automatically invalidates expired objects
 - You can however pro-actively invalidate objects with Varnish
-- You should define those rules **before caching objects** in production environments
+- You should define cache invalidation rules **before caching objects** specially in production environments
 
 .. container:: handout
 
@@ -4024,16 +4024,15 @@ Which one to use and when?
 .. container:: handout
 
    Whenever you deal with caching, you have to eventually deal with the challenge of cache invalidation, or content update.
-   There are many reasons for this.
-   Varnish addresses the problem in several slightly different ways.
+   Varnish has different mechanisms to addresses this challenge, but which one to use?
 
    There is rarely a need to pick only one solution, as you can implement many of them.
    However, you can try to answer the following questions:
 
-   - Am I invalidating one specific object, or many?
-   - Do I need to free up memory, or just replace the content?
+   - Am I invalidating one or many specific objects?
+   - Do I need to free up memory or just replace the content?
    - How long time does it take to replace the content?
-   - Is this a regular task, or a one-off task?
+   - Is this a regular or a one-off task?
 
    or follow these guidelines:
 
@@ -4066,10 +4065,10 @@ HTTP PURGE
    Squid, for example, uses the ``PURGE`` method name for the same purpose.
 
    Purges apply to a specific object, since they use the same lookup operation as in ``vcl_hash``.
-   Therefore, purges cannot use regular-expressions.
-   A positive effect is that purges find and remove objects really fast!
+   Therefore, purges find and remove objects really fast!
 
-   The down-side of using ``PURGE`` is that you evict content from cache before you know if Varnish can fetch a new copy from the backend. 
+   There are, however, two clear down-sides.
+   First, purges cannot use regular expressions, and second, purges evict content from cache regardless the availability of the backend.
    That means that if you purge some objects and the backend is down, Varnish will end up having no copy of the content.
 
 VCL – ``vcl_purge``
@@ -5991,7 +5990,7 @@ VWS
    [This chapter is work in progress]
 
    - Used to filter results in ``varnishlog``, specially when using queries.
-   - Used to match string for bans and purges.
+   - Used to match string for ban.
 
    .. container:: handout
 

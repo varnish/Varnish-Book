@@ -24,7 +24,7 @@ slides-A4 = "*"
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
 
 test = "The Varnish Log"
-#test = "Varnish request flow for the client worker thread"
+# test = "Varnish request flow for the client worker thread"
 # TOFIX: the sysadmin target is not compiling as expected.
 # sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"
 
