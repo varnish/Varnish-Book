@@ -2,7 +2,7 @@
 Welcome to the Varnish Book
 ===========================
 
-Contents:
+Table of Contents:
 
 .. include:: build/autoindex.rst
 

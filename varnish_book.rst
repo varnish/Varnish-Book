@@ -2340,59 +2340,66 @@ This chapter covers:
 
 .. container:: handout
 
-   HTTP is at the heart of Varnish, or rather the model HTTP represents.
+   Varnish is designed to be used with HTTP semantics.
+   These semantics are specified in the version called HTTP/1.1.
+   This chapter covers the basics of HTTP as a protocol, its semantics, how it is used in the wild, and delves into caching as it applies to HTTP.
 
-   This chapter will cover the basics of HTTP as a protocol, how it's used
-   in the wild, and delve into caching as it applies to HTTP.
-
-Protocol basics
+Protocol Basics
 ---------------
 
 - Hyper-Text Transfer Protocol, HTTP, is at the core of the web
-- Specified by the IETF, the latest version (HTTP/1.1) is available from
-  http://tools.ietf.org/html/rfc2616
-- A request consists of a request method, headers and an optional request body.
-- A response consists of a response status, headers and an optional
-  response body.
-- Multiple requests can be sent over a single connection, in serial.
-- Clients will open multiple connections to fetch resources in parallel.
+- Specified by the IETF, there are two main versions: HTTP/1.1 and HTTP/2
+- Varnish 4.0 supports HTTP/1.1
 
 .. container:: handout
 
-    HTTP is a networking protocol for distributed systems. It is the foundation of
-    data communication for the Web. The development of this standard is done by the
-    IETF and the W3C. The latest version of the standard is HTTP/1.1. In 2014, new
-    RFCs have been published to clarify (and obsolete) 2616: RFCs 7230 to 7235.
+    HTTP is a networking protocol for distributed systems.
+    It is the foundation of data communication for the web. 
+    The development of this standard is done by the IETF and the W3C.
+    In 2014, RFCs 723X were published to clarify HTTP/1.1 and they obsolete RFC 2616.
 
-    A new version of HTTP called HTTP/2 has been released, but RFCs haven't been
-    published yet. Basically HTTP/2 is a radically different protocol but shares
-    the same goals.
+    A new version of HTTP called HTTP/2 has been released under RFC 7540.
+    HTTP/2 is an alternative to HTTP/1.1 and does not obsolete the HTTP/1.1 message syntax.
+    HTTP's existing semantics remain unchanged.
 
-Requests
---------
+.. bookmark
 
-- Standard request methods are: `GET`, `POST`, `HEAD`, `OPTIONS`, `PUT`,
-  `DELETE`, `TRACE`, or `CONNECT`.
-- This is followed by a URI, e.g:  `/img/image.png` or `/index.html`
-- Usually followed by the HTTP version
-- A new-line (CRLF), followed by an arbitrary amount of CRLF-separated
-  headers (`Accept-Language`, `Cookie`, `Host`, `User-Agent`, etc).
-- A single empty line, ending in CRLF.
-- An optional message body, depending on the request method.
+Requests, Methods, Header Fields and Responses
+----------------------------------------------
+
+- A request is a message from a client to a server that includes the method to be applied to a requested resource, the identifier of the resource, the protocol version in use and an optional message body
+- A method is a token that indicates the method to be performed on the resource identified by the Request-URI.
+- Standard request methods are: ``GET``, ``POST``, ``HEAD``, ``OPTIONS``, ``PUT``, ``DELETE``, ``TRACE``, or ``CONNECT``
+- Examples of URIs are ``/img/image.png`` or ``/index.html``
+- Request header fields allow the client to pass additional information about the request, and about the client itself, to the server.
+- A response is a message from a server to a client that consists of a response status, headers and an optional message body
 
 .. container:: handout
 
-   Each request has the same, strict and fairly simple pattern. A request
-   method informs the web server what sort of request this is: Is the
-   client trying to fetch a resource (`GET`), or update some data(`POST`)?
-   Or just get the headers of a resource (`HEAD`)?
+   Each request has the same, strict and fairly simple pattern.
 
-   There are strict rules that apply to the request methods. For instance,
-   a `GET` request should not contain a request body, but a `POST` request
-   can.
+   .. Requests
 
-   Similarly, a web server can not attach a request body to a response to a
-   `HEAD` body.
+   Multiple requests can be sent in serial mode over a single connection.
+   In order to fetch resources in parallel, clients must open multiple connections.
+
+   .. Methods
+
+   A request method informs the web server what sort of request this is: Is the client trying to fetch a resource (``GET``), update some data (``POST``) at the backend, or just get the headers of a resource (``HEAD``)?
+   Methods are case-sensitive.
+
+   .. Headers 
+
+   A new-line (CRLF – Carriage Return Line Feed), followed by an arbitrary number of CRLF-separated headers (``Accept-Language``, ``Cookie``, ``Host``, ``User-Agent``, etc).
+   A single empty line, ending in CRLF.
+
+   .. Message Bodies
+
+   Message bodies are optional but they must comply to the requested method.
+   For instance, a ``GET`` request should not contain a request body, but a ``POST`` request may contain one.
+   Similarly, a web server cannot attach a message body to the response of a ``HEAD`` request.
+
+   .. Responses
 
 Request example
 ---------------
@@ -3092,7 +3099,7 @@ List of functions and their arguments:
 
 - ``regsub(str, regex, sub)``
 - ``regsuball(str, regex, sub)``
-- ``ban(exp)``
+- ``ban(regex)``
 - ``return(action)``
 - ``hash_data(input)``
 - ``call subroutine``
@@ -3990,7 +3997,7 @@ Cache Invalidation
 
    2) Banning
 
-     - Use the built-in function ``ban(expression)``
+     - Use the built-in function ``ban(regex)``
      - Invalidates objects in cache that match the regular-expression
      - Does not necessarily free up memory at once
      - Also accessible from the management interface
@@ -4068,7 +4075,7 @@ HTTP PURGE
    Therefore, purges find and remove objects really fast!
 
    There are, however, two clear down-sides.
-   First, purges cannot use regular expressions, and second, purges evict content from cache regardless the availability of the backend.
+   First, purges cannot use regular-expressions, and second, purges evict content from cache regardless the availability of the backend.
    That means that if you purge some objects and the backend is down, Varnish will end up having no copy of the content.
 
 VCL – ``vcl_purge``
@@ -5997,7 +6004,7 @@ VWS
       This appendix is a brief introduction and usage of regular-expressions for Varnish.
       A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
       They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
-      Regular-expressions are commonly used by ``varnishlog``, bans, purges, ``regsub()``, ``regsuball()``, and VCS.
+      Regular-expressions are commonly used by ``varnishlog``, bans, ``regsub()``, ``regsuball()``, and VCS.
       Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
 
       Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
@@ -6005,8 +6012,20 @@ VWS
       You can combine them in an infinite number of ways to achieve a particular goal.
       This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
 
+      .. note::
+
+	 Purges cannot use regular-expressions because use the regular lookup operation to match hashes.
+	 The lookup operation matches only specific object identifiers, not regex patterns.
+
+   Regular-Expressions in This Book
+   --------------------------------
+
+   - 
+
+   .. container:: handout
+
       In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
-      See the regular-expression matching in::
+      Examples of regular-expression matching::
 
 	 ban req.url ~ ^/foo$
 	 ReqMethod ~ "GET|POST"
@@ -6015,3 +6034,4 @@ VWS
 	 where req.http.x-ban`` is a regular-expression.
 
       To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
+      The PCRE manual page ``man pcre`` is also a valuable resource, specially ``man pcresyntax`` and ``man pcrepattern``.

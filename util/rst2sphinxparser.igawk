@@ -20,7 +20,7 @@ BEGIN {
     # after preparation of aidx, "clean" chapters' names are added to aidx.
     aidx = dst "build/autoindex.rst"
     print ".. toctree::" > aidx
-    print "\t:maxdepth: 1" >> aidx
+    print "\t:maxdepth: 3" >> aidx
     print "" >> aidx
 }
 
