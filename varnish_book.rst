@@ -1,4 +1,4 @@
-w.. include:: util/frontpage.rst
+.. include:: util/frontpage.rst
 
 .. include:: util/printheaders.rst
 
@@ -342,21 +342,19 @@ What is Varnish?
 
    Varnish is a reverse HTTP proxy, sometimes referred to as an HTTP accelerator or a web accelerator.
    A reverse proxy is a proxy server that appears to clients as an ordinary server.
-   Varnish stores files or fragments of files in memory, allowing them to be served quickly. 
-   It is essentially a key/value store, that usually uses the URL as a key. 
-   It is designed for modern hardware, modern operating systems and modern work loads.
+   Varnish stores (caches) files or fragments of files in memory that are used to reduce the response time and network bandwidth consumption on future, equivalent requests.
+   Varnish is designed for modern hardware, modern operating systems and modern work loads.
 
    .. Benefits:
 
-   At the same time, Varnish is flexible.
-   The Varnish Configuration Language (VCL) compiles and executes lightning fast.
-   VCL allows system administrators to express their wanted policy rather than being constrained by what the Varnish developers want to cater for or could think of.
+   Varnish is flexible because you can configure it and write your own caching policies in its Varnish Configuration Language (VCL).
+   VCL is a domain specific language based on C, therefore it compiles and executes lightning fast.
    Varnish has shown itself to work well both on large (and expensive) servers and tiny appliances.
 
    .. Varnish use
-
-   Varnish is more than a reverse HTTP proxy.
-   Depending on the installation, Varnish can be used as:
+   
+   Varnish is more than a reverse HTTP proxy that caches content to speed up your server.
+   Depending on the installation, Varnish can also be used as:
 
    .. TODO for the author: can we be more specific with what functionality is achieved with Varnish Cache, and which one with Varnish Cache Plus?
 
@@ -2347,53 +2345,61 @@ This chapter covers:
 Protocol Basics
 ---------------
 
+.. figure 16
+
+.. figure:: ui/img/httprequestflow.png
+   :align: center
+   :width: 100%
+
+   Figure :counter:`figure`: HTTP request/response control flow diagram
+
 - Hyper-Text Transfer Protocol, HTTP, is at the core of the web
 - Specified by the IETF, there are two main versions: HTTP/1.1 and HTTP/2
 - Varnish 4.0 supports HTTP/1.1
 
 .. container:: handout
 
-    HTTP is a networking protocol for distributed systems.
-    It is the foundation of data communication for the web. 
-    The development of this standard is done by the IETF and the W3C.
-    In 2014, RFCs 723X were published to clarify HTTP/1.1 and they obsolete RFC 2616.
+   HTTP is a networking protocol for distributed systems.
+   It is the foundation of data communication for the web. 
+   The development of this standard is done by the IETF and the W3C.
+   In 2014, RFCs 723X were published to clarify HTTP/1.1 and they obsolete RFC 2616.
 
-    A new version of HTTP called HTTP/2 has been released under RFC 7540.
-    HTTP/2 is an alternative to HTTP/1.1 and does not obsolete the HTTP/1.1 message syntax.
-    HTTP's existing semantics remain unchanged.
+   A new version of HTTP called HTTP/2 has been released under RFC 7540.
+   HTTP/2 is an alternative to HTTP/1.1 and does not obsolete the HTTP/1.1 message syntax.
+   HTTP's existing semantics remain unchanged.
 
-.. bookmark
+   The protocol allows multiple requests to be sent in serial mode over a single connection.
+   If a client wants to fetch resources in parallel, it must open multiple connections.
 
-Requests, Methods, Header Fields and Responses
-----------------------------------------------
+Requests and Responses
+......................
 
 - A request is a message from a client to a server that includes the method to be applied to a requested resource, the identifier of the resource, the protocol version in use and an optional message body
-- A method is a token that indicates the method to be performed on the resource identified by the Request-URI.
+- A method is a token that indicates the method to be performed on the requested resource identified by a URI
 - Standard request methods are: ``GET``, ``POST``, ``HEAD``, ``OPTIONS``, ``PUT``, ``DELETE``, ``TRACE``, or ``CONNECT``
 - Examples of URIs are ``/img/image.png`` or ``/index.html``
-- Request header fields allow the client to pass additional information about the request, and about the client itself, to the server.
+- Header fields are allowed in requests and responses
+- Header fields allow client and servers to pass additional information
 - A response is a message from a server to a client that consists of a response status, headers and an optional message body
 
 .. container:: handout
 
-   Each request has the same, strict and fairly simple pattern.
-
    .. Requests
 
-   Multiple requests can be sent in serial mode over a single connection.
-   In order to fetch resources in parallel, clients must open multiple connections.
-
+   The first line of a request message is called `Request-Line`, whereas the first line of a response message is called `Status-Line`.
+   The Request-Line begins with a method token, followed by the requested resource (URI) and the protocol version.
    .. Methods
 
-   A request method informs the web server what sort of request this is: Is the client trying to fetch a resource (``GET``), update some data (``POST``) at the backend, or just get the headers of a resource (``HEAD``)?
+   A request method informs the web server what sort of request this is:
+   Is the client trying to fetch a resource (``GET``), update some data (``POST``) at the backend, or just get the headers of a resource (``HEAD``)?
    Methods are case-sensitive.
 
    .. Headers 
 
-   A new-line (CRLF – Carriage Return Line Feed), followed by an arbitrary number of CRLF-separated headers (``Accept-Language``, ``Cookie``, ``Host``, ``User-Agent``, etc).
-   A single empty line, ending in CRLF.
+   After the Request-Line, request messages may have an arbitrary number of header fields.
+   For example: ``Accept-Language``, ``Cookie``, ``Host`` and ``User-Agent``.
 
-   .. Message Bodies
+   .. Message Bodies and Responses
 
    Message bodies are optional but they must comply to the requested method.
    For instance, a ``GET`` request should not contain a request body, but a ``POST`` request may contain one.
@@ -2401,8 +2407,21 @@ Requests, Methods, Header Fields and Responses
 
    .. Responses
 
-Request example
----------------
+   The Status-Line of a response message consists of the protocol version followed by a numeric status code and its associated textual phrase.
+   This associated textual phrase is also called `reason`.
+   Important is to know that the reason is intended for the human user.
+   That means that the client is not required to examine the reason, as it may change and it should not affect the protocol.
+   Examples of status codes with their reasons are: ``200 OK``, ``404 File Not Found`` and ``304 Not Modified``.
+
+   Responses also include header fields after the Status-Line, which allow the server to pass additional information about the response.
+   Examples of response header fields are: ``Age``, ``ETag``, ``Cache-Control`` and ``Content-Length``.
+
+   .. note::
+
+      Requests and responses share the same syntax for headers and message body, but some headers are request- or response-specific.
+
+Request Example
+...............
 
 ::
 
@@ -2420,20 +2439,19 @@ Request example
 
 .. container:: handout
 
-   The above is a typical HTTP `GET` request for the ``/`` resource.
+   The above example is a typical HTTP request that includes a Request-Line, and headers, but no message body.
+   The Request-Line consists of the ``GET`` request for the ``/`` resource and the ``HTTP/1.1`` version.
+   The request includes the header fields ``Host``, ``User-Agent``, ``Accept``, ``Accept-Language``, ``Accept-Encoding``, ``Accept-Charset``, ``Keep-Alive``, ``Connection`` and ``Cache-Control``.
 
-   Note that the ``Host``-header contains the hostname as seen by the
-   browser. The above request was generated by entering http://localhost/
-   in the browser. The browser automatically adds a number of headers. Some
-   of these will vary depending on language settings, others will vary
-   depending on whether the client has a cached copy of the page already,
-   or if the client is doing a refresh or forced refresh.
+   Note that the ``Host`` header contains the hostname as seen by the browser.
+   The above request was generated by entering http://localhost/ in the browser.
+   Most browsers automatically add a number of headers.
 
-   Whether the server honors these headers will depend on both the server
-   in question and the specific header.
+   Some of the headers will vary depending on the configuration and state of the client.
+   For example, language settings, cached content, forced refresh, etc.
+   Whether the server honors these headers will depend on both the server in question and the specific header.
 
-   The following is an example of an HTTP request using the `POST` method,
-   which includes a request body::
+   The following is an example of an HTTP request using the ``POST`` method, which includes a message body::
 
      POST /accounts/ServiceLoginAuth HTTP/1.1
      Host: www.google.com
@@ -2452,57 +2470,8 @@ Request example
 
      ltmpl=default[...]&signIn=Sign+in&asts=
 
-Response
---------
-
-::
-
-	HTTP/1.1 200 OK
-	Cache-Control: max-age=150
-	Content-Length: 150
-
-	[data]
-
-- An HTTP response contains the HTTP versions, a status code (e.g: 200) and
-  a reason (e.g: OK)
-- CRLF as line separator
-- A number of headers
-- Headers are terminated with a blank line
-- Optional response body
-
-.. container:: handout
-
-   The HTTP response is similar to the request itself. The response code
-   informs the browser both whether the request succeeded and what type of
-   response this is. The response message is a text-representation of the
-   same information, and is often ignored by the browser itself.
-
-   Examples of status codes are `200 OK`, `404 File Not Found`, `304 Not
-   Modified` and so fort. They are all defined in the HTTP standard, and
-   grouped into the following categories:
-
-   - 1xx: Informational - Request received, continuing process
-
-   - 2xx: Success - The action was successfully received, understood, and
-     accepted
-
-   - 3xx: Redirection - Further action must be taken in order to complete
-     the request
-
-   - 4xx: Client Error - The request contains bad syntax or cannot be
-     fulfilled
-
-   - 5xx: Server Error - The server failed to fulfill an apparently valid
-     request
-
-.. note::
-
-   The main difference between a request and a response (besides the semantics)
-   is the start line. Both share the same syntax for headers and the body, but
-   some headers are request- or response-specific.
-
-Response example
-----------------
+Response Example
+................
 
 ::
 
@@ -2524,54 +2493,92 @@ Response example
 
     [data]
 
-HTTP request/response control flow
-----------------------------------
+.. container:: handout
 
-.. figure 16
+   The example above is a HTTP response that contains a Status-Line, headers and message body.
+   The Status-Line consists of the ``HTTP/1.1`` version, the status code ``200`` and the reason ``OK``.
+   The response status code informs the client (browser) whether the server understood the request and how it replied to it.
+   These codes are fully defined in https://tools.ietf.org/html/rfc2616#section-10, but here is an overview of them:
 
-.. figure:: ui/img/httprequestflow.png
-   :align: center
-   :width: 100%
+   - 1xx: Informational – Request received, continuing process
+   - 2xx: Success – The action was successfully received, understood, and accepted
+   - 3xx: Redirection – Further action must be taken in order to complete the request
+   - 4xx: Client Error – The request contains bad syntax or cannot be fulfilled
+   - 5xx: Server Error –  The server failed to fulfill an apparently valid request
 
-   Figure :counter:`figure`: HTTP request/response control flow diagram
+HTTP Properties
+---------------
 
-The client sends an HTTP request to the server which returns an HTTP response
-with the message body.
-
-Statelessness and idempotence
------------------------------
-
-**statelessness**
-    HTTP is by definition a stateless protocol which means that in theory
-    your browser has to reconnect to the server for every request. In practice
-    there is a header called `Keep-Alive` you may use if you want to keep the
-    connection open between the client (your browser) and the server.
-
-**idempotence**
-    Idempotence means that an operation can be applied multiple times without
-    changing the result. `GET` and `PUT` HTTP request are expected to be
-    idempotent whereas `POST` requests are not. In other words, you can not
-    cache `POST` HTTP responses.
+- HTTP is a stateless protocol
+- Properties of methods: safe, idempotent and **cacheable**
+- Most common cacheable request methods are ``GET`` and ``HEAD``
 
 .. container:: handout
 
-   For more discussion about idempotence
-   http://queue.acm.org/detail.cfm?id=2187821.
+    HTTP is by definition a stateless protocol meaning that each request message can be understood in isolation.
+    Hence, a server MUST NOT assume that two requests on the same connection are from the same user agent unless the connection is secured and specific to that agent.
+    
+    HTTP/1.1 persists connections by defualt.
+    This is contrary to most implementations of HTTP/1.0, where each connection is established by the client prior to the request and closed by the server after sending the response.
+    Therefore, for compatibility reasons, persistent connections may be explicitly negotiated as they are not the default behaviour in HTTP/1.0 [https://tools.ietf.org/html/rfc7230#appendix-A.1.2].
+    In practice, there is a header called ``Keep-Alive`` you may use if you want to control the connection persistence between the client and the server.
 
-Cache related headers
+    Safe methods are considered "safe" if they are read-only; i.e., the client request does not alter any state on the server.
+    ``GET``, ``HEAD``, ``OPTIONS``, and ``TRACE`` methods are defined to be safe.
+    An `idempotent` method is such that multiple identical requests have the same effect as a single request.
+    ``PUT``, ``DELETE`` and safe requests methods are idempotent.
+    **Cacheable methods** are those that allow to store their responses for future reuse.
+    RFC7231 specifies ``GET``, ``HEAD`` and ``POST`` as cacheable.
+    However, responses from ``POST`` are very rarely treated as cacheable.
+    [https://tools.ietf.org/html/rfc7231#section-4.2]
+
+Cache Related Headers
 ---------------------
 
-HTTP provides a list of headers dedicated to page caching and cache
-invalidation. The most important ones are:
+- HTTP provides a list of headers that control cache behavior
+- The most important caching header fields are:
 
-- Expires
-- Cache-Control
-- Etag
-- Last-Modified
-- If-Modified-Since
-- If-None-Match
-- Vary
-- Age
+   - ``Expires``
+   - ``Cache-Control``
+   - ``Etag``
+   - ``Last-Modified``
+   - ``If-Modified-Since``
+   - ``If-None-Match``
+   - ``Vary``
+   - ``Age``
+
+.. container:: handout
+
+   A cached object is a local store of HTTP response messages.
+   These objects are stored, controlled, retrieved and deleted by a subsystem, in this case Varnish.
+   For this purpose, Varnish uses caching header fields.
+
+   If a cache is valid, Varnish constructs responses from caches.
+   As a result, the backend server is freed from reprocessing a client request.
+
+Constructing Responses from Caches
+----------------------------------
+
+When to serve a cached object?
+
+- Object matching
+- The requested method and its matched object allows it
+- Evaluation of header fields
+- Freshness of object
+
+.. container:: handout
+
+   When Varnish matches a request with a cached object, it evaluates whether the cache should be used to construct a response or whether the server must be contacted.
+   There are many rules that should be taken into consideration when valudating a cache.
+   Most of those rules use the caching header fields.
+   This subsection describes the  most common header fields and how they are used in Varnish to validate caches.
+
+.. bookmark:
+
+   Object Matching
+   ...............
+   
+   Vary!
 
 Exercise: Test various Cache headers
 ------------------------------------
@@ -2603,9 +2610,8 @@ Try both clicking the links twice, hitting refresh and forced refresh
 Expires
 -------
 
-The `Expires` **response** header field gives the date/time after which the
-response is considered stale. A stale cache item will not be returned by
-any cache (proxy cache or client cache).
+The `Expires` **response** header field gives the date/time after which the response is considered stale.
+A stale cache item will not be returned by any cache (proxy cache or client cache).
 
 The syntax for this header is::
 

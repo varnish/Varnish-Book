@@ -98,6 +98,7 @@ sphinx: ${common} src/conf.py
 
 #update references in tables:
 	mkdir -p src/chapters/tables
+	rm src/chapters/tables/*
 	for a in tables/*; do \
 		util/rst2sphinxparser_tables.awk -v dst="src/chapters/"$$a < ${PWD}/$$a; \
 	done
