@@ -1,4 +1,4 @@
-Argument           | Request | Response  
+Directives         | Request | Response  
 `no-cache`         | X       | X         
 `no-store`         | X       | X         
 `max-age`          | X       | X         

@@ -2532,8 +2532,8 @@ HTTP Properties
     However, responses from ``POST`` are very rarely treated as cacheable.
     [https://tools.ietf.org/html/rfc7231#section-4.2]
 
-Cache Related Headers
----------------------
+Cache-related Headers Fields
+----------------------------
 
 - HTTP provides a list of headers that control cache behavior
 - The most important caching header fields are:
@@ -2561,31 +2561,316 @@ Constructing Responses from Caches
 
 When to serve a cached object?
 
-- Object matching
+- The cached object is properly matched: `cache-hit`
 - The requested method and its matched object allows it
-- Evaluation of header fields
-- Freshness of object
+- The freshness of the cached object is acceptable
 
 .. container:: handout
 
-   When Varnish matches a request with a cached object, it evaluates whether the cache should be used to construct a response or whether the server must be contacted.
+   When Varnish matches a request with a cached object (cache-hit), it evaluates whether the cache should be used to construct a response or whether the server must be contacted.
    There are many rules that should be taken into consideration when valudating a cache.
    Most of those rules use the caching header fields.
    This subsection describes the  most common header fields and how they are used in Varnish to validate caches.
 
-.. bookmark:
+.. bookmark 2
 
-   Object Matching
-   ...............
+Cache-hit and Misses
+....................
+
+**cache-hit**
+
+There is a cache-hit when Varnish returns a page from its cache instead of
+forwarding the request to the origin server.
+
+.. figure 17
+
+.. figure:: ui/img/httpcachehit.png
+   :align: center
+   :width: 100%
+
+   Figure :counter:`figure`: Cache-hit control flow diagram
+
+**cache-miss**
+
+There is a cache-miss when Varnish has to forward the request to the origin
+server so the page can be serviced.
+
+.. figure 18
+
+.. figure:: ui/img/httpcachemiss.png
+   :align: center
+   :width: 100%
+
+   Figure :counter:`figure`: Cache-miss control flow diagram
+
+.. end of bookmark 2
+
+Object Matching
+---------------
+
+How to match the correct cached object?
+
+- Useful to reuse, update or invalidate caches
+- Objects may have variant (``Vary`` and ``Etag``)
+  
+.. container:: handout
+
+   This subsection describes three header fields commonly used to effectively match cached objects.
+   These fields are ``Vary``, ``Etag`` and ``If-None-Match``
+
+``Vary``
+........
+
+- Be careful when using ``Vary``
+- Wrong usage can create a very large number of cached objects and reduce efficiency
+
+.. container:: handout
+
+   The ``Vary`` header field is one of the trickiest headers to deal with for a cache.
+   This header field indicates that the response from the origin server may vary depending on request headers fields.
+   A caching server like Varnish does not necessarily understand the semantics of a header, or what part triggers different variants of a
+   page.
+   As a result, an inappropriate use of ``Vary`` might create a very large number of cached objects, and reduce the efficiency of your cache server.
+   Therefore, you must be extremely cautious when using ``Vary``.
+
+   .. good usage
+
+   The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
+   For example, a webpage can be delivered compressed or uncompressed depending on the client.
+
+   .. bad usage
+
+   As an example of wrong usage of ``Vary`` is setting ``Vary: User-Agent``.
+   This tells Varnish that for *any* change in ``User-Agent``, the content *might* look different.
+   Clearly this is not optimal because there are probably thousands of `User-Agent` strings out there.
+
+   Another example is using ``Vary: Cookie`` which is not a bad idea.
+   Unfortunately, you cannot issue ``Vary: Cookie(but only THESE cookies: ...)``.
+   Again, there could be a very large number of cookies, thus using solely ``Vary`` is not enough.
    
-   Vary!
+   One way to assit ``Vary`` is by compositing content.
+   In this way, Varnish can build up pages from several parts, reusing caches and gluing non cacheable objects from the server.
+   We will discuss this further in the `Content Composition`_ chapter.
+
+   .. note::
+
+      Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
+
+.. bookmark 1
+
+``Etag``
+........
+
+The `ETag` **response** header field provides the current value of the
+entity tag for the requested variant.  The idea behind `Etag` is to provide
+a unique value for a resource's contents.
+
+Example of an `Etag` header::
+
+    Etag: "1edec-3e3073913b100"
+
+``If-None-Match``
+.................
+
+The `If-None-Match` **request** header field is used with a method to make it conditional.
+
+A client that has one or more entities previously obtained from the
+resource can verify that none of those entities is current by including a
+list of their associated entity tags in the If-None-Match header field.
+
+The purpose of this feature is to allow efficient updates of cached
+information with a minimum amount of transaction overhead. It is also used
+to prevent a method (e.g. PUT) from inadvertently modifying an existing
+resource when the client believes that the resource does not exist.
+
+Example of an `If-None-Match` header::
+
+    If-None-Match: "1edec-3e3073913b100"
+
+.. figure 19
+
+.. figure:: ui/img/httpifnonematch.png
+   :align: center
+   :width: 100%
+
+   Figure :counter:`figure`: If-None-Match control diagram.
+
+.. end of bookmark 1
+
+Allowence
+---------
+
+- How to control which caches can be served?
+- ``Cache-Control`` and ``Pragma`` (for backwards compatibility only)
+
+.. container:: handout
+
+   Varnish allows you to validate whether the stored response (cache) can be reused or not.
+   Validation can be done by checking whether the presented request does not contain the ``no-cache`` directive.
+   This subsection reviews two common header fields, ``Cache-Control`` and ``Pragma``, to check caching allowence.
+
+``Cache-Control``
+.................
+
+The ``Cache-Control`` header field specifies directives that **must** be applied by all caching mechanisms (from proxy cache to browser cache).
+
+.. table 12
+
+.. csv-table:: Table :counter:`table`: Most common ``cache-control`` argument for each context
+   :name: Cache-control argument for each context
+   :delim: |
+   :header-rows: 1
+   :file: tables/cache-control.csv
+
+.. container:: handout
+
+   `Table 12 <#table-12>`_  summarizes the directives you may use for each context.
+   The most relevant arguments of ``Cache-Control`` are:
+
+   - ``public``: The response may be cached by any cache.
+   - ``no-store``: The response body **must not** be stored by any cache mechanism.
+   - ``no-cache``: Authorizes a cache mechanism to store the response in its cache but it **must not** reuse it without validating it with the origin server first.
+      In order to avoid any confusion with this argument think of it as a "store-but-do-no-serve-from-cache-without-revalidation" instruction.
+   - ``max-age``: Specifies the period in seconds during which the cache will be considered fresh.
+   - ``s-maxage``: Like ``max-age`` but it applies only to public caches.
+   - ``must-revalidate``: Indicates that a stale cache item can not be serviced without revalidation with the origin server first.
+
+   Example of a ``Cache-Control`` header::
+
+       Cache-Control: public, must-revalidate, max-age=2592000
+
+   .. Note::
+
+       Cache-Control **always** overrides Expires.
+
+   .. Note::
+
+       By default, Varnish does not care about the ``Cache-Control`` request header.  
+       If you want to let users update the cache via a force refresh you need to do it yourself.
+
+``Pragma``
+..........
+
+- Only for legacy
+- Treat ``Pragma: no-cache`` as ``Cache-Control: no-cache``
+
+.. container:: handout
+
+   The ``Pragma`` **request** header is a legacy header and should no longer be used.
+   Some applications still send headers like ``Pragma: no-cache`` but this is for backwards compatibility reasons **only**.
+   Any proxy cache should treat ``Pragma: no-cache`` as ``Cache-Control: no-cache``, and should not be seen as a reliable header especially when used as a response header.
+
+Freshness
+---------
+
+- Fresh object: age has not yet exceeded its freshness lifetime
+- Stale object: has exceeded its freshness lifetime, i.e., expired object
+
+.. container:: handout
+
+   When reusing a stored response (cached object), you should always check its freshness and evaluate whether to deliver expired objects or not.
+   A response's freshness lifetime is the length of time between its generation by the origin server and its expiration time.
+   A stale (expired) object can also be reused, but only after further validation with the origin server.
+
+   As defined in RFC7234 [https://tools.ietf.org/html/rfc7234#section-4.2]::
+
+      A response's age is the time that has passed since it was generated by, or successfully validated with, the origin server.
+      The primary mechanism for determining freshness is for an origin server to provide an explicit expiration time in the future, using
+      either the ``Expires`` header field or the ``max-age`` response directive.
+
+``Age``
+.......
+
+- A cache server can send an additional response header field, ``Age``, to indicate the age of the response.
+- Varnish (and other caches) does this.
+- Browsers (and Varnish) will use the ``Age`` header field to determine how long to cache.
+- E.g: for a ``max-age``-based equation: ``cache duration = max-age - Age``
+- ``Age`` can be used to disallow client-side caches.
+
+.. container:: handout
+
+   Consider what happens if you let Varnish cache content for a week, because you can easily invalidate the cache Varnish keeps.
+   If Varnish does not update the ``Age`` header field, Varnish might happily inform clients that the content is fresh, but it could be older than the maximum allowed ``max-age``.
+
+   Client browsers calculate a *cache duration* based on the ``Age`` header field and the ``max-age`` directive from ``Cache-Control``.
+   If this calculation results a negative number, the browser does not cache the response locally.
+   Negative cache duration times, however, does not prevent browsers from using the received object.
+   Varnish does the same, if your web-server emits and ``Age`` header field or if you put one Varnish server in front of another.
+
+.. TODO for the author: where?
+
+   We will see in later chapters how we can handle this in Varnish.
+
+``Expires``
+...........
+
+- Used to stale objects
+- Reponse header field only
+
+.. container:: handout
+
+   The ``Expires`` **response** header field gives the time after which the response is considered stale.
+   Normally, a stale cache item should not be returned by any cache (proxy cache or client cache).
+   The syntax for this header is::
+
+       Expires: GMT formatted date
+
+   It is recommended not to define ``Expires`` too far in the future.
+   Setting it to 1 year is usually enough.
+   Using ``Expires`` does not prevent the cached object from being updated.
+   For example, if a resource is updated changing its name by using a version number.
+
+   ``Expires`` and ``Cache-Control`` do more or less the same job, but ``Cache-Control`` gives you more control. 
+   The most significant differences between these two headers is:
+
+       - ``Cache-Control`` uses relative times in seconds
+       - ``Cache-Control`` is both a **request** and a **response** header field.
+       - ``Expires`` always returns an absolute time
+       - ``Expires`` is a **response** header field only
+
+   ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
+
+.. bookmark
+
+``Last-Modified``
+.................
+
+The `Last-Modified` **response** header field indicates the date and time
+at which the origin server believes the variant was last modified. This
+headers may be used in conjunction with `If-Modified-Since` and
+`If-None-Match`.
+
+Example of a `Last-Modified` header::
+
+    Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
+
+``If-Modified-Since``
+.....................
+
+The `If-Modified-Since` **request** header field is used with a method to
+make it conditional:
+
+- **if** the requested variant has not been modified since the time
+  specified in this field, an entity will not be returned from the server;
+- **instead**, a 304 (not modified) response will be returned without any
+  message-body.
+
+Example of an `If-Modified-Since` header::
+
+    If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
+
+.. figure 20
+
+.. figure:: ui/img/httpifmodifiedsince.png
+   :align: center
+   :height: 1235px
+
+   Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
 Exercise: Test various Cache headers
 ------------------------------------
 
-Before we talk about all the various cache headers and cache mechanisms, we
-will use `httpheadersexample.php` to experiment and get a sense of what
-it's all about.
+We will use `httpheadersexample.php` to experiment and get a sense of what it's all about.
 
 Try both clicking the links twice, hitting refresh and forced refresh
 (usually done by hitting control-F5, depending on browser).
@@ -2607,238 +2892,10 @@ Try both clicking the links twice, hitting refresh and forced refresh
    least a few times through this course. When that happens, pull up
    varnishlog or another browser.
 
-Expires
--------
-
-The `Expires` **response** header field gives the date/time after which the response is considered stale.
-A stale cache item will not be returned by any cache (proxy cache or client cache).
-
-The syntax for this header is::
-
-    Expires: GMT formatted date
-
-It is recommended not to define `Expires` too far in the future. Setting it
-to 1 year is usually enough.
-
-Using `Expires` does not prevent the cached resource to be updated. If a
-resource is updated changing its name (by using a version number for
-instance) is possible.
-
-`Expires` works best for any file that is part of your design like
-JavaScripts stylesheets or images.
-
-Cache-Control
--------------
-
-The `Cache-Control` header field specifies directives that **must** be
-applied by all caching mechanisms (from proxy cache to browser cache).
-`Cache-Control` accepts the following arguments (only the most relevant are
-described):
-
-- `public`: The response may be cached by any cache.
-- `no-store`: The response body **must not** be stored by any cache
-  mechanism;
-- `no-cache`: Authorizes a cache mechanism to store the response in its
-  cache but it **must not** reuse it without validating it with the origin
-  server first. In order to avoid any confusion with this argument think of
-  it as a "store-but-do-no-serve-from-cache-without-revalidation"
-  instruction.
-- `max-age`: Specifies the period in seconds during which the cache will be
-  considered fresh;
-- `s-maxage`: Like `max-age` but it applies only to public caches;
-- `must-revalidate`: Indicates that a stale cache item can not be serviced
-  without revalidation with the origin server first;
-
-.. table 12
-
-.. csv-table:: Table :counter:`table`: Cache-control argument for each context
-   :name: Cache-control argument for each context
-   :delim: |
-   :header-rows: 1
-   :file: tables/cache-control.csv
-
-.. container:: handout
-
-	Unlike `Expires`, `Cache-Control` is both a **request** and a **response** header.
-	`Table 12 <#table-12>`_  summarizes the arguments you may use for each context.
-
-	Example of a `Cache-Control` header::
-
-	    Cache-Control: public, must-revalidate, max-age=2592000
-
-	.. Note::
-
-	    As you might have noticed `Expires` and `Cache-Control` do more or less the
-	    same job, `Cache-Control` gives you more control though. There is a
-	    significant difference between these two headers:
-
-		- `Cache-Control` uses relative times in seconds, cf (s)max-age
-		- `Expires` always returns an absolute date
-
-	.. Note::
-
-	    Cache-Control **always** overrides Expires.
-
-	.. Note::
-
-	    By default, Varnish does not care about the Cache-Control
-	    request header.  If you want to let users update the cache
-	    via a force refresh you need to do it yourself.
-
-Last-Modified
--------------
-
-The `Last-Modified` **response** header field indicates the date and time
-at which the origin server believes the variant was last modified. This
-headers may be used in conjunction with `If-Modified-Since` and
-`If-None-Match`.
-
-Example of a `Last-Modified` header::
-
-    Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
-
-If-Modified-Since
------------------
-
-The `If-Modified-Since` **request** header field is used with a method to
-make it conditional:
-
-- **if** the requested variant has not been modified since the time
-  specified in this field, an entity will not be returned from the server;
-- **instead**, a 304 (not modified) response will be returned without any
-  message-body.
-
-Example of an `If-Modified-Since` header::
-
-    If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
-
-.. figure 17
-
-.. figure:: ui/img/httpifmodifiedsince.png
-   :align: center
-   :height: 1235px
-
-   Figure :counter:`figure`: If-Modified-Since control flow diagram.
-
-
-If-None-Match
--------------
-
-The `If-None-Match` **request** header field is used with a method to make
-it conditional.
-
-A client that has one or more entities previously obtained from the
-resource can verify that none of those entities is current by including a
-list of their associated entity tags in the If-None-Match header field.
-
-The purpose of this feature is to allow efficient updates of cached
-information with a minimum amount of transaction overhead. It is also used
-to prevent a method (e.g. PUT) from inadvertently modifying an existing
-resource when the client believes that the resource does not exist.
-
-Example of an `If-None-Match` header::
-
-    If-None-Match: "1edec-3e3073913b100"
-
-.. figure 18
-
-.. figure:: ui/img/httpifnonematch.png
-   :align: center
-   :width: 100%
-
-   Figure :counter:`figure`: If-None-Match control diagram.
-
-Etag
-----
-
-The `ETag` **response** header field provides the current value of the
-entity tag for the requested variant.  The idea behind `Etag` is to provide
-a unique value for a resource's contents.
-
-Example of an `Etag` header::
-
-    Etag: "1edec-3e3073913b100"
-
-Pragma
-------
-
-The `Pragma` **request** header is a legacy header and should no longer be used.
-Some applications still send headers like ``Pragma: no-cache`` but this is
-for backwards compatibility reasons **only**.
-
-Any proxy cache should treat ``Pragma: no-cache`` as ``Cache-Control:
-no-cache``, and should not be seen as a reliable header especially when
-used as a response header.
-
-Vary
-----
-
-The `Vary` **response** header indicates the response returned by the origin
-server may vary depending on headers received in the request.
-
-The most common usage of `Vary` is to use ``Vary: Accept-Encoding``, which
-tells caches (Varnish included) that the content might look different
-depending on the `Accept-Encoding`-header the client sends. In other words:
-The page can be delivered compressed or uncompressed depending on the
-client.
-
-.. container:: handout
-
-   The `Vary`-header is one of the trickiest headers to deal with for a
-   cache. A cache, like Varnish, does not necessarily understand the
-   semantics of a header, or what part triggers different variants of a
-   page.
-
-   As a result, using ``Vary: User-Agent`` for instance tells a cache that
-   for ANY change in the `User-Agent`-header, the content `might` look
-   different. Since there are probably thousands of `User-Agent` strings
-   out there, this means you will drastically reduce the efficiency of any
-   cache method.
-
-   An other example is using ``Vary: Cookie`` which is actually not a bad
-   idea. Unfortunately, you can't issue ``Vary: Cookie(but only THESE
-   cookies: ...)``. And since a client will send you a great deal of
-   cookies, this means that just using ``Vary: Cookie`` is not necessarily
-   sufficient. We will discuss this further in the Content Composition
-   chapter.
-
-   .. note::
-
-      Varnish can handle `Accept-Encoding` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
-
-Age
----
-
-- A cache server can send an additional response header, `Age`, to indicate
-  the age of the response.
-- Varnish (and other caches) does this.
-- Browsers (and Varnish) will use the Age-header to determine how long to
-  cache.
-- E.g: for a `max-age`-based equation: cache duration = `max-age` - `Age`
-- If you allow Varnish to cache for a long time, the `Age`-header could
-  effectively disallow client-side caches.
-
-.. container:: handout
-
-   Consider what happens if you let Varnish cache content for a week,
-   because you can easily invalidate the cache Varnish keeps. If you do not
-   change the `Age`-header, Varnish will happily inform clients that the
-   content is, for example, two days old, and that the maximum age should
-   be no more than fifteen minutes.
-
-   Browsers will obey this. They will use the reply, but they will also
-   realize that it has exceeded its max-age, so they will not cache it.
-
-   Varnish will do the same, if your web-server emits and `Age`-header (or
-   if you put one Varnish-server in front of another).
-
-   We will see in later chapters how we can handle this in Varnish.
-
 Header availability summary
 ---------------------------
 
-The table below lists HTTP headers seen above and whether they are a request
-header or a response one.
+The table below lists HTTP headers seen above and whether they are a request header or a response one.
 
 .. table 13
 
@@ -2847,35 +2904,6 @@ header or a response one.
    :delim: |
    :header-rows: 1
    :file: tables/header-availability.csv
-
-Cache-hit and misses
---------------------
-
-**cache-hit**
-
-There is a cache-hit when Varnish returns a page from its cache instead of
-forwarding the request to the origin server.
-
-.. figure 19
-
-.. figure:: ui/img/httpcachehit.png
-   :align: center
-   :width: 100%
-
-   Figure :counter:`figure`: Cache-hit control flow diagram
-
-**cache-miss**
-
-There is a cache-miss when Varnish has to forward the request to the origin
-server so the page can be serviced.
-
-.. figure 20
-
-.. figure:: ui/img/httpcachemiss.png
-   :align: center
-   :width: 100%
-
-   Figure :counter:`figure`: Cache-miss control flow diagram
 
 Exercise: Use `article.php` to test `Age`
 -----------------------------------------
@@ -3105,7 +3133,7 @@ List of functions and their arguments:
 
 - ``regsub(str, regex, sub)``
 - ``regsuball(str, regex, sub)``
-- ``ban(regex)``
+- ``ban(boolean expression)``
 - ``return(action)``
 - ``hash_data(input)``
 - ``call subroutine``
@@ -3137,7 +3165,7 @@ All functions are available in all subroutines, except the listed in the table b
 
    .. ban
 
-   The ``ban()`` function invalidates all objects in cache that match the expression ``exp`` with the ban mechanism.
+   The ``ban(boolean expression)`` function invalidates all objects in cache that match the boolean expression.
    *banning* and *purging* in detailed in the `Cache Invalidation`_ chapter.
 
 Legal Return Actions
