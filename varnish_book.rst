@@ -2340,7 +2340,7 @@ This chapter covers:
 
    Varnish is designed to be used with HTTP semantics.
    These semantics are specified in the version called HTTP/1.1.
-   This chapter covers the basics of HTTP as a protocol, its semantics, how it is used in the wild, and delves into caching as it applies to HTTP.
+   This chapter covers the basics of HTTP as a protocol, its semantics and the caching header fields most commonly used.
 
 Protocol Basics
 ---------------
@@ -2371,11 +2371,37 @@ Protocol Basics
    The protocol allows multiple requests to be sent in serial mode over a single connection.
    If a client wants to fetch resources in parallel, it must open multiple connections.
 
+Resources and Representations
+.............................
+
+- Resource: target of an HTTP request
+- A resource may have different representations
+- Representation: a particular instantiation of a resource
+- A representation may have different states: past, current and desired
+
+.. container:: handout
+
+   Each resource is identified by a Uniform Resource Identifier (URI), as described in Section 2.7 of [RFC7230].
+   A resource can be anything and such a thing can have different representations.
+   A representation is an instantiation of a resource.
+   An origin server produces this instantiation based on a list of request field headers, e.g., ``User-Agent`` and ``Accept-encoding``.
+
+   When an origin server produces may produce different representations of one resource, it includes a ``Vary`` response header field.
+   This response header field is used by Varnish to differentiate between resource variations.
+   More details on this are in the `Vary`_ subsection.
+
+   An origin server might include metadata to reflect the state of a representation.
+   This metadata is contained in the validator header fields ``ETag`` and ``Last-Modified``.
+
+   In order to construct a response for a client request, an algorithm is used to evaluate and select one representation with a particular state.
+   This algorithm is implemented in Varnish and you can customize it in your VCL code.
+   Once a representation is selected, the payload for a 200 (OK) or 304 (Not Modified) response can be constructed.
+
 Requests and Responses
 ......................
 
 - A request is a message from a client to a server that includes the method to be applied to a requested resource, the identifier of the resource, the protocol version in use and an optional message body
-- A method is a token that indicates the method to be performed on the requested resource identified by a URI
+- A method is a token that indicates the method to be performed on a URI
 - Standard request methods are: ``GET``, ``POST``, ``HEAD``, ``OPTIONS``, ``PUT``, ``DELETE``, ``TRACE``, or ``CONNECT``
 - Examples of URIs are ``/img/image.png`` or ``/index.html``
 - Header fields are allowed in requests and responses
@@ -2495,7 +2521,7 @@ Response Example
 
 .. container:: handout
 
-   The example above is a HTTP response that contains a Status-Line, headers and message body.
+   The example above is an HTTP response that contains a Status-Line, headers and message body.
    The Status-Line consists of the ``HTTP/1.1`` version, the status code ``200`` and the reason ``OK``.
    The response status code informs the client (browser) whether the server understood the request and how it replied to it.
    These codes are fully defined in https://tools.ietf.org/html/rfc2616#section-10, but here is an overview of them:
@@ -2551,9 +2577,9 @@ Cache-related Headers Fields
 
    A cached object is a local store of HTTP response messages.
    These objects are stored, controlled, retrieved and deleted by a subsystem, in this case Varnish.
-   For this purpose, Varnish uses caching header fields.
+   For this purpose, Varnish uses the caching header fields defined in https://tools.ietf.org/html/rfc7232 and https://tools.ietf.org/html/rfc7234.
 
-   If a cache is valid, Varnish constructs responses from caches.
+   If a cache is valid, Varnish constructs and delivers responses from caches.
    As a result, the backend server is freed from reprocessing a client request.
 
 Constructing Responses from Caches
@@ -2561,75 +2587,66 @@ Constructing Responses from Caches
 
 When to serve a cached object?
 
-- The cached object is properly matched: `cache-hit`
-- The requested method and its matched object allows it
-- The freshness of the cached object is acceptable
+- The cached object is properly **matched**: `cache-hit`
+- The requested method and its matched object **allows** it
+- The **freshness** of the cached object is acceptable
 
 .. container:: handout
 
-   When Varnish matches a request with a cached object (cache-hit), it evaluates whether the cache should be used to construct a response or whether the server must be contacted.
-   There are many rules that should be taken into consideration when valudating a cache.
-   Most of those rules use the caching header fields.
-   This subsection describes the  most common header fields and how they are used in Varnish to validate caches.
+   When Varnish matches a request with a cached object (aka cache-hit), it evaluates whether the cache or origin server should be used to construct the response.
+   There are many rules that should be taken into consideration when validating a cache.
+   Most of those rules use caching header fields.
 
-.. bookmark 2
+   This subsection describes first the concept of `cache-hit` and `cache-miss`.
+   After that, it describes three header fields commonly used to effectively match caches.
+   These fields are ``Vary``, ``Etag`` and ``If-None-Match``.
 
-Cache-hit and Misses
-....................
-
-**cache-hit**
-
-There is a cache-hit when Varnish returns a page from its cache instead of
-forwarding the request to the origin server.
+Cache Matching
+--------------
 
 .. figure 17
 
 .. figure:: ui/img/httpcachehit.png
-   :align: center
-   :width: 100%
+    :align: center
+    :width: 100%
 
-   Figure :counter:`figure`: Cache-hit control flow diagram
+    Figure :counter:`figure`: *Cache-hit* control flow diagram
 
-**cache-miss**
-
-There is a cache-miss when Varnish has to forward the request to the origin
-server so the page can be serviced.
-
+- Cache-hits are used to reuse, update or invalidate caches
+- Objects may have variants (``Vary`` and ``Etag``)
+ 
 .. figure 18
 
 .. figure:: ui/img/httpcachemiss.png
-   :align: center
-   :width: 100%
+    :align: center
+    :width: 100%
 
-   Figure :counter:`figure`: Cache-miss control flow diagram
+    Figure :counter:`figure`: *Cache-miss* control flow diagram
 
-.. end of bookmark 2
-
-Object Matching
----------------
-
-How to match the correct cached object?
-
-- Useful to reuse, update or invalidate caches
-- Objects may have variant (``Vary`` and ``Etag``)
-  
 .. container:: handout
 
-   This subsection describes three header fields commonly used to effectively match cached objects.
-   These fields are ``Vary``, ``Etag`` and ``If-None-Match``
+   `Figure 17 <#figure-17>`_ shows the flow diagram of a *cache-hit*.
+   A cache-hit occurs when the requested object (URI) matches a stored HTTP response message (cache).
+   If the matched stored message is valid to construct a response for the client, Varnish serves construct a response and serves it without contacting the origin server.
+
+   `Figure 18 <#figure-18>`_ shows the flow diagram of a *cache-miss*.
+   A *cache-miss* happens when Varnish does not match a cache.
+   In this case, Varnish forwards the request to the origin server.
 
 ``Vary``
 ........
 
+- Selects a representation or a resource
 - Be careful when using ``Vary``
 - Wrong usage can create a very large number of cached objects and reduce efficiency
 
 .. container:: handout
 
-   The ``Vary`` header field is one of the trickiest headers to deal with for a cache.
-   This header field indicates that the response from the origin server may vary depending on request headers fields.
-   A caching server like Varnish does not necessarily understand the semantics of a header, or what part triggers different variants of a
-   page.
+   If an origin server sends ``Vary`` in a response, Varnish does **not** use this response to satisfy a later request unless the later request has the same values for the listed fields in ``Vary`` as the original request.
+   In other words, Vary expands the cache key required to match a new request to the stored cache entry.
+
+   ``Vary`` is one of the trickiest headers to deal with for a cache.
+   A caching server like Varnish does not necessarily understand the semantics of a header, or what part triggers different variants of a response.
    As a result, an inappropriate use of ``Vary`` might create a very large number of cached objects, and reduce the efficiency of your cache server.
    Therefore, you must be extremely cautious when using ``Vary``.
 
@@ -2640,34 +2657,59 @@ How to match the correct cached object?
 
    .. bad usage
 
+   Caching objects that are going to be retrieved only by their original requesters, or a few similar, does not scale well.
+   This is a common mistake if ``Vary`` is not used carefully.
+
    As an example of wrong usage of ``Vary`` is setting ``Vary: User-Agent``.
    This tells Varnish that for *any* change in ``User-Agent``, the content *might* look different.
-   Clearly this is not optimal because there are probably thousands of `User-Agent` strings out there.
+   This is not optimal because there are probably thousands of `User-Agent` strings out there.
 
-   Another example is using ``Vary: Cookie`` which is not a bad idea.
-   Unfortunately, you cannot issue ``Vary: Cookie(but only THESE cookies: ...)``.
-   Again, there could be a very large number of cookies, thus using solely ``Vary`` is not enough.
+   Another example of bad usage is when using only ``Vary: Cookie`` to differentiate a response.
+   Again, there could be a very large number of cookies and hence a very large number of cached objects, which are going to be retrieved most likely only by their original requesters.
    
    One way to assit ``Vary`` is by compositing content.
    In this way, Varnish can build up pages from several parts, reusing caches and gluing non cacheable objects from the server.
    We will discuss this further in the `Content Composition`_ chapter.
 
+   When origin servers create a representation of a resource, they can add metadata to describe the state of that representation.
+   This metadata is included in validator fields such as ``ETag`` and ``Last-Modified``.
+
    .. note::
 
       Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
 
-.. bookmark 1
-
-``Etag``
+``ETag``
 ........
 
-The `ETag` **response** header field provides the current value of the
-entity tag for the requested variant.  The idea behind `Etag` is to provide
-a unique value for a resource's contents.
+- An *Entity Tag* (``ETag``) is metadata to differentiate between multiple states of a resource's representation
+- A ``ETag`` is a validator header field
 
-Example of an `Etag` header::
+.. container:: handout
 
-    Etag: "1edec-3e3073913b100"
+   The ``ETag`` header field provides a state identifier for the requested variant (resource representation).
+   ``ETags`` are used to differentiate between multiple states based on changes over time of a representation.
+   In addition, ``ETags`` are also used differentiate between multiple representations based on content negotiation regardless their state.
+
+   Example of an `Etag` header::
+
+       Etag: "1edec-3e3073913b100"
+
+.. bookmark
+
+``Last-Modified``
+.................
+
+- State based on time
+
+The `Last-Modified` **response** header field indicates the date and time
+at which the origin server believes the variant was last modified. This
+headers may be used in conjunction with `If-Modified-Since` and
+`If-None-Match`.
+
+Example of a `Last-Modified` header::
+
+    Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
+
 
 ``If-None-Match``
 .................
@@ -2725,7 +2767,7 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
 .. container:: handout
 
    `Table 12 <#table-12>`_  summarizes the directives you may use for each context.
-   The most relevant arguments of ``Cache-Control`` are:
+   The most relevant directives of ``Cache-Control`` are:
 
    - ``public``: The response may be cached by any cache.
    - ``no-store``: The response body **must not** be stored by any cache mechanism.
@@ -2831,18 +2873,6 @@ Freshness
    ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
 
 .. bookmark
-
-``Last-Modified``
-.................
-
-The `Last-Modified` **response** header field indicates the date and time
-at which the origin server believes the variant was last modified. This
-headers may be used in conjunction with `If-Modified-Since` and
-`If-None-Match`.
-
-Example of a `Last-Modified` header::
-
-    Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
 
 ``If-Modified-Since``
 .....................
@@ -3585,7 +3615,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 
    - Overriding cache time for certain URLs
    - Stripping Set-Cookie headers that are not needed
-   - Stripping bugged Vary headers
+   - Stripping bugged ``Vary`` headers
    - Adding helper-headers to the object for use in banning (more information in later sections)
    - Applying other caching policies
 
@@ -5301,10 +5331,11 @@ Varnish Administration Console (VAC)
 
    .. more resources
 
-   .. TODO: Figure 17 and 18 should be links.
-   .. For this, rst2sphinx.iawk should support multiple targets in one sentence.
+   ..  rst2sphinx.iawk does not support multiple targets in one sentence, therefore each reference is in a new line
 
-   `Figures 26 <#figure-26>`_, 27 and 28 show screenshots of the GUI.
+   `Figures 26 <#figure-26>`_,
+   `Figures 27 <#figure-27>`_ and
+   `Figures 28 <#figure-28>`_ show screenshots of the GUI.
    You may also be interested in trying the VAC demo at https://vacdemo.varnish-software.com.
    The instructor of the course provides you the credentials.
 
