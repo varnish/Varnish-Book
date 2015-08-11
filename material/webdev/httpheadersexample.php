@@ -69,7 +69,7 @@ function toUTCDate( DateTime $date )
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head></head>
     <body>
-        <h1>Headers sent</h1>
+        <h1>Header fields sent:</h1>
         <?php
             foreach( $headers as $name => $value ) {
                 print "<strong>${name}</strong>: ${value}<br/>";
@@ -84,18 +84,18 @@ function toUTCDate( DateTime $date )
         ?>
         <hr/>
         <h1>Links for testing</h1>
-        <ul>
+        <ol>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?h=expires">
-	    Test Expires response header</a></li>
+	    Test Expires response header field</a></li>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?h=cache-control">
-	    Test Cache-Control response header</a></li>
+	    Test Cache-Control response header field</a></li>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?
 	    h=cache-control-override">
-	    Test Cache-Control response header overrides Expires</a></li>
+	    Test Cache-Control and Expires</a></li>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?h=last-modified">
-	    Test Last-Modified/If-modified-since response header</a></li>
+	    Test Last-Modified/If-Modified-Since response header fields</a></li>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?h=vary">
-	    Test Vary response header</a></li>
-        <ul>
+	    Test Vary response header field</a></li>
+        <ol>
     </body>
 </html>
