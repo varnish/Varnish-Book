@@ -2544,9 +2544,9 @@ HTTP Properties
     HTTP is by definition a stateless protocol meaning that each request message can be understood in isolation.
     Hence, a server MUST NOT assume that two requests on the same connection are from the same user agent unless the connection is secured and specific to that agent.
     
-    HTTP/1.1 persists connections by defualt.
+    HTTP/1.1 persists connections by default.
     This is contrary to most implementations of HTTP/1.0, where each connection is established by the client prior to the request and closed by the server after sending the response.
-    Therefore, for compatibility reasons, persistent connections may be explicitly negotiated as they are not the default behaviour in HTTP/1.0 [https://tools.ietf.org/html/rfc7230#appendix-A.1.2].
+    Therefore, for compatibility reasons, persistent connections may be explicitly negotiated as they are not the default behavior in HTTP/1.0 [https://tools.ietf.org/html/rfc7230#appendix-A.1.2].
     In practice, there is a header called ``Keep-Alive`` you may use if you want to control the connection persistence between the client and the server.
 
     Safe methods are considered "safe" if they are read-only; i.e., the client request does not alter any state on the server.
@@ -2653,7 +2653,7 @@ Cache Matching
    .. good usage
 
    The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
-   For example, a webpage can be delivered compressed or uncompressed depending on the client.
+   For example, a web page can be delivered compressed or uncompressed depending on the client.
 
    .. bad usage
 
@@ -2667,12 +2667,15 @@ Cache Matching
    Another example of bad usage is when using only ``Vary: Cookie`` to differentiate a response.
    Again, there could be a very large number of cookies and hence a very large number of cached objects, which are going to be retrieved most likely only by their original requesters.
    
-   One way to assit ``Vary`` is by compositing content.
+   One way to assist ``Vary`` is by compositing content.
    In this way, Varnish can build up pages from several parts, reusing caches and gluing non cacheable objects from the server.
    We will discuss this further in the `Content Composition`_ chapter.
 
-   When origin servers create a representation of a resource, they can add metadata to describe the state of that representation.
-   This metadata is included in validator fields such as ``ETag`` and ``Last-Modified``.
+   Origin servers normally add metadata to further describe a representation of a resource.
+   This metadata is used in conditional requests.
+   "Conditional requests are HTTP requests that include one or more header fields indicating a precondition to be tested before applying the method semantics to the target resource" [RFC7232].
+   Next we cover four important header fields used in conditional requests.
+   Two validator fields: ``ETag`` and ``Last-Modified``; and two precondition header fields: ``If-None-Match`` and ``If-Modified-Since``.
 
    .. note::
 
@@ -2682,7 +2685,9 @@ Cache Matching
 ........
 
 - An *Entity Tag* (``ETag``) is metadata to differentiate between multiple states of a resource's representation
-- A ``ETag`` is a validator header field
+- A differentiator key of presentations in addition to ``Vary``
+- An ``ETag`` is a validator header field
+- Response header field
 
 .. container:: handout
 
@@ -2690,56 +2695,90 @@ Cache Matching
    ``ETags`` are used to differentiate between multiple states based on changes over time of a representation.
    In addition, ``ETags`` are also used differentiate between multiple representations based on content negotiation regardless their state.
 
-   Example of an `Etag` header::
+   Example of an `ETag` header::
 
-       Etag: "1edec-3e3073913b100"
+       ETag: "1edec-3e3073913b100"
 
-.. bookmark
+   The response ``ETag`` field is validated against the request ``If-None-Match`` header field.
+   We will see the details of ``If-None-Match`` later in this subsection, but before, we learn about the other validator header field: ``Last-Modified``.
 
 ``Last-Modified``
 .................
 
-- State based on time
+- Time-based state of presentations
+- Validator header field
+- Response header field
 
-The `Last-Modified` **response** header field indicates the date and time
-at which the origin server believes the variant was last modified. This
-headers may be used in conjunction with `If-Modified-Since` and
-`If-None-Match`.
+.. container:: handout
 
-Example of a `Last-Modified` header::
+   The ``Last-Modified`` response header field is a timestamp that indicates when the variant was last modified.
+   This headers may be used in conjunction with ``If-Modified-Since`` and ``If-None-Match``.
 
-    Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
+   Example of a ``Last-Modified`` header::
 
+       Last-Modified: Wed, 01 Sep 2004 13:24:52 GMT
+
+   ``ETag`` and ``Last-Modified`` are validator header fields, which help to differentiate between representations.
+   Normally, origin servers send both fields in successful responses.
+   Whether you use one, another or both, depends on your use cases.
+   Please refer to Section 2.4 in https://tools.ietf.org/html/rfc7232#section-2.4 for a full description on when to use either of them.
 
 ``If-None-Match``
 .................
 
-The `If-None-Match` **request** header field is used with a method to make it conditional.
+- Precondition Header Field
+- Request header field
+- Validates local caches against ``ETag``
 
-A client that has one or more entities previously obtained from the
-resource can verify that none of those entities is current by including a
-list of their associated entity tags in the If-None-Match header field.
+.. container:: handout
 
-The purpose of this feature is to allow efficient updates of cached
-information with a minimum amount of transaction overhead. It is also used
-to prevent a method (e.g. PUT) from inadvertently modifying an existing
-resource when the client believes that the resource does not exist.
+   A client that has obtained a response message and stored it locally, may reuse the obtained ``ETag`` value in future requests to validate its local cache against the selected cache in Varnish.
+   The obtained value from an ``ETag`` is sent from the client to Varnish in the request ``If-None-Match`` header field.
+   In fact, a client may have stored multiple resource representations and therefore a client may send an ``If-None-Match`` field with multiple ``ETag`` values to validate.
 
-Example of an `If-None-Match` header::
+   The purpose of this header field is to reuse local caches without compromising its validity.
+   If the local cache is valid, Varnish replies with a 304 (Not Modified) response, which does not include a message body.
+   In this case, the client reuses its local cache to construct the requested resource.
 
-    If-None-Match: "1edec-3e3073913b100"
+   Example of an `If-None-Match` header::
 
-.. figure 19
+       If-None-Match: "1edec-3e3073913b100"
 
-.. figure:: ui/img/httpifnonematch.png
-   :align: center
-   :width: 100%
+   .. figure 19
 
-   Figure :counter:`figure`: If-None-Match control diagram.
+   .. figure:: ui/img/httpifnonematch.png
+      :align: center
+      :width: 100%
 
-.. end of bookmark 1
+      Figure :counter:`figure`: If-None-Match control diagram.
 
-Allowence
+``If-Modified-Since``
+.....................
+
+- Validates local caches by modification date
+- Precondition Header Field
+- Request header field
+
+.. container:: handout
+
+   A request containing an ``If-Modified-Since`` header field indicates that the client wants to validate one or more of its local caches by modification date.
+   If the requested representation has not been modified since the time specified in this field, Varnish returns a 304 (not modified) response.
+   A 304 response does not contain message body.
+   This behavior is similar to as when using ``If-None-Match``.
+
+   Example of an `If-Modified-Since` header::
+
+       If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
+
+   .. figure 20
+
+   .. figure:: ui/img/httpifmodifiedsince.png
+      :align: center
+      :height: 1235px
+
+      Figure :counter:`figure`: If-Modified-Since control flow diagram.
+
+Allowance
 ---------
 
 - How to control which caches can be served?
@@ -2749,7 +2788,7 @@ Allowence
 
    Varnish allows you to validate whether the stored response (cache) can be reused or not.
    Validation can be done by checking whether the presented request does not contain the ``no-cache`` directive.
-   This subsection reviews two common header fields, ``Cache-Control`` and ``Pragma``, to check caching allowence.
+   This subsection reviews two common header fields, ``Cache-Control`` and ``Pragma``, to check caching allowance.
 
 ``Cache-Control``
 .................
@@ -2847,7 +2886,7 @@ Freshness
 ...........
 
 - Used to stale objects
-- Reponse header field only
+- Response header field only
 
 .. container:: handout
 
@@ -2873,29 +2912,6 @@ Freshness
    ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
 
 .. bookmark
-
-``If-Modified-Since``
-.....................
-
-The `If-Modified-Since` **request** header field is used with a method to
-make it conditional:
-
-- **if** the requested variant has not been modified since the time
-  specified in this field, an entity will not be returned from the server;
-- **instead**, a 304 (not modified) response will be returned without any
-  message-body.
-
-Example of an `If-Modified-Since` header::
-
-    If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
-
-.. figure 20
-
-.. figure:: ui/img/httpifmodifiedsince.png
-   :align: center
-   :height: 1235px
-
-   Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
 Exercise: Test various Cache headers
 ------------------------------------
