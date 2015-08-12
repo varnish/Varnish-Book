@@ -2888,7 +2888,7 @@ Freshness
    We will see in later chapters how we can handle this in Varnish.
 
 Exercise: Use `article.php` to test ``Age``
-...........................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Send a request to `article.php` via Varnish, and see the response ``Age`` header field in ``varnishlog -g request -i ReqHeader,RespHeader``
 #. Click the link several times and refresh your browser. Can you identify patterns?
@@ -6125,3 +6125,4 @@ VWS
 
       To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
       The PCRE manual page ``man pcre`` is also a valuable resource, specially ``man pcresyntax`` and ``man pcrepattern``.
+
