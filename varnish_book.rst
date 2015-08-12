@@ -2584,8 +2584,8 @@ Cache-related Headers Fields
    These objects are stored, controlled, retrieved and deleted by a subsystem, in this case Varnish.
    For this purpose, Varnish uses the caching header fields defined in https://tools.ietf.org/html/rfc7232 and https://tools.ietf.org/html/rfc7234.
 
-   If a matched cache is valid, Varnish constructs respones from caches.
-   As a result, the origin server is freed from creating and transmiting identical response bodies.
+   If a matched cache is valid, Varnish constructs responses from caches.
+   As a result, the origin server is freed from creating and transmitting identical response bodies.
 
 Constructing Responses from Caches
 ==================================
@@ -2818,7 +2818,7 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
       In order to avoid any confusion with this argument think of it as a "store-but-do-no-serve-from-cache-without-revalidation" instruction.
    - ``max-age``: Specifies the period in seconds during which the cache is considered fresh.
    - ``s-maxage``: Like ``max-age`` but it applies only to public caches.
-   - ``must-revalidate``: Indicates that a stale cache item can not be serviced without revalidation with the origin server first.
+   - ``must-revalidate``: Indicates that a stale cache item can not be served without revalidation with the origin server first.
 
    Example of a ``Cache-Control`` header::
 
@@ -2866,25 +2866,62 @@ Freshness
 ``Age``
 -------
 
-- A cache server can send an additional response header field, ``Age``, to indicate the age of the response.
-- Varnish (and other caches) does this.
-- Browsers (and Varnish) will use the ``Age`` header field to determine how long to cache.
-- E.g: for a ``max-age``-based equation: ``cache duration = max-age - Age``
-- ``Age`` can be used to disallow client-side caches.
+- Response header field calculated at the cache server, i.e., Varnish
+- Varnish send an additional response header field, ``Age``, to indicate the age of the cache
+- Clients (and Varnish) will use the ``Age`` header field to determine the freshness of a cache
+- ``max-age``-based equation: ``cache duration = max-age - Age``
+- ``Age`` can be used to disallow caches at the client side
 
 .. container:: handout
 
-   Consider what happens if you let Varnish cache content for a week, because you can easily invalidate the cache Varnish keeps.
-   If Varnish does not update the ``Age`` header field, Varnish might happily inform clients that the content is fresh, but it could be older than the maximum allowed ``max-age``.
+   Consider what happens if you let Varnish cache content for a week.
+   If Varnish does not calculate the `age` of a cached object, Varnish might happily inform clients that the content is fresh, but the cache could be older than the maximum allowed ``max-age``.
+   By `age` we mean an estimate amount of time since the response was generated or successfully validated at the origin server.
 
    Client browsers calculate a *cache duration* based on the ``Age`` header field and the ``max-age`` directive from ``Cache-Control``.
-   If this calculation results a negative number, the browser does not cache the response locally.
-   Negative cache duration times, however, does not prevent browsers from using the received object.
-   Varnish does the same, if your web-server emits and ``Age`` header field or if you put one Varnish server in front of another.
+   If this calculation results in a negative number, the browser does not cache the response locally.
+   Negative cache duration times, however, do not prevent browsers from using the received object.
+   Varnish does the same, if you put one Varnish server in front of another.
 
 .. TODO for the author: where?
 
    We will see in later chapters how we can handle this in Varnish.
+
+Exercise: Use `article.php` to test ``Age``
+...........................................
+
+#. Send a request to `article.php` via Varnish, and see the response ``Age`` header field in ``varnishlog -g request -i ReqHeader,RespHeader``
+#. Click the link several times and refresh your browser. Can you identify patterns?
+#. Analyze the output of ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` in addition to ``varnishlog``
+#. Can you use the ``Age`` field to determine whether Varnish made a cache hit?
+#. What is the difference between caching time in Varnish and the client?
+#. Use different browsers and analyze whether their internal caches work different
+
+.. container:: handout
+
+   You might encounter that different browsers have different behaviors.
+   Some of them might cache content locally, and their behavior when refreshing might be different, which can be very confusing.
+   This just highlights that Varnish is not the only part of your web-stack that parses and honors cache-related headers.
+   There might also be other caches along the way which you do not control, like a company-wide proxy server.
+
+   Since browsers might interpret cache headers differently, it is a good idea to control them in your cache server.
+   In the next chapters, you will learn how to modify the response headers Varnish sends.
+   This also allows your origin server to emit response headers that should be seen and used by Varnish only, not in your browser.
+
+   .. This explanation is irrelevant for this exercise
+   .. By using `s-maxage` instead of `max-age` we limit the number of clients to cache servers, but even `s-maxage` will be used by caching proxies which you do not control.
+
+   .. TODO for the author:
+   .. This was part of Exercise: Avoid caching a page.
+   ..  It might be relevant to mention this and or update it in this chapter.
+   ..  Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
+   ..  However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
+
+   .. TODO for the author: Identify the behavior for different browsers and describe it
+   ..
+      An easy way to see the difference between having and removing ``must-revalidate`` is to wait more than 10 seconds between clicking the link.
+      When having ``must-revalidate``, you should never see an ``Age`` over 10, which is contrary to tests without ``must-revalidate``.
+
 
 ``Expires``
 -----------
@@ -2915,11 +2952,22 @@ Freshness
 
    ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
 
+Availability of Header Fields
+=============================
+
+.. table 13
+
+.. csv-table:: Table :counter:`table`: Summary of HTTP header fields and their scope
+   :name: Summary of HTTP header fields and their scope
+   :delim: |
+   :header-rows: 1
+   :file: tables/header-availability.csv
+
 Exercise: Test Various Cache Headers
 ====================================
 
 Use `httpheadersexample.php` via your Varnish server to experiment and get a sense of what it all about.
-Use ``varnishstat`` and ``varnishlog`` to analyze the responses.
+Use ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` and ``varnishlog -g request -i ReqHeader,RespHeader`` to analyze the responses.
 
 1. Try every link several times by clicking on them and refreshing your browser.
 2. Analyze the response in your browser and the activity in your Varnish server.
@@ -2935,60 +2983,6 @@ Use ``varnishstat`` and ``varnishlog`` to analyze the responses.
 
    If it has not happened  already, it is likely that the local cache of your browser will confuse you at least a few times through this course.
    When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser.
-
-.. review bookmark
-
-.. Solution:
-
-   2. Clicking the links let the client (browser) to reuse its local cache.
-      Refreshing the client forces a new request that reaches the origin server.
-
-Availability of Header Fields
-=============================
-
-.. table 13
-
-.. csv-table:: Table :counter:`table`: Summary of HTTP header fields and their scope
-   :name: Summary of HTTP header fields and their scope
-   :delim: |
-   :header-rows: 1
-   :file: tables/header-availability.csv
-
-.. bookmark
-
-Exercise: Use `article.php` to test ``Age``
-===========================================
-
-#. Modify the `article.php`-script to send an Age header that says `30` and ``Cache-Control: max-age=60``.
-#. Watch ``varnishlog``.
-#. Send a request to Varnish for `article.php`. See what `Age`-Header Varnish replies with.
-#. Is the `Age`-header an accurate method to determine if Varnish made a cache hit or not?
-#. How long does Varnish cache the reply? How long would a browser cache it?
-
-.. container:: handout
-
-   Also consider how you would avoid issues like this to begin with.  We do
-   not yet know how to modify Varnish' response headers, but hopefully you
-   will understand why you may need to do that.
-
-   Varnish is not the only part of your web-stack that parses and honors
-   cache-related headers. The primary consumer of such headers are the web
-   browsers, and there might also be other caches along the way which you
-   do not control, like a company-wide proxy server.
-
-   By using `s-maxage` instead of `max-age` we limit the number of
-   consumers to cache servers, but even `s-maxage` will be used by caching
-   proxies which you do not control.
-
-   In the next few chapters, you will learn how to modify the response
-   headers Varnish sends. That way, your web-server can emit response
-   headers that are only seen and used by Varnish.
-
-   .. TODO for the author:
-   .. This was part of Exercise: Avoid caching a page.
-   ..  It might be relevant to mention this and or update it in this chapter.
-   ..  Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
-   ..  However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
 
 ============
  VCL Basics

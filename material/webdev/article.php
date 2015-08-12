@@ -1,5 +1,5 @@
 <?php
-header("Cache-Control: public, must-revalidate, max-age=3600, s-maxage=3600");
+header("Cache-Control: must-revalidate, max-age=10");
 $date = new DateTime();
 $now = $date->format( DateTime::RFC2822 );
 ?>
@@ -9,9 +9,9 @@ $now = $date->format( DateTime::RFC2822 );
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head></head>
     <body>
-        <h1>This is an article, cached for 1 hour</h1>
+        <h1>This article is cached for 10 seconds</h1>
 
-        <h2>Now is <?php echo $now; ?></h2>
+        <h2>Cache timestamp: <?php echo $now; ?></h2>
         <a href="<?=$_SERVER['PHP_SELF']?>">Refresh this page</a>
     </body>
 </html>
