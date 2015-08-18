@@ -12,8 +12,8 @@
 # The order of the rules and functions matters!
 #
 # Description of data structure:
-# chapter: Holdes title for chapter
-# last: Holdes last entry that is to be used for chapter matching
+# chapter: Holds title for chapter
+# last: Holds last entry that is to be used for chapter matching
 
 BEGIN {
     chapter=""
