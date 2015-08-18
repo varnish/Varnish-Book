@@ -780,7 +780,7 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    For Red Hat, use ``yum install <package>``.
 
 Install Apache
-~~~~~~~~~~~~~~
+..............
 
 To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
 Install the *HTTPie* utility with the command: ``apt-get install httpie``.
@@ -794,7 +794,7 @@ Next:
 #. Verify that Apache still works by typing ``http -h localhost:8080``.
 
 Install Varnish
-~~~~~~~~~~~~~~~
+...............
 
 To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty do the following as root::
 
@@ -868,7 +868,7 @@ Then::
    .. TODO for the author: Add RHEL details for installing Varnish Cache.
 
 Configure Varnish
-~~~~~~~~~~~~~~~~~
+.................
 
 Configure the Varnish ``DAEMON_OPTS``::
 
@@ -929,7 +929,7 @@ Configure the Varnish ``DAEMON_OPTS``::
 	Figure :counter:`figure`: GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
 
 Installation Test
-~~~~~~~~~~~~~~~~~
+.................
 
 ::
 
@@ -1313,7 +1313,7 @@ Transactions
    .. Transaction reasons
 
 Transaction Groups
-~~~~~~~~~~~~~~~~~~
+..................
 
 .. the VSL-query man page describes the grouping modes and the transaction hierarchy
 .. https://www.varnish-cache.org/docs/trunk/reference/vsl-query.html
@@ -1354,7 +1354,7 @@ Transaction Groups
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
 
 Example of Transaction Grouping with ``varnishlog``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...................................................
 
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
 
@@ -1614,7 +1614,7 @@ Exercise
 	- Track number of unique consumers of HLS/HDS/DASH video streams
 
 Notable Counters
-~~~~~~~~~~~~~~~~
+................
 
 .. table 8
 
@@ -1743,7 +1743,7 @@ Varnish Architecture
    .. TODO
 
 The Parent Process: The Manager
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...............................
 
 The *Manager* process is owned by the root user, and its main functions are:
 
@@ -1772,7 +1772,7 @@ You can toggle this property using the ``auto_restart`` parameter.
    Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
 
 The Child Process: The Cacher
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.............................
 
 Since the *Cacher* listens on public IP addresses and known ports, it is exposed to evil clients.
 Therefore, for security reasons, this child process is owned by an unprivileged user, and it has no backwards communication to its parent, the *Manager*.
@@ -1823,7 +1823,7 @@ The *Cacher* consists of several different types of threads, including, but not 
    For testing, you can induce panic to ``varnishd`` by issuing the command ``varnishadm debug.panic.worker`` or by pressing the *Induce Panic* button in the Varnish Agent web interface.
 
 VCL Compilation
-~~~~~~~~~~~~~~~
+...............
 
 The below command prints VCL code compiled to C language and exit.
 This is useful to check whether your VCL code compiles correctly.
@@ -2033,7 +2033,7 @@ Varnish Tuner
           Copying Varnish Tuner suggestions to other systems might not be a good idea.
 
 Varnish Tuner Persistence
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.........................
 
 The output of ``varnishtuner`` updates every time you introduce a new input or execute a suggested command.
 However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
@@ -2045,7 +2045,7 @@ To make the tuning persistent, you can add do the following:
 To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
 
 Install Varnish Tuner
-~~~~~~~~~~~~~~~~~~~~~
+.....................
 
 Below are the installation instructions for getting the tuner from our repositories.
 Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
@@ -2139,7 +2139,7 @@ Threading parameters
       We recommend to have at most 2 thread pools, but you may increase the number of threads per pool.
 
 Details of Threading Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...............................
 
 - Default values have proved to be sufficient in most cases
 - ``thread_pool_min``, ``thread_pool_max`` and ``thread_pools`` are the most common threading parameters to tune.
@@ -2188,7 +2188,7 @@ Details of Threading Parameters
       To avoid that this situation, evaluate your setup and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
 
 Time Overhead per Thread Creation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.................................
 
 - ``thread_pool_add_delay``: Wait at least this long after creating a thread.
 - ``thread_pool_timeout``: Thread idle threshold.
@@ -2371,7 +2371,7 @@ Protocol Basics
    If a client wants to fetch resources in parallel, it must open multiple connections.
 
 Resources and Representations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.............................
 
 - Resource: target of an HTTP request
 - A resource may have different representations
@@ -2397,7 +2397,7 @@ Resources and Representations
    Once a representation is selected, the payload for a 200 (OK) or 304 (Not Modified) response can be constructed.
 
 Requests and Responses
-~~~~~~~~~~~~~~~~~~~~~~
+......................
 
 - A request is a message from a client to a server that includes the method to be applied to a requested resource, the identifier of the resource, the protocol version in use and an optional message body
 - A method is a token that indicates the method to be performed on a URI
@@ -2446,7 +2446,7 @@ Requests and Responses
       Requests and responses share the same syntax for headers and message body, but some headers are request- or response-specific.
 
 Request Example
-~~~~~~~~~~~~~~~
+...............
 
 ::
 
@@ -2496,7 +2496,7 @@ Request Example
      ltmpl=default[...]&signIn=Sign+in&asts=
 
 Response Example
-~~~~~~~~~~~~~~~~
+................
 
 ::
 
@@ -2633,7 +2633,7 @@ Cache Matching
    In this case, Varnish forwards the request to the origin server.
 
 ``Vary``
-~~~~~~~~
+........
 
 - Selects a representation or a resource
 - Be careful when using ``Vary``
@@ -2680,7 +2680,7 @@ Cache Matching
       Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
 
 ``ETag``
-~~~~~~~~
+........
 
 - An *Entity Tag* (``ETag``) is metadata to differentiate between multiple states of a resource's representation
 - A differentiator key of presentations in addition to ``Vary``
@@ -2701,7 +2701,7 @@ Cache Matching
    We will see the details of ``If-None-Match`` later in this subsection, but before, we learn about the other validator header field: ``Last-Modified``.
 
 ``Last-Modified``
-~~~~~~~~~~~~~~~~~
+.................
 
 - Time-based state of presentations
 - Validator header field
@@ -2722,7 +2722,7 @@ Cache Matching
    Please refer to Section 2.4 in https://tools.ietf.org/html/rfc7232#section-2.4 for a full description on when to use either of them.
 
 ``If-None-Match``
-~~~~~~~~~~~~~~~~~
+.................
 
 - Precondition Header Field
 - Request header field
@@ -2751,7 +2751,7 @@ Cache Matching
       Figure :counter:`figure`: If-None-Match control diagram.
 
 ``If-Modified-Since``
-~~~~~~~~~~~~~~~~~~~~~
+.....................
 
 - Validates local caches by modification date
 - Precondition Header Field
@@ -2789,7 +2789,7 @@ Allowance
    This subsection reviews two common header fields, ``Cache-Control`` and ``Pragma``, to check caching allowance.
 
 ``Cache-Control``
-~~~~~~~~~~~~~~~~~
+.................
 
 The ``Cache-Control`` header field specifies directives that **must** be applied by all caching mechanisms (from proxy cache to browser cache).
 
@@ -2828,7 +2828,7 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
        If you want to let users update the cache via a force refresh you need to do it yourself.
 
 ``Pragma``
-~~~~~~~~~~
+..........
 
 - Only for legacy
 - Treat ``Pragma: no-cache`` as ``Cache-Control: no-cache``
@@ -2858,7 +2858,7 @@ Freshness
       either the ``Expires`` header field or the ``max-age`` response directive.
 
 ``Age``
-~~~~~~~
+.......
 
 - Response header field calculated at the cache server, i.e., Varnish
 - Varnish send an additional response header field, ``Age``, to indicate the age of the cache
@@ -2882,7 +2882,7 @@ Freshness
    We will see in later chapters how we can handle this in Varnish.
 
 Exercise: Use `article.php` to test ``Age``
-...........................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Send a request to `article.php` via Varnish, and see the response ``Age`` header field in ``varnishlog -g request -i ReqHeader,RespHeader``
 #. Click the link several times and refresh your browser. Can you identify patterns?
@@ -2918,7 +2918,7 @@ Exercise: Use `article.php` to test ``Age``
 
 
 ``Expires``
-~~~~~~~~~~~
+...........
 
 - Used to stale objects
 - Response header field only
@@ -3065,7 +3065,7 @@ Varnish Finite State Machine
    Your own subroutines cannot start their name with ``vcl_``.
 
 Waiting State
-~~~~~~~~~~~~~
+.............
 
 - Designed to improve response performance
 
@@ -3165,19 +3165,22 @@ VCL Syntax
    
       If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
 
-VCL built-in functions
-----------------------
+VCL Built-in Functions and Instructions
+---------------------------------------
 
-List of functions and their arguments:
+**Functions:**
 
 - ``regsub(str, regex, sub)``
 - ``regsuball(str, regex, sub)``
 - ``ban(boolean expression)``
-- ``return(action)``
 - ``hash_data(input)``
-- ``call subroutine``
 - ``new()``
 - ``synthetic(str)``
+
+**Instructions:**
+
+- ``call subroutine``
+- ``return(action)``
 - ``set()``
 - ``unset()``
 
@@ -3233,12 +3236,12 @@ Legal Return Actions
    .. Acknowledgment: Table layout by MatouÅ¡ Jan Fialka.
 
    The table above shows the VCL built-in subroutines and their legal returns.
-   ``return()`` is a built-in function that ends execution of the current VCL subroutine, and continue to the next ``action`` step in the request handling state machine.
+   ``return`` is a built-in instruction that ends execution of the current VCL subroutine and continue to the next ``action`` step in the request handling state machine.
    Legal return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
 
    .. note::
       Varnish 4 defines ``purge`` as a return action.
-      This is contrary to Varnish 3, where ``purge`` is a function.
+      This is contrary to Varnish 3, where ``purge`` is an instruction.
 
 Variables in VCL subroutines
 ----------------------------
@@ -3392,7 +3395,7 @@ VCL – ``vcl_recv``
       There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
 
 Built-in: ``vcl_recv``
-~~~~~~~~~~~~~~~~~~~~~~
+......................
 
 .. include:: vcl/default-vcl_recv.vcl
    :literal:
@@ -3417,7 +3420,7 @@ Built-in: ``vcl_recv``
    .. https://www.varnish-software.com/blog/why-i-dont-spdy
 
 Example: Basic Device Detection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...............................
 
 One way of serving different content for mobile devices and desktop browsers is to run some simple parsing on the `User-Agent` header.
 The following VCL code is an example to create custom headers.
@@ -3449,7 +3452,7 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
 .. https://www.varnish-software.com/product/varnish-mobile-device-detection
 
 Exercise: Rewrite URLs and Host headers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.......................................
 
 #. Copy the original `Host`-header (``req.http.Host``) and URL
    (``req.url``) to two new request headers: ``req.http.x-host`` and
@@ -3500,7 +3503,7 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
       Remember to update the location of the VCL file in the Varnish configuration file, and restart Varnish.
      
 Solution: Rewrite URLs and Host headers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.......................................
 
 ``http -p hH --proxy=http:http://localhost sport.example.com/index.html``
 
@@ -3550,7 +3553,7 @@ VCL – ``vcl_pass``
    The *synth* and *restart* return actions call their corresponding subroutines.
 
 hit-for-pass
-~~~~~~~~~~~~
+............
 
 - Used when an object should not be cached
 - *hit-for-pass* object instead of fetched object
@@ -3559,7 +3562,7 @@ hit-for-pass
 .. container:: handout
 
    Some requested objects should not be cached.
-   A typical example is when a requested page contains  a ``Set-Cookie`` response header, and therefore it must be delivered only to the client that requests it.
+   A typical example is when a requested page contains the ``Set-Cookie`` response header, and therefore it must be delivered only to the client that requests it.
    In this case, you can tell Varnish to create a *hit-for-pass* object and stores it in the cache, instead of storing the fetched object.
    Subsequent requests are processed in *pass* mode.
 
@@ -3629,7 +3632,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
    - Applying other caching policies
 
 ``vcl_backend_response``
-~~~~~~~~~~~~~~~~~~~~~~~~
+........................
 
 **built-in vcl_backend_response**
 
@@ -3670,7 +3673,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
       The `hit-for-pass`_ section explains this in more detail.
 
 The Initial Value of ``beresp.ttl``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...................................
 
 Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has already been set to a value. 
 ``beresp.ttl`` is initialized with the first value it finds among:
@@ -3717,7 +3720,7 @@ Only the following status codes will be cached by default:
       In this case, you might inadvertently be delivering stale objects to your client.
 
 Example: Setting TTL of .jpg URLs to 60 seconds
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...............................................
 
 .. include:: vcl/cache_jpg.vcl
    :literal:
@@ -3729,7 +3732,7 @@ Example: Setting TTL of .jpg URLs to 60 seconds
    That means that images with a ``Set-Cookie`` field are not cached.
 
 Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................................................
 
 .. include:: vcl/cache_jpg_smaxage.vcl
    :literal:
@@ -3751,7 +3754,7 @@ Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
    The TTL changing process is recorded in the ``TTL`` tag of ``varnishlog``.
 
 Exercise: Avoid caching a page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..............................
 
 Write a VCL which avoids caching the index page at all.
 It should cover both accessing `/` and `/index.html`
@@ -3763,7 +3766,7 @@ It should cover both accessing `/` and `/index.html`
    Note how the leading `/` is included in ``req.url``.
 
 Solution: Avoid caching a page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..............................
 
 ::
 
@@ -3788,7 +3791,7 @@ Solution: Avoid caching a page
    See the `hit-for-pass`_ section for detailed description about this type of object.
 
 Exercise: Either use s-maxage or set TTL by file type
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.....................................................
 
 Write a VCL that:
 
@@ -3811,7 +3814,7 @@ Write a VCL that:
       Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
 
 Solution: Either use s-maxage or set ttl by file type
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.....................................................
 
 .. include:: vcl/s-maxage_cookies_filetypes.vcl
    :literal:
@@ -3819,9 +3822,8 @@ Solution: Either use s-maxage or set ttl by file type
 .. container:: handout
 
         There are many ways to solve this exercise, and this solution is only one of them.
-	The first part checks that ``s-maxage`` is *not* present, then handles .jpg and .html files - including cookie removal.
-	The second part checks if ``s-maxage`` caused Varnish to set a positive TTL and consider it cacheable.
-	Then, we remove the ``Set-Cookie`` header field.
+	The first condition checks the presence of ``s-maxage`` and handles ``.jpg`` and ``.html`` files to make them cacheable for 30 and 10 seconds respectively.
+	If ``s-maxage`` is present with a possitive TTL, we consider the response cacheable by removing ``beresp.http.Set-Cookie``.
 
 VCL – ``vcl_hash``
 ------------------
@@ -3992,7 +3994,7 @@ VCL – ``vcl_synth``
       ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.
 
 Example: Redirecting requests with ``vcl_synth``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+................................................
 
 .. TODO for the rst editor: remove obsolete vcl files from the git repository.
 
@@ -4017,7 +4019,7 @@ Exercise: Modify the HTTP response header fields
 - "Rename" the Age header to X-Age.
 
 Solution: Modify the HTTP response header fields
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+................................................
 
 .. include:: vcl/modify_headers.vcl
    :literal:
@@ -4039,7 +4041,7 @@ Exercise: Change the error message
 - Make the default error message more friendly.
 
 Solution: Change the error message
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..................................
 
 .. include:: vcl/customized_error.vcl
    :literal:
@@ -4152,7 +4154,7 @@ HTTP PURGE
    That means that if you purge some objects and the backend is down, Varnish will end up having no copy of the content.
 
 VCL – ``vcl_purge``
-~~~~~~~~~~~~~~~~~~~
+...................
 
 - You may add actions to be executed once the object and its variants is purged
 - Called after the purge has been executed
@@ -4162,11 +4164,11 @@ VCL – ``vcl_purge``
 
 .. note::
 
-   Cache invalidation with purges is done via ``return (purge);`` from ``vcl_recv`` in Varnish 4.
-   The ``purge;`` keyword from Varnish 3 has been retired.
+   Cache invalidation with purges is done by calling ``return (purge);`` from ``vcl_recv`` in Varnish 4.
+   The instruction ``purge;`` from Varnish 3 has been retired.
 
 Example: ``PURGE``
-~~~~~~~~~~~~~~~~~~
+..................
 
 In order to support purging in Varnish, you need the following VCL in place.
 
@@ -4186,7 +4188,7 @@ Test your VCL by issuing::
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
 
 Exercise: ``PURGE`` an article from the backend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...............................................
 
 - Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
 
@@ -4208,7 +4210,7 @@ Exercise: ``PURGE`` an article from the backend
       Remember to place your php files under ``/var/www/html/``.
 
 Solution: PURGE an article from the backend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...........................................
 
 **purgearticle.php**
 
@@ -4359,7 +4361,7 @@ Banning
 	 Figure :counter:`figure`: Executing ban expressions via the `Varnish Administration Console (VAC)`_.
 
 Lurker-Friendly Bans
-~~~~~~~~~~~~~~~~~~~~
+....................
 
 - Ban expressions that match only against ``obj.*``
 - Evaluated asynchronously by the *ban lurker* thread
@@ -4432,7 +4434,7 @@ To build further on this, you can also have a ``REFRESH`` HTTP method that fetch
      http -p hH REFRESH http://localhost/testpage
 
 Solution: Write a VCL program using *purge* and *ban*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.....................................................
 
 .. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
 .. This is not possible in v4. Should we comment about it?
@@ -4519,7 +4521,7 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
      import hashtwo;
 
 VCL example using Hashtwo
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.........................
 
 .. The content of this page comes from ``man vmod_hashtwo``.
 
@@ -4662,7 +4664,7 @@ Directors
       Please see the ``vmod_directors`` man page for more information.
 
 Random Directors
-~~~~~~~~~~~~~~~~
+................
 
 - *Random* director: seeded with a random number
 - *Hash* director: seeded with hash key from typically a URL or a client identity string
@@ -4806,7 +4808,7 @@ Grace Mode
       Objects are valid in cache as long as they have a positive remaining time equal to ``obj.ttl`` + ``obj.grace``.
 
 Time-line example
-~~~~~~~~~~~~~~~~~
+.................
 
 Backend response HTTP Cache-Control header field::
 
@@ -4830,7 +4832,7 @@ or set in VCL::
    The downside of this is that all grace functionality is disabled, regardless any reason.
 
 When can grace happen
-~~~~~~~~~~~~~~~~~~~~~
+.....................
 
 - A request is already pending for some specific content
 - No healthy backend is available
@@ -4842,7 +4844,7 @@ When can grace happen
    These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
 
 Exercise: Grace
-~~~~~~~~~~~~~~~
+...............
 
 #. Copy the following CGI script in ``/usr/lib/cgi-bin/test.cgi``::
 
@@ -5031,7 +5033,7 @@ Varnish can handle cookies coming from two different sources:
    If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
 
 ``Vary`` and Cookies
-~~~~~~~~~~~~~~~~~~~~
+....................
 
 - Not advised
 - Used to cache content that varies on cookies
@@ -5051,7 +5053,7 @@ Varnish can handle cookies coming from two different sources:
       Consider using `Edge Side Includes`_ to let Varnish build responses that combine content with and without cookies, i.e. combining caches and responses from the origin server.
 
 Best Practices for Cookies
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+..........................
 
 - Remove all cookies that you do not need
 - Organize the content of your web site in a way that let you easily determine if a page needs a cookie or not. For example:
@@ -5072,7 +5074,7 @@ Best Practices for Cookies
 This ensures that all cached pages are stripped of ``Set-Cookie``.
 
 Exercise: Compare ``Vary`` and ``hash_data``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+............................................
 
 Both a ``Vary: Cookie`` response header and ``hash_data(req.http.Cookie);`` create separate objects in the cache.
 This exercise is all about ``Vary`` and hash mechanisms.
@@ -5132,7 +5134,7 @@ Edge Side Includes
    Thus, Varnish updates parts independently and makes possible to combine content with different TTL.
 
 Basic ESI usage
-~~~~~~~~~~~~~~~
+...............
 
 Enabling ESI in Varnish is simple enough:
 
@@ -5163,7 +5165,7 @@ This is done in `vcl_recv`.
        Varnish outputs ESI parsing errors in ``varnishstat`` and ``varnishlog``.
 
 Example: Using ESI
-~~~~~~~~~~~~~~~~~~
+..................
 
 Copy ``material/webdev/esi-date.php`` to ``/var/www/html/``.
 This file contains an ESI include tag.
@@ -5187,7 +5189,7 @@ The output should show you how Varnish replaces the ESI tag with the response fr
 This example also tries to show you how the glued objects have different TTLs.
 
 Exercise: Enable ESI and Cookies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+................................
 
 #. Use ``material/webdev/esi-top.php`` and ``material/webdev/esi-user.php`` to test ESI.
 #. Visit ``esi-top.php`` and identify the ESI tag.
@@ -5209,7 +5211,7 @@ Exercise: Enable ESI and Cookies
    .. TODO for the author: To create a solution for this exercise.
 
 Testing ESI without Varnish
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...........................
 
 - Test ESI Using JavaScript to fill in the blanks.
 
@@ -5248,7 +5250,7 @@ Masquerading AJAX requests
     If this represents an issue for your web pages, you can be easily solve it by using Varnish and VCL.
 
 Exercise: write a VCL that masquerades XHR calls
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+................................................
 
 ``material/webdev/ajax.html``
 
@@ -5262,7 +5264,7 @@ Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
 Solution: write a VCL that masquerades XHR calls
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+................................................
 
 ``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
 
@@ -5353,7 +5355,7 @@ Varnish Administration Console (VAC)
    The instructor of the course provides you the credentials.
 
 Overview Page of the Varnish Administration Console
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...................................................
 
 .. figure 26
 
@@ -5363,7 +5365,7 @@ Overview Page of the Varnish Administration Console
    Figure :counter:`figure`: Overview page of the Varnish Administration Console
 
 Configuration Page of the Varnish Administration Console
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+........................................................
 
 .. figure 27
 
@@ -5373,7 +5375,7 @@ Configuration Page of the Varnish Administration Console
    Figure :counter:`figure`: Configuration page of the Varnish Administration Console
 
 Banning Page of the Varnish Administration Console
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..................................................
 
 .. figure 28
 
@@ -5434,7 +5436,7 @@ Varnish Custom Statistics (VCS)
       For further details on VCS, please look at its own documentation at https://www.varnish-software.com/resources/.
 
 VCS Data Model
-~~~~~~~~~~~~~~
+..............
 
 - Represents a finite relation from an infinite stream.
 - Uses time-based tumbling windows
@@ -5559,7 +5561,7 @@ VCS Data Model
       }
 
 VCS API
-~~~~~~~
+.......
 
 - API provides ready-to-use queries
 - Queries over HTTP
@@ -5637,7 +5639,7 @@ Find a list of the top 50 slowest backend requests::
       For more details on the API, please read the documentation of ``vstatd``.
 
 Screenshots of GUI
-~~~~~~~~~~~~~~~~~~
+..................
 
 - VCS provides its own GUI
 - You can interact with the API via this GUI
