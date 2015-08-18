@@ -3623,8 +3623,8 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
    Typical tasks performed in ``vcl_backend_fetch`` or ``vcl_backend_response`` include:
 
    - Overriding cache time for certain URLs
-   - Stripping Set-Cookie headers that are not needed
-   - Stripping bugged ``Vary`` headers
+   - Stripping ``Set-Cookie`` header fields that are not needed
+   - Stripping bugged ``Vary`` header fields
    - Adding helper-headers to the object for use in banning (more information in later sections)
    - Applying other caching policies
 
@@ -3654,7 +3654,7 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 .. container:: handout
 
    The ``vcl_backend_response`` built-in subroutine is designed to avoid caching in conditions that are most probably undesired.
-   For example, it avoids caching responses with cookies, i.e., responses with ``Set-cookie`` HTTP header field.
+   For example, it avoids caching responses with cookies, i.e., responses with ``Set-Cookie`` HTTP header field.
    This built-in subroutine also avoids *request serialization* described in the `Waiting State`_ section.
 
    To avoid *request serialization*, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
@@ -3795,7 +3795,7 @@ Write a VCL that:
 - uses ``Cache-Control: s-maxage`` when present,
 - caches ``.jpg`` for 30 seconds if ``s-maxage`` is not present,
 - caches ``.html`` for 10 seconds if ``s-maxage`` isn't present, and
-- removes the ``Set-Cookie`` header field if ``s-maxage`` OR the above rules indicate that Varnish should cache.
+- removes the ``Set-Cookie`` header field if ``s-maxage`` **or** the above rules indicate that Varnish should cache.
 
 .. container:: handout
 
@@ -5010,19 +5010,19 @@ Cookies
 
 Cookies are frequently used to identify unique users, or user-choices. 
 They can be used for anything from identifying a user-session in a web-shop to opting for a mobile version of a web page.
-Varnish can handle cookies coming from three different sources:
+Varnish can handle cookies coming from two different sources:
 
 - ``req.http.Cookie`` header field from clients
 - ``beresp.http.Set-Cookie`` header field from servers
 
 .. container:: handout
 
-   By default Varnish does not cache a page if the ``Cookie`` request header or ``Set-Cookie`` response header are present.
+   By default Varnish does not cache a page if ``req.http.Cookie`` or ``beresp.http.Set-Cookie`` are present.
    This is for two main reasons:
    1) to avoid littering the cache with large amount of copies of the same content, and
    2) to avoid delivering cookie-based content to a wrong client.
 
-   It is far better to either cache multiple copies of the same content for each user or cache **nothing** at all, than caching personal, confidential or private content and deliver it to a wrong client.
+   It is far better to either cache multiple copies of the same content for each user or **cache nothing** at all, than caching personal, confidential or private content and deliver it to a wrong client.
    In other words, the worst is to jeopardize users' privacy for saving backend resources.
    Therefore, it is strongly advised to take your time to write a correct VCL program and test it thoroughly before caching cookies in production deployments.
 
@@ -5030,21 +5030,25 @@ Varnish can handle cookies coming from three different sources:
    If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
    If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
 
-Vary and Cookies
-~~~~~~~~~~~~~~~~
+``Vary`` and Cookies
+~~~~~~~~~~~~~~~~~~~~
 
-- Varnish **does not cache** when cookies are involved by default.
-- The ``Vary`` response header field can be used to cache content that is based on the value of cookies.
-- Cookies are widely used, but almost no-one sends ``Vary: Cookie`` for **content that varies based on cookies**.
+- Not advised
+- Used to cache content that varies on cookies
+- By default, Varnish **does not store** responses when cookies are involved
+- The ``Vary`` response header field can be used to store responses that are based on the value of cookies
+- Cookies are widely used, but not ``Vary: Cookie``
 
 .. container:: handout
 
-   Server responses containing  ``Vary: Cookie`` in their response header are stored as a separate `vary` object in the cache.
-   `vary` objects shared the same hash value.
+   Varnish uses a different hash value for each cached resource.
+   Resources with several representations, i.e. variations containing the ``Vary`` response header field, share the same hash value in Varnish.
+   Despite this common hash value, caching based on the ``Vary: Cookie`` response header is not advised, because its poor performance.
+   For a more detailed explanation on ``Vary``, please refer to the `Vary`_ subsection.
 
-   .. See Section Vary to learn more about `vary` objects.
-   .. TODO for the author: update the reference to the Vary Subsection when the Chapter HTTP is done.
-   .. Caching based on the ``Varnish: Cookie`` response header is not advised, because its poor performance.
+   .. note:: 
+
+      Consider using `Edge Side Includes`_ to let Varnish build responses that combine content with and without cookies, i.e. combining caches and responses from the origin server.
 
 Best Practices for Cookies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -5065,13 +5069,13 @@ Best Practices for Cookies
         unset beresp.http.Set-cookie;
     }
 
-This ensures that all cached pages are stripped of ``Set-cookie``.
+This ensures that all cached pages are stripped of ``Set-Cookie``.
 
-Exercise: Compare Vary and ``hash_data``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Exercise: Compare ``Vary`` and ``hash_data``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Both a ``Vary: Cookie`` response header and ``hash_data(req.http.Cookie);`` create separate objects in the cache.
-This exercise is all about ``Vary`` and hash dynamics.
+This exercise is all about ``Vary`` and hash mechanisms.
 
 #. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
 #. Test ``cookies.php`` by issuing::
@@ -5089,7 +5093,7 @@ This exercise is all about ``Vary`` and hash dynamics.
 .. container:: handout
 
    After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
-   The exercise only looks for the ``Cookie`` header, but the same rules apply to any other header.
+   The exercise only looks for the ``Cookie`` header field, but the same rules apply to any other header.
 
 .. TODO for the author: to create a solution for this exercise
 
