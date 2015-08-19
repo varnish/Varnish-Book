@@ -271,8 +271,9 @@ The Webdev course requires that you:
 - https://varnish-cache.org
 - https://varnish-software.com/academy
 -  `#varnish-hacking` and `#varnish` on `irc.linpro.net`.
-- https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4
+- https://github.com/varnish/Varnish-Book/
 - https://www.varnish-cache.org/docs/trunk/users-guide/troubleshooting.html
+- https://www.varnish-cache.org/trac/wiki/VCLExamples
 
 .. container:: handout
 
@@ -281,10 +282,13 @@ The Webdev course requires that you:
    You can also contact the Varnish open source community at https://varnish-cache.org.
    To book training, please look at https://varnish-software.com/academy.
 
+   Additional examples from different Varnish versions are available at https://www.varnish-cache.org/trac/wiki/VCLExamples.
+   These examples are maintained by the community.
+   
    For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
    This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
-   Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book/tree/Varnish-Book-v4.
+   Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book/.
 
 .. class:: heading2
 
@@ -3054,7 +3058,7 @@ Varnish Finite State Machine
      }
 
    
-   To call a subroutine, use the ``call`` instruction followed by the subroutine's name::
+   To call a subroutine, use the ``call`` keyword followed by the subroutine's name::
 
      call pipe_if_local;
 
@@ -3165,8 +3169,8 @@ VCL Syntax
    
       If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
 
-VCL Built-in Functions and Instructions
----------------------------------------
+VCL Built-in Functions and Keywords
+-----------------------------------
 
 **Functions:**
 
@@ -3177,7 +3181,7 @@ VCL Built-in Functions and Instructions
 - ``new()``
 - ``synthetic(str)``
 
-**Instructions:**
+**Keywords:**
 
 - ``call subroutine``
 - ``return(action)``
@@ -3236,12 +3240,11 @@ Legal Return Actions
    .. Acknowledgment: Table layout by MatouÅ¡ Jan Fialka.
 
    The table above shows the VCL built-in subroutines and their legal returns.
-   ``return`` is a built-in instruction that ends execution of the current VCL subroutine and continue to the next ``action`` step in the request handling state machine.
+   ``return`` is a built-in keyword that ends execution of the current VCL subroutine and continue to the next ``action`` step in the request handling state machine.
    Legal return actions are: `lookup`, `synth`, `purge`, `pass`, `pipe`, `fetch`, `deliver`, `hash`, `restart`, `retry`, and `abandon`.
 
    .. note::
-      Varnish 4 defines ``purge`` as a return action.
-      This is contrary to Varnish 3, where ``purge`` is an instruction.
+      In Varnish 4 ``purge`` is used as a return action.
 
 Variables in VCL subroutines
 ----------------------------
@@ -4165,7 +4168,7 @@ VCL – ``vcl_purge``
 .. note::
 
    Cache invalidation with purges is done by calling ``return (purge);`` from ``vcl_recv`` in Varnish 4.
-   The instruction ``purge;`` from Varnish 3 has been retired.
+   The keyword ``purge;`` from Varnish 3 has been retired.
 
 Example: ``PURGE``
 ..................
@@ -5045,7 +5048,7 @@ Varnish can handle cookies coming from two different sources:
 
    Varnish uses a different hash value for each cached resource.
    Resources with several representations, i.e. variations containing the ``Vary`` response header field, share the same hash value in Varnish.
-   Despite this common hash value, caching based on the ``Vary: Cookie`` response header is not advised, because its poor performance.
+   Despite this common hash value, caching based on the ``Vary: Cookie`` response header is not advised, because of its poor performance.
    For a more detailed explanation on ``Vary``, please refer to the `Vary`_ subsection.
 
    .. note:: 
