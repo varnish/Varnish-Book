@@ -488,7 +488,7 @@ What Is New in Varnish 4
 - Version statement ``vcl 4.0;``
 - ``req.request`` is now ``req.method``
 - ``vcl_fetch`` is now ``vcl_backend_response``
-- Directors have been moved to the vmod_directors
+- Directors have been moved to the ``vmod_directors``
 - Hash directors as a client directors 
 - ``vcl_error`` is now ``vcl_backend_error``
 - ``error()`` is now ``synth()``, and you must explicitly return it: ``return (synth(999, "Response"));``
@@ -2051,10 +2051,6 @@ To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help`
 Install Varnish Tuner
 .....................
 
-Below are the installation instructions for getting the tuner from our repositories.
-Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
-If you do not know them, please send an email to our support email to recover them. 
-
 **Ubuntu Trusty 14.04**
 
 Packages in our repositories are signed and distributed via https.
@@ -2077,16 +2073,22 @@ Then::
   apt-get update
   apt-get install varnishtuner 
 
-**Red Hat Enterprise Linux 6**
+.. container:: handouts
 
-To install Varnish Plus on RHEL6, put the following lines into ``/etc/yum.repos.d/varnish-plus.repo``::
+    Above are the installation instructions for Ubuntu to get Varnish Tuner from our repositories.
+    Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
+    If you do not know them, please send an email to our support email to recover them. 
 
-  [varnishtuner]
-  name=Varnishtuner
-  baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/ \
-  varnishtuner/el6
-  enabled=1
-  gpgcheck=0
+    **Red Hat Enterprise Linux 6**
+
+    To install Varnish Plus on RHEL6, put the following lines into ``/etc/yum.repos.d/varnish-plus.repo``::
+
+      [varnishtuner]
+      name=Varnishtuner
+      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/ \
+      varnishtuner/el6
+      enabled=1
+      gpgcheck=0
 
 Threading Model
 ---------------
@@ -3013,7 +3015,12 @@ VCL Basics
 Varnish Finite State Machine
 ----------------------------
 
-.. todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
+.. Todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
+
+- VCL workflow seen as a finite state machine
+- States are conceptualized and implemented as subroutines, e.g., ``sub vcl_recv``
+- Built-in subroutines start with ``vcl_``, which is a reserved prefix
+- ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
 
 .. container:: handout
 
@@ -3072,6 +3079,7 @@ Waiting State
 .............
 
 - Designed to improve response performance
+- *Request serialization* is a non desired side-effect that is handled in the `vcl_backend_response`_  subroutine
 
 .. container:: handout
 
@@ -3089,6 +3097,8 @@ Waiting State
 
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
+
+.. This slide does not contain bullets because it conflicts with the size of the diagram.
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
 .. TODO for the author: Remove the name of functions "cnt_*"
@@ -5363,7 +5373,7 @@ Overview Page of the Varnish Administration Console
 .. figure 26
 
 .. figure:: ui/img/vac_screenshot_1.png
-   :width: 80%
+   :width: 70%
 
    Figure :counter:`figure`: Overview page of the Varnish Administration Console
 
@@ -5373,7 +5383,7 @@ Configuration Page of the Varnish Administration Console
 .. figure 27
 
 .. figure:: ui/img/vac_screenshot_2.png
-   :width: 80%
+   :width: 70%
 
    Figure :counter:`figure`: Configuration page of the Varnish Administration Console
 
@@ -5383,7 +5393,7 @@ Banning Page of the Varnish Administration Console
 .. figure 28
 
 .. figure:: ui/img/vac_screenshot_3.png
-   :width: 80%
+   :width: 70%
 
    Figure :counter:`figure`: Banning page of the Varnish Administration Console
 
@@ -5398,7 +5408,7 @@ Varnish Custom Statistics (VCS)
 .. figure 29
 
 .. figure:: ui/img/vcs-dsms.png
-   :width: 100%
+   :width: 80%
 
    Figure :counter:`figure`: VCS Data Flow
 
@@ -5918,7 +5928,9 @@ Exercise: Try the tools
 Appendix C: Extra Material
 ==========================
 
-The following is content needed for some of the exercises.
+This appendix contains code needed for some exercises.
+
+.. TODO for the author: To list and reference the content of this appendix to their respective exercises
 
 ajax.html
 ---------
@@ -5977,12 +5989,16 @@ set-cookie.php
 VCL Migrator from Varnish 3 to Varnish 4
 ----------------------------------------
 
-*varnish3to4* is a script to assist you migrating a VCL file from Varnish 3 to 4.
-The script aims to replace most of the syntactical changes in VCL code from Varnish 3 to Varnish 4, but it is not exhaustive.
-That said, you should use it under your own responsibility.
+- *varnish3to4* is a script to assist you migrating a VCL file from Varnish 3 to 4.
+- Download it from https://github.com/fgsch/varnish3to4
 
-You can download the script from https://github.com/fgsch/varnish3to4.
-Usage and up-to-date details about the script is at the same web address.
+.. container:: handout
+
+   The script aims to replace most of the syntactical changes in VCL code from Varnish 3 to Varnish 4, but it is not exhaustive.
+   That said, you should use it under your own responsibility.
+
+   You can download the script from https://github.com/fgsch/varnish3to4.
+   Usage and up-to-date details about the script is at the same web address.
 
 Appendix D: Varnish Three Letter Acronyms
 =========================================
