@@ -28,7 +28,17 @@
 ;;; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ;;; ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;;; POSSIBILITY OF SUCH DAMAGE.
-;;;
+
+;;; Commentary:
+;; Use this mode for editing files in the vcl-language
+;; (www.varnish-cache.org and www.varnish-software.com).
+;;
+;; To use vcl-mode, add 
+;; (load-file "PATH_TO_FILE/vcl-mode.el") 
+;; to your ~/.emacs(.el) or ~/.xemacs/init.el
+
+;;; Todo:
+;;
 
 (defgroup vcl nil
   "Customizations for vcl-mode"
