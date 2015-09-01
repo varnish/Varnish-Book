@@ -307,6 +307,7 @@ In addition to the authors, the following deserve special thanks (in no particul
 - Sevan Janiyan
 - Kacper Wysocki
 - Magnus Hagander
+- Arianna Aondio
 - Poul-Henning Kamp
 - Everyone who has participated on the training courses
 
