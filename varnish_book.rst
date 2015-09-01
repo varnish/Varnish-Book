@@ -4786,7 +4786,7 @@ Grace Mode
 - A `graced` object is an object that has expired, but is still kept in cache.
 - `Grace mode` is when Varnish uses a `graced` object.
 - `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
-- Varnish can use a graced objects in many different ways
+- Varnish can use a graced objects in many different ways.
 - ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
 
 .. container:: handout
@@ -4989,7 +4989,7 @@ This chapter teaches you how to glue content from independent sources into one w
 
    .. TODO for the author: To elaborate an introduction.
 
-A typical website
+A Typical Website
 -----------------
 
 Most websites follow a pattern: they have easily distinguishable parts:
@@ -5026,7 +5026,7 @@ Cookies
 
 - **Be careful when caching cookies!**
 
-Cookies are frequently used to identify unique users, or user's 1choices. 
+Cookies are frequently used to identify unique users, or user's choices. 
 They can be used for anything from identifying a user-session in a web-shop to opting for a mobile version of a web page.
 Varnish can handle cookies coming from two different sources:
 
@@ -6089,52 +6089,3 @@ VWP
 
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
-
-.. TODO:
-
-..
-   Appendix E: Regular-Expressions in Varnish
-   ==========================================
-
-   [This chapter is work in progress]
-
-   - Used to filter results in ``varnishlog``, specially when using queries.
-   - Used to match string for ban.
-
-   .. container:: handout
-
-      This appendix is a brief introduction and usage of regular-expressions for Varnish.
-      A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
-      They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
-      Regular-expressions are commonly used by ``varnishlog``, bans, ``regsub()``, ``regsuball()``, and VCS.
-      Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
-
-      Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
-      Regular-expressions are built up from small building block units.
-      You can combine them in an infinite number of ways to achieve a particular goal.
-      This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
-
-      .. note::
-
-	 Purges cannot use regular-expressions because use the regular lookup operation to match hashes.
-	 The lookup operation matches only specific object identifiers, not regex patterns.
-
-   Regular-Expressions in This Book
-   --------------------------------
-
-   - 
-
-   .. container:: handout
-
-      In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
-      Examples of regular-expression matching::
-
-	 ban req.url ~ ^/foo$
-	 ReqMethod ~ "GET|POST"
-	 set req.http.host = regsub(req.http.host,"^sport\.", "");
-	 ban("obj.http.x-url ~ " + req.http.x-ban);
-	 where req.http.x-ban`` is a regular-expression.
-
-      To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
-      The PCRE manual page ``man pcre`` is also a valuable resource, specially ``man pcresyntax`` and ``man pcrepattern``.
-
