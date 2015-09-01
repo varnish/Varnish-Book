@@ -582,6 +582,8 @@ Varnish is designed to:
    .. VMODs
 
    Varnish allows integration of Varnish Modules or simply VMODs.
+   A VMOD is a shared library with some C functions which can be called from VCL code.
+   The stardard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
    These modules let you extend the functionality of VCL by pulling in custom-written features.
    Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
 
@@ -3088,7 +3090,7 @@ Waiting State
     In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
     If the fetched object from request 0 is cacheable, all *n* requests in the waiting list call the lookup operation again.
     This retry will hopefully hit the desired object in cache.
-    In this way, only one request is sent to the backend.
+    As a result, only one request is sent to the backend.
 
     The *waiting* state is designed to improve response performance.
     However, a counterproductive scenario, namely *request serialization*, may occur if the fetched object is uncacheable, and so is recursively the next request in the waiting list.
@@ -4135,7 +4137,7 @@ Which one to use and when?
    - If you need to invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
    - If it takes a long time to pull content from the backend into Varnish, consider to force cache misses by using ``req.hash_always_miss``.
 
-   The rest of the chapter gives you the information to pickup the most suitable mechanisms.
+   The rest of the chapter teaches you more about each mechanism.
 
    .. note::
       Purge and Hashtwo work very similar.
@@ -4784,14 +4786,14 @@ Grace Mode
 - A `graced` object is an object that has expired, but is still kept in cache.
 - `Grace mode` is when Varnish uses a `graced` object.
 - `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
-- There is more than one way Varnish can use a graced object.
+- Varnish can use a graced objects in many different ways
 - ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
 
 .. container:: handout
 
    .. what is grace mode
 
-   When Varnish is in *grace mode*, Varnish is capable of delivering a stale object and issue an asynchronous refresh request.
+   When Varnish is in *grace mode*, Varnish is capable of delivering a stale object and issues an asynchronous refresh request.
    When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
    This procedure is also known as ``stale-while-revalidate``.
 
@@ -5024,7 +5026,7 @@ Cookies
 
 - **Be careful when caching cookies!**
 
-Cookies are frequently used to identify unique users, or user-choices. 
+Cookies are frequently used to identify unique users, or user's 1choices. 
 They can be used for anything from identifying a user-session in a web-shop to opting for a mobile version of a web page.
 Varnish can handle cookies coming from two different sources:
 
