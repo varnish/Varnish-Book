@@ -6089,3 +6089,54 @@ VWP
 
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
+
+Appendix E: Regular-Expressions in Varnish
+==========================================
+
+[This chapter is work in progress]
+
+- Used to filter results in ``varnishlog``, specially when using queries.
+- Used to match string for ban.
+
+.. container:: handout
+
+   This appendix is a brief introduction and usage of regular-expressions for Varnish.
+   A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be s\
+earched for within a longer piece of text.
+   They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
+   Regular-expressions are commonly used by ``varnishlog``, bans, ``regsub()``, ``regsuball()``, and VCS.
+   Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics\
+the syntax and semantics of Perl regular expressions.
+
+   Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very larg\
+e Varnish log.
+   Regular-expressions are built up from small building block units.
+   You can combine them in an infinite number of ways to achieve a particular goal.
+   This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish \
+Book.
+
+   .. note::
+
+      Purges cannot use regular-expressions because use the regular lookup operation to match hashes.
+      The lookup operation matches only specific object identifiers, not regex patterns.
+
+Regular-Expressions in This Book
+--------------------------------
+
+-
+
+.. container:: handout
+
+   In regular-expression matching, ``'~'`` is a positive match, and ``'!~'`` is a non-match.
+   Examples of regular-expression matching::
+
+      ban req.url ~ ^/foo$
+      ReqMethod ~ "GET|POST"
+      set req.http.host = regsub(req.http.host,"^sport\.", "");
+      ban("obj.http.x-url ~ " + req.http.x-ban);
+      where req.http.x-ban`` is a regular-expression.
+
+   To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E\
+. F. Friedl.
+   The PCRE manual page ``man pcre`` is also a valuable resource, specially ``man pcresyntax`` and ``man pcrepat\
+tern``.
