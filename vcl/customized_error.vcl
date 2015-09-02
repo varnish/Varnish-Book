@@ -9,7 +9,8 @@ sub vcl_backend_error {
     if (beresp.status == 503){
         set beresp.status = 200;
         synthetic( {"
-            <html><body><!-- Here goes a more friendly error message. --></body></html>
+            <html><body><!-- Here goes a more friendly error message. -->
+            </body></html>
         "} );
         return (deliver);
     }

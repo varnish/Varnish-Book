@@ -105,7 +105,7 @@ The Webdev course requires that you:
    - Apache/2.4 or later,
    - HTTPie 0.8.0 or later,
    - PHP 5.4 or later, and
-   - curl – command line tool for transferring data with URL syntax-
+   - curl – command line tool for transferring data with URL syntax
 
    More specific required skills depend on the course you take.
    The book starts with the installation of Varnish and navigation of some of the common configuration files.
@@ -288,7 +288,7 @@ The Webdev course requires that you:
    For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
    This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
-   Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book/.
+   Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book.
 
 .. class:: heading2
 
@@ -1723,7 +1723,7 @@ Varnish Architecture
    - show/clear of panic messages
    - start/stop/status of ``varnishd``
    - banning
-   - ``varnishstat`` in JON format
+   - ``varnishstat`` in JSON format
 
    .. figure 14
 
@@ -2122,6 +2122,8 @@ Threading parameters
 - Start them sooner rather than later
 - Maximum and minimum values are per thread pool
 
+.. TODO for the author: verify the units for ``thread_pool_destroy_delay`` and ``thread_queue_limit``.
+
 .. table 10
 
 .. csv-table:: Table :counter:`table`: Threads parameters
@@ -2194,7 +2196,7 @@ Details of Threading Parameters
 
       New threads use preallocated workspace, which should be enough for the required task.
       If threads have not enough workspace, the child process is unable to process the task and it terminates.
-      To avoid that this situation, evaluate your setup and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
+      To avoid this situation, evaluate your setup and consider to increase the ``workspace_client`` or ``workspace_backend`` parameter.
 
 Time Overhead per Thread Creation
 .................................
@@ -5383,6 +5385,8 @@ Overview Page of the Varnish Administration Console
 Configuration Page of the Varnish Administration Console
 ........................................................
 
+.. TODO for the author: update screenshot to contain instances of Varnish 4
+
 .. figure 27
 
 .. figure:: ui/img/vac_screenshot_2.png
@@ -5769,16 +5773,16 @@ Appendix A: Resources
 Community driven:
 
 - https://www.varnish-cache.org
-- https://www.varnish-cache.org/docs/
-- http://repo.varnish-cache.org/
+- https://www.varnish-cache.org/docs
+- http://repo.varnish-cache.org
 - https://www.varnish-cache.org/trac/wiki/VCLExamples
 - Public mailing lists: https://www.varnish-cache.org/trac/wiki/MailingLists
 - Public IRC channel: #varnish at irc.linpro.no
 
 Commercial:
 
-- https://www.varnish-software.com/resources/
-- http://planet.varnish-cache.org/
+- https://www.varnish-software.com/resources
+- http://planet.varnish-cache.org
 - https://www.varnish-software.com
 - http://repo.varnish-software.com (for service agreement customers)
 - support@varnish-software.com (for existing customers, with SLA)
@@ -5992,7 +5996,7 @@ set-cookie.php
 VCL Migrator from Varnish 3 to Varnish 4
 ----------------------------------------
 
-- *varnish3to4* is a script to assist you migrating a VCL file from Varnish 3 to 4.
+- *varnish3to4* is a script that assists you migrating a VCL file from Varnish 3 to 4.
 - Download it from https://github.com/fgsch/varnish3to4
 
 .. container:: handout
