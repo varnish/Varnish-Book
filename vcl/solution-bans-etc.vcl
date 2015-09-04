@@ -21,6 +21,8 @@ sub vcl_backend_response {
 }
 
 sub vcl_deliver {
-    unset resp.http.x-url;  # Optional, for internal
-    unset resp.http.x-host; # use only...
+    # We remove resp.http.x-* HTTP header fields,
+    # because the client does not neeed them
+    unset resp.http.x-url;  
+    unset resp.http.x-host; 
 }

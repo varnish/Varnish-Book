@@ -43,6 +43,7 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
 - Acknowledgements
 
 .. TODO for instructor: tailor this slide!
+.. training: Inform trainees what type of subscription they have and what they have access and services to
 
 .. container:: handout
 
@@ -3206,6 +3207,7 @@ The VCL Finite State Machine
 VCL Syntax
 ----------
 
+- VCL files start with ``vcl 4.0;``
 - //, # and /\* foo \*/ for comments
 - Subroutines are declared with the ``sub`` keyword
 - No loops, state-limited variables
@@ -3391,7 +3393,7 @@ Summary of VCL
 
    Remember that there is a built-in VCL.
    **If your own VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.**
-   If you just need a little modification of a subroutine, you can use the code from ``builtin.vcl`` as a template.
+   If you just need a little modification of a subroutine, you can use the code from  ``{varnish-source-code}/bin/varnishd/builtin.vcl`` as a template.
 
 VCL Built-in Subroutines
 ========================
@@ -3845,8 +3847,8 @@ Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
 Exercise: Avoid Caching a Page
 ..............................
 
-Write a VCL which avoids caching the index page at all.
-It should cover both accessing `/` and `/index.html`
+- Write a VCL which avoids caching the index page at all
+- Your VCL should cover both resource targets: `/` and `/index.html`
 
 .. container:: handout
 
@@ -4198,6 +4200,8 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
 
 Which one to use and when?
 
+.. training: have PURGE in the first column of the table, because the next section is PURGE
+
 .. table 18
 
 .. csv-table:: Table :counter:`table`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
@@ -4256,6 +4260,8 @@ HTTP PURGE
    First, purges cannot use regular-expressions, and second, purges evict content from cache regardless the availability of the backend.
    That means that if you purge some objects and the backend is down, Varnish will end up having no copy of the content.
 
+.. training: Correct the flow for purge in the detailed fsm diagram.
+
 VCL – ``vcl_purge``
 ...................
 
@@ -4292,6 +4298,10 @@ Test your VCL by issuing::
 
 Exercise: ``PURGE`` an article from the backend
 ...............................................
+
+.. training: trainees did not do this exercise because it is too specific and complicate, but Dridi explained it.
+.. training: the idea is that whoever has the authority can be the one initiating invalidation. You can come with either direct invalidation or another component like VAC if you have a ore complicated infrastructured.
+.. training: consider to more the exercise
 
 - Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
 
@@ -4408,7 +4418,7 @@ Banning
    The ban-list contains:
 
    - ID of the ban,
-   - timestamp when the ban entered the ban list,
+   - timestamp when the ban entered the ban-list,
    - counter of objects that have matched the ban expression,
    - a ``C`` flag for *completed* that indicates whether a ban is invalid because it is duplicated,
    - the ban expression.
@@ -4470,12 +4480,14 @@ Lurker-Friendly Bans
 - Evaluated asynchronously by the *ban lurker* thread
 - Similar to the concept of *garbage collection*
 
+.. trainiing: Dridi likes to call them smart bans
+
 .. container:: handout
 
    Ban expressions are checked in two cases: 1) when a request hits a cached object, or 2) when the ban lurker  *wakes up*.
    The first case is efficient only if you know that the cached objects to be banned are frequently accessed.
    Otherwise, you might accumulate a lot of ban expressions in the ban-list that are never checked.
-   The second case is a better alternative because the ban lurker can help you keep the ban list at a manageable size.
+   The second case is a better alternative because the ban lurker can help you keep the ban-list at a manageable size.
    Therefore, we recommend you to create ban expressions that are checked by the ban lurker.
    Such ban expressions are called *lurker-friendly bans*.
 
@@ -4521,11 +4533,10 @@ Lurker-Friendly Bans
 Exercise: Write a VCL program using *purge* and *ban*
 -----------------------------------------------------
 
-Write a VCL program that implements both cache invalidation mechanisms: *purge* and *ban*.
-The ban method should use the request headers ``req.http.x-ban-url`` and ``req.http.x-ban-host``, and it should implement *lurker-friendly bans*.
-
-
-To build further on this, you can also have a ``REFRESH`` HTTP method that fetches new content, using ``req.hash_always_miss``.
+- Write a VCL program that handles the ``PURGE`` and ``BAN`` HTTP methods.
+- When handling the ``BAN`` method, use the request header fields ``req.http.x-ban-url`` and ``req.http.x-ban-host``
+- Use `Lurker-Friendly Bans`_
+- To build further on this, you can also use the ``REFRESH`` HTTP method that fetches new content, using ``req.hash_always_miss``, which is explained in the next subsection
 
 .. container:: handout
 
@@ -4596,7 +4607,7 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    You can then key your cached objects on, for example, product ID or article ID.
    In this way, when you update the price of a certain product or a specific article, you have a key to evict all those objects from the cache.
 
-   So far, we have discussed *purges* and *bans* as mechanisms for cache invalidation.
+   So far, we have discussed *purges* and *bans* as methods for cache invalidation.
    Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching expressions.
    However, there are cases where none of these mechanisms are optimal.
 
@@ -4623,10 +4634,10 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
 
      import hashtwo;
 
-VCL example using Hashtwo
+VCL Example Using Hashtwo
 .........................
 
-.. The content of this page comes from ``man vmod_hashtwo``.
+.. Most of the content in this subsection comes from ``man vmod_hashtwo``.
 
 On an e-commerce site the backend application issues a ``X-HashTwo`` HTTP header field for every product that is referenced on that
 page.
@@ -4728,6 +4739,8 @@ Directors
     - seeded with a random number
     - seeded with a hash key
 
+.. training: space after this bullet
+
 **Round-robin director example:**
 
 .. include:: vcl/director_example.vcl
@@ -4770,7 +4783,7 @@ Random Directors
 ................
 
 - *Random* director: seeded with a random number
-- *Hash* director: seeded with hash key from typically a URL or a client identity string
+- *Hash* director: seeded with hash key typically from a URL or a client identity string
 
 *Hash director that uses client identity for backend selection*
 
@@ -4832,8 +4845,9 @@ Health Checks
    This probe requires that at least 3 requests succeed within a sliding window of 5 request.
 
    Varnish initializes backends marked as sick.
-   The variable ``.initial`` defines how many times the *probe* must succeed to mark the backend as healthy.
-   ``.initial`` defaults to ``.threshold - 1``.
+   ``.initial`` is another variable of ``.probe``.
+   This variable defines how many times the *probe* must succeed to mark the backend as healthy.
+   The ``.initial`` default value is equal to ``.threshold – 1``.
 
    The variable ``Backend_health`` of ``varnishlog`` shows the result of a backend health probe.
    Issue ``man vsl`` to see its detailed syntax.
@@ -4910,8 +4924,8 @@ Grace Mode
       ``obj.ttl`` and ``obj.grace`` are countdown timers.
       Objects are valid in cache as long as they have a positive remaining time equal to ``obj.ttl`` + ``obj.grace``.
 
-Time-line example
-.................
+Timeline Example
+................
 
 Backend response HTTP Cache-Control header field::
 
@@ -4934,7 +4948,7 @@ or set in VCL::
    If you do not want that objects with a negative ``TTL`` are delivered, set ``beresp.grace = 0``.
    The downside of this is that all grace functionality is disabled, regardless any reason.
 
-When can grace happen
+When Can Grace Happen
 .....................
 
 - A request is already pending for some specific content
@@ -4977,7 +4991,7 @@ Exercise: Grace
 
 .. TODO for the author: To mention that saintmode is gone in Varnish 4?
 
-``retry`` return action
+``retry`` Return Action
 -----------------------
 
 - Available in ``vcl_backend_response`` and ``vcl_backend_error``
@@ -5037,6 +5051,8 @@ Access Control Lists (ACLs)
 - An ACL is a list of IP addresses
 - VCL programs can use ACLs to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
 - Compare with ``client.ip`` or ``server.ip``
+
+.. training: be consistent with comments in VCL snippets
 
 .. include:: vcl/acl.vcl
    :literal:

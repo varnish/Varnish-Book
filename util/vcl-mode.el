@@ -77,8 +77,11 @@
      "set"
      "unset"
      "synthetic"
+     "synth"
      "call"
      "new"
+     "true"
+     "false"
      )
     'font-lock-keyword-face)
 
@@ -161,6 +164,7 @@
      "req.hash"
      "req.proto"
      "req.method"
+     "req.hash_always_miss"
      "req.url"
      "resp.proto"
      "resp.response"
