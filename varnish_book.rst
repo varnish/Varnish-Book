@@ -532,6 +532,9 @@ What Is New in Varnish 4
 Design Principles
 =================
 
+.. Training: Dridi talks about different levels of cache in CPUs.
+
+
 Varnish is designed to:
 
 - Solve real problems
@@ -583,7 +586,7 @@ Varnish is designed to:
 
    Varnish allows integration of Varnish Modules or simply VMODs.
    A VMOD is a shared library with some C functions which can be called from VCL code.
-   The stardard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
+   The standard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
    These modules let you extend the functionality of VCL by pulling in custom-written features.
    Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
 
@@ -863,10 +866,13 @@ Then::
       enabled=1
       gpgcheck=0
 
+   .. training: Explain the ``\``
+   .. training: Double check version of varnish with ``varnishd -V``
+      
    If you want to install **Varnish Cache** in Ubuntu change the corresponding above lines to::
 
-     curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-     echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+     $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+     $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
 	/etc/apt/sources.list.d/varnish-cache.list
      apt-get install varnish
 
@@ -969,6 +975,8 @@ Installation Test
 
 The Management Interface ``varnishadm``
 ---------------------------------------
+
+.. training: this slide has too much text
 
 Varnish offers a management command line interface (CLI) to control a running Varnish instance.
 This interface implements a list of management commands in the ``varnishadm`` utility program.
@@ -1098,6 +1106,8 @@ Command Line Configuration
 
 Relevant options for the course are:
 
+.. training: -a stands for `access`
+
 -a <[hostname]:port>      listening address and port for client requests
 -f <filename>             VCL file
 -p <parameter=value>      set tunable parameters
@@ -1188,21 +1198,25 @@ Defining a Backend in VCL
 Exercise: Use the administration interface to learn, review and set Varnish parameters
 --------------------------------------------------------------------------------------
 
-#. Use ``varnishadm`` to see the default value for the ``default_ttl`` parameter and what it does.
+#. Use ``varnishadm`` to see the default value of ``default_ttl`` and ``default_grace``
+#. Refer to `Figure 2 <#figure-2>`_ to see the object's timeline
 
-.. TODO for the author: This exercise is too short and simple. Consider to remove it or elaborate it.
+.. training: consider to show ``param.show``, and ``param.set``. This is in 5.4 "Tunable Parameters"
 
-Exercise: Fetch data through Varnish
+.. TODO for the author: This exercise is too short and simple. Consider to remove it or elaborate more.
+
+Exercise: Fetch Data Through Varnish
 ------------------------------------
 
 - Execute ``http -p hH http://localhost/`` on the command line
-- Compare the results from multiple executions.
+- Pay attention to the ``Age`` response header field
+- Compare and discuss the results from multiple executions
 
 .. container:: handout
 
         ``-p hH`` specifies HTTPie to print only request and response headers, but not the content.
 	The typical HTTP response is "200 OK" or "404 File not found".
-	Feel free to try removing some of the options observe the effect.
+	Feel free to try removing some of the options and observe the effect.
 	For more information about the HTTPie command, type ``man http``.
 
 	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
@@ -1271,6 +1285,8 @@ Log Data Tools
 Log Layout
 ----------
 
+.. training: When talking about sessions is the TCP session.
+
 .. figure 7
 
 .. figure:: ui/img/log_layout.png
@@ -1281,11 +1297,19 @@ Log Layout
 .. container:: handout
 
    Varnish logs transactions chronologically as `Figure 7 <#figure-7>`_ shows.
-   The ``varnishlog`` tool offers mechanisms to reorder transactions grouped by session, client- or backend-request.
+   The ``varnishlog`` is one of the most used tools and offers mechanisms to reorder transactions grouped by session, client- or backend-request.
+   The various arguments of ``varnishlog`` are mostly designed to help you find exactly what you want, and filter out the noise.
+   On production traffic, the amount of log data that Varnish produces is staggering, and filtering is a requirement for using ``varnishlog`` effectively.
+
    Next section explains transactions and how to reorder them.
 
 Transactions
 ------------
+
+.. training: transactions is everything that starts and ends a session.
+.. the sooner a transaction ends, the sooner you see it.
+.. add a diagram like the one made by Dridi
+.. transactions 0 are everything that varnish does but no part of a specific transaction
 
 - One transaction is one work item in Varnish.
 - Share a single Varnish Transaction ID (VXID) per types of transactions.
@@ -1322,6 +1346,7 @@ Transactions
 Transaction Groups
 ..................
 
+.. TODO for the author: consider to uncomment this lines:
 .. the VSL-query man page describes the grouping modes and the transaction hierarchy
 .. https://www.varnish-cache.org/docs/trunk/reference/vsl-query.html
 
@@ -1365,6 +1390,8 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
 
+.. training: there slide has an strange line
+
 .. figure 8
 
 .. figure:: ui/img/cache_miss_request_grouping.png
@@ -1405,6 +1432,8 @@ Query Language
   - boolean operators, e.g.: ``RespStatus >= 500 and RespStatus < 600``
   - parenthesis hierarchy
   - negation using ``not``
+
+.. training: increase the space between the above list and the line below.
 
 Examples of Varnish log queries::
 
@@ -1465,10 +1494,14 @@ Exercise
 
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
+.. training: there is an empty page here.
+
 ``varnishstat``
 ---------------
 
 .. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
+
+.. training: Dridi talks about static and dynamic counters. Consider to add his definition.
 
 .. parsed-literal:: 
    :class: tinycode
@@ -1651,17 +1684,9 @@ Exercise: Try ``varnishstat`` and ``varnishlog`` together
 
 - Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
 
-.. container:: handout
+- See, analyze and understand how counters and parameters change in ``varnishstat`` and ``varnishlog``.
 
-   As you are finishing up this exercise, you hopefully begin to see the
-   usefulness of the various Varnish tools. ``varnishstat`` and
-   ``varnishlog`` are the two most used tools, and are usually what you
-   need for sites that are not in production yet.
-
-   The various arguments for ``varnishlog`` are mostly designed to help you
-   find exactly what you want, and filter out the noise. On production
-   traffic, the amount of log data that Varnish produces is staggering, and
-   filtering is a requirement for using ``varnishlog`` effectively.
+.. TODO for the author: explain expected learning outcomes in the handout
 
 Tuning
 ======
@@ -1688,6 +1713,10 @@ This section covers:
 
 Varnish Architecture
 --------------------
+
+.. training: consider to call "Shared Memory *Log*"
+.. training: when you do VCL compilation, you start a new process called VCC, is isolated from the manager, so the manager is safe if something goes wrong in the VCC. The VCC translate the vcl to c in isolation. In short, to show the magic.
+.. training: if you use modules in your VCL, VCC? will load and link other .
 
 .. figure 13
 
@@ -1754,29 +1783,33 @@ The Parent Process: The Manager
 
 The *Manager* process is owned by the root user, and its main functions are:
 
+.. training: compile VCL bullet below: is responsible, but it is another process that does that.
+
 - apply configuration changes (from VCL files and parameters)
 - compile VCL
 - monitor Varnish
 - provide a Varnish command line interface (CLI)
-- initialize the *Cacher*
+- initialize the child process: *the Cacher*
 
-The *Manager*  checks every few seconds whether the *Cacher* is still there.
-If the *Manager* does not get a reply within a given interval defined in ``ping_interval``, the *Manager* kills the *Cacher* and starts it up again. 
-This automatic restart also happens if the *Cacher* exits unexpectedly, for example, from a segmentation fault or assert error.
+.. container:: handout
 
-Automatic restart of child processes is a resilience property of Varnish.
-This property ensures that even if Varnish contains a critical bug that crashes the child, the child starts up again usually within a few seconds.
-You can toggle this property using the ``auto_restart`` parameter.
+   The *Manager*  checks every few seconds whether the *Cacher* is still there.
+   If the *Manager* does not get a reply within a given interval defined in ``ping_interval``, the *Manager* kills the *Cacher* and starts it up again. 
+   This automatic restart also happens if the *Cacher* exits unexpectedly, for example, from a segmentation fault or assert error.
 
-.. note::
+   Automatic restart of child processes is a resilience property of Varnish.
+   This property ensures that even if Varnish contains a critical bug that crashes the child, the child starts up again usually within a few seconds.
+   You can toggle this property using the ``auto_restart`` parameter.
 
-   Even if you do not perceive a lengthy service downtime, you should check whether the Varnish child is being restarted.
-   This is important, because child restarts introduce extra loading time as ``varnishd`` is constantly emptying its cache.
-   Automatic restarts are logged into ``/var/log/syslog``.
+   .. note::
 
-   To verify that the child process is not being restarted, you can also check its lifetime with the ``MAIN.uptime`` counter in ``varnishstat``.
+      Even if you do not perceive a lengthy service downtime, you should check whether the Varnish child is being restarted.
+      This is important, because child restarts introduce extra loading time as ``varnishd`` is constantly emptying its cache.
+      Automatic restarts are logged into ``/var/log/syslog``.
 
-   Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
+      To verify that the child process is not being restarted, you can also check its lifetime with the ``MAIN.uptime`` counter in ``varnishstat``.
+
+      Varnish Software and the Varnish community at large occasionally get requests for assistance in performance tuning Varnish that turn out to be crash-issues.
 
 The Child Process: The Cacher
 .............................
@@ -1791,6 +1824,8 @@ The main functions of the *Cacher* are:
 - store caches
 - log traffic
 - update counters for statistics
+
+.. training: Dridi skip threads and waited until thread modelling come.
 
 The *Cacher* consists of several different types of threads, including, but not limited to:
 
@@ -1837,7 +1872,7 @@ This is useful to check whether your VCL code compiles correctly.
 
 ::
 
-   $varnishd -C -f <filename>
+   $varnishd -C -f <vcl_filename>
 
 .. container:: handout
 
@@ -1857,12 +1892,12 @@ Storage Backends
 ----------------
 
 Varnish supports different methods to allocate space for the cache.
-You can select one method with the ``-s`` option of ``varnishd``.
+You can choose one method with the ``-s`` option of ``varnishd``.
 
 - *malloc*
 - *file*
 - *persistent* (deprecated)
-- *Varnish Massive Storage Engine (MSE)*
+- *Varnish Massive Storage Engine (MSE)* in **Varnish Plus** only
 
 .. note::
 
@@ -1874,10 +1909,8 @@ You can select one method with the ``-s`` option of ``varnishd``.
    .. malloc
 
    They approach the same basic problem from different angles.
-   With the ``-s malloc`` method, Varnish will request the entire size of
-   the cache with a malloc() (memory allocation) library call. The
-   operating system divides the cache between memory and disk by
-   swapping out what it can't fit in memory.
+   With the ``-s malloc`` method, Varnish will request the entire size of the cache with a malloc() (memory allocation) library call.
+   The operating system divides the cache between memory and disk by swapping out what it can't fit in memory.
 
    .. file
 
@@ -1929,7 +1962,7 @@ The SHared Memory Log (SHMLOG)
 .. container:: handout
 
    Varnish' SHared Memory LOG (SHMLOG) is used to log most data. 
-   It is sometimes called a `shm-log`, and operates on a circular buffer.
+   It is sometimes called `shm-log`, and operates on a circular buffer.
    The SHMLOG is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
 
    .. I/O operations
@@ -2096,6 +2129,10 @@ Then::
 Threading Model
 ---------------
 
+.. training: The cache-main cleans things like old VCL loaded files.
+.. training: you need to connect to the manager through the CLI to ping the child?
+.. training: ask Dridi to clarify.
+
 - The child process runs multiple threads in two tread pools
 - Worker threads are the bread and butter of the Varnish architecture
 - Utility-threads
@@ -2118,8 +2155,12 @@ Threading Model
 Threading parameters
 --------------------
 
+.. training: double check what exactly needs to be started sooner than later.
+.. training: who is the guy that proved that parallelism is not very useful when trying more than 2 pools
+.. Ask Dridi about the universal low of scalability
+
 - Thread pools can safely be ignored
-- Start them sooner rather than later
+- Start threads better sooner than later
 - Maximum and minimum values are per thread pool
 
 .. TODO for the author: verify the units for ``thread_pool_destroy_delay`` and ``thread_queue_limit``.
@@ -2291,7 +2332,7 @@ Exercise: Tune first_byte_timeout
 
  - See, analyze and understand how counters in ``varnishstat`` and parameters in ``varnishlog`` change.
 
-- Create a small CGI script under ``/usr/lib/cgi-bin/`` containing::
+- Create a CGI script in ``/usr/lib/cgi-bin/test.cgi`` containing::
 
         #! /bin/sh
         sleep 5
@@ -2302,15 +2343,15 @@ Exercise: Tune first_byte_timeout
 	date
 
 #. Make it executable.
-#. Test that it works without involving of Varnish.
-#. Test it through Varnish.
+#. Test that it works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``
+#. Test it through Varnish by issuing ``http localhost:80/cgi-bin/test.cgi``
 #. Set ``first_byte_timeout`` to 2 seconds.
 #. Check how Varnish times out the request to the backend.
 
 .. tip::
 
    You may need to enable the cgi module in apache.
-   One way to do that, is by issuing the commands: ``a2enmod cgi``, and then ``service apache2 restart``.
+   One way to do that, is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
 
 Exercise: Configure threading
 -----------------------------
@@ -2318,7 +2359,7 @@ Exercise: Configure threading
 While performing this exercise, watch the `MAIN.threads` counter in ``varnishstat`` to know how many threads are running.
 
 - Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 100 threads running at any given time, but never more than 400.
-- Make the changes work across restarts of Varnish.
+- Make the changes work across Varnish by restarting it
 
 Extra: Experiment with ``thread_pool_add_delay`` and ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread creation and destruction is affected.
 Does ``thread_pool_timeout`` affect already running threads?
@@ -2326,11 +2367,11 @@ Does ``thread_pool_timeout`` affect already running threads?
 .. container:: handout
 
    You can also try changing the ``thread_pool_stack`` variable to a lower value. 
-   This will only affect new threads, but try to find out how low you can set it, and what happens if it's too low.
+   This will only affect new threads, but try to find out how low you can set it, and what happens if it is too low.
 
    .. note::
 
-      It's not common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
+      It is not common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
       These assignments are for educational purposes, and not intended as an encouragement to change the values.
 
 HTTP
@@ -2992,6 +3033,9 @@ Use ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` and ``varnishlog -g req
 VCL Basics
 ==========
 
+.. training: robust principle: liberal to whatever you receive, conservative: consistent in what you send. This creates a lot of legacy.
+.. training: Dridi said that state machine is a subset of graph theory. Double check it!
+
 - The Varnish Configuration Language (VCL) is a domain-specific language
 - VCL as a state machine
 - VCL subroutines
@@ -3026,6 +3070,11 @@ Varnish Finite State Machine
 - States are conceptualized and implemented as subroutines, e.g., ``sub vcl_recv``
 - Built-in subroutines start with ``vcl_``, which is a reserved prefix
 - ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
+
+.. training: Slides are missing the state machine graph.
+.. training: web sockets go in pipe, is an example of handling non HTTP requests.
+.. training: Check feedback from Federico about updating ``if (conditions(beresp))
+.. training: Dridi said that rounds in the simplified version is a hook where you can put your code. Rhombus are only for ``varnishd``.
 
 .. container:: handout
 
@@ -3158,6 +3207,8 @@ VCL Syntax
 - Domain-specific
 - Add as little or as much as you want
 
+.. training: give a reference to .el highlighting lisp file
+
 .. container:: handout
 
    .. comments
@@ -3187,6 +3238,8 @@ VCL Syntax
 VCL Built-in Functions and Keywords
 -----------------------------------
 
+.. training 
+
 **Functions:**
 
 - ``regsub(str, regex, sub)``
@@ -3204,6 +3257,8 @@ VCL Built-in Functions and Keywords
 - ``unset()``
 
 All functions are available in all subroutines, except the listed in the table below.
+
+.. training: no body knows regex in the course!
 
 .. table 14
 
@@ -3361,6 +3416,9 @@ VCL Built-in Subroutines
 VCL – ``vcl_recv``
 ------------------
 
+.. training. there is a blank page after this slide
+.. training: letting client-input to decide your caching policy can make DDoS attack
+
 - Normalize client-input
 - Pick a backend web server
 - Re-write client-data for web applications
@@ -3469,27 +3527,21 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
 .. TODO for the author: mention Varnish Mobile Device Detection, powered by dotMobi’s DeviceAtlas.
 .. https://www.varnish-software.com/product/varnish-mobile-device-detection
 
-Exercise: Rewrite URLs and Host headers
-.......................................
+Exercise: Rewrite URLs and Host Header Fields
+.............................................
 
-#. Copy the original `Host`-header (``req.http.Host``) and URL
-   (``req.url``) to two new request headers: ``req.http.x-host`` and
-   ``req.http.x-url``.
-#. Ensure that `www.example.com` and `example.com` are cached as one, using
-   ``regsub()``.
+#. Copy the ``Host`` header field (``req.http.Host``) and URL (``req.url``) to two new request headers: ``req.http.x-host`` and ``req.http.x-url``.
+#. Ensure that `www.example.com` and `example.com` are cached as one, using ``regsub()``.
 #. Rewrite all URLs under `http://sport.example.com` to
    `http://example.com/sport/`. For example:
    `http://sport.example.com/article1.html` to
    `http://example.com/sport/article1.html`.
-#. Use varnishlog to verify the result.
+#. Use ``varnishlog`` to verify the result.
 
-Extra: Make sure `/` and `/index.html` is cached as one object. How can you
-verify that it is, without changing the content?
+Extra: Make sure `/` and `/index.html` are cached as one object.
 
-Extra 2: Make the redirection work for any domain with `sport.` at the
-front. E.g: `sport.example.com`, `sport.foobar.example.net`,
-`sport.blatti`, etc.
-
+Extra 2: Make the redirection work for any domain with `sport.` at the front.
+E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
 
 .. container:: handout
 
@@ -3501,7 +3553,7 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
    Use ``^`` to match what begins with *www*, and ``\.`` to finish the regular-expression, i.e. `^www\.`.
    `sub` is what you desire to change it with, an empty string ``""`` can be used to remove what matches `regex`.
 
-   In point 3, you can check for host headers with a specific domain name: ``if (req.http.host == "sport.example.com")``.
+   For point 3, you can check host headers with a specific domain name, for example: ``if (req.http.host == "sport.example.com")``.
    An alternative is to check for all hosts that start with *sport*, regardless the domain name: ``if (req.http.host ~ "^sport\.")``.
    In the first case, setting the host header is straight forward: ``set req.http.host = "example.com"``.
    In the second case, you can set the host header by removing the string that precedes the domain name ``set req.http.host = regsub(req.http.host,"^sport\.", "");``
@@ -3517,11 +3569,11 @@ front. E.g: `sport.example.com`, `sport.foobar.example.net`,
 
    .. tip::
       Remember that ``man vcl`` contains a reference manual with the syntax and details of functions such as ``regsub(str, regex, sub)``.
-      We recommend you to leave the default VCL file untouched, and create a new file for your VCL code.
-      Remember to update the location of the VCL file in the Varnish configuration file, and restart Varnish.
-     
-Solution: Rewrite URLs and Host headers
-.......................................
+      We recommend you to leave the default VCL file untouched and create a new file for your VCL code.
+      Remember to update the location of the VCL file in the Varnish configuration file and restart Varnish.
+
+Solution: Rewrite URLs and Host Headers Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``http -p hH --proxy=http:http://localhost sport.example.com/index.html``
 
@@ -3548,8 +3600,6 @@ Solution: Rewrite URLs and Host headers
         set req.url = regsub(req.url, "^", "/sport");
       }
  }
-
-.. TOVERIFY: Solution was in a separate file. To verify why and if not needed, remove it from the repository.
 
 VCL – ``vcl_pass``
 ------------------
@@ -3841,7 +3891,7 @@ Solution: Either use s-maxage or set ttl by file type
 
         There are many ways to solve this exercise, and this solution is only one of them.
 	The first condition checks the presence of ``s-maxage`` and handles ``.jpg`` and ``.html`` files to make them cacheable for 30 and 10 seconds respectively.
-	If ``s-maxage`` is present with a possitive TTL, we consider the response cacheable by removing ``beresp.http.Set-Cookie``.
+	If ``s-maxage`` is present with a positive TTL, we consider the response cacheable by removing ``beresp.http.Set-Cookie``.
 
 VCL – ``vcl_hash``
 ------------------
