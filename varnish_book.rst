@@ -3855,7 +3855,7 @@ It should cover both accessing `/` and `/index.html`
    Note how the leading ``/`` is included in ``req.url``.
 
 Solution: Avoid caching a page
-..............................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. training: downgrade Solution: adornments
 
@@ -3911,7 +3911,7 @@ Write a VCL that:
       Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
 
 Solution: Either use s-maxage or set ttl by file type
-.....................................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. include:: vcl/s-maxage_cookies_filetypes.vcl
    :literal:
@@ -4117,7 +4117,7 @@ Exercise: Modify the HTTP response header fields
 ------------------------------------------------
 
 - Add a header field holding the string ``HIT`` if the requested resourced was found in cache, or ``MISS`` otherwise
-- Rename the ``Age`` header field to ``X-Age``
+- "Rename" the ``Age`` header field to ``X-Age``
 
 Solution: Modify the HTTP response header fields
 ................................................
@@ -4131,10 +4131,12 @@ Solution: Modify the HTTP response header fields
       You should do this before acting on the content of a variable.
       Therefore, in this solution, we use the `greater than` comparison operator ``obj.hits > 0`` instead of the `not equal to` operator ``obj.hits != 0``.
 
-      There have been bugs when converting strings.
+      There have been some bugs when converting strings.
       Those bugs happened when the variable to be converted had an unexpected value.
       This may apply to all variable types – and all languages for that matter.
       Thus it is important that you always check the variable type.
+
+      .. training: There is no a "rename" operation in Varnish, you have to create another header field and then remove the previous.
 
 Exercise: Change the error message
 ----------------------------------
@@ -4311,7 +4313,7 @@ Exercise: ``PURGE`` an article from the backend
       Remember to place your php files under ``/var/www/html/``.
 
 Solution: PURGE an article from the backend
-...........................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **purgearticle.php**
 
@@ -5365,7 +5367,7 @@ Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
 Solution: write a VCL that masquerades XHR calls
-................................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
 
