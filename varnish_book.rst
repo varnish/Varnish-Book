@@ -15,6 +15,8 @@
 
    PageBreak coverPage
 
+.. training: double check with copycat that the four page is not duplicated.
+
 .. class:: heading1
 
    Abstract
@@ -635,6 +637,8 @@ How objects are stored
 
 Object Lifetime
 ---------------
+
+.. add this figure to the beginning of the book as reference
 
 .. figure 2
 
@@ -2828,6 +2832,8 @@ Cache Matching
 
       Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
+   .. training: does Varnish triggers an asynchronous request to the origin server?
+
 Allowance
 ---------
 
@@ -3107,7 +3113,7 @@ Varnish Finite State Machine
 
    Subroutines in VCL take neither arguments nor return values.
    Each subroutine terminates by calling ``return (action)``, where ``action`` is a keyword that indicates the desired outcome.
-   Subroutines may inspect and manipulate HTTP headers and various other aspects of each request.
+   Subroutines may inspect and manipulate HTTP header fields and various other aspects of each request.
    Subroutines instruct how requests are handled.
 
    Subroutine example::
@@ -3543,6 +3549,8 @@ Extra: Make sure `/` and `/index.html` are cached as one object.
 Extra 2: Make the redirection work for any domain with `sport.` at the front.
 E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
 
+.. TODO for the author: create solution for extras
+
 .. container:: handout
 
    For the first point, use ``set req.http.headername = "value";`` or ``set req.http.headername = regsub(...);``.
@@ -3644,6 +3652,9 @@ hit-for-pass
 
 VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 --------------------------------------------------------
+
+.. training: Dridi did not like the order here.
+.. training: I guess that this is because he wanted recv and fetch in VCL basics.
 
 - Sanitize server-response
 - Override cache duration
@@ -3753,6 +3764,9 @@ Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has al
 
 Only the following status codes will be cached by default:
 
+.. training: missing 204, 308
+.. training: 308 does not exist in the RFC http://tools.ietf.org/html/rfc7231, but how to check it in Varnish source code?
+
 - 200: OK
 - 203: Non-Authoritative Information
 - 300: Multiple Choices
@@ -3762,6 +3776,9 @@ Only the following status codes will be cached by default:
 - 307: Temporary Redirect
 - 410: Gone
 - 404: Not Found
+
+.. training. DDoS attackers use scripts to create a bunch of 404 and replace useful cache objects.
+.. training: how do you mitigate it?: pick the junk Varnish server to do not evict rightful
 
 .. container:: handout
 
@@ -3799,8 +3816,12 @@ Example: Setting TTL of .jpg URLs to 60 seconds
    Keep in mind that the built-in VCL is still executed.
    That means that images with a ``Set-Cookie`` field are not cached.
 
+   .. training: double check builtin or built-in for consistency
+
 Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
 ......................................................................
+
+.. training: Dridi calls policy to the configuration jargon
 
 .. include:: vcl/cache_jpg_smaxage.vcl
    :literal:
@@ -3821,7 +3842,7 @@ Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
    The default parsing and TTL assignment are done before ``vcl_backend_response`` is executed.
    The TTL changing process is recorded in the ``TTL`` tag of ``varnishlog``.
 
-Exercise: Avoid caching a page
+Exercise: Avoid Caching a Page
 ..............................
 
 Write a VCL which avoids caching the index page at all.
@@ -3829,12 +3850,14 @@ It should cover both accessing `/` and `/index.html`
 
 .. container:: handout
 
-   When trying this out, remember that Varnish keeps the `Host`-header in ``req.http.host`` and the part after the hostname in ``req.url``.
-   For `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, but ``req.http.host`` has the value of `www.example.com` and ``req.url`` the value of `/index.html`.
-   Note how the leading `/` is included in ``req.url``.
+   When trying this out, remember that Varnish keeps the ``Host`` header field in ``req.http.host`` and the requested resource in ``req.url``.
+   For example, in a request to `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, ``req.http.host`` has the value `www.example.com` and ``req.url`` the value `/index.html`.
+   Note how the leading ``/`` is included in ``req.url``.
 
 Solution: Avoid caching a page
 ..............................
+
+.. training: downgrade Solution: adornments
 
 ::
 
@@ -3844,6 +3867,7 @@ Solution: Avoid caching a page
 		return(pass);
 	}
    }
+
    // Suggested solution B
    sub vcl_backend_fetch {
        if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
@@ -3851,6 +3875,11 @@ Solution: Avoid caching a page
 	  return(fetch);
        }
    }
+
+.. training: suggested solution B: vcl_backend_response!
+.. You don't need to return(fetch)
+.. instead of bereq.uncacheable, beresp.uncacheable!
+.. training: Discuss this with Dridi!
 
 .. container:: handout
 
@@ -4066,6 +4095,10 @@ Example: Redirecting requests with ``vcl_synth``
 
 .. TODO for the rst editor: remove obsolete vcl files from the git repository.
 
+.. training. http.Location to lower cases.
+
+.. training: global variables are not shared between client and server thread. Why not? they share the same memory space in the process. Discuss that with Dridi.
+
 .. include:: vcl/redirect.vcl
    :literal:
 
@@ -4083,8 +4116,8 @@ Example: Redirecting requests with ``vcl_synth``
 Exercise: Modify the HTTP response header fields
 ------------------------------------------------
 
-- Add a header stating either HIT or MISS
-- "Rename" the Age header to X-Age.
+- Add a header field holding the string ``HIT`` if the requested resourced was found in cache, or ``MISS`` otherwise
+- Rename the ``Age`` header field to ``X-Age``
 
 Solution: Modify the HTTP response header fields
 ................................................
@@ -4094,14 +4127,14 @@ Solution: Modify the HTTP response header fields
 
 .. container:: handout
 
-      It is safer to make sure a variable has a sensible value before using it to make a string.
-      Therefore, we check that ``obj.hits > 0`` (and not just ``obj.hits != 0``) before using it. 
+      It is a good practice to ensure that a variable has the expected type.
+      You should do this before acting on the content of a variable.
+      Therefore, in this solution, we use the `greater than` comparison operator ``obj.hits > 0`` instead of the `not equal to` operator ``obj.hits != 0``.
 
-      There have been bugs in string-conversion.
-      Those bugs happened when the variable to be converted to string had an unexpected value.
-      This applies to all variables – and all languages for that matter.
-
-.. TODO for the author: Double check the format that rst requires for em and en dash (rule).
+      There have been bugs when converting strings.
+      Those bugs happened when the variable to be converted had an unexpected value.
+      This may apply to all variable types – and all languages for that matter.
+      Thus it is important that you always check the variable type.
 
 Exercise: Change the error message
 ----------------------------------
