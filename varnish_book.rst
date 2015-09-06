@@ -4803,6 +4803,7 @@ Grace Mode
 
    The most common reason for Varnish to deliver a `graced object` is when a backend health-probe indicates a sick backend.
    Varnish reads the variable ``obj.grace``, which default is 10 seconds, but you can change it by three means:
+
    1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend,
    2) by setting the variable ``beresp.grace`` in VCL, or
    3) by changing the grace default value with ``varnishadm param.set default_grace 20``.
