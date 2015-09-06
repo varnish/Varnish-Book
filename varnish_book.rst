@@ -509,7 +509,7 @@ What Is New in Varnish 4
 - ``vcl_hash`` must now return ``lookup`` instead of ``hash``
 - ``vcl_pass`` must now return ``fetch`` instead of ``pass``
 - ``restart`` in the backend is now ``retry``, this is now called ``return(retry)``, and jumps back up to ``vcl_backend_fetch``
-- `default` VCL is not called `builtin` VCL
+- `default` VCL is now called `builtin` VCL
 - The builtin VCL now honors ``Cache-Control: no-cache`` (and friends) to indicate uncacheable content from the backend
 - ``remove`` keyword replaced by ``unset``
 - ``X-Forwarded-For`` is now set before ``vcl_recv``
@@ -3178,7 +3178,7 @@ VCL Syntax
    Subroutines end execution when a ``return(*action*)`` statement is made.
    The *action* tells Varnish what to do next.
    For example, "look this up in cache", "do not look this up in the cache", or "generate an error message".
-   To check which actions are available for the built-in subroutines, you can look at Figure # or see the manual page of VCL.
+   To check which actions are available for the built-in subroutines, you can look at Figure #21 or see the manual page of VCL.
 
    .. warning::
    
@@ -3286,7 +3286,7 @@ To have a detailed availability of each variable, refer to the VCL man page by t
    In addition to the variable prefixes in `Table 17 <#table-17>`_, there are other three variables prefixes; ``client.*``, ``server.*``, and ``storage.*``, which are accessible from all subroutines at the frontend (client) side.
    Another variable is ``now``, which is accessible from all subroutines.
  
-   These additional prefixes and variable are practically accessible everywhere.
+   These additional prefixes and variables are practically accessible everywhere.
 
    Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
    And the ``resp.`` variables are copies of what is about to be returned to the client.
@@ -4803,6 +4803,7 @@ Grace Mode
 
    The most common reason for Varnish to deliver a `graced object` is when a backend health-probe indicates a sick backend.
    Varnish reads the variable ``obj.grace``, which default is 10 seconds, but you can change it by three means:
+
    1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend,
    2) by setting the variable ``beresp.grace`` in VCL, or
    3) by changing the grace default value with ``varnishadm param.set default_grace 20``.
