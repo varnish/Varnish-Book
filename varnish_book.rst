@@ -3286,7 +3286,7 @@ To have a detailed availability of each variable, refer to the VCL man page by t
    In addition to the variable prefixes in `Table 17 <#table-17>`_, there are other three variables prefixes; ``client.*``, ``server.*``, and ``storage.*``, which are accessible from all subroutines at the frontend (client) side.
    Another variable is ``now``, which is accessible from all subroutines.
  
-   These additional prefixes and variable are practically accessible everywhere.
+   These additional prefixes and variables are practically accessible everywhere.
 
    Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
    And the ``resp.`` variables are copies of what is about to be returned to the client.
