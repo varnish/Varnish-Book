@@ -3178,7 +3178,7 @@ VCL Syntax
    Subroutines end execution when a ``return(*action*)`` statement is made.
    The *action* tells Varnish what to do next.
    For example, "look this up in cache", "do not look this up in the cache", or "generate an error message".
-   To check which actions are available for the built-in subroutines, you can look at Figure # or see the manual page of VCL.
+   To check which actions are available for the built-in subroutines, you can look at Figure #21 or see the manual page of VCL.
 
    .. warning::
    
