@@ -509,7 +509,7 @@ What Is New in Varnish 4
 - ``vcl_hash`` must now return ``lookup`` instead of ``hash``
 - ``vcl_pass`` must now return ``fetch`` instead of ``pass``
 - ``restart`` in the backend is now ``retry``, this is now called ``return(retry)``, and jumps back up to ``vcl_backend_fetch``
-- `default` VCL is not called `builtin` VCL
+- `default` VCL is now called `builtin` VCL
 - The builtin VCL now honors ``Cache-Control: no-cache`` (and friends) to indicate uncacheable content from the backend
 - ``remove`` keyword replaced by ``unset``
 - ``X-Forwarded-For`` is now set before ``vcl_recv``
