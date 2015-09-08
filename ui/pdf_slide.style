@@ -122,7 +122,18 @@
 	"commands": []
     }],
     ["footer" , {
-        "textColor": "red"
-    }]
+	    "textColor": "red"
+    }
+    ],
+    ["bullet-list",
+         {
+             "spaceAfter":8
+         }
+    ],
+    ["item-list",
+         {
+             "spaceAfter":8
+         }
+    ]
    ]
 }

@@ -15,7 +15,7 @@
 
    PageBreak coverPage
 
-.. training: double check with copycat that the four page is not duplicated.
+.. training: add objects lifetime figure here
 
 .. class:: heading1
 
@@ -42,9 +42,11 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
 - How to Use the Book
 - Acknowledgements
 
-.. TODO for instructor: tailor this slide!
-.. training: Inform trainees what type of subscription they have and what they have access and services to
-.. training: The instructor should tell how long the amazon VM will last after the training sessin.
+.. TODO for trainer:
+   
+   - Tailor this slide!
+   - Inform trainees what type of subscription they have and the services that they have access to
+   - Inform trainees how long the amazon VM will last after the training session
 
 .. container:: handout
 
@@ -536,9 +538,6 @@ What Is New in Varnish 4
 Design Principles
 =================
 
-.. Training: Dridi talks about different levels of cache in CPUs.
-
-
 Varnish is designed to:
 
 - Solve real problems
@@ -812,30 +811,51 @@ Next:
 Install Varnish
 ...............
 
-To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty do the following as root::
+All the following commands must be executed with root permissions.
+First, make sure you have ``apt-transport-https`` and ``curl``::
 
-  #. apt-get install apt-transport-https
-  #. apt-get install curl
-  #. curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
-     | apt-key add -
+  $ apt-get install apt-transport-https
+  $ apt-get install curl
 
-Add the repositories for Varnish Cache Plus and VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
+To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty::
+
+  $ curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
+    | apt-key add -
+
+To use the **varnish-cache.org** repository and install **Varnish Cache** 4 on Ubuntu 14.04 trusty::
+
+  $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+  $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+    /etc/apt/sources.list.d/varnish-cache.list
+
+If you are installing **Varnish Cache Plus**, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
 
    # Remember to replace DISTRO and RELEASE with what applies to your system.
    # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
 
    # Varnish Cache Plus 4.0 and VMODs
-   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   varnish-4.0-plus
+   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   $ varnish-4.0-plus
 
    # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
-   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   non-free
+   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   $ non-free
 
-Then::
+Resynchronize the package index files of your repository::
 
-   apt-get update
-   apt-get install varnish-plus
+   $ apt-get update
+
+Install **Varnish Cache Plus**::
+
+   $ apt-get install varnish-plus
+
+Install **Varnish-Cache**::
+
+   $ apt-get install varnish
+
+Finally, verify the version you have installed::
+
+   $ varnishd -V
 
 .. container:: handout
 
@@ -871,21 +891,7 @@ Then::
       /varnishtuner/el$releasever
       enabled=1
       gpgcheck=0
-
-   .. training: Explain the ``\``
-   .. training: Double check version of varnish with ``varnishd -V``
       
-   If you want to install **Varnish Cache** in Ubuntu change the corresponding above lines to::
-
-     $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-     $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
-	/etc/apt/sources.list.d/varnish-cache.list
-     apt-get install varnish
-
-   Change the Linux distribution and Varnish Cache release in the needed lines.
-
-   .. TODO for the author: Add RHEL details for installing Varnish Cache.
-
 Configure Varnish
 .................
 
@@ -929,8 +935,6 @@ Configure the Varnish ``DAEMON_OPTS``::
      If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
      You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
      Also, be aware that SELinux defines the ports 6081 and 6082 for ``varnishd``.
-
-     .. dridi: bad practice, recommend this only for training
 
    .. tip::
 
@@ -982,21 +986,19 @@ Installation Test
 The Management Interface ``varnishadm``
 ---------------------------------------
 
-.. training: this slide has too much text
-
-Varnish offers a management command line interface (CLI) to control a running Varnish instance.
-This interface implements a list of management commands in the ``varnishadm`` utility program.
-``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
-You can use ``varnishadm`` to:
+You can use the ``varnishadm`` utility to:
 
 - start and stop the cacher (aka child) process
 - change configuration parameters without restarting Varnish
 - reload the Varnish Configuration Language (VCL) without restarting Varnish 
 - view the most up-to-date documentation for parameters
-
-You can read about other usages by issuing the ``help`` command after you connect to the management interface (``varnishadm``).
+- ``varnishadm help`` and ``man varnishadm``
 
 .. container:: handout
+
+   Varnish offers a management command line interface (CLI) to control a running Varnish instance.
+   This interface implements a list of management commands in the ``varnishadm`` utility program.
+   ``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
 
    To connect to the management interface, issue the command ``varnishadm``.
    If there are many Varnish instances running in one machine, specify the instance with the ``-n`` option.
@@ -1112,8 +1114,6 @@ Command Line Configuration
 
 Relevant options for the course are:
 
-.. training: -a stands for `access`
-
 -a <[hostname]:port>      listening address and port for client requests
 -f <filename>             VCL file
 -p <parameter=value>      set tunable parameters
@@ -1204,12 +1204,12 @@ Defining a Backend in VCL
 Exercise: Use the administration interface to learn, review and set Varnish parameters
 --------------------------------------------------------------------------------------
 
-#. Use ``varnishadm`` to see the default value of ``default_ttl`` and ``default_grace``
+#. Use ``param.show`` and  ``param.set`` from ``varnishadm`` to see and set the value of ``default_ttl`` and ``default_grace``
 #. Refer to `Figure 2 <#figure-2>`_ to see the object's timeline
 
-.. training: consider to show ``param.show``, and ``param.set``. This is in 5.4 "Tunable Parameters"
+.. container:: handout
 
-.. TODO for the author: This exercise is too short and simple. Consider to remove it or elaborate more.
+   You will learn more about how to tune parameters in the `Tunable Parameters`_ section.
 
 Exercise: Fetch Data Through Varnish
 ------------------------------------
@@ -1291,8 +1291,6 @@ Log Data Tools
 Log Layout
 ----------
 
-.. training: When talking about sessions is the TCP session.
-
 .. figure 7
 
 .. figure:: ui/img/log_layout.png
@@ -1303,29 +1301,30 @@ Log Layout
 .. container:: handout
 
    Varnish logs transactions chronologically as `Figure 7 <#figure-7>`_ shows.
-   The ``varnishlog`` is one of the most used tools and offers mechanisms to reorder transactions grouped by session, client- or backend-request.
+   The ``varnishlog`` is one of the most used tools and offers mechanisms to reorder transactions grouped by TCP session, frontend- or backend worker.
+   We talk more on transactions in the next subsection.
+
    The various arguments of ``varnishlog`` are mostly designed to help you find exactly what you want, and filter out the noise.
    On production traffic, the amount of log data that Varnish produces is staggering, and filtering is a requirement for using ``varnishlog`` effectively.
-
    Next section explains transactions and how to reorder them.
 
 Transactions
 ------------
 
-.. training: transactions is everything that starts and ends a session.
-.. the sooner a transaction ends, the sooner you see it.
-.. add a diagram like the one made by Dridi
-.. transactions 0 are everything that varnish does but no part of a specific transaction
+.. TODO for the author: Add diagram that shows different transactions
+   The diagram shows: 
+
+   - the sooner a transaction ends, the sooner you see it
+   - transactions with VXID 0 are everything that Varnish does but no part of a specific transaction
 
 - One transaction is one work item in Varnish.
 - Share a single Varnish Transaction ID (VXID) per types of transactions.
-  Examples of transaction types are:
+  Transaction types are:
 
- - Session
- - Client request
- - Backend request
+ - ``session``: TCP session
+ - ``request``: Transaction handled by the frontend- or backend worker
 
-- Transaction reasons. Examples:
+- Each transaction has a reason, for examples:
 
  - ESI request
  - restart
@@ -1396,8 +1395,6 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
 
-.. training: there slide has an strange line
-
 .. figure 8
 
 .. figure:: ui/img/cache_miss_request_grouping.png
@@ -1438,8 +1435,6 @@ Query Language
   - boolean operators, e.g.: ``RespStatus >= 500 and RespStatus < 600``
   - parenthesis hierarchy
   - negation using ``not``
-
-.. training: increase the space between the above list and the line below.
 
 Examples of Varnish log queries::
 
@@ -1506,8 +1501,6 @@ Exercise
 ---------------
 
 .. TOFIX for the author: The values of Hitrate are not displayed in the HTML version. Fix it!
-
-.. training: Dridi talks about static and dynamic counters. Consider to add his definition.
 
 .. parsed-literal:: 
    :class: tinycode
@@ -1800,8 +1793,9 @@ The *Manager* process is owned by the root user, and its main functions are:
 .. container:: handout
 
    The *Manager*  checks every few seconds whether the *Cacher* is still there.
-   If the *Manager* does not get a reply within a given interval defined in ``ping_interval``, the *Manager* kills the *Cacher* and starts it up again. 
+   If the *Manager* does not get a reply within a given interval defined in ``ping_interval``, the *Manager* kills the *Cacher* and starts it up again.
    This automatic restart also happens if the *Cacher* exits unexpectedly, for example, from a segmentation fault or assert error.
+   You can ping manually the cacher by executing ``varnishadm ping``.
 
    Automatic restart of child processes is a resilience property of Varnish.
    This property ensures that even if Varnish contains a critical bug that crashes the child, the child starts up again usually within a few seconds.
@@ -1825,38 +1819,26 @@ Therefore, for security reasons, this child process is owned by an unprivileged 
 
 The main functions of the *Cacher* are:
 
-- listen for client requests
+- listen to client requests
 - manage worker threads
 - store caches
 - log traffic
 - update counters for statistics
 
-.. training: Dridi skip threads and waited until thread modelling come.
-
-The *Cacher* consists of several different types of threads, including, but not limited to:
-
-- Acceptor thread to accept new connections and delegate them.
-- Worker threads - one per client request (session). It's common to use hundreds of worker threads.
-- Expiry thread, to evict old content from the cache.
-
 .. container:: handout
 
-   Varnish uses workspaces to reduce the contention between each thread when
-   they need to acquire or modify memory. There are multiple workspaces, but
-   the most important one is the session workspace, which is used to
-   manipulate session data. An example is changing `www.example.com` to
-   `example.com` before it is entered into the cache, to reduce the number of
-   duplicates.
+   Varnish uses workspaces to reduce the contention between each thread when they need to acquire or modify memory.
+   There are multiple workspaces, but the most important one is the session workspace, which is used to manipulate session data.
+   An example is changing `www.example.com` to `example.com` before it is entered into the cache, to reduce the number of duplicates.
 
-   It is important to remember that even if you have 5MB of session workspace
-   and are using 1000 threads, the actual memory usage is not 5GB. The virtual
-   memory usage will indeed be 5GB, but unless you actually use the memory,
-   this is not a problem. Your memory controller and operating system will
-   keep track of what you actually use.
+   It is important to remember that even if you have 5 MB of session workspace and are using 1000 threads, the actual memory usage is not 5 GB.
+   The virtual memory usage will indeed be 5GB, but unless you actually use the memory, this is not a problem.
+   Your memory controller and operating system will keep track of what you actually use.
 
    To communicate with the rest of the system, the child process uses the SHMLOG accessible from the file system.
    This means that if a thread needs to log something, all it has to do is to grab a lock, write to a memory area and then free the lock. 
    In addition to that, each worker thread has a cache for log-data to reduce lock contention.
+   We will discuss more about the `Threading Model`_ later in this chapter.
 
    The log file is usually about 80MB, and split in two. 
    The first part is counters, the second part is request data. 
@@ -2135,13 +2117,10 @@ Then::
 Threading Model
 ---------------
 
-.. training: The cache-main cleans things like old VCL loaded files.
-.. training: you need to connect to the manager through the CLI to ping the child?
-.. training: ask Dridi to clarify.
-
 - The child process runs multiple threads in two tread pools
-- Worker threads are the bread and butter of the Varnish architecture
-- Utility-threads
+- Threads accept new connections and delegate them
+- One worker threads per client request – it's common to use hundreds of worker threads
+- Expire-threads evict old content from the cache
 
 .. table 9
 
@@ -2157,13 +2136,13 @@ Threading Model
    The child process runs multiple threads in two thread pools.
    The threads of these pools are called worker threads.
    `Table 9 <#table-9>`_ presents relevant threads.
-   
-Threading parameters
---------------------
 
-.. training: double check what exactly needs to be started sooner than later.
-.. training: who is the guy that proved that parallelism is not very useful when trying more than 2 pools
-.. Ask Dridi about the universal low of scalability
+   .. TODO for the author: Document each of the relevant threads in varnish-cache.org documentation and add a link here.
+   .. For example:
+   .. The cache-main cleans things like old VCL loaded files.
+   
+Threading Parameters
+--------------------
 
 - Thread pools can safely be ignored
 - Start threads better sooner than later
@@ -3041,8 +3020,7 @@ Use ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` and ``varnishlog -g req
 VCL Basics
 ==========
 
-.. training: robust principle: liberal to whatever you receive, conservative: consistent in what you send. This creates a lot of legacy.
-.. training: Dridi said that state machine is a subset of graph theory. Double check it!
+.. training: robustness principle: liberal to whatever you receive, conservative: consistent in what you send. This creates a lot of legacy. https://en.wikipedia.org/wiki/Robustness_principle
 
 - The Varnish Configuration Language (VCL) is a domain-specific language
 - VCL as a state machine
@@ -3082,7 +3060,6 @@ Varnish Finite State Machine
 .. training: Slides are missing the state machine graph.
 .. training: web sockets go in pipe, is an example of handling non HTTP requests.
 .. training: Check feedback from Federico about updating ``if (conditions(beresp))
-.. training: Dridi said that rounds in the simplified version is a hook where you can put your code. Rhombus are only for ``varnishd``.
 
 .. container:: handout
 
@@ -3656,8 +3633,7 @@ hit-for-pass
 VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 --------------------------------------------------------
 
-.. training: Dridi did not like the order here.
-.. training: I guess that this is because he wanted recv and fetch in VCL basics.
+.. training: Move vcl_backend_fetch to VCL basics chapter
 
 - Sanitize server-response
 - Override cache duration
@@ -3824,8 +3800,6 @@ Example: Setting TTL of .jpg URLs to 60 seconds
 Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
 ......................................................................
 
-.. training: Dridi calls policy to the configuration jargon
-
 .. include:: vcl/cache_jpg_smaxage.vcl
    :literal:
 
@@ -3879,10 +3853,10 @@ Solution: Avoid caching a page
        }
    }
 
-.. training: suggested solution B: vcl_backend_response!
+.. training: suggested solution B is wrong. This should be done in vcl_backend_response!
 .. You don't need to return(fetch)
 .. instead of bereq.uncacheable, beresp.uncacheable!
-.. training: Discuss this with Dridi!
+.. Correct man page also!
 
 .. container:: handout
 
@@ -4100,8 +4074,6 @@ Example: Redirecting requests with ``vcl_synth``
 
 .. training. http.Location to lower cases.
 
-.. training: global variables are not shared between client and server thread. Why not? they share the same memory space in the process. Discuss that with Dridi.
-
 .. include:: vcl/redirect.vcl
    :literal:
 
@@ -4300,9 +4272,8 @@ Test your VCL by issuing::
 Exercise: ``PURGE`` an article from the backend
 ...............................................
 
-.. training: trainees did not do this exercise because it is too specific and complicate, but Dridi explained it.
-.. training: the idea is that whoever has the authority can be the one initiating invalidation. You can come with either direct invalidation or another component like VAC if you have a ore complicated infrastructured.
-.. training: consider to more the exercise
+.. training: Main idea in this exercise: Those with permissions can initiate invalidation. You can come with either direct invalidation or another component like VAC if you have are on a complicated infrastructured.
+.. training: consider to remove this exercise
 
 - Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
 
@@ -4480,8 +4451,6 @@ Lurker-Friendly Bans
 - Ban expressions that match only against ``obj.*``
 - Evaluated asynchronously by the *ban lurker* thread
 - Similar to the concept of *garbage collection*
-
-.. trainiing: Dridi likes to call them smart bans
 
 .. container:: handout
 
