@@ -44,6 +44,7 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
 
 .. TODO for instructor: tailor this slide!
 .. training: Inform trainees what type of subscription they have and what they have access and services to
+.. training: The instructor should tell how long the amazon VM will last after the training sessin.
 
 .. container:: handout
 
