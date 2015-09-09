@@ -15,8 +15,6 @@
 
    PageBreak coverPage
 
-.. training: add objects lifetime figure here
-
 .. class:: heading1
 
    Abstract
@@ -645,7 +643,7 @@ Object Lifetime
 
 .. figure:: ui/img/objectlifetime.svg
    :align: center
-   :width: 80%
+   :width: 100%
 
    Figure :counter:`figure`: Object Lifetime
 
@@ -1488,15 +1486,12 @@ Examples of Varnish log queries::
 Exercise
 --------
 
-- Make ``varnishlog`` only print client-requests where the `ReqURL` tag contains ``/favicon.ico``.
-
-.. TODO for the author: Elaborate more this exercise.
-
-.. TODO for the author: Fix this proposed solution:
-
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
-.. training: there is an empty page here.
+- Make ``varnishlog`` only print client-requests where the `ReqURL` tag contains ``/favicon.ico``.
+
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
 
 ``varnishstat``
 ---------------
@@ -1714,14 +1709,14 @@ This section covers:
 Varnish Architecture
 --------------------
 
-.. training: consider to call "Shared Memory *Log*"
 .. training: when you do VCL compilation, you start a new process called VCC, is isolated from the manager, so the manager is safe if something goes wrong in the VCC. The VCC translate the vcl to c in isolation. In short, to show the magic.
 .. training: if you use modules in your VCL, VCC? will load and link other .
 
 .. figure 13
 
-.. figure:: ui/img/architecture.png
+.. figure:: ui/img/architecture.svg
    :align: center
+   :width: 100%
 
    Figure :counter:`figure`: Varnish Architecture
 
@@ -1783,7 +1778,7 @@ The Parent Process: The Manager
 
 The *Manager* process is owned by the root user, and its main functions are:
 
-.. training: compile VCL bullet below: is responsible, but it is another process that does that.
+.. training: From "- compile VCL" below: The Manager is responsible to copmile, but it is another process that does that.
 
 - apply configuration changes (from VCL files and parameters)
 - compile VCL
@@ -3053,10 +3048,15 @@ Varnish Finite State Machine
 
 .. Todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
 
-- VCL workflow seen as a finite state machine
+- VCL workflow seen as a finite state machine – See `Figure 21 <#figure-21>`_
 - States are conceptualized and implemented as subroutines, e.g., ``sub vcl_recv``
 - Built-in subroutines start with ``vcl_``, which is a reserved prefix
 - ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
+
+**Snippet of built-in vcl_recv subroutine**
+
+.. include:: vcl/snippet-vcl_recv.vcl
+   :literal:
 
 .. training: Slides are missing the state machine graph.
 .. training: web sockets go in pipe, is an example of handling non HTTP requests.
@@ -3066,9 +3066,9 @@ Varnish Finite State Machine
 
    .. figure 21
 
-   .. figure:: ui/img/simplified_fsm.png
+   .. figure:: ui/img/simplified_fsm.svg
       :align: center
-      :scale: 170%
+      :width: 70%
 
       Figure :counter:`figure`: Simplified Version of the Varnish Finite State Machine
 
@@ -3115,6 +3115,8 @@ Varnish Finite State Machine
    These built-in subroutines are all named ``vcl_*``.
    Your own subroutines cannot start their name with ``vcl_``.
 
+.. bookmark: consider to move after detailed state machine
+
 Waiting State
 .............
 
@@ -3138,6 +3140,9 @@ Waiting State
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
 
+- `Figure 22 <#figure-22>`_ shows the detailed request flow diagram of the backend worker.
+- The grayed box is detailed in `Figure 21 <#figure-21>`_.
+
 .. This slide does not contain bullets because it conflicts with the size of the diagram.
 
 .. TODO for the author: Double check that "client worker thread" has been introduced at this point.
@@ -3149,14 +3154,11 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
    .. figure 22
 
-   .. figure:: ui/img/detailed_fsm.png
+   .. figure:: ui/img/detailed_fsm.svg
       :align: center
-      :scale: 125%
+      :width: 65%
 
       Figure :counter:`figure`: Detailed Varnish Request Flow for the Client Worker Thread
-
-   `Figure 22 <#figure-22>`_ shows the detailed request flow diagram of the backend worker.
-   This diagram details the grayed grayed box in `Figure 21 <#figure-21>`_.
 
 .. raw:: pdf
 
@@ -3181,7 +3183,6 @@ The VCL Finite State Machine
    Policies are a set of rules that the VCL code uses to make a decision.
    Policies help to answer questions such as: should Varnish even attempt to find the requested resource in the cache?
    In this example, the policies are in the ``vcl_recv`` subroutine.
-
 
 VCL Syntax
 ----------
@@ -3216,16 +3217,45 @@ VCL Syntax
    Subroutines end execution when a ``return(*action*)`` statement is made.
    The *action* tells Varnish what to do next.
    For example, "look this up in cache", "do not look this up in the cache", or "generate an error message".
-   To check which actions are available for the built-in subroutines, you can look at Figure #21 or see the manual page of VCL.
+   To check which actions are available at a given built-in subroutine, see the `Legal Return Actions`_ section or see the manual page of VCL.
 
    .. warning::
    
       If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
 
+.. bookmark: This edition creates a new blank page in slides
+
+Example: built-in ``vcl_recv``
+------------------------------
+
+.. include:: vcl/default-vcl_recv.vcl
+   :literal:
+
+.. container:: handout
+
+   The built-in VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
+   It has two main uses:
+
+   #. Only handle recognized HTTP methods.
+   #. Cache requests with ``GET`` and ``HEAD`` headers.
+
+   Policies for no caching data are to be defined in your VCL.
+   Built-in VCL code is executed right after any user-defined VCL code, and is always present.
+   You can not remove built-in subroutines, however, you can avoid them if your VCL code reaches one of the terminating actions: ``pass``, ``pipe``, ``hash``, or ``synth``.
+   These terminating actions return control from the VRT (VCL Run-Time) to Varnish.
+
+   For a well-behaving Varnish server, most of the logic in the built-in VCL is needed.
+   Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
+
+   We will revisit and discuss in more detail the ``vcl_recv`` subroutine in ``VCL Built-in Subroutines``, but before, let's learn more about built-in functions, keywords, variables and return actions
+
+   .. TODO: Consider to mention why SPDY is not supported in Varnish.
+   .. https://www.varnish-software.com/blog/why-i-dont-spdy
+
 VCL Built-in Functions and Keywords
 -----------------------------------
 
-.. training 
+.. training: is ``new()`` a keyword or a function?
 
 **Functions:**
 
@@ -3244,8 +3274,6 @@ VCL Built-in Functions and Keywords
 - ``unset()``
 
 All functions are available in all subroutines, except the listed in the table below.
-
-.. training: no body knows regex in the course!
 
 .. table 14
 
@@ -3347,28 +3375,21 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 Summary of VCL
 --------------
 
+- VCL is all about policies
 - VCL provides a state machine for controlling Varnish
 - Each request is handled independently
 - Building a VCL file is done one line at a time
 
 .. container:: handout
 
-   VCL is all about policy. By providing a state machine which you can
-   hook into, VCL allows you to affect the handling of any single
-   request almost anywhere in the execution chain.
-
+   VCL provides subroutines that allow you to affect the handling of any single request almost anywhere in the execution chain.
    This provides pros and cons as any other programming language.
-   This book is not a complete reference guide to
-   how you can deal with every possible scenario in VCL, but on the
-   other hand, if you master the basics of VCL you can solve complex
-   problems that nobody has thought about before. And you can usually
-   do it without requiring too many different sources of
-   documentation.
 
-   Whenever you are working on VCL, you should think of what that
-   exact line you are writing has to do. The best VCL is built by
-   having many independent sections that do not interfere with each
-   other more than what they have to.
+   This book is not a complete reference guide to how you can deal with every possible scenario in VCL, but if you master the basics of VCL you can solve complex problems that nobody has thought about before.
+   And you can usually do it without requiring too many different sources of documentation.
+
+   Whenever you are working on VCL, you should think of what that exact line you are writing has to do.
+   The best VCL is built by having many independent sections that do not interfere with each other more than what they have to.
 
    Remember that there is a built-in VCL.
    **If your own VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.**
@@ -3403,7 +3424,6 @@ VCL Built-in Subroutines
 VCL – ``vcl_recv``
 ------------------
 
-.. training. there is a blank page after this slide
 .. training: letting client-input to decide your caching policy can make DDoS attack
 
 - Normalize client-input
@@ -3457,30 +3477,8 @@ VCL – ``vcl_recv``
       The built-in ``vcl_recv`` subroutine may not cache all what you want, but often it's better not to cache some content instead of delivering the wrong content to the wrong user.
       There are exceptions, of course, but if you can not understand why the default VCL does not let you cache some content, it is almost always worth it to investigate why instead of overriding it.
 
-Built-in: ``vcl_recv``
-......................
-
-.. include:: vcl/default-vcl_recv.vcl
-   :literal:
-
-.. container:: handout
-
-   The built-in VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
-   It has two main uses:
-
-   #. Only handle recognized HTTP methods.
-   #. Cache GET and HEAD. Policies for no caching data is to be defined in your VCL.
-
-   Built-in VCL code is executed right after any user-defined VCL code, and is always present. 
-   You can not remove it.
-   However, the default VCL code will not execute if you use one of the terminating actions: pass, pipe, hash, or synth.
-   These terminating actions return control from the VRT (VCL Run-Time) to Varnish.
-
-   For a well-behaving Varnish server, most of the logic in the default VCL is needed, and care should be taken when ``vcl_recv`` is terminated.
-   Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
-
-   .. TODO: Consider to mention why SPDY is not supported in Varnish.
-   .. https://www.varnish-software.com/blog/why-i-dont-spdy
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
 
 Example: Basic Device Detection
 ...............................
@@ -3650,9 +3648,6 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
 
       Figure :counter:`figure`: Varnish Request Flow for the Backend Worker Thread.
 
-   ..   :align: center
-   ..   :width: 100%
-
    `Figure 23 <#figure-23>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
@@ -3730,6 +3725,9 @@ VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
       Varnish 3.x has a *hit_for_pass* return action.
       In Varnish 4, this action is achieved by setting ``beresp.uncacheable`` to ``true``.
       The `hit-for-pass`_ section explains this in more detail.
+
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
 
 The Initial Value of ``beresp.ttl``
 ...................................
@@ -4518,6 +4516,9 @@ Exercise: Write a VCL program using *purge* and *ban*
                                       'X-Ban-Host: .*\.example\.com'
      http -p hH REFRESH http://localhost/testpage
 
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
+
 Solution: Write a VCL program using *purge* and *ban*
 .....................................................
 
@@ -5201,7 +5202,7 @@ Edge Side Includes
 
 .. figure:: ui/img/esi.png
    :align: center
-   :width: 60%
+   :width: 50%
 
    Figure :counter:`figure`: Web page assembling using ESI via Varnish
 
@@ -6010,6 +6011,9 @@ Appendix C: Extra Material
 
 This appendix contains code needed for some exercises.
 
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
+
 .. TODO for the author: To list and reference the content of this appendix to their respective exercises
 
 ajax.html
@@ -6030,11 +6034,17 @@ cookies.php
 .. include::  material/webdev/cookies.php
    :literal:
 
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
+
 esi-top.php
 -----------
 
 .. include:: material/webdev/esi-top.php
    :literal:
+
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
 
 esi-user.php
 ------------
@@ -6042,11 +6052,17 @@ esi-user.php
 .. include:: material/webdev/esi-user.php
    :literal:
 
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
+
 httpheadersexample.php
 ----------------------
 
 .. include:: material/webdev/httpheadersexample.php
    :literal:
+
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
 
 purgearticle.php
 ----------------
@@ -6054,11 +6070,17 @@ purgearticle.php
 .. include:: material/webdev/purgearticle.php
    :literal:
 
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
+
 test.php
 --------
 
 .. include:: material/webdev/test.php
    :literal:
+
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
 
 set-cookie.php
 --------------
@@ -6166,3 +6188,5 @@ VWP
 
 VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
+
+.. TOFIX: Slides do not show properly VWS

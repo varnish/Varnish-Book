@@ -86,12 +86,6 @@ sphinx: ${common} src/conf.py
 		fi; \
 	done;
 
-#This loop should be improved! This clears out frontpage.rst and printheaders.rst and creates wrong pdf later.
-#	for a in src/util/frontpage.rst src/util/printheaders.rst; do \
-#		rm $$a; \
-#		touch $$a; \
-#	done
-
 #Splits chapters into individual files, and creates the index page for sphinx.
 	mkdir -p build/chapters
 	ln -sf ../../ui build/chapters/
@@ -125,9 +119,6 @@ ${BDIR}/version.rst: util/version.sh ${mergedrst} .git/COMMIT_EDITMSG
 	mkdir -p ${BDIR}
 	./util/version.sh > ${BDIR}/version.rst
 
-ui/img/%.png: ui/img/%.dot
-	dot -Gsize=2000,3000 -Tpng < $< > $@
-
 ui/img/%.svg: ui/img/%.dot
 	dot -Tsvg < $< > $@
 
@@ -151,11 +142,11 @@ ${BDIR}/varnish-book.pdf: ${common} ${bookutil} ${pdf_style}
 
 ${BDIR}/varnish_slides.pdf: ${common} ${bookutil} ${pdf_slide_style}
 	@echo Building PDF slidesfor slides...
-	@${PICK} -v inc=${slides} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ${pdf_slide_style} -o $@
+	@${PICK} -v inc=${slides} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -e=/usr/lib/pymodules/python2.7/rst2pdf/extensions/inkscape_r2p.py --section-header-depth=1 --break-level=3 -s ${pdf_slide_style} -o $@
 
 ${BDIR}/varnish_slides-A4.pdf: ${common} ${bookutil} ui/pdf_slide-A4.style
 	@echo Building PDF slides for slides-A4...
-	@${PICK} -v inc=${slides-A4} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
+	@${PICK} -v inc=${slides-A4} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -e=/usr/lib/pymodules/python2.7/rst2pdf/extensions/inkscape_r2p.py --section-header-depth=1 --break-level=3 -s ui/pdf_slide-A4.style -o $@
 
 util/param.rst:
 	varnishadm param.show | gawk 'NF {$$NF=""; printf ".. |def_"$$1"| replace::\t"; print substr($$0,index($$0,$$2))}' | column -ts "$$(printf '\t')"> util/param.rst
@@ -165,30 +156,8 @@ sourceupdate: util/param.rst flowchartupdate
 clean:
 	-rm -r build/
 
-varnish_%-${version}.tar.bz2: check ${BDIR}/varnish-%.pdf ${BDIR}/varnish_slides-%.pdf ${BDIR}/${materialpath}.tar.bz2
-	@echo Preparing $@ ...
-	@target=${BDIR}/dist/varnish_$*-${version}/; \
-	mkdir -p $${target};\
-	mkdir -p $${target}/pdf/;\
-	mkdir -p $${target}/img/;\
-	cp -r ${BDIR}/varnish-$*.pdf $$target/pdf/varnish_$*-v${version}.pdf;\
-	cp -r ${BDIR}/varnish_slides-$*.pdf $$target/pdf/varnish_slides_$*-v${version}.pdf;\
-	cp -r munin/ $${target};\
-	cp ${} $${target}/img/; \
-	cp -r ${BDIR}/${materialpath}.tar.bz2 $$target; \
-	cp NEWS ${mergedrst} README.rst LICENSE $$target;\
-	tar -hC ${BDIR}/dist/ -cjf $@ varnish_$*-${version}/
-
-dist: $(addprefix varnish_,$(addsuffix -${version}.tar.bz2,${targets}))
-
 material/webdev/index.html: material/webdev/index.rst
 	rst2html $< > $@
-
-${BDIR}/${materialpath}.tar.bz2: material/webdev/index.html ${BDIR} material/ material/webdev/*
-	-rm -r ${BDIR}/${materialpath}
-	mkdir -p ${BDIR}/${materialpath}
-	cp -a material/webdev/* ${BDIR}/${materialpath}
-	tar -hC ${BDIR}/ -cjf $@ ${materialpath}
 
 materialcheck:
 	@$(MAKE) -C material/

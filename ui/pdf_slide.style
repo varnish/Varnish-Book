@@ -49,6 +49,15 @@
         "showFooter" : false,
 	"fontSize": 0
     },
+    "objectLifetime": {
+        "frames": [
+            ["0cm", "0cm", "100%", "100%"]
+          ],
+        "background" : "ui/img/objectlifetime_slide.pdf",
+        "showHeader" : false,
+        "showFooter" : false,
+	"fontSize": 0
+    },
     "introPages": {
 	    "frames": [
             ["0cm", "0cm", "100%", "100%"]
