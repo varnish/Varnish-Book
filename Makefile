@@ -112,13 +112,6 @@ sphinx: ${common} src/conf.py
 	@$(MAKE) -C src/ html
 	@$(MAKE) -C src/ epub
 
-sphinx-dist: sphinx book
-	rsync -av build/html/ angela:/srv/www.varnish-software.com/static/book/
-	ssh angela find /srv/www.varnish-software.com/static/book/ -exec chmod g+w "{}" "\;"
-	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book-${version}.pdf
-	scp ${BDIR}/varnish-book.pdf angela:/srv/www.varnish-software.com/static/pdfs/varnish-book.pdf
-	ssh angela find /srv/www.varnish-software.com/static/pdfs/ -exec chmod g+w "{}" "\;"
-
 mrproper: clean all
 
 .git/COMMIT_EDITMSG:
@@ -154,7 +147,7 @@ ${BDIR}:
 
 ${BDIR}/varnish-book.pdf: ${common} ${bookutil} ${pdf_style}
 	@echo Building PDFs for book...
-	@${PICK} -v inc=${book} < ${mergedrst} | ${RST2PDF} --section-header-depth=1 --break-level=3 -s ${pdf_style} -o $@
+	@${PICK} -v inc=${book} < ${mergedrst} | ${RST2PDF} -e=/usr/lib/pymodules/python2.7/rst2pdf/extensions/inkscape_r2p.py --section-header-depth=1 --break-level=3 -s ${pdf_style} -o $@
 
 ${BDIR}/varnish_slides.pdf: ${common} ${bookutil} ${pdf_slide_style}
 	@echo Building PDF slidesfor slides...

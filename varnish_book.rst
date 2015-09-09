@@ -643,8 +643,9 @@ Object Lifetime
 
 .. figure 2
 
-.. figure:: ui/img/objectlifetime.png
+.. figure:: ui/img/objectlifetime.svg
    :align: center
+   :width: 70%
 
    Figure :counter:`figure`: Object Lifetime
 
@@ -841,7 +842,7 @@ If you are installing **Varnish Cache Plus**, add the repositories for VMODs in 
    $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
    $ non-free
 
-Resynchronize the package index files of your repository::
+Re-synchronize the package index files of your repository::
 
    $ apt-get update
 
@@ -4272,7 +4273,7 @@ Test your VCL by issuing::
 Exercise: ``PURGE`` an article from the backend
 ...............................................
 
-.. training: Main idea in this exercise: Those with permissions can initiate invalidation. You can come with either direct invalidation or another component like VAC if you have are on a complicated infrastructured.
+.. training: Main idea in this exercise: Those with permissions can initiate invalidation. You can come with either direct invalidation or another component like VAC if you have are on a complicated infrastructure.
 .. training: consider to remove this exercise
 
 - Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
