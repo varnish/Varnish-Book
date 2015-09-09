@@ -645,7 +645,7 @@ Object Lifetime
 
 .. figure:: ui/img/objectlifetime.svg
    :align: center
-   :width: 70%
+   :width: 80%
 
    Figure :counter:`figure`: Object Lifetime
 
