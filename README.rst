@@ -137,6 +137,8 @@ or::
 
   .. table 1
 
+Use ``git-tag`` every time that the book is printed and distributed.
+
 Known issues
 ------------
 

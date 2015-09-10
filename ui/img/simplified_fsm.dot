@@ -45,10 +45,10 @@ digraph varnishfsm{
 		subgraph clusterbackend {
 			bgcolor=aliceblue
 			label="Backend (To Server) Workthread";
-			decision1 [shape=diamond,label="if (conditions(beresp))"];
+			decision1 [shape=diamond,label="read beresp(headers)"];
 			vcl_backend_fetch -> decision1;
-			decision1 -> vcl_backend_response [label="true"];
-			decision1 -> vcl_backend_error [label="false"];
+			decision1 -> vcl_backend_response;
+			decision1 -> vcl_backend_error;
 			decision4[shape=diamond,label="cacheable?"];
 			cache[shape=box,label="cache"];
 			nocache[shape=box,label="do not cache"];
