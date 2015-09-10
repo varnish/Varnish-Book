@@ -30,7 +30,6 @@ test = "The Varnish Log"
 
 #webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
 
-
 #webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 #sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf
@@ -39,7 +38,7 @@ slides-A4t=${BDIR}/varnish_slides-A4.pdf
 testt=${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
 materialpath = www_examples
 rstsrc =varnish_book.rst
-images = ui/img/simplified_fsm.png ui/img/detailed_fsm.png ui/img/detailed_fsm_backend.png
+images = ui/img/simplified_fsm.svg ui/img/detailed_fsm.svg ui/img/detailed_fsm_backend.svg
 mergedrst = ${BDIR}/merged_book.rst
 
 common = ${mergedrst} \

@@ -338,10 +338,10 @@ What is Varnish?
 
 .. figure 1
 
-.. figure:: ui/img/reverse_proxy.png
+.. figure:: ui/img/reverse_proxy.svg
    :alt: Reverse Proxy
    :align: center
-   :figwidth: image
+   :width: 70%
 
    Figure :counter:`figure`: Reverse Proxy
 
@@ -1293,8 +1293,9 @@ Log Layout
 
 .. figure 7
 
-.. figure:: ui/img/log_layout.png
+.. figure:: ui/img/log_layout.svg
    :align: center
+   :width: 100%
 
    Figure :counter:`figure`: Log Layout Timeline
 
@@ -3038,7 +3039,7 @@ In this chapter, you will learn the following topics:
    .. Section overview
 
    This chapter focuses on the most important tasks to write effective VCL code.
-   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``VCL_recv`` and ``VCL_backend_fetch``.
+   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``vcl_recv`` and ``vcl_backend_fetch``.
    All other built-in subroutines are taught in the next chapter.
 
    .. tip::
@@ -3359,14 +3360,17 @@ VCL – ``vcl_backend_fetch``
 
 - See `Figure 23 <#figure-23>`_ in the book
 
+.. include:: vcl/default-vcl_backend_fetch.vcl
+   :literal:
+
 .. container:: handout
 
    .. TODO for the editor: improve layout of this figure
 
    .. figure 23
 
-   .. figure:: ui/img/detailed_fsm_backend.png
-      :scale: 150%
+   .. figure:: ui/img/detailed_fsm_backend.svg
+      :width: 100%
 
       Figure :counter:`figure`: Varnish Request Flow for the Backend Worker Thread.
 
@@ -5501,8 +5505,8 @@ Varnish Custom Statistics (VCS)
 
 .. figure 29
 
-.. figure:: ui/img/vcs-dsms.png
-   :width: 80%
+.. figure:: ui/img/vcs-dsms.svg
+   :width: 100%
 
    Figure :counter:`figure`: VCS Data Flow
 
@@ -5782,7 +5786,7 @@ Varnish High Availability (VHA)
 
 .. figure 32
 
-.. figure:: ui/img/vha.png
+.. figure:: ui/img/vha.svg
    :width: 100%
 
    Figure :counter:`figure`: VHA Sequence Diagram
