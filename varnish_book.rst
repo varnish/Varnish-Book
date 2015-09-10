@@ -659,7 +659,8 @@ Object Lifetime
    *Stale objects* are those within the time period ``TTL`` and ``grace``.
    Objects within ``t_origin`` and  ``keep`` are used when applying conditions with the HTTP header field ``If-Modified-Since``.
 
-   The `VCL – vcl_backend_fetch and vcl_backend_response`_ section explains how Varnish handles backend responses and how these duration attributes affect subsequent actions.
+   The `VCL – vcl_backend_fetch`_ and
+   `VCL – vcl_backend_response`_ sections explain how Varnish handles backend responses and how these duration attributes affect subsequent actions.
 
 Getting Started
 ===============
@@ -1122,57 +1123,57 @@ Relevant options for the course are:
 
 .. container:: handout
 
-        All the options that you can pass to the ``varnishd`` binary are
-        documented in the ``varnishd(1)`` manual page (``man varnishd``).
-        You may want to take a moment to skim over the options mentioned
-        above.
+   All the options that you can pass to the ``varnishd`` binary are
+   documented in the ``varnishd(1)`` manual page (``man varnishd``).
+   You may want to take a moment to skim over the options mentioned
+   above.
 
-        For Varnish to start, you must specify a backend.
-	You can specify a backend by two means: 
-	1) declare it in a VCL file, or
-	2) use the ``-b`` to declare a backend when starting ``varnishd``.
+   For Varnish to start, you must specify a backend.
+   You can specify a backend by two means: 
+   1) declare it in a VCL file, or
+   2) use the ``-b`` to declare a backend when starting ``varnishd``.
 
-        Though they are not strictly required, you almost always want to
-        specify a ``-s`` to select a storage backend,  ``-a`` to make sure
-        Varnish listens for clients on the port you expect and ``-T`` to
-        enable a management interface, often referred to as a telnet
-        interface.
+   Though they are not strictly required, you almost always want to
+   specify a ``-s`` to select a storage backend,  ``-a`` to make sure
+   Varnish listens for clients on the port you expect and ``-T`` to
+   enable a management interface, often referred to as a telnet
+   interface.
 
-        For both ``-T`` and ``-a``, you do not need to specify an IP, but
-        can use ``:80`` to tell Varnish to listen to port 80 on all IPs
-        available. Make sure you do not forget the colon, as ``-a 80``
-        tells Varnish to listen to the IP with the decimal-representation
-        "80", which is almost certainly not what you want. This is a result
-        of the underlying function that accepts this kind of syntax.
+   For both ``-T`` and ``-a``, you do not need to specify an IP, but
+   can use ``:80`` to tell Varnish to listen to port 80 on all IPs
+   available. Make sure you do not forget the colon, as ``-a 80``
+   tells Varnish to listen to the IP with the decimal-representation
+   "80", which is almost certainly not what you want. This is a result
+   of the underlying function that accepts this kind of syntax.
 
-        You can specify ``-p`` for parameters multiple times. The workflow
-        for tuning Varnish parameters usually is that you first try the
-        parameter on a running Varnish through the management interface to
-        find the value you want.
-	Then, you store the parameter and value in a configuration file.
-	This file is read every time you start Varnish.
+   You can specify ``-p`` for parameters multiple times. The workflow
+   for tuning Varnish parameters usually is that you first try the
+   parameter on a running Varnish through the management interface to
+   find the value you want.
+   Then, you store the parameter and value in a configuration file.
+   This file is read every time you start Varnish.
 
-        The ``-S`` option specifies a file which contains a secret to be
-        used for authentication. This can be used to authenticate with
-        ``varnishadm -S`` as long as ``varnishadm`` can read the same secret
-        file -- or rather the same content: The content of the file can be
-        copied to another machine to allow ``varnishadm`` to access the
-        management interface remotely.
+   The ``-S`` option specifies a file which contains a secret to be
+   used for authentication. This can be used to authenticate with
+   ``varnishadm -S`` as long as ``varnishadm`` can read the same secret
+   file -- or rather the same content: The content of the file can be
+   copied to another machine to allow ``varnishadm`` to access the
+   management interface remotely.
 
-        .. note::
+   .. note::
 
-	   Varnish requires that you specify a backend.
-	   A backend is normally specified in the VCL file.
-           You specify the VCL file with the ``-f`` option.
-	   However, it is possible to start Varnish without a VCL file by specifying the backend server with the ``-b <hostname:port>`` option instead.
+      Varnish requires that you specify a backend.
+      A backend is normally specified in the VCL file.
+      You specify the VCL file with the ``-f`` option.
+      However, it is possible to start Varnish without a VCL file by specifying the backend server with the ``-b <hostname:port>`` option instead.
 
-	   Since the ``-b`` option is mutually exclusive with the ``-f`` option, we use only the ``-f`` option. 
-	   You can use ``-b`` if you do not intend to specify any VCL and only have a single backend server.
+      Since the ``-b`` option is mutually exclusive with the ``-f`` option, we use only the ``-f`` option. 
+      You can use ``-b`` if you do not intend to specify any VCL and only have a single backend server.
 
-	.. tip::
-	   Type ``man varnishd`` to see all options of the Varnish daemon.
+   .. tip::
+      Type ``man varnishd`` to see all options of the Varnish daemon.
 
-	.. review bookmark
+   .. review bookmark
 
 Defining a Backend in VCL
 -------------------------
@@ -3018,11 +3019,13 @@ VCL Basics
 
 .. training: robustness principle: liberal to whatever you receive, conservative: consistent in what you send. This creates a lot of legacy. https://en.wikipedia.org/wiki/Robustness_principle
 
+In this chapter, you will learn the following topics:
+
 - The Varnish Configuration Language (VCL) is a domain-specific language
-- VCL as a state machine
-- VCL subroutines
-- Built-in subroutines
-- Available functions, legal return actions and variables.
+- VCL as a finite state machine
+- States as subroutines
+- Varnish includes built-in subroutines
+- Available functions, legal return actions and variables
 
 .. container:: handout
 
@@ -3048,7 +3051,7 @@ Varnish Finite State Machine
 
 .. Todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
 
-- VCL workflow seen as a finite state machine – See `Figure 21 <#figure-21>`_
+- VCL workflow seen as a finite state machine – See `Figure 21 <#figure-21>`_ in the book
 - States are conceptualized and implemented as subroutines, e.g., ``sub vcl_recv``
 - Built-in subroutines start with ``vcl_``, which is a reserved prefix
 - ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
@@ -3084,8 +3087,9 @@ Varnish Finite State Machine
 
    `Figure 21 <#figure-21>`_ shows a simplified version of the Varnish finite state machine.
    This version shows by no means all possible transitions, but only a traditional set of them.
-   `Figure 22 <#figure-22>`_ shows a detailed version of the state machine for the frontend worker as a request flow diagram.
-   A detailed version of the request flow diagram for the backend worker is in the `VCL – vcl_backend_fetch and vcl_backend_response`_ section.
+   `Figure 22 <#figure-22>`_ and
+   `Figure 23 <#figure-23>`_ show the detailed version of the state machine for the **frontend** and **backend**  worker respectively.
+   The figures represent a request flow diagram.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
 
@@ -3115,33 +3119,11 @@ Varnish Finite State Machine
    These built-in subroutines are all named ``vcl_*``.
    Your own subroutines cannot start their name with ``vcl_``.
 
-.. bookmark: consider to move after detailed state machine
-
-Waiting State
-.............
-
-- Designed to improve response performance
-- *Request serialization* is a non desired side-effect that is handled in the `vcl_backend_response`_  subroutine
-
-.. container:: handout
-
-    The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled by the backend.
-    In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
-    If the fetched object from request 0 is cacheable, all *n* requests in the waiting list call the lookup operation again.
-    This retry will hopefully hit the desired object in cache.
-    As a result, only one request is sent to the backend.
-
-    The *waiting* state is designed to improve response performance.
-    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched object is uncacheable, and so is recursively the next request in the waiting list.
-    This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
-    Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
-    The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
-
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
 
 - `Figure 22 <#figure-22>`_ shows the detailed request flow diagram of the backend worker.
-- The grayed box is detailed in `Figure 21 <#figure-21>`_.
+- The grayed box is detailed in `Figure 23 <#figure-23>`_.
 
 .. This slide does not contain bullets because it conflicts with the size of the diagram.
 
@@ -3371,7 +3353,42 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 
    Many but not all of the variables are self-explanatory.
    To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
-	
+
+VCL – ``vcl_backend_fetch``
+---------------------------
+
+- See `Figure 23 <#figure-23>`_ in the book
+
+.. container:: handout
+
+   .. TODO for the editor: improve layout of this figure
+
+   .. figure 23
+
+   .. figure:: ui/img/detailed_fsm_backend.png
+      :scale: 150%
+
+      Figure :counter:`figure`: Varnish Request Flow for the Backend Worker Thread.
+
+   `Figure 23 <#figure-23>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
+   These subroutines are the backend-counterparts to ``vcl_recv``.
+   You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to define your caching policy.
+   An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
+
+   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
+   When ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
+   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
+   
+   A relevant variable is ``bereq.uncacheable``.
+   This variable indicates whether the object requested from the backend may be cached or not.
+   However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
+
+   ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
+   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
+   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
+   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
+   You will learn more about ``vcl_backend_response`` in the `VCL – vcl_backend_response`_ section.
+
 Summary of VCL
 --------------
 
@@ -3479,6 +3496,12 @@ VCL – ``vcl_recv``
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
+
+Revisiting built-in ``vcl_recv``
+................................
+
+.. include:: vcl/default-vcl_recv.vcl
+   :literal:
 
 Example: Basic Device Detection
 ...............................
@@ -3629,44 +3652,16 @@ hit-for-pass
    As any other cached object, *hit-for-pass* objects have a TTL.
    Once the object's TTL has elapsed, the object is removed from the cache.
 
-VCL – ``vcl_backend_fetch`` and ``vcl_backend_response``
---------------------------------------------------------
-
-.. training: Move vcl_backend_fetch to VCL basics chapter
+VCL – ``vcl_backend_response``
+------------------------------
 
 - Sanitize server-response
 - Override cache duration
+- See `Figure 23 <#figure-23>`_ in the book
 
 .. container:: handout
 
-   .. TODO for the editor: improve layout of this figure
-
-   .. figure 23
-
-   .. figure:: ui/img/detailed_fsm_backend.png
-      :scale: 150%
-
-      Figure :counter:`figure`: Varnish Request Flow for the Backend Worker Thread.
-
-   `Figure 23 <#figure-23>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
-   These subroutines are the backend-counterparts to ``vcl_recv``.
-   You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to decide on caching policy.
-   An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
-
-   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
-   When ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
-   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
-   
-   A relevant variable is ``bereq.uncacheable``.
-   This variable indicates whether the object requested from the backend may be cached or not.
-   However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
-
-   ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
-   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
-   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
-   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
-
-   `Figure 24 <#figure-24>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 23 <#figure-23>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
    Backends might respond with a ``304`` HTTP headers.
@@ -3833,8 +3828,6 @@ Exercise: Avoid Caching a Page
 Solution: Avoid caching a page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. training: downgrade Solution: adornments
-
 ::
 
    // Suggested solution A
@@ -3898,11 +3891,31 @@ Solution: Either use s-maxage or set ttl by file type
 	The first condition checks the presence of ``s-maxage`` and handles ``.jpg`` and ``.html`` files to make them cacheable for 30 and 10 seconds respectively.
 	If ``s-maxage`` is present with a positive TTL, we consider the response cacheable by removing ``beresp.http.Set-Cookie``.
 
+Waiting State
+-------------
+
+- *Request serialization* is a non desired side-effect that is handled in the `vcl_backend_response`_  subroutine
+- Designed to improve response performance
+
+.. container:: handout
+
+    The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled at the backend.
+    In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
+    If the fetched object from request 0 is cacheable, all *n* requests in the waiting list call the lookup operation again.
+    This retry will hopefully hit the desired object in cache.
+    As a result, only one request is sent to the backend.
+
+    The *waiting* state is designed to improve response performance.
+    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched object is uncacheable, and so is recursively the next request in the waiting list.
+    This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
+    Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
+    The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
+
 VCL – ``vcl_hash``
 ------------------
 
 - Defines what is unique about a request.
-- Executed after ``vcl_recv`` returns a ``hash`` action keyword.
+- Executed when ``vcl_recv`` returns the ``hash`` action keyword.
 
 .. include:: vcl/default-vcl_hash.vcl
    :literal:
