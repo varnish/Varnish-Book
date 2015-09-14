@@ -6205,3 +6205,226 @@ VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
 .. TOFIX: Slides do not show properly VWS
+
+Appendix F: VMOD Development
+============================
+
+- VMOD basics
+
+::
+
+     < Hello, World! >
+
+         \   ^__^
+          \  (oo)\_______
+	     (__)\       )\/\
+	         ||----w |
+                 ||     ||
+
+.. container:: handout
+
+   This appendix explains the concepts you should know to develop your own VMODs.
+   The appendix takes you through the simplest VMOD possible: the `Hello, World` VMOD.
+
+   To learn most out of this appendix, you should have understood at least the following chapters of this book:
+   `Design Principles`_, `Getting Started`_, `VCL Basics`_, `VCL Built-in Subroutines`_.
+
+VMOD Basics
+-----------
+
+- What is a VMOD
+- When to use in-line C or VMODs?
+- The workspace memory model
+- ``varnishtest``
+
+.. container:: handout
+
+   .. What is a VMOD?
+   A VMOD is a shared library with some C functions which can be called from VCL code.
+   The stardard (std) VMOD, for instance, is a VMOD included in Varnish Cache.
+   We have already used the std VMOD in this book to check whether a backend is healhty with by calling ``std.healthy()``.   
+   .. When to use in-line C or VMODs?
+
+   VCL is the domain specific language of Varnish.
+   This language is very powerful and efficient for most tasks of a cache server.
+   However, sometimes you might need more functionalities, e.g., look up an IP address in a database.
+   
+   VCL allows you to add inline C code, but sometimes is not the most convinient approach.
+   In those cases, you create a VMOD.
+
+   .. TODO
+
+The Workspace Memory Model
+..........................
+
+.. http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module
+
+
+``varnishtest``
+...............
+
+.. http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest
+
+Hello, World!
+-------------
+
+- Build Varnish Cache from source
+- Try ``libvmod-example``
+
+.. container:: handout
+
+   VMODs require the source code from Varnish Cache that you are running.
+   The easiest way to be sure you have everything in sync, build your Varnish Cache from source.
+   The git repository and building instructions are at ``https://github.com/varnish/Varnish-Cache.git``.
+   
+   Once you have built Varnish Cache, build the ``libvmod-example`` from https://github.com/varnish/libvmod-example by following the instructions in the repository.
+   When building the ``libvmod-example``, make sure that its branch matches with the branch version of Varnish-Cache.
+   For example, to build ``libvmod-example`` against Varnish Cache 4.0, make sure that you checkout the branch 4.0 in both, the ``libvmod-example`` and ``Varnish-Cache``.
+
+   Next, we explain the content inside ``libvmod-example``.
+
+Declaring Functions
+...................
+
+- VCC: VCL to C Compiler
+
+.. - VRT: Varnish Run Time – functions called from compiled code
+
+**vmod_example.vcc**::
+
+  $Module example
+  $Init init_function
+  $Function STRING hello(STRING)
+
+**vcc_if.h**::
+
+  struct VCL_conf;
+  struct vmod_priv;
+
+  /* Functions */
+  VCL_STRING vmod_hello(VRT_CTX, VCL_STRING);
+  int init_function(struct vmod_priv *, const struct VCL_conf *);
+
+.. container:: handout
+
+   You declare the module ``example``, the initialization function  ``init_function``, and the functions you need.
+   In this case, we have only one function ``hello`` that takes a string and returns a new string.
+   
+   Definitions are stored in files with ``.vcc`` extension.
+   Please note the ``$`` sign leading the definitions in the ``vmod_example.vcc``.
+
+   ::
+      $Module example
+
+   The first line gives the name to the module.
+
+   ::
+      $Init init_function
+
+   The second line declares an optional initial function, which is called when a VCL program loads this VMOD.
+
+   ::
+      $Function STRING hello(STRING)
+
+   The third line declares the only function in this VMOD.
+   
+   Running the script ``vmod.py`` (included in Varnish Cache) on ``vmod_example.vcc`` creates ``vcc_if.h`` and ``vcc_if.c``.
+   Those files include the translated C code, and since these files are machine generated, you should not modify them.
+   Next, you implement the ``hello`` functions in the ``vmod_example.c``.
+
+   .. TODO for the author: verify that the name of the .c file should be the same as the .vcc file.
+
+Implementing Functions
+......................
+
+**vmod_example.c**::
+
+   VCL_STRING
+   vmod_hello(const struct vrt_ctx \*ctx, VCL_STRING name)
+   {
+      char \*p;
+         unsigned u, v;
+
+	    u = WS_Reserve(ctx->ws, 0); /* Reserve some work space */
+	       p = ctx->ws->f;         /* Front of workspace area */
+	          v = snprintf(p, u, "Hello, %s", name);
+		     v++;
+		        if (v > u) {
+		        /* No space, reset and leave */
+		        WS_Release(ctx->ws, 0);
+		        return (NULL);
+			   }
+			      /* Update work space with what we've used */
+			         WS_Release(ctx->ws, v);
+				    return (p);
+   }
+
+.. container::  handout
+
+   TODO
+   
+The Workspace Memory Model
+--------------------------
+
+::
+
+   #include "vrt.h"
+   #include "cache/cache.h"
+
+   #include "vcc_if.h"
+
+
+``vrt.h``
+.........
+
+.. container:: handout
+
+   The ``vtr.h`` header provides data structures and functions needed by compiled VCL programs and VMODs.
+   The workspace functions are included in this file.
+
+``cache.h``
+...........
+
+::
+
+   void WS_Init(struct ws *ws, const char *id, void *space, unsigned len);
+   unsigned WS_Reserve(struct ws *ws, unsigned bytes);
+   void WS_MarkOverflow(struct ws *ws);
+   void WS_Release(struct ws *ws, unsigned bytes);
+   void WS_ReleaseP(struct ws *ws, char *ptr);
+   void WS_Assert(const struct ws *ws);
+   void WS_Reset(struct ws *ws, char *p);
+   char *WS_Alloc(struct ws *ws, unsigned bytes);
+   void *WS_Copy(struct ws *ws, const void *str, int len);
+   char *WS_Snapshot(struct ws *ws);
+   int WS_Overflowed(const struct ws *ws);
+   void *WS_Printf(struct ws *ws, const char *fmt, ...) __printflike(2, 3);
+
+.. container:: handout
+
+   ``cache.h`` declares the function prototypes for the workspace memory model among others.
+   These functions are implemented in ``cache_ws.c``.
+
+.. container:: handout
+
+   The ``vcc_if.h`` header is generated out from the definitions in your ``.vcc`` file.
+   This header contains the declaration of your VMOD functions in C code.
+.. bookmark
+
+   ``vmo
+   This is how you know your functions signatures.
+
+Cowsay: Hello, World!
+---------------------
+
+.. https://github.com/varnish/libvmod-rtstatus
+
+Resources
+---------
+
+- https://github.com/varnish/libvmod-example
+- https://github.com/varnish/libvmod-rtstatus
+- http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module
+- http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest
+- https://code.uplex.de/uplex-varnish/libvmod-example-reqbody/blobs/master/src/vmod_example_reqbody.c
+- http://varnish.readthedocs.org/en/latest/reference/vmod.html
