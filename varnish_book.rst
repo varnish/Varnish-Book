@@ -931,7 +931,8 @@ Configure the Varnish ``DAEMON_OPTS``::
 
    .. note::
 
-     We recommend you to disable Security-Enhanced Linux (SELinux).
+     Varnish 4.0 does not start when enforcing Security-Enhanced Linux (SELinux).
+     A quick workaround, although a bad practice, is to disable SELinux.
      If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
      You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
      Also, be aware that SELinux defines the ports 6081 and 6082 for ``varnishd``.
@@ -1672,6 +1673,11 @@ Notable Counters
    This feedback in turn allows Varnish to be developed according to its real usage.
    Issue ``varnishstat -1`` to list all counters with their current values.
 
+   .. note::
+
+      If you have many backends, consider to increase the size of the shared memory log.
+      For that, see the option ``-l`` in the man page of ``varnishd``.
+
    .. tip::
       Remember that Varnish provides many reference manuals.
       To see all Varnish counter field definitions, issue ``man varnish-counters``.
@@ -1950,6 +1956,7 @@ The SHared Memory Log (SHMLOG)
    Varnish' SHared Memory LOG (SHMLOG) is used to log most data. 
    It is sometimes called `shm-log`, and operates on a circular buffer.
    The SHMLOG is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
+   To change the size of the SHMLOG, see the option ``-l`` in the man page of ``varnishd``.
 
    .. I/O operations
 
@@ -2166,7 +2173,7 @@ Threading Parameters
 
    Although Varnish threading model allows you to use multiple thread pools, we recommend you to do not modify this parameter.
    Based on our experience and tests, we have seen that 2 thread pools are enough.
-   Adding more pools does not increase performance.
+   In other words, the performance of Varnish does not increase when adding more than 2 pools.
 
    .. note::
 
