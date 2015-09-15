@@ -6441,7 +6441,7 @@ The Workspace Memory Model
    ``cache.h`` declares the function prototypes for the workspace memory model among others.
    These functions are implemented in ``cache_ws.c``.
 
-.. container:: handout
+   .. vcc bookmrk
 
    The ``vcc_if.h`` header is generated out from the definitions in your ``.vcc`` file.
    This header contains the declaration of your VMOD functions in C code.
