@@ -6259,6 +6259,42 @@ The Workspace Memory Model
 
 .. http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module
 
+.. TODO for the author: insert image here
+
+.. container:: handout
+
+   Every worker thread has its own workspace ``ws`` in virtual memory.
+   This workspace is a contiguous ``char array`` defined in ``cache/cache.h`` as::
+
+     struct ws {
+        unsigned                magic;
+	#define WS_MAGIC        0x35fac554
+        char                    id[4];          /* identity */
+        char                    *s;             /* (S)tart of buffer */
+        char                    *f;             /* (F)ree/front pointer */
+        char                    *r;             /* (R)eserved length */
+        char                    *e;             /* (E)nd of buffer */
+     };
+
+   ``magic`` and ``WC_MAGC`` are used for sanity chekcs by workspace functions.
+   The ``id`` is self descriptive.
+   The important parts for you are the `SFRE` fields.
+
+   ``s`` and ``e`` point to the start and end of the ``char array`` respectively.
+    ``f`` points to the currently available memory, it can be seen as a head that moves forward every time memory is allocated.
+    ``f`` can move up to the end of the buffer pointed by ``e``.
+
+    ``r`` points to the reserved memory space of the workspace.
+    This space is reserved to allow incremental allocation.
+    You should remember to relase this space once your VMOD does not need the workspace any longer.
+
+    .. TOVERIFY: When releasing memory space, are we talking about the reserved spaced not used, or all the workspace?
+
+    .. Using the Varnish API
+
+   .. including cache.h
+
+   The ``cache/cache.h`` is automatically included when you compile your ``.vcc`` file.
 
 ``varnishtest``
 ...............
@@ -6412,7 +6448,6 @@ The Workspace Memory Model
 
 .. bookmark
 
-   ``vmo
    This is how you know your functions signatures.
 
 Cowsay: Hello, World!
