@@ -1779,10 +1779,8 @@ The Parent Process: The Manager
 
 The *Manager* process is owned by the root user, and its main functions are:
 
-.. training: From "- compile VCL" below: The Manager is responsible to copmile, but it is another process that does that.
-
 - apply configuration changes (from VCL files and parameters)
-- compile VCL
+- delegate tasks to child processes: *the Cacher* and the *VCL to C Compiler (VCC)*
 - monitor Varnish
 - provide a Varnish command line interface (CLI)
 - initialize the child process: *the Cacher*
@@ -1852,17 +1850,16 @@ The main functions of the *Cacher* are:
 VCL Compilation
 ...............
 
-The below command prints VCL code compiled to C language and exit.
-This is useful to check whether your VCL code compiles correctly.
-
-::
+- Command to print VCL code compiled to C language and exit::
 
    $varnishd -C -f <vcl_filename>
+
+- Useful to check whether your VCL code compiles correctly.
 
 .. container:: handout
 
    Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL).
-   Your VCL is then interpreted by the *Manager* process into C, compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
+   Your VCL is then translated by the VCC process to C, which is compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
    Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formatted VCL.
 
    As a result of this, changing configuration while running Varnish is very cheap.
@@ -2811,7 +2808,7 @@ Cache Matching
 
       Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
-   .. training: does Varnish triggers an asynchronous request to the origin server?
+   .. TOVERIFY: does Varnish triggers an asynchronous request to the origin server?
 
 Allowance
 ---------
@@ -3018,7 +3015,9 @@ Use ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` and ``varnishlog -g req
 VCL Basics
 ==========
 
-.. training: robustness principle: liberal to whatever you receive, conservative: consistent in what you send. This creates a lot of legacy. https://en.wikipedia.org/wiki/Robustness_principle
+.. TODO for the author:
+   Add the robustness principle: liberal to whatever you receive, conservative: consistent in what you send.
+   https://en.wikipedia.org/wiki/Robustness_principle
 
 In this chapter, you will learn the following topics:
 
@@ -3033,8 +3032,9 @@ In this chapter, you will learn the following topics:
    .. Definition of VCL
 
    The Varnish Configuration Language (VCL) is a domain-specific language designed to describe request handling and document caching policies for Varnish Cache.
-   When a new configuration is loaded, the ``varnishd`` manager process translates the VCL code to C and compiles it to a shared object.
-   This shared object is then loaded into the cacher process.
+   When a new configuration is loaded, the VCC process, created by the Manager process, translates the VCL code to C.
+   This C code is compiled typically by ``gcc`` to a shared object.
+   The shared object is then loaded into the cacher process.
 
    .. Section overview
 
@@ -3062,9 +3062,11 @@ Varnish Finite State Machine
 .. include:: vcl/snippet-vcl_recv.vcl
    :literal:
 
-.. training: Slides are missing the state machine graph.
-.. training: web sockets go in pipe, is an example of handling non HTTP requests.
-.. training: Check feedback from Federico about updating ``if (conditions(beresp))
+.. TODO for the editor:
+   Slides are missing the state machine graph.
+
+.. TODO for the author:
+   Add this ``pipe``-example: websockets go in pipe
 
 .. container:: handout
 
@@ -3178,7 +3180,8 @@ VCL Syntax
 - Domain-specific
 - Add as little or as much as you want
 
-.. training: give a reference to .el highlighting lisp file
+.. TODO for the author:
+   give a reference to .el highlighting lisp file for emacs
 
 .. container:: handout
 
@@ -3238,21 +3241,19 @@ Example: built-in ``vcl_recv``
 VCL Built-in Functions and Keywords
 -----------------------------------
 
-.. training: is ``new()`` a keyword or a function?
-
 **Functions:**
 
 - ``regsub(str, regex, sub)``
 - ``regsuball(str, regex, sub)``
 - ``ban(boolean expression)``
 - ``hash_data(input)``
-- ``new()``
 - ``synthetic(str)``
 
 **Keywords:**
 
 - ``call subroutine``
 - ``return(action)``
+- ``new()``
 - ``set()``
 - ``unset()``
 
@@ -3445,7 +3446,8 @@ VCL Built-in Subroutines
 VCL – ``vcl_recv``
 ------------------
 
-.. training: letting client-input to decide your caching policy can make DDoS attack
+.. TODO for the author:
+   Letting client-input to decide your caching policy can make DDoS attack
 
 - Normalize client-input
 - Pick a backend web server
@@ -3741,8 +3743,8 @@ Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has al
 
 Only the following status codes will be cached by default:
 
-.. training: missing 204, 308
-.. training: 308 does not exist in the RFC http://tools.ietf.org/html/rfc7231, but how to check it in Varnish source code?
+.. TODO for the author:
+   Verify 204 and 308 in source code
 
 - 200: OK
 - 203: Non-Authoritative Information
@@ -3754,8 +3756,10 @@ Only the following status codes will be cached by default:
 - 410: Gone
 - 404: Not Found
 
-.. training. DDoS attackers use scripts to create a bunch of 404 and replace useful cache objects.
-.. training: how do you mitigate it?: pick the junk Varnish server to do not evict rightful
+.. TODO for the author:
+   Find the right place to add the following:
+   DDoS attackers use scripts to create a bunch of 404 and replace useful cache objects.
+   How do you mitigate it?: pick the junk Varnish server to do not evict rightful
 
 .. container:: handout
 
@@ -3793,7 +3797,7 @@ Example: Setting TTL of .jpg URLs to 60 seconds
    Keep in mind that the built-in VCL is still executed.
    That means that images with a ``Set-Cookie`` field are not cached.
 
-   .. training: double check builtin or built-in for consistency
+   .. TODO for the editor: double check builtin or built-in for consistency
 
 Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
 ......................................................................
@@ -3842,17 +3846,16 @@ Solution: Avoid caching a page
    }
 
    // Suggested solution B
-   sub vcl_backend_fetch {
+   sub vcl_backend_response {
        if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
-	  set bereq.uncacheable = true;
-	  return(fetch);
+	  set beresp.uncacheable = true;
        }
    }
 
-.. training: suggested solution B is wrong. This should be done in vcl_backend_response!
-.. You don't need to return(fetch)
-.. instead of bereq.uncacheable, beresp.uncacheable!
-.. Correct man page also!
+
+.. TOVERIFY: Solution B was previously done in vcl_backend_fetch
+   Documentation in ``man vcl`` suggests that this should be done as before, using bereq.uncacheable.
+   Double check what is correct and update man page if needed.
 
 .. container:: handout
 
@@ -4088,8 +4091,6 @@ Example: Redirecting requests with ``vcl_synth``
 
 .. TODO for the rst editor: remove obsolete vcl files from the git repository.
 
-.. training. http.Location to lower cases.
-
 .. include:: vcl/redirect.vcl
    :literal:
 
@@ -4127,7 +4128,7 @@ Solution: Modify the HTTP response header fields
       This may apply to all variable types – and all languages for that matter.
       Thus it is important that you always check the variable type.
 
-      .. training: There is no a "rename" operation in Varnish, you have to create another header field and then remove the previous.
+      .. TODO for the author: Add: There is no a "rename" operation in Varnish, you have to create another header field and then remove the previous.
 
 Exercise: Change the error message
 ----------------------------------
@@ -4189,7 +4190,7 @@ Purge vs. Bans vs. Hashtwo vs. Cache Misses
 
 Which one to use and when?
 
-.. training: have PURGE in the first column of the table, because the next section is PURGE
+.. TODO for the editor: have PURGE in the first column of the table, because the next section is PURGE
 
 .. table 18
 
@@ -4249,8 +4250,6 @@ HTTP PURGE
    First, purges cannot use regular-expressions, and second, purges evict content from cache regardless the availability of the backend.
    That means that if you purge some objects and the backend is down, Varnish will end up having no copy of the content.
 
-.. training: Correct the flow for purge in the detailed fsm diagram.
-
 VCL – ``vcl_purge``
 ...................
 
@@ -4288,8 +4287,9 @@ Test your VCL by issuing::
 Exercise: ``PURGE`` an article from the backend
 ...............................................
 
-.. training: Main idea in this exercise: Those with permissions can initiate invalidation. You can come with either direct invalidation or another component like VAC if you have are on a complicated infrastructure.
-.. training: consider to remove this exercise
+.. TODO for the author: Add a description of the main idea in this exercise:
+   Those with permissions can initiate invalidation.
+   You can come with either direct invalidation or another component like VAC if you have are on a complicated infrastructure.
 
 - Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
 
@@ -4728,8 +4728,6 @@ Directors
     - seeded with a random number
     - seeded with a hash key
 
-.. training: space after this bullet
-
 **Round-robin director example:**
 
 .. include:: vcl/director_example.vcl
@@ -5042,7 +5040,7 @@ Access Control Lists (ACLs)
 - VCL programs can use ACLs to define and control the IP addresses that are allowed to *purge*, *ban*, or do any other regulated task.
 - Compare with ``client.ip`` or ``server.ip``
 
-.. training: be consistent with comments in VCL snippets
+.. TOVERIFY: be consistent with comments in VCL snippets
 
 .. include:: vcl/acl.vcl
    :literal:
