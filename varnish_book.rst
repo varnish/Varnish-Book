@@ -38,7 +38,7 @@ Also included are Varnish utility programs such as ``varnishlog``, and extra mat
 - Learn specific features depending the course and your needs
 - Necessary Background
 - How to Use the Book
-- Acknowledgements
+- Acknowledgments
 
 .. TODO for trainer:
    
@@ -230,12 +230,12 @@ The Webdev course requires that you:
    .. Ubuntu
 
    The Varnish installation described in this book uses Ubuntu Linux 14.04 LTS (trusty), therefore most of the commands instructed in this book are for this Linux distribution.
-   We point out some differences on how to configure Varnish for other Linux distributions, but you should reference your linux distribution's documentation for more details.
+   We point out some differences on how to configure Varnish for other Linux distributions, but you should reference your Linux distribution's documentation for more details.
    
    .. formats
 
    The book is written with different formatting conventions.
-   Varnish Configuration Language (VCL) code uses the monospaced font type inside boxes::
+   Varnish Configuration Language (VCL) code uses the mono-spaced font type inside boxes::
 
       vcl 4.0;
 
@@ -253,7 +253,7 @@ The Webdev course requires that you:
 
    The first occurrence of a new term is usually its *definition*, and appears in the same font as the previous occurrence of “definition” in this sentence.
    File names are indicated like this: ``/path/to/yourfile``.
-   Important notes, tips and warnings are also inside boxes, but they use the normal bodytext font type.
+   Important notes, tips and warnings are also inside boxes, but they use the normal body text font type.
 
    .. TODO: To uncomment this when Appendix E is ready
 
@@ -262,7 +262,7 @@ The Webdev course requires that you:
    ..
       If you have some regular-expression experience, must of the overview in `Appendix E: Regular-Expressions in Varnish`_ will not be new.
       Even if this is the case, please glance over it anyway.
-      Although you may be aware of the basic meaning of certain metacharacters, perhaps some of the ways of thinking at regular-expressions will be new for you.
+      Although you may be aware of the basic meaning of certain meta-characters, perhaps some of the ways of thinking at regular-expressions will be new for you.
 
 .. raw:: pdf
 
@@ -296,7 +296,7 @@ The Webdev course requires that you:
 
 .. class:: heading2
 
-   Acknowledgements
+   Acknowledgments
 
 In addition to the authors, the following deserve special thanks (in no particular order):
 
@@ -1717,9 +1717,6 @@ This section covers:
 Varnish Architecture
 --------------------
 
-.. training: when you do VCL compilation, you start a new process called VCC, is isolated from the manager, so the manager is safe if something goes wrong in the VCC. The VCC translate the vcl to c in isolation. In short, to show the magic.
-.. training: if you use modules in your VCL, VCC? will load and link other .
-
 .. figure 13
 
 .. figure:: ui/img/architecture.svg
@@ -1730,14 +1727,13 @@ Varnish Architecture
 
 .. container:: handout
 
-   .. TODO for the author: Add some of the description from https://www.varnish-cache.org/docs/trunk/phk/barriers.html
-
    `Figure 13 <#figure-13>`_ shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
-   The central block is the Varnish daemon that is contained in the ``varnishd`` binary program.
-   ``varnishd`` creates a new child process mainly for security reasons.
-   The parent and child processes are represented by the *Manager* and *Cacher* blocks respectively.
+   The main block is the `Manager` process, which is contained in the ``varnishd`` binary program.
+   The task of the Manager process is to delegate tasks, including caching, to child processes.
+   The Manager process ensures that there is always a process for each task.
+   The main driver for these design decisions is security, which is explain at `Security barriers in Varnish` https://www.varnish-cache.org/docs/trunk/phk/barriers.html.
 
    The Manager's command line interface (CLI) is accessible through:
    1) ``varnishadm`` as explained in `The Management Interface varnishadm`_ section,
@@ -1768,9 +1764,6 @@ Varnish Architecture
 
    Varnish Software has a commercial offering of a fully functional web UI called `Varnish Administration Console (VAC)`_.
    For more information about VAC, refer to the `Varnish Administration Console (VAC)`_ section.
-
-   .. C-compiler
-   .. TODO
 
    .. Shared object
    .. TODO
