@@ -6224,7 +6224,7 @@ Appendix F: VMOD Development
 .. container:: handout
 
    This appendix explains the concepts you should know to develop your own VMODs.
-   The appendix takes you through the simplest VMOD possible: the `Hello, World` VMOD.
+   The appendix takes you through the simplest possible VMOD: the `Hello, World` VMOD.
 
    To learn most out of this appendix, you should have understood at least the following chapters of this book:
    `Design Principles`_, `Getting Started`_, `VCL Basics`_, `VCL Built-in Subroutines`_.
@@ -6240,9 +6240,11 @@ VMOD Basics
 .. container:: handout
 
    .. What is a VMOD?
+
    A VMOD is a shared library with some C functions which can be called from VCL code.
    The stardard (std) VMOD, for instance, is a VMOD included in Varnish Cache.
    We have already used the std VMOD in this book to check whether a backend is healhty with by calling ``std.healthy()``.   
+
    .. When to use in-line C or VMODs?
 
    VCL is the domain specific language of Varnish.
@@ -6251,8 +6253,6 @@ VMOD Basics
    
    VCL allows you to add inline C code, but sometimes is not the most convinient approach.
    In those cases, you create a VMOD.
-
-   .. TODO
 
 The Workspace Memory Model
 ..........................
@@ -6409,6 +6409,7 @@ The Workspace Memory Model
 
    The ``vcc_if.h`` header is generated out from the definitions in your ``.vcc`` file.
    This header contains the declaration of your VMOD functions in C code.
+
 .. bookmark
 
    ``vmo
