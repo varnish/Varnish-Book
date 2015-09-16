@@ -6254,53 +6254,6 @@ VMOD Basics
    VCL allows you to add inline C code, but sometimes is not the most convinient approach.
    In those cases, you create a VMOD.
 
-The Workspace Memory Model
-..........................
-
-.. http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module
-
-.. TODO for the author: insert image here
-
-.. container:: handout
-
-   Every worker thread has its own workspace ``ws`` in virtual memory.
-   This workspace is a contiguous ``char array`` defined in ``cache/cache.h`` as::
-
-     struct ws {
-        unsigned                magic;
-	#define WS_MAGIC        0x35fac554
-        char                    id[4];          /* identity */
-        char                    *s;             /* (S)tart of buffer */
-        char                    *f;             /* (F)ree/front pointer */
-        char                    *r;             /* (R)eserved length */
-        char                    *e;             /* (E)nd of buffer */
-     };
-
-   ``magic`` and ``WC_MAGC`` are used for sanity chekcs by workspace functions.
-   The ``id`` is self descriptive.
-   The important parts for you are the `SFRE` fields.
-
-   ``s`` and ``e`` point to the start and end of the ``char array`` respectively.
-    ``f`` points to the currently available memory, it can be seen as a head that moves forward every time memory is allocated.
-    ``f`` can move up to the end of the buffer pointed by ``e``.
-
-    ``r`` points to the reserved memory space of the workspace.
-    This space is reserved to allow incremental allocation.
-    You should remember to relase this space once your VMOD does not need the workspace any longer.
-
-    .. TOVERIFY: When releasing memory space, are we talking about the reserved spaced not used, or all the workspace?
-
-    .. Using the Varnish API
-
-   .. including cache.h
-
-   The ``cache/cache.h`` is automatically included when you compile your ``.vcc`` file.
-
-``varnishtest``
-...............
-
-.. http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest
-
 Hello, World!
 -------------
 
@@ -6343,9 +6296,7 @@ Declaring Functions
 
 .. container:: handout
 
-   You declare the module ``example``, the initialization function  ``init_function``, and the functions you need.
-   In this case, we have only one function ``hello`` that takes a string and returns a new string.
-   
+   In ``vmod_example.vcc``, you declare the module name, initialization function and other functions you need.   
    Definitions are stored in files with ``.vcc`` extension.
    Please note the ``$`` sign leading the definitions in the ``vmod_example.vcc``.
 
@@ -6364,11 +6315,11 @@ Declaring Functions
 
    The third line declares the only function in this VMOD.
    
-   Running the script ``vmod.py`` (included in Varnish Cache) on ``vmod_example.vcc`` creates ``vcc_if.h`` and ``vcc_if.c``.
-   Those files include the translated C code, and since these files are machine generated, you should not modify them.
-   Next, you implement the ``hello`` functions in the ``vmod_example.c``.
+   The source tree is based on autotools to configure the building.
+   When you run the ``Makefile``,it passes ``vmod_example.vcc`` to the script ``vmodtool.py`` (included in Varnish Cache) and translates the VCC code to C.
+   The translation is stored in ``vcc_if.h`` and ``vcc_if.c``, and since they are machine generated, you should not modify them.
 
-   .. TODO for the author: verify that the name of the .c file should be the same as the .vcc file.
+   Next, you implement the ``hello`` functions in the ``vmod_example.c``.
 
 Implementing Functions
 ......................
@@ -6379,28 +6330,74 @@ Implementing Functions
    vmod_hello(const struct vrt_ctx \*ctx, VCL_STRING name)
    {
       char \*p;
-         unsigned u, v;
+      unsigned u, v;
 
-	    u = WS_Reserve(ctx->ws, 0); /* Reserve some work space */
-	       p = ctx->ws->f;         /* Front of workspace area */
-	          v = snprintf(p, u, "Hello, %s", name);
-		     v++;
-		        if (v > u) {
-		        /* No space, reset and leave */
-		        WS_Release(ctx->ws, 0);
-		        return (NULL);
-			   }
-			      /* Update work space with what we've used */
-			         WS_Release(ctx->ws, v);
-				    return (p);
+      u = WS_Reserve(ctx->ws, 0); /* Reserve some work space */
+      p = ctx->ws->f;         /* Front of workspace area */
+      v = snprintf(p, u, "Hello, %s", name);
+      v++;
+      if (v > u) {
+         /* No space, reset and leave */
+         WS_Release(ctx->ws, 0);
+         return (NULL);
+      }
+      /* Update work space with what we've used */
+      WS_Release(ctx->ws, v);
+      return (p);
    }
 
 .. container::  handout
 
-   TODO
-   
+   .. TODO
+
 The Workspace Memory Model
---------------------------
+..........................
+
+.. figure 33
+
+.. figure:: ui/img/workspace_memory_model.svg
+   :width: 100%
+
+   Figure :counter:`figure`: Work Space Memory Model
+
+.. container:: handout
+
+   Every worker thread has its own workspace ``ws`` in virtual memory.
+   This workspace is a contiguous ``char array`` defined in ``cache/cache.h`` as::
+
+     struct ws {
+        unsigned                magic;
+	#define WS_MAGIC        0x35fac554
+        char                    id[4];          /* identity */
+        char                    *s;             /* (S)tart of buffer */
+        char                    *f;             /* (F)ree/front pointer */
+        char                    *r;             /* (R)eserved length */
+        char                    *e;             /* (E)nd of buffer */
+     };
+
+   ``magic`` and ``WC_MAGC`` are used for sanity chekcs by workspace functions.
+   The ``id`` field is self descriptive.
+   The parts that most likely you are interested in are the ``SFRE`` fields.
+
+   ``s`` and ``e`` point to the start and end of the ``char array`` respectively.
+    ``f`` points to the currently available memory, it can be seen as a head that moves forward every time memory is allocated.
+    ``f`` can move up to the end of the buffer pointed by ``e``.
+
+    ``r`` points to the reserved memory space of the workspace.
+    This space is reserved to allow incremental allocation.
+    You should remember to relase this space once your VMOD does not need it any longer.
+
+    .. bookmark
+
+       TODO for the author: Describe how to use the API.
+       This URL http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module is from 2012.
+       Review its content and compare with this http://blog.zenika.com/index.php?post/2013/07/31/Creating-a-Varnish-4-module from 2013.
+
+   The ``cache/cache.h`` is automatically included when you compile your ``.vcc`` file.
+   Next, we describe in detail the headers that are included in ``vmod_example.c``.
+
+Headers
+.......
 
 ::
 
@@ -6409,49 +6406,50 @@ The Workspace Memory Model
 
    #include "vcc_if.h"
 
-
-``vrt.h``
-.........
-
 .. container:: handout
 
    The ``vtr.h`` header provides data structures and functions needed by compiled VCL programs and VMODs.
    The workspace functions are included in this file.
 
-``cache.h``
-...........
-
-::
-
-   void WS_Init(struct ws *ws, const char *id, void *space, unsigned len);
-   unsigned WS_Reserve(struct ws *ws, unsigned bytes);
-   void WS_MarkOverflow(struct ws *ws);
-   void WS_Release(struct ws *ws, unsigned bytes);
-   void WS_ReleaseP(struct ws *ws, char *ptr);
-   void WS_Assert(const struct ws *ws);
-   void WS_Reset(struct ws *ws, char *p);
-   char *WS_Alloc(struct ws *ws, unsigned bytes);
-   void *WS_Copy(struct ws *ws, const void *str, int len);
-   char *WS_Snapshot(struct ws *ws);
-   int WS_Overflowed(const struct ws *ws);
-   void *WS_Printf(struct ws *ws, const char *fmt, ...) __printflike(2, 3);
-
-.. container:: handout
-
    ``cache.h`` declares the function prototypes for the workspace memory model among others.
    These functions are implemented in ``cache_ws.c``.
 
-   .. vcc bookmrk
+   **cache.h**::
 
-   The ``vcc_if.h`` header is generated out from the definitions in your ``.vcc`` file.
+      void WS_Init(struct ws *ws, const char *id, void *space, unsigned len);
+      unsigned WS_Reserve(struct ws *ws, unsigned bytes);
+      void WS_MarkOverflow(struct ws *ws);
+      void WS_Release(struct ws *ws, unsigned bytes);
+      void WS_ReleaseP(struct ws *ws, char *ptr);
+      void WS_Assert(const struct ws *ws);
+      void WS_Reset(struct ws *ws, char *p);
+      char *WS_Alloc(struct ws *ws, unsigned bytes);
+      void *WS_Copy(struct ws *ws, const void *str, int len);
+      char *WS_Snapshot(struct ws *ws);
+      int WS_Overflowed(const struct ws *ws);
+      void *WS_Printf(struct ws *ws, const char *fmt, ...) __printflike(2, 3);
+
+   ``vcc_if.h`` is generated out from the definitions in your ``.vcc`` file.
    This header contains the declaration of your VMOD functions in C code.
 
-.. bookmark
+``varnishtest``
+...............
 
-   This is how you know your functions signatures.
+.. http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest
+
+``.travis.yml``
+...............
+
+.. TODO for the author
+
+   https://github.com/varnish/libvmod-example/blob/4.0/.travis.yml
+   https://github.com/mbgrydeland/libvmod-fsbackend/blob/4.1/.travis.yml
+   http://docs.travis-ci.com/user/customizing-the-build/
 
 Cowsay: Hello, World!
 ---------------------
+
+.. Use rename-vmod-script
 
 .. https://github.com/varnish/libvmod-rtstatus
 
@@ -6463,4 +6461,4 @@ Resources
 - http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module
 - http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest
 - https://code.uplex.de/uplex-varnish/libvmod-example-reqbody/blobs/master/src/vmod_example_reqbody.c
-- http://varnish.readthedocs.org/en/latest/reference/vmod.html
+- http://blog.zenika.com/index.php?post/2013/07/31/Creating-a-Varnish-4-module
