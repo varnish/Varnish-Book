@@ -15,6 +15,7 @@ CC-BY-NC-SA license (see the LICENSE file for details) as a book.
 
 The build system produces the book in PDF and HTML formats.
 The PDF format includes two editions, one as the book for trainees, and the other as slides for the trainer.
+You can download this book in PDF format from https://www.varnish-software.com/download-varnish-book.
 
 Index
 -----
