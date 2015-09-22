@@ -1,6 +1,5 @@
-
-Welcome to the Varnish Book
-===========================
+Welcome to the Varnish Book for Varnish 3
+=========================================
 
 Contents:
 
@@ -15,7 +14,7 @@ About the material
 ==================
 
 This book is part of Varnish Software's
-(http://www.varnish-software.com) official training material.
+(http://www.varnish-software.com) official training material for **Varnish 3**.
 
 The material is primarily written to be used in a classroom context. In
 the classroom, each sub-chapter is a slide and the participants gets a
