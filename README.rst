@@ -1,5 +1,5 @@
-Training material and related tools
-===================================
+Training material and related tools for Varnish 3
+=================================================
 
 This repository contains:
 
@@ -10,8 +10,9 @@ This repository contains:
 * Build system for said training material
 
 This is the training material Varnish Software uses for professional
-Varnish training courses. It is made available under a Creative Commons
+Varnish training courses for **Varnish 3**. It is made available under a Creative Commons
 CC-BY-NC-SA license (See the LICENSE file for details) as a book.
+You can download the compiled book for **Varnish 4** at https://www.varnish-software.com/download-varnish-book.
 
 The build system produces different sets of PDFs. Varnish Software
 currently offers two different two-day courses: `Varnish System
