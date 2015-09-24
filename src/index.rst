@@ -1,6 +1,6 @@
 
-Welcome to the Varnish Book
-===========================
+Welcome to the Varnish Book for Varnish 4
+=========================================
 
 Table of Contents:
 
@@ -21,7 +21,7 @@ Version and copyright
 About the material
 ==================
 
-This book is part of Varnish Software's (http://www.varnish-software.com) official training material.
+This book is part of Varnish Software's (http://www.varnish-software.com) official training material for Varnish 4.
 The material is primarily written to be used in a classroom context.
 
 The training material evolves constantly.
