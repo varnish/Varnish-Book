@@ -365,8 +365,6 @@ What is Varnish?
    Varnish is more than a reverse HTTP proxy that caches content to speed up your server.
    Depending on the installation, Varnish can also be used as:
 
-   .. TODO for the author: can we be more specific with what functionality is achieved with Varnish Cache, and which one with Varnish Cache Plus?
-
    - web application firewall,
    - DDoS attacks defender,
    - load balancer,
@@ -1913,6 +1911,11 @@ You can choose one method with the ``-s`` option of ``varnishd``.
    Its main improvements are decreased disk IO load and lower storage fragmentation.
    MSE is designed and tested with storage sizes up to 10 TB.
 
+   MSE uses a hybrid of two cache algorithms, least recently used (LRU) and least frequently used (LFU), to manage memory.
+   Benchmarks show that this algorithm outperforms the ``malloc`` and ``file`` strategies.
+   MSE also implements a mechanism to eliminate internal framentation.
+   For more details about its design, implementation and benchmark results, please refer to https://www.varnish-software.com/blog/introducing-varnish-massive-storage-engine.
+
    .. Choosing the storage backend
 
    When choosing storage backend, use `malloc` if your cache will be contained entirely or mostly in memory.
@@ -2674,25 +2677,30 @@ Cache Matching
 .. container:: handout
 
    If an origin server sends ``Vary`` in a response, Varnish does **not** use this response to satisfy a later request unless the later request has the same values for the listed fields in ``Vary`` as the original request.
-   In other words, Vary expands the cache key required to match a new request to the stored cache entry.
+   In other words, ``Vary`` expands the cache key required to match a new request to the stored cache entry.
 
-   ``Vary`` is one of the trickiest headers to deal with for a cache.
+   ``Vary`` is one of the trickiest headers to deal with when caching.
    A caching server like Varnish does not necessarily understand the semantics of a header, or what part triggers different variants of a response.
-   As a result, an inappropriate use of ``Vary`` might create a very large number of cached objects, and reduce the efficiency of your cache server.
+   In other words, an inappropriate use of ``Vary`` might create a very large number of cached objects, and reduce the efficiency of your cache server.
    Therefore, you must be extremely cautious when using ``Vary``.
 
    .. good usage
 
    The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
    For example, a web page can be delivered compressed or uncompressed depending on the client.
+   For more details on how to use ``Vary`` for compressions, please refer to https://www.varnish-cache.org/docs/trunk/users-guide/compression.html.
+
+   .. TODO for the author: Add compression to the Saving a Request chapter.
 
    .. bad usage
 
-   Caching objects that are going to be retrieved only by their original requesters, or a few similar, does not scale well.
+   Caching objects taking into consideration all differences from requesters creates a very fine-grained cache.
+   This practice is not recommended, because those cached objects are most likely retrieved only by their original requester.
+   Thus, fine-grained caching strategies do not scale well.
    This is a common mistake if ``Vary`` is not used carefully.
 
-   As an example of wrong usage of ``Vary`` is setting ``Vary: User-Agent``.
-   This tells Varnish that for *any* change in ``User-Agent``, the content *might* look different.
+   An example of wrong usage of ``Vary`` is setting ``Vary: User-Agent``.
+   This tells Varnish that for absolutely *any* difference in ``User-Agent``, the response from the origin server *might* look different.
    This is not optimal because there are probably thousands of `User-Agent` strings out there.
 
    Another example of bad usage is when using only ``Vary: Cookie`` to differentiate a response.
@@ -2701,9 +2709,8 @@ Cache Matching
    One way to assist ``Vary`` is by building the response body from cached and non-cached objects.
    We will discuss this further in the `Content Composition`_ chapter.
 
-   Origin servers normally add metadata to further describe a representation of a resource.
-   This metadata is used in conditional requests.
-   "Conditional requests are HTTP requests that include one or more header fields indicating a precondition to be tested before applying the method semantics to the target resource" [RFC7232].
+   .. conditional requests
+
    Next we cover four important header fields used in conditional requests.
    Two validator fields: ``ETag`` and ``Last-Modified``; and two precondition header fields: ``If-None-Match`` and ``If-Modified-Since``.
 
@@ -2720,6 +2727,11 @@ Cache Matching
 - Response header field
 
 .. container:: handout
+
+   Origin servers normally add metadata to further describe the representation of a resource.
+   This metadata is used in conditional requests.
+   "Conditional requests are HTTP requests that include one or more header fields indicating a precondition to be tested before applying the method semantics to the target resource" [RFC7232].
+   ``ETag`` is a validator header field.
 
    The ``ETag`` header field provides a state identifier for the requested variant (resource representation).
    ``ETags`` are used to differentiate between multiple states based on changes over time of a representation.
@@ -4754,6 +4766,8 @@ Directors
    instance have directors for active and passive clusters, and put those
    directors behind a fallback director.
 
+   .. TOUPDATE for the author: In 4.1 idle backend connections are closed.
+
    *Random* directors are seeded with either a random number or a hash key.
    Next section explains their commonalities and differences.
 
@@ -4797,6 +4811,8 @@ Random Directors
    *Hash* directors typically use the requested URL or the client identity (e.g. session cookie) to compute the hash key.
    Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
    Therefore, *hash* directors select always the same backend for a given input.
+   This is also known as *sticky* session load balancing.
+   You can learn more about sticky sessions in https://www.varnish-software.com/blog/proper-sticky-session-load-balancing-varnish.
 
    Hash directors are useful to load balance in front of other Varnish caches or other web accelerators.
    In this way, cached objects are not duplicated across different cache servers.
@@ -5136,8 +5152,13 @@ Varnish can handle cookies coming from two different sources:
    Therefore, it is strongly advised to take your time to write a correct VCL program and test it thoroughly before caching cookies in production deployments.
 
    Despite cookie-based caching being discouraged, Varnish can be forced to cache content based on cookies.
-   If a client request contains ``req.http.Cookie``, issue ``return (hash);`` in ``vcl_recv``.
-   If the cookie is a ``Set-Cookie`` HTTP response header from the server, issue ``return (deliver);`` in ``vcl_backend_response``.
+   If a client request contains ``req.http.Cookie``, use ``return (hash);`` in ``vcl_recv``.
+   If the cookie is a ``Set-Cookie`` HTTP response header field from the server, use ``return (deliver);`` in ``vcl_backend_response``.
+
+   .. note::
+
+      If you need to handle cookies, consider using the ``cookie`` vmod from https://github.com/lkarsten/libvmod-cookie.
+      This VMOD handles cookies with convenient parsing and formatting functions without the need of regular expressions.
 
 ``Vary`` and Cookies
 ....................
@@ -5534,9 +5555,15 @@ Varnish Custom Statistics (VCS)
    - Track changes in Stock Keeping Units (SKUs) <behavior in e-commerce
    - Track number of unique consumers of HLS/HDS/DASH video streams
 
+   VCS is a great tool when you want to test some functionality in your backend.
+   For that, you can separate your requests into different groups, handle their requests accordingly, analyze the results and conclude whether your new functionality should be applied to all groups.
+   This type of tests are called *A/B testing*.
+   If you want to learn how to implement A/B testing in Varnish, please refer to https://www.varnish-software.com/blog/live-ab-testing-varnish-and-vcs.
+
    .. demo
    
-   `Figure 30 <#figure-30>`_ and 31 are screenshots of the VCS GUI.
+   `Figure 30 <#figure-30>`_ and 
+   `Figure 31 <#figure-31>`_ are screenshots of the VCS GUI.
    These screenshots are from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
 
@@ -5674,7 +5701,7 @@ VCS API
 
 - API provides ready-to-use queries
 - Queries over HTTP
-- Top most sorting
+- Top-most sorting
 - Results in JSON and JSONP format
 
 Examples:
@@ -5682,7 +5709,6 @@ Examples:
 For ``vcs-key`` with names ending with ``.gif``, retrieve a list of the top 10::
 
    /match/(.*)%5C.gif$/top
-
 
 Find a list of the top 50 slowest backend requests::
 
@@ -5745,7 +5771,8 @@ Find a list of the top 50 slowest backend requests::
 
    .. note::
 
-      For more details on the API, please read the documentation of ``vstatd``.
+      For installation instructions, please refer to http://files.varnish-software.com/pdfs/installation-guide_vcs-latest.pdf.
+      Once you have installed all necessary components, take a look at the man pages of ``vstatd`` and ``vstatdprobe`` for more documentation.
 
 Screenshots of GUI
 ..................
