@@ -1913,7 +1913,7 @@ You can choose one method with the ``-s`` option of ``varnishd``.
 
    MSE uses a hybrid of two cache algorithms, least recently used (LRU) and least frequently used (LFU), to manage memory.
    Benchmarks show that this algorithm outperforms the ``malloc`` and ``file`` strategies.
-   MSE also implements a mechanism to eliminate internal framentation.
+   MSE also implements a mechanism to eliminate internal fragmentation.
    For more details about its design, implementation and benchmark results, please refer to https://www.varnish-software.com/blog/introducing-varnish-massive-storage-engine.
 
    .. Choosing the storage backend
@@ -2360,7 +2360,7 @@ Does ``thread_pool_timeout`` affect already running threads?
 HTTP
 ====
 
-*This chapter is for the webdeveloper course only*
+*This chapter is for the web-developer course only*
 
 This chapter covers:
 
@@ -5083,7 +5083,7 @@ Access Control Lists (ACLs)
 Content Composition
 ===================
 
-*This chapter is for the webdeveloper course only*
+*This chapter is for the web-developer course only*
 
 This chapter teaches you how to glue content from independent sources into one web page.
 
