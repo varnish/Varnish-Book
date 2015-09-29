@@ -64,6 +64,10 @@ src/conf.py: src/conf.py.in build/version.rst
 sphinx: ${common} src/conf.py
 	mkdir -p src/util
 	mkdir -p src/build
+
+	mkdir -p build/html/_images/
+	cp ui/img/download_book*.jpg build/html/_images/
+
 	for a in ui util/* vcl material build/version.rst ; do \
 		if [ ! -e src/$$a ]; then \
 			ln -s ${PWD}/$$a src/$$a ;\
