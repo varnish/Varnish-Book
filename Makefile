@@ -94,12 +94,15 @@ sphinx: ${common} src/conf.py
 	rm -rf src/chapters/tables/*
 	for a in tables/*; do \
 		util/rst2sphinxparser_tables.awk -v dst="src/chapters/"$$a < ${PWD}/$$a; \
-	done
+	done;
 
 	util/rst2sphinxparser.igawk -v dst=${PWD}/src/ < ${mergedrst}
 
 #Removes '.. class:: handout' from src/*.rst
 	sed -i 's/\.\. class:: handout//' src/*.rst
+
+	mkdir -p build/html/_images/
+	cp ui/img/download_book*.jpg build/html/_images/
 
 #	sphinx-build -b html -d build/doctrees src/ build/html
 	@$(MAKE) -C src/ html
