@@ -1,5 +1,5 @@
-Welcome to the Varnish Book for Varnish 3
-=========================================
+The Varnish Book for Varnish 3
+==============================
 
 Contents:
 
