@@ -1,6 +1,6 @@
 
-Welcome to the Varnish Book for Varnish 4
-=========================================
+Welcome to the Varnish Book for Varnish 4.0
+===========================================
 
 Table of Contents:
 
