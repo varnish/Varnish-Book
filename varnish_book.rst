@@ -6468,7 +6468,7 @@ Declaring Functions
 .. container:: handout
 
    In ``vmod_example.vcc`` you declare the module name, initialization function and other functions you need.
-   This file also contains the documentation that is used to generage the man page of your VMOD.
+   This file also contains the documentation that is used to generate the man page of your VMOD.
    Definitions are stored in files with ``.vcc`` extension.
    Please note the ``$`` sign leading the definitions in the ``vmod_example.vcc``.
 
