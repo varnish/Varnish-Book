@@ -6433,7 +6433,8 @@ Hello, World!
 .. container:: handout
 
    VMODs require the source code from Varnish Cache that you are running.
-   The easiest way to be sure you have everything in sync, is to build your Varnish Cache from source.
+   The easiest way to be sure you have everything in place, is to build your Varnish Cache from source.
+   Although you can also develop VMODs against a Varnish installation from a package repository.
    The git repository and building instructions are at ``https://github.com/varnish/Varnish-Cache.git``.
    
    Once you have built Varnish Cache, build the ``libvmod-example`` from https://github.com/varnish/libvmod-example by following the instructions in the repository.
@@ -6466,7 +6467,8 @@ Declaring Functions
 
 .. container:: handout
 
-   In ``vmod_example.vcc``, you declare the module name, initialization function and other functions you need.   
+   In ``vmod_example.vcc`` you declare the module name, initialization function and other functions you need.
+   This file also contains the documentation that is used to generage the man page of your VMOD.
    Definitions are stored in files with ``.vcc`` extension.
    Please note the ``$`` sign leading the definitions in the ``vmod_example.vcc``.
 
@@ -6500,9 +6502,9 @@ Implementing Functions
 **vmod_example.c**::
 
    VCL_STRING
-   vmod_hello(const struct vrt_ctx \*ctx, VCL_STRING name)
+   vmod_hello(const struct vrt_ctx *ctx, VCL_STRING name)
    {
-      char \*p;
+      char *p;
       unsigned u, v;
 
       u = WS_Reserve(ctx->ws, 0); /* Reserve some work space */
@@ -6549,7 +6551,7 @@ The Workspace Memory Model
         char                    *e;             /* (E)nd of buffer */
      };
 
-   ``magic`` and ``WC_MAGIC`` are used for sanity checks by workspace functions.
+   ``magic`` and ``WS_MAGIC`` are used for sanity checks by workspace functions.
    The ``id`` field is self descriptive.
    The parts that most likely you are interested in are the ``SFRE`` fields.
 
@@ -6577,8 +6579,6 @@ Headers
 .. container:: handout
 
    The ``vtr.h`` header provides data structures and functions needed by compiled VCL programs and VMODs.
-   The workspace functions are included in this file.
-
    ``cache.h`` declares the function prototypes for the workspace memory model among others.
    These functions are implemented in ``cache_ws.c``.
 
@@ -6608,8 +6608,8 @@ Exercise: Build and Test ``libvmod_example``
    $./autogen.sh
    $./configure
    $make
-   $make install
    $make check
+   $make install
 
 - Examine how ``libvmod_example`` is imported in ``src/tests/test01.vtc``
 
@@ -6632,7 +6632,7 @@ Cowsay: Hello, World!
 #. Create tests
 #. Define functions in ``vmod_cowsay.vcc`` file
 #. Implement functions in ``vmod_cowsay.c`` file
-#. ``make``, ``make install`` and ``make check`` your VMOD
+#. ``make``, ``make check`` and ``make install`` your VMOD
 
 .. TODO for the author: Add:
    #. Write the man pages of your VMOD as in: https://github.com/varnish/libvmod-rtstatus
@@ -6793,7 +6793,7 @@ Exercise: Add Assertions To Your Varnish Tests
 
 .. container:: handout
 
-   There are two code blocks in this file worth to pay attention.
+   We explain here two relevant functions in this file.
    The first is the ``init_function()``, where we declare a global variable holding the cow figure.
    The second part is the ``vmod_cowsay_friends()`` function, where we use string manipulation functions provided by VSB.
    ``vmod_cowsay_vsb()`` is a simplified version of ``vmod_cowsay_friends()``.
