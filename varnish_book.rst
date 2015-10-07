@@ -20,11 +20,11 @@
    Abstract
 
 The Varnish Book is the training material for Varnish Plus courses.
-This book teaches technical staff how to use Varnish Cache 4 and selected modules of Varnish Plus effectively.
-
-The book explains how to get started with Varnish, and its Varnish Configuration Language (VCL).
-Covered are such procedures to effectively use VCL functions, cache invalidation, and more.
-Also included are Varnish utility programs such as ``varnishlog``, and extra material.
+This book teaches such concepts to understand the theory behind Varnish Cache 4.
+Covered are the Varnish finite state machine, design principles, HTTP, cache invalidation and more.
+With these foundations, the book builds practical knowledge on Varnish Configuration Language (VCL) and Varnish utility programs such as ``varnishlog`` and ``varnishstat``.
+Examples and exercises develop the needed skills to administrate and extend the functionality of Varnish.
+Also included are appendixes that explain how to develop Varnish Modules (VMODs) and how to use selected modules of Varnish Plus.
 
 .. raw:: pdf
 
