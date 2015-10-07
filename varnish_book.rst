@@ -6722,7 +6722,7 @@ Cowsay Varnish Tests
    After the design of your tests, you declare the functions in the ``.vcc`` file and implement them in the ``.c`` file.
 
 Exercise: Add Assertions To Your Varnish Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Add assertions using the keyword ``expect`` in the server and client definitions.
 - Use the same keyword to check values of Varnish counters
