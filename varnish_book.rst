@@ -6232,3 +6232,603 @@ VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
 .. TOFIX: Slides do not show properly VWS
+
+Appendix F: VMOD Development
+============================
+
+- VMOD basics
+- ``varnishtest``
+
+::
+
+     < Hello, World! >
+
+         \   ^__^
+          \  (oo)\_______
+	       (__)\       )\/\
+	                ||----w |
+                 ||     ||
+
+.. container:: handout
+
+   This appendix explains the concepts you should know to develop your own VMODs.
+   The appendix takes you through the simplest possible VMOD: the `Hello, World` VMOD.
+
+   To learn most out of this appendix, you should have understood at least the following chapters of this book:
+   `Design Principles`_, `Getting Started`_, `VCL Basics`_, `VCL Built-in Subroutines`_.
+
+VMOD Basics
+-----------
+
+- What is a VMOD
+- When to use in-line C or VMODs?
+- The workspace memory model
+- ``varnishtest``
+
+.. container:: handout
+
+   .. What is a VMOD?
+
+   A VMOD is a shared library with some C functions which can be called from VCL code.
+   The standard (std) VMOD, for instance, is a VMOD included in Varnish Cache.
+   We have already used the std VMOD in this book to check whether a backend is healthy with by calling ``std.healthy()``.   
+
+   .. When to use in-line C or VMODs?
+
+   VCL is the domain specific language of Varnish.
+   This language is very powerful and efficient for most tasks of a cache server.
+   However, sometimes you might need more functionalities, e.g., look up an IP address in a database.
+   
+   VCL allows you to add inline C code, but this is not the most convenient approach.
+   If you use the memory management API provided by Varnish, your VMODs are generally easier to maintain, more secure, and much easier to debug in collaboration with other developer.
+   In addition, VMODs do not require to reload VCL files to take effect.
+
+   When writing VMODs, you should test it towards ``varnishtest``.
+   In fact, we recommend you first to write your tests as part of your design, and then implement your VMOD.
+   Therefore, we introduce next ``varnishtest`` before proceeding with the implementation the VMOD itself.
+
+``varnishtest``
+---------------
+
+.. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
+
+- Script driven program used to test programs written in VCL and VMODs
+
+.. container:: handout
+
+   With ``varnishtest`` you can create mock-ups of clients and origin servers to interact with your Varnish installation.
+   This is useful to simulate transactions and provoke a specific behavior.
+   You can use ``varnishtest`` when writing VCL code or VMODs.
+   ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
+
+   The best way to learn how to create Varnish tests is by running the ones included in Varnish Cache and then write your own tests based on them.
+   Tests of Varnish Cache are in ``bin/varnishtest/tests/``.
+   You should also take a look at the README file ``bin/varnishtest/tests/README`` to learn about the naming convention.
+
+The Varnish Test Case (VTC) Language
+....................................
+
+.. bookmark: explain that this test is not the same in libvmod-example.
+.. before passing to cowsay, write an exercise for the student to run the varnish test for libvmod-example.
+
+**helloworldtest.vtc**::
+
+   varnishtest "Hello, World"
+
+   server s1 {
+      rxreq
+      txresp
+   } -start
+
+   varnish v1 -vcl+backend {
+      sub vcl_deliver {
+         set resp.http.hello = "Hello, World";
+      }
+   } -start
+
+   client c1 {
+      txreq -url "/"
+         rxresp
+	    expect resp.http.hello == "Hello, World"
+   }
+
+   varnish v1 -expect cache_miss == 0
+   varnish v1 -expect cache_hit == 0
+
+   client c1 -run
+
+   varnish v1 -expect cache_miss == 1
+   varnish v1 -expect cache_hit == 0
+
+   client c1 -run
+   client c1 -run
+
+   varnish v1 -expect cache_miss == 1
+   varnish v1 -expect cache_hit ==2
+
+.. container:: handout
+
+   .. introduction
+
+   ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
+   Depending on your use case, there might be test preparations, executions and assertions all over the place.
+   Unlike the VCL, the VTC is not compiled but simply interpreted on the fly.
+
+   .. origin server (backend)
+
+   When run, the above script simulates an origin server ``s1``, starts a real instance ``v1`` of Varnish, and simulates a client ``c1``.
+   ``server s1`` declares a simulated origin server that receives a request ``rxreq``, and transmits a response ``txresp``.
+
+   The ``-start`` directive at the end of a server or client declaration makes it to be started by ``varnishtest``.
+   You may also start a declaration at a later point in your code, for example ``server s1 -start``.
+
+   .. Varnish server
+
+   ``varnish v1 -vcl+backend`` declares an instance of a your real Varnish server and loads the VCL code inside the brackets.
+   ``varnishtest`` controls ``v1`` through the manager process (see `The Parent Process: The Manager`_).
+   The ``+backend`` directive injects the backend (origin server ``s1``) to the VCL code.
+   Alternatively, you might want to add backends manually, for example::
+
+     varnish v1 -vcl {
+     backend default {
+        .host = "${s1_addr}";
+	   .port = "${s1_port}";
+	   }
+     }
+
+   Once you start ``s1``, the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend are automatically made available.
+   Since ``varnishtest`` launches a real ``varnishd`` instance, it is possible to use a real backend instead of mock servers.
+   Thus, you can test your actual backend.
+
+   .. client (frontend)
+
+   ``client c1`` declares a simulated client that transmits a request ``txreq`` for the slash URL: ``-url "/"``. 
+   ``c1`` receives a response ``rxresp``.
+
+   .. assertions
+
+   ``varnishtest`` supports assertions with the keyword ``expect``.
+   For example, ``c1`` expects the response header field ``resp.http.hello`` with value ``Hello, World``.
+   Assertions can be inside the declaration of the origin server and client, but not inside the Varnish server.
+   Since Varnish is a proxy, checking requests and responses in it is irrelevant.
+   Instead, you have access to the counters exposed by ``varnishstat`` at any time::
+
+     varnish v1 -expect counter == value
+
+   Assertions are evaluated by reading the shared memory log, which ensures that your assertions are tested against a real Varnish server.
+   Therefore, Varnish tests might take a bit longer than what you are used to in other testing frameworks.
+   Finally, ``client c1 -run`` starts the simulated client ``c1``.
+
+   You will learn how to extend this script to test your VMOD later in this chapter, but before, run and analyze the output of ``helloworldtest.vtc`` to understand ``varnishtest`` better.
+
+Running Your Varnish Tests
+..........................
+
+::
+
+   $varnishtest helloworldtest.vtc
+      top  TEST helloworldtest.vtc passed (1.554)
+
+.. container:: handout
+
+   To run your test, you simply issue ``varnishtest helloworldtest.vtc``
+   By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests.
+   It is strongly recommended that you look at the verbose output to understand what happens under the hood.
+   For that, you run ``varnishtest`` with the ``-v`` option.
+
+   .. TODO for the author:
+      Explain how to read varnishtest output:
+      Use ``awk`` to parse the output, because it can be interleaved due to the nature of async transactions in Varnish
+
+   .. note::
+
+      ``man varnishtest`` shows you all options
+
+Hello, World!
+-------------
+
+- Build Varnish Cache from source
+- Try ``libvmod-example``
+
+.. container:: handout
+
+   VMODs require the source code from Varnish Cache that you are running.
+   The easiest way to be sure you have everything in sync, is to build your Varnish Cache from source.
+   The git repository and building instructions are at ``https://github.com/varnish/Varnish-Cache.git``.
+   
+   Once you have built Varnish Cache, build the ``libvmod-example`` from https://github.com/varnish/libvmod-example by following the instructions in the repository.
+   When building the ``libvmod-example``, make sure that its branch matches with the branch version of Varnish-Cache.
+   For example, to build ``libvmod-example`` against Varnish Cache 4.0, make sure that you checkout the branch 4.0 in both, the ``libvmod-example`` and ``Varnish-Cache``.
+
+   Next, we explain the content inside ``libvmod-example``.
+
+Declaring Functions
+...................
+
+- VCC: VCL to C Compiler
+
+.. - VRT: Varnish Run Time – functions called from compiled code
+
+**vmod_example.vcc**::
+
+  $Module example
+  $Init init_function
+  $Function STRING hello(STRING)
+
+**vcc_if.h**::
+
+  struct VCL_conf;
+  struct vmod_priv;
+
+  /* Functions */
+  VCL_STRING vmod_hello(VRT_CTX, VCL_STRING);
+  int init_function(struct vmod_priv *, const struct VCL_conf *);
+
+.. container:: handout
+
+   In ``vmod_example.vcc``, you declare the module name, initialization function and other functions you need.   
+   Definitions are stored in files with ``.vcc`` extension.
+   Please note the ``$`` sign leading the definitions in the ``vmod_example.vcc``.
+
+   ::
+
+      $Module example
+
+   The first line gives the name to the module.
+
+   ::
+
+      $Init init_function
+
+   The second line declares an optional initial function, which is called when a VCL program loads this VMOD.
+
+   ::
+
+      $Function STRING hello(STRING)
+
+   The third line declares the only function in this VMOD.
+   
+   The source tree is based on ``autotools`` to configure the building.
+   When you run the ``Makefile``,it passes ``vmod_example.vcc`` to the script ``vmodtool.py`` (included in Varnish Cache) and translates the VCC code to C.
+   The translation is stored in ``vcc_if.h`` and ``vcc_if.c``, and since they are machine generated, you should not modify them.
+
+   Next, you implement the ``hello`` functions in the ``vmod_example.c``.
+
+Implementing Functions
+......................
+
+**vmod_example.c**::
+
+   VCL_STRING
+   vmod_hello(const struct vrt_ctx \*ctx, VCL_STRING name)
+   {
+      char \*p;
+      unsigned u, v;
+
+      u = WS_Reserve(ctx->ws, 0); /* Reserve some work space */
+      p = ctx->ws->f;         /* Front of workspace area */
+      v = snprintf(p, u, "Hello, %s", name);
+      v++;
+      if (v > u) {
+         /* No space, reset and leave */
+         WS_Release(ctx->ws, 0);
+         return (NULL);
+      }
+      /* Update work space with what we've used */
+      WS_Release(ctx->ws, v);
+      return (p);
+   }
+
+.. container::  handout
+
+   You reserve the memory you need by calling ``WS_Reserve(ctx->ws, 0)``.
+   It is important to release the memory you used with ``WS_Release(ctx->ws, v)``, otherwise you are introducing a memory leak.
+
+The Workspace Memory Model
+..........................
+
+.. figure 33
+
+.. figure:: ui/img/workspace_memory_model.svg
+   :width: 100%
+
+   Figure :counter:`figure`: Work Space Memory Model
+
+.. container:: handout
+
+   Every worker thread has its own workspace ``ws`` in virtual memory.
+   This workspace is a contiguous ``char array`` defined in ``cache/cache.h`` as::
+
+     struct ws {
+        unsigned                magic;
+	#define WS_MAGIC        0x35fac554
+        char                    id[4];          /* identity */
+        char                    *s;             /* (S)tart of buffer */
+        char                    *f;             /* (F)ree/front pointer */
+        char                    *r;             /* (R)eserved length */
+        char                    *e;             /* (E)nd of buffer */
+     };
+
+   ``magic`` and ``WC_MAGIC`` are used for sanity checks by workspace functions.
+   The ``id`` field is self descriptive.
+   The parts that most likely you are interested in are the ``SFRE`` fields.
+
+   ``s`` and ``e`` point to the start and end of the ``char array`` respectively.
+   ``f`` points to the currently available memory, it can be seen as a head that moves forward every time memory is allocated.
+   ``f`` can move up to the end of the buffer pointed by ``e``.
+
+   ``r`` points to the reserved memory space of the workspace.
+   This space is reserved to allow incremental allocation.
+   You should remember to release this space by calling ``WS_Release(struct ws *ws, unsigned bytes)`` once your VMOD does not need it any longer.
+    
+   The ``cache/cache.h`` is automatically included when you compile your ``.vcc`` file.
+   Next, we describe in detail the headers that are included in ``vmod_example.c``.
+
+Headers
+.......
+
+::
+
+   #include "vrt.h"
+   #include "cache/cache.h"
+
+   #include "vcc_if.h"
+
+.. container:: handout
+
+   The ``vtr.h`` header provides data structures and functions needed by compiled VCL programs and VMODs.
+   The workspace functions are included in this file.
+
+   ``cache.h`` declares the function prototypes for the workspace memory model among others.
+   These functions are implemented in ``cache_ws.c``.
+
+   **cache.h**::
+
+      void WS_Init(struct ws *ws, const char *id, void *space, unsigned len);
+      unsigned WS_Reserve(struct ws *ws, unsigned bytes);
+      void WS_MarkOverflow(struct ws *ws);
+      void WS_Release(struct ws *ws, unsigned bytes);
+      void WS_ReleaseP(struct ws *ws, char *ptr);
+      void WS_Assert(const struct ws *ws);
+      void WS_Reset(struct ws *ws, char *p);
+      char *WS_Alloc(struct ws *ws, unsigned bytes);
+      void *WS_Copy(struct ws *ws, const void *str, int len);
+      char *WS_Snapshot(struct ws *ws);
+      int WS_Overflowed(const struct ws *ws);
+      void *WS_Printf(struct ws *ws, const char *fmt, ...) __printflike(2, 3);
+
+   ``vcc_if.h`` is generated out from the definitions in your ``.vcc`` file.
+   This header contains the declaration of your VMOD functions in C code.
+
+Exercise: Build and Test ``libvmod_example``
+............................................
+
+::
+
+   $./autogen.sh
+   $./configure
+   $make
+   $make install
+   $make check
+
+- Examine how ``libvmod_example`` is imported in ``src/tests/test01.vtc``
+
+.. container:: handout
+
+   The source tree is based on *travis* and  *Autotools* to configure the building.
+   More detailed building instructions are in:
+   https://github.com/varnish/libvmod-example/blob/master/README.rst
+
+   .. other sources for learning more bout travis:
+
+      https://github.com/varnish/libvmod-example/blob/4.0/.travis.yml
+      https://github.com/mbgrydeland/libvmod-fsbackend/blob/4.1/.travis.yml
+      http://docs.travis-ci.com/user/customizing-the-build/
+
+Cowsay: Hello, World!
+---------------------
+
+#. Use ``rename-vmod-script`` to rename ``libvmod-example``
+#. Create tests
+#. Define functions in ``vmod_cowsay.vcc`` file
+#. Implement functions in ``vmod_cowsay.c`` file
+#. ``make``, ``make install`` and ``make check`` your VMOD
+
+.. TODO for the author: Add:
+   #. Write the man pages of your VMOD as in: https://github.com/varnish/libvmod-rtstatus
+
+.. container:: handout
+
+   In this subsection you will learn how to build your own VMOD on top of ``libvmod-example``.
+   ``rename-vmod-script`` prepares a basic VMOD that can be extended to your needs::
+
+     $./rename-vmod-script your_vmod_name
+
+   We have prepared a *cowsay* VMOD for you to follow easier this subsection, but you can create your own VMOD from scratch as we explain further.
+   The *cowsay* VMOD adds the output of the Linux program, which generates ASCII pictures of a cow or a different animal with a message.
+   You can download the code of the cowsay VMOD from https://github.com/aondio/libvmod-cowsay.git.
+
+Cowsay Varnish Tests
+....................
+
+**test01.vtc**::
+
+   varnishtest "Test cowsay header"
+
+   server s1 {
+     rxreq
+       txresp
+   } -start
+
+   varnish v1 -vcl+backend {
+      import cowsay from "${vmod_topbuild}/src/.libs/libvmod_cowsay.so";
+         sub vcl_recv {
+	        if (req.url ~ "/cowsay") {
+	    set req.http.x-cow = cowsay.cowsay_canonical();
+	    }
+	       }
+
+	          sub vcl_deliver {
+	          set resp.http.x-cow = req.http.x-cow;
+		     }
+   } -start
+
+   client c1 {
+      txreq -url "/cowsay"
+         rxresp
+   } -run
+
+..
+   - Add assertions against body
+   - Call cowsay program
+
+**test02.vtc**::
+
+   sub vcl_recv {
+      if (req.url ~ "/cowsay") {
+      return(synth(700, "OK"));
+         }
+   }
+
+   sub vcl_synth {
+      if (resp.status == 700) {
+      set resp.status = 200;
+      set resp.http.Content-Type = "text/plain; charset=utf-8";
+      synthetic(cowsay.cowsay_vsb());
+      return (deliver);
+         }
+   }
+
+.. container::  handout
+
+   We advise you to start designing your tests.
+   In this way, you have very clear the expected results.
+
+   ``test01.vtc``, ``test02.vtc`` and ``test03.vtc`` are examples in https://github.com/aondio/libvmod-cowsay.git. 
+   ``test01.vtc`` shows how the HTTP response header field is assigned.
+   When client ``c1`` requests the ``/cowsay`` URL, Varnish server ``v1`` assigns the output of the VMOD function ``cowsay_header()`` is assigned to the HTTP request header field ``req.http.x-cow``.
+   This field is then assigned to the HTTP response header field ``resp.http.x-cow``.
+
+   ``test02.vtc`` and ``test03.vtc`` reuse most of ``test01.vtc``.
+   The differences are in the VCL code inside ``v1``.
+ 
+   ``test02.vtc`` shows how to alter the message body in the ``vcl_synth`` subroutine.
+   In this second test, we have also replaced ``cowsay.cowsay_canonical()`` for ``cowsay.cowsay_vsb()``, but you can use any of them for the purpose of the test.
+   The difference between ``cowsay_canonical()`` and ``cowsay.cowsay_vsb()`` is the library used to manipulate the returned string.
+   We discuss the differences of these libraries later in this section.
+
+   ``test03.vtc`` reuses most of ``test02.vtc``.
+   The only difference is the replacement of the function ``cowsay.cowsay_vsb()`` for ``cowsay.cowsay_friends("bunny", "ciao"));``.
+   After the design of your tests, you declare the functions in the ``.vcc`` file and implement them in the ``.c`` file.
+
+Exercise: Add Assertions To Your Varnish Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add assertions using the keyword ``expect`` in the server and client definitions.
+- Use the same keyword to check values of Varnish counters
+
+.. TODO for the author: create a solution
+
+``vmod_cowsay.vcc``
+...................
+
+::
+
+   $Function STRING cowsay_canonical()
+   $Function STRING cowsay_vsb()
+   $Function STRING cowsay_friends(STRING, STRING)
+
+.. container:: handout
+
+   ``cowsay_canonical()`` and ``cowsay_vsb()`` return the cowsay ASCII picture using canonical and Varnish String Buffer string libraries respectively.
+   The output of this function is to be assigned to: 1) HTTP header fields in vcl_recv and vcl_deliver, or 2) HTTP message bodies in vcl_synth.
+
+   The VSB library is very useful to manipulate strings.
+   Therefore we recommend you to use it instead of the canonical string libraries.
+
+``vmod_cowsay.c``
+.................
+
+.. TODO for the author: To call ``cowsay`` instead of having a variable
+
+::
+
+   int
+   init_function(struct vmod_priv *priv, const struct VCL_conf *conf)
+   {
+        /* init global state valid for the whole VCL life */
+        cow =
+            "\n ^__^\n"
+            " (oo)\\_______\n"
+            " (__)\\       )\\/\\\n"
+            "      ||----w |\n"
+            "      ||     ||\n";
+        /* this 'cow' is now available for every other functions that will
+           be defined in this vmod */
+        return (0);
+   }
+
+::
+
+   VCL_STRING
+   vmod_cowsay_friends(VRT_CTX, VCL_STRING animal, VCL_STRING talk)
+   {
+        unsigned  u;
+        struct vsb *vsb;
+        u = WS_Reserve(ctx->ws, 0);
+        vsb = VSB_new(NULL, ctx->ws->f, u, VSB_AUTOEXTEND);
+        if(!strcmp(animal, "cow")) {
+                VSB_printf(vsb, "** %s **\n", talk);
+                VSB_cat(vsb, cow);
+        }
+
+        if(!strcmp(animal, "bunny")) {
+                VSB_printf(vsb, "** %s **\n", talk);
+                VSB_cat(vsb, baby_bunny());
+        }
+        VSB_finish(vsb);
+        WS_Release(ctx->ws, VSB_len(vsb) + 1);
+        return (vsb->s_buf);
+   }
+
+.. container:: handout
+
+   There are two code blocks in this file worth to pay attention.
+   The first is the ``init_function()``, where we declare a global variable holding the cow figure.
+   The second part is the ``vmod_cowsay_friends()`` function, where we use string manipulation functions provided by VSB.
+   ``vmod_cowsay_vsb()`` is a simplified version of ``vmod_cowsay_friends()``.
+   The implementation of ``cowsay_canonical()`` is practically the same as ``vmod_hello()``.
+
+   Finally, it is time to ``make``, ``make install`` and ``make check`` your VMOD.
+
+..      
+   Exercise: ``make``, ``make install`` and ``make check`` your VMOD
+
+..
+   Exercise: Call the Linux command ``cowsay`` instead of assigning the global variable ``cow`` statically.
+
+   .. TODO for the author
+
+
+Resources
+---------
+
+- https://www.varnish-cache.org/vmods
+
+.. container:: handout
+
+   The best way to learn more about VMODs is by writing them and seeing how others VMOD works.
+   There are many VMODs written by the Varnish community and Varnish Software.
+   Please take a look at the list in https://www.varnish-cache.org/vmods. 
+
+   In addition, you can also look at the following blogs, which were used, besides other sources, to write this section:
+
+   - http://blog.zenika.com/index.php?post/2012/08/21/Creating-a-Varnish-module
+   - http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest
+   - http://blog.zenika.com/index.php?post/2013/07/31/Creating-a-Varnish-4-module
+
+.. 
+   Additional Notes
+
+   - Different versions of VMODs at the same time are supported only in FreeBSD
+   - VMODs upgrading supported only in FreeBSD at the moment
