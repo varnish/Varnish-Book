@@ -583,8 +583,10 @@ Varnish is designed to:
 
    .. VMODs
 
-   Varnish allows integration of Varnish Modules or simply VMODs.
-   A VMOD is a shared library with some C functions which can be called from VCL code.
+   Varnish allows integration of Varnish Modules also known as VMODs.
+   VMODs are tipically coded in VCL and C programming language.
+   A VMOD is a shared library, which can be called from VCL code.
+
    The standard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
    These modules let you extend the functionality of VCL by pulling in custom-written features.
    Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
@@ -5158,7 +5160,7 @@ Varnish can handle cookies coming from two different sources:
 
    .. note::
 
-      If you need to handle cookies, consider using the ``cookie`` vmod from https://github.com/lkarsten/libvmod-cookie.
+      If you need to handle cookies, consider using the ``cookie`` VMOD from https://github.com/lkarsten/libvmod-cookie.
       This VMOD handles cookies with convenient parsing and formatting functions without the need of regular expressions.
 
 ``Vary`` and Cookies
