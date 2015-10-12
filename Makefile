@@ -143,7 +143,7 @@ ${BDIR}/varnish-book.pdf: ${common} ${bookutil} ${pdf_style}
 	@${PICK} -v inc=${book} < ${mergedrst} | ${RST2PDF} -e=/usr/lib/pymodules/python2.7/rst2pdf/extensions/inkscape_r2p.py --section-header-depth=1 --break-level=3 -s ${pdf_style} -o ${BDIR}/varnish-book-${version}.pdf
 
 ${BDIR}/varnish_slides.pdf: ${common} ${bookutil} ${pdf_slide_style}
-	@echo Building PDF slidesfor slides...
+	@echo Building PDF slides for slides...
 	@${PICK} -v inc=${slides} < ${mergedrst} | ./util/strip-class.gawk | ${RST2PDF} -e=/usr/lib/pymodules/python2.7/rst2pdf/extensions/inkscape_r2p.py --section-header-depth=1 --break-level=3 -s ${pdf_slide_style} -o $@
 
 ${BDIR}/varnish_slides-A4.pdf: ${common} ${bookutil} ui/pdf_slide-A4.style

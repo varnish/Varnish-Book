@@ -24,7 +24,7 @@ This book teaches such concepts to understand the theory behind Varnish Cache 4.
 Covered are the Varnish finite state machine, design principles, HTTP, cache invalidation and more.
 With these foundations, the book builds practical knowledge on Varnish Configuration Language (VCL) and Varnish utility programs such as ``varnishlog`` and ``varnishstat``.
 Examples and exercises develop the needed skills to administrate and extend the functionality of Varnish.
-Also included are appendixes that explain how to develop Varnish Modules (VMODs) and how to use selected modules of Varnish Plus.
+Also included are appendices that explain how to develop Varnish Modules (VMODs) and how to use selected modules of Varnish Plus.
 
 .. raw:: pdf
 
@@ -588,6 +588,7 @@ Varnish is designed to:
    The standard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
    These modules let you extend the functionality of VCL by pulling in custom-written features.
    Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
+   `Appendix D: VMOD Development`_ explains in more details how VMODs work and how to develop yours.
 
    .. shared memory
 
@@ -6351,6 +6352,8 @@ Hello, World!
    Once you have built Varnish Cache, build the ``libvmod-example`` from https://github.com/varnish/libvmod-example by following the instructions in the repository.
    When building the ``libvmod-example``, make sure that its branch matches with the branch version of Varnish-Cache.
    For example, to build ``libvmod-example`` against Varnish Cache 4.0, make sure that you checkout the branch 4.0 in both, the ``libvmod-example`` and ``Varnish-Cache``.
+
+   .. TODO for the author: To explain that some VMODs are part of shipped in the main distribution and others are in the github repository.
 
    Next, we explain the content inside ``libvmod-example``.
 
