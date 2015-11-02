@@ -82,8 +82,8 @@ digraph cache_req_fsm {
 		       label="{cnt_synth:|{vcl_synth\{\}|{req.*|resp.*}}|{<del>deliver|<restart>restart}}"
 		]
 
-		SYNTH -> synth [color=purple]
-		synth:del:s -> V1D_Deliver [color=purple]
+		SYNTH -> synth [color=sienna]
+		synth:del:s -> V1D_Deliver [color=sienna]
 	}
 
 	subgraph cluster_backend {
@@ -104,7 +104,7 @@ digraph cache_req_fsm {
 
 	lookup2:deliver:s -> BGFETCH [label="parallel\nif obj expired",
 				      color=green]
-	FETCH_FAIL -> synth [color=purple]
+	FETCH_FAIL -> synth [color=sienna]
 
 	FETCH_DONE -> deliver [style=bold,color=red]
 	FETCH_DONE -> deliver [style=bold,color=blue]
@@ -159,7 +159,7 @@ digraph cache_req_fsm {
 	subgraph xcluster_pipe {
 		pipe [
 		      shape=record
-		      label="{cnt_pipe:|filter req.*-\>bereq.*|{vcl_pipe\{\}|{req.*|bereq.*}}|{<pipe>pipe|<synth>synth}}"
+		      label="{<top>cnt_pipe:|filter req.*-\>bereq.*|{vcl_pipe\{\}|{req.*|bereq.*}}|{<pipe>pipe|<synth>synth}}"
 		]
 		pipe_do [
 			 shape=ellipse
@@ -178,9 +178,9 @@ digraph cache_req_fsm {
 			label="{cnt_restart:|{<ok>ok?|<max>max_restarts?}}"
 		]
 	}
-	RESTART -> restart [color=purple]
+	RESTART -> restart
 	restart:ok:s -> recv
-	restart:max:s -> err_restart [color=purple]
+	restart:max:s -> err_restart [color=sienna]
 	err_restart [label="SYNTH",shape=plaintext]
 
 	/* cnt_recv() */
@@ -188,22 +188,24 @@ digraph cache_req_fsm {
 		recv [
 		      shape=record
 		      label="{cnt_recv:|{vcl_recv\{\}|req.*}|{<hash>hash|<purge>purge|<pass>pass|<pipe>pipe|<synth>synth}}"
-		      ]
+		]
 		recv:hash:s -> hash [style=bold,color=green]
 		recv:purge:s -> hash [style=bold,color=purple]
 		recv:pass:s-> hash [style=bold,color=red]
 		recv:pipe:s -> hash [style=bold,color=orange]
-		hash [
+		recv:synth:s -> hash [style=bold,color=sienna]
+                hash [
 		      shape=record
 		      label="{cnt_recv:|{vcl_hash\{\}|req.*}|{<lookup>lookup}}"
-		      ]
+		]
 	}
-	      
-        hash:lookup -> lookup [style=bold,color=green]
+	
+        hash:lookup -> lookup:top:n [style=bold,color=green]
 	hash:lookup -> purge:top:n [style=bold,color=purple]
 	hash:lookup -> pass [style=bold,color=red]
-	hash:lookup -> pipe [style=bold,color=orange]
-	
+	hash:lookup -> pipe:top:n [style=bold,color=orange]
+	hash:lookup -> SYNTH [color=sienna]
+
 	/* cnt_purge */
 	subgraph xcluster_purge {
 		purge [
