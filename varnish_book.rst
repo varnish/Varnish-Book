@@ -3072,7 +3072,7 @@ Varnish Finite State Machine
 - Built-in subroutines start with ``vcl_``, which is a reserved prefix
 - ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
 
-**Snippet of built-in vcl_recv subroutine**
+**Snippet from vcl_recv subroutine**
 
 .. include:: vcl/snippet-vcl_recv.vcl
    :literal:
