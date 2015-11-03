@@ -22,11 +22,11 @@ digraph varnishfsm{
 		
 		vcl_recv -> vcl_hash [label="lookup"]
 		//vcl_recv -> vcl_hash [label="purge",color=purple];
-		vcl_recv -> vcl_pipe[color=orange];
-		vcl_recv -> vcl_pass[label="pass" color=red];
+		vcl_hash -> vcl_pipe[label="pipe" color=orange];
+		vcl_hash -> vcl_pass[label="pass" color=red];
 		vcl_pipe -> Done[color=orange];
 		vcl_hash -> vcl_hit[label="hit",color=darkgreen];
-		vcl_hash -> vcl_miss [label="miss"];
+		vcl_hash -> vcl_miss [label="miss", color=blue];
 		vcl_hash -> vcl_pass [label="hit-for-pass",color=red];
 		waiting[shape=hexagon];
 		vcl_hash -> waiting [label="busy"];
@@ -37,9 +37,9 @@ digraph varnishfsm{
 		vcl_hit -> vcl_deliver[color=darkgreen];
 		// vcl_hit -> vcl_miss;
 		vcl_hit -> vcl_pass[color=red];
-		vcl_miss -> vcl_backend_fetch;
+		vcl_miss -> vcl_backend_fetch [color=blue];
 		waiting -> vcl_hash;
-		vcl_pass -> vcl_backend_fetch;
+		vcl_pass -> vcl_backend_fetch [color=red];
 		vcl_miss -> vcl_pass[color=red];
 		
 		subgraph clusterbackend {
@@ -53,7 +53,7 @@ digraph varnishfsm{
 			cache[shape=box,label="cache"];
 			nocache[shape=box,label="do not cache"];
 			vcl_backend_response -> decision4;
-			decision4 -> cache [label="yes",color=blue];
+			decision4 -> cache [label="yes",color=green];
 			decision4 -> nocache [label="hit-for-pass",color=red];
 			
 			// decision3 [shape=diamond];
@@ -72,7 +72,7 @@ digraph varnishfsm{
 		// vcl_backend_error -> vcl_deliver;
 		//vcl_backend_error -> vcl_synth;
 		
-		cache -> vcl_deliver[color=blue];
+		cache -> vcl_deliver[color=green];
 		nocache -> vcl_deliver[color=red];
 	}
 	Done[shape=Msquare];

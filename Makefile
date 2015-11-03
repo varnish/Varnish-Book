@@ -23,22 +23,18 @@ slides-A4 = "*"
 # Selecting chapters in this way does not work.
 # The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
 
-test = "The Varnish Log"
-# test = "Varnish request flow for the client worker thread"
-# TOFIX: the sysadmin target is not compiling as expected.
+# TOFIX: sysadmin and webdev targets do not compiling as expected.
 # sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"
+# sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
+# webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
+# webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 
-#webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
-
-#webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
-#sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
 bookt= ${BDIR}/varnish-book.pdf
 slidest= ${BDIR}/varnish_slides.pdf
 slides-A4t=${BDIR}/varnish_slides-A4.pdf
 testt=${BDIR}/varnish-test.pdf ${BDIR}/varnish_slide-test.pdf
-materialpath = www_examples
 rstsrc =varnish_book.rst
-images = ui/img/simplified_fsm.svg ui/img/detailed_fsm.svg ui/img/detailed_fsm_backend.svg
+images = ui/img/simplified_fsm.svg ui/img/simplified_fsm.pdf ui/img/detailed_fsm.svg ui/img/detailed_fsm.pdf ui/img/detailed_fsm_backend.svg
 mergedrst = ${BDIR}/merged_book.rst
 
 common = ${mergedrst} \
@@ -58,8 +54,7 @@ bookutil =  util/frontpage.rst \
 version = $(subst version-,,$(shell git describe --always --dirty))
 versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
-targets = book slides
-#webdev book sysadmin
+targets = book slides sphinx
 
 all: ${common} ${bookutil} ${targets}
 
@@ -123,6 +118,9 @@ ${BDIR}/version.rst: util/version.sh ${mergedrst} .git/COMMIT_EDITMSG
 
 ui/img/%.svg: ui/img/%.dot
 	dot -Tsvg < $< > $@
+
+ui/img/%.pdf: ui/img/%.dot
+	dot -Tpdf < $< > $@
 
 #flowchartupdate:
 #	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/detailed_fsm.dot
