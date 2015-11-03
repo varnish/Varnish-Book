@@ -5390,7 +5390,7 @@ Exercise: write a VCL that masquerades XHR calls
 
 
 Use the provided ``ajax.html`` page.
-Notice that function ``getNonMasqueraded()`` fails because the origin is distinct to the ``google.com`` domain.
+Note that function ``getNonMasqueraded()`` fails because the origin is distinct to the ``google.com`` domain.
 Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
@@ -5402,7 +5402,7 @@ Solution: write a VCL that masquerades XHR calls
 .. include:: vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl
    :literal:
 
-Notice that the ``getMasqueraded()`` works now after being processed in ``vcl_recv()``.
+Note that the ``getMasqueraded()`` works now after being processed in ``vcl_recv()``.
 
 Varnish Plus Software Components
 ================================
@@ -6330,6 +6330,9 @@ Running Your Varnish Tests
    It is strongly recommended that you look at the verbose output to understand what happens under the hood.
    For that, you run ``varnishtest`` with the ``-v`` option.
 
+   Later in this appendix, when testing VMODs, we will call ``make check`` instead of typing ``varnishtest`` in the command line.
+   ``make check`` calls ``varnishtest`` with the needed options.
+
    .. TODO for the author:
       Explain how to read varnishtest output:
       Use ``awk`` to parse the output, because it can be interleaved due to the nature of async transactions in Varnish
@@ -6355,7 +6358,7 @@ Hello, World!
    When building the ``libvmod-example``, make sure that its branch matches with the branch version of Varnish-Cache.
    For example, to build ``libvmod-example`` against Varnish Cache 4.0, make sure that you checkout the branch 4.0 in both, the ``libvmod-example`` and ``Varnish-Cache``.
 
-   .. TODO for the author: To explain that some VMODs are part of shipped in the main distribution and others are in the github repository.
+   .. TODO for the author: To explain that some VMODs are shipped in the main distribution and others are in the github repository.
 
    Next, we explain the content inside ``libvmod-example``.
 
@@ -6534,6 +6537,8 @@ Exercise: Build and Test ``libvmod_example``
    The source tree is based on *travis* and  *Autotools* to configure the building.
    More detailed building instructions are in:
    https://github.com/varnish/libvmod-example/blob/master/README.rst
+
+   Note that ``make check`` calls ``varnishtest`` with the needed options.
 
    .. other sources for learning more bout travis:
 
@@ -6715,10 +6720,11 @@ Exercise: Add Assertions To Your Varnish Tests
    ``vmod_cowsay_vsb()`` is a simplified version of ``vmod_cowsay_friends()``.
    The implementation of ``cowsay_canonical()`` is practically the same as ``vmod_hello()``.
 
-   Finally, it is time to ``make``, ``make install`` and ``make check`` your VMOD.
+   Finally, it is time to ``make``, ``make check`` and ``make install`` your VMOD.
+   Note that ``make check`` calls ``varnishtest`` with the needed options.
 
-..      
-   Exercise: ``make``, ``make install`` and ``make check`` your VMOD
+..
+   Exercise: ``make``, ``make check`` and ``make install`` your VMOD
 
 ..
    Exercise: Call the Linux command ``cowsay`` instead of assigning the global variable ``cow`` statically.
