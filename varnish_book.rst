@@ -6341,8 +6341,8 @@ Running Your Varnish Tests
 
       ``man varnishtest`` shows you all options
 
-Hello, World!
--------------
+Hello, World! VMOD
+------------------
 
 - Build Varnish Cache from source
 - Try ``libvmod-example``
@@ -6387,7 +6387,6 @@ Declaring Functions
 .. container:: handout
 
    In ``vmod_example.vcc`` you declare the module name, initialization function and other functions you need.
-   This file also contains the documentation that is used to generate the man page of your VMOD.
    Definitions are stored in files with ``.vcc`` extension.
    Please note the ``$`` sign leading the definitions in the ``vmod_example.vcc``.
 
@@ -6412,6 +6411,21 @@ Declaring Functions
    The source tree is based on ``autotools`` to configure the building.
    When you run the ``Makefile``,it passes ``vmod_example.vcc`` to the script ``vmodtool.py`` (included in Varnish Cache) and translates the VCC code to C.
    The translation is stored in ``vcc_if.h`` and ``vcc_if.c``, and since they are machine generated, you should not modify them.
+
+   .. man pages
+
+   The ``.vcc`` file also contains the documentation that is used to generate the man page of your VMOD.
+   The documentation is parsed by ``vmodtool.py`` and stored in ``src/vmod_example.man.rst``.
+   This RST file is then used to create the man page when compiling your VMOD.
+
+   We advise you to write the documentation of your VMOD in the ``.vcc`` file, but if you prefer to have it in another location, such as the ``README.rst`` file, you can change the source for documentation in ``Makefile.am``.
+   For example, change from::
+
+     vmod_example.3: src/vmod_example.man.rst
+
+   to::
+
+     vmod_example.3: README.rst
 
    Next, you implement the ``hello`` functions in the ``vmod_example.c``.
 
@@ -6554,9 +6568,6 @@ Cowsay: Hello, World!
 #. Define functions in ``vmod_cowsay.vcc`` file
 #. Implement functions in ``vmod_cowsay.c`` file
 #. ``make``, ``make check`` and ``make install`` your VMOD
-
-.. TODO for the author: Add:
-   #. Write the man pages of your VMOD as in: https://github.com/varnish/libvmod-rtstatus
 
 .. container:: handout
 
