@@ -6362,8 +6362,8 @@ Hello, World! VMOD
 
    Next, we explain the content inside ``libvmod-example``.
 
-Declaring Functions
-...................
+Declaring and Documenting Functions
+...................................
 
 - VCC: VCL to C Compiler
 
@@ -6565,7 +6565,7 @@ Cowsay: Hello, World!
 
 #. Use ``rename-vmod-script`` to rename ``libvmod-example``
 #. Create tests
-#. Define functions in ``vmod_cowsay.vcc`` file
+#. Define and document functions in ``vmod_cowsay.vcc`` file
 #. Implement functions in ``vmod_cowsay.c`` file
 #. ``make``, ``make check`` and ``make install`` your VMOD
 
