@@ -6588,55 +6588,117 @@ Cowsay Varnish Tests
    varnishtest "Test cowsay header"
 
    server s1 {
-     rxreq
-       txresp
+	  rxreq
+	  txresp
    } -start
 
    varnish v1 -vcl+backend {
-      import cowsay from "${vmod_topbuild}/src/.libs/libvmod_cowsay.so";
-         sub vcl_recv {
-	        if (req.url ~ "/cowsay") {
-	    set req.http.x-cow = cowsay.cowsay_canonical();
-	    }
-	       }
+	   import cowsay from "${vmod_topbuild}/src/.libs/libvmod_cowsay.so";
+	   sub vcl_recv {
+	       if (req.url ~ "/cowsay") {
+		   set req.http.x-cow = cowsay.cowsay_canonical();
+		   }
+	   }
 
-	          sub vcl_deliver {
-	          set resp.http.x-cow = req.http.x-cow;
-		     }
+	   sub vcl_deliver {
+		   set resp.http.x-cow = req.http.x-cow;
+	   }
    } -start
 
    client c1 {
-      txreq -url "/cowsay"
-         rxresp
+   txreq -url "/cowsay"
+   rxresp
+   expect resp.http.x-cow == "Cowsay: Hello World!"
    } -run
 
-..
-   - Add assertions against body
-   - Call cowsay program
+..   - To call ``cowsay`` Perl script from VMOD, follow http://perldoc.perl.org/perlembed.html.
 
 **test02.vtc**::
 
    sub vcl_recv {
-      if (req.url ~ "/cowsay") {
-      return(synth(700, "OK"));
-         }
+	   if (req.url ~ "/cowsay") {
+		   return(synth(700, "OK"));
+	   }
    }
 
    sub vcl_synth {
-      if (resp.status == 700) {
-      set resp.status = 200;
-      set resp.http.Content-Type = "text/plain; charset=utf-8";
-      synthetic(cowsay.cowsay_vsb());
-      return (deliver);
-         }
+	   if (resp.status == 700) {
+		   set resp.status = 200;
+		   set resp.http.Content-Type = "text/plain; charset=utf-8";
+		   synthetic(cowsay.cowsay_vsb());
+                   return (deliver);
+            }
    }
+
+   ...
+
+   client c1 {
+	   txreq -url "/cowsay"
+	   rxresp
+	   expect resp.body == {** mybody **
+    ^__^
+    (oo)\_______
+    (__)\       )\/\
+	 ||----w |
+	 ||     ||
+   }
+   } -run
+
+**test03.vtc**::
+
+   sub vcl_recv {
+	   if (req.url ~ "/cowsay" || req.url ~ "/bunny") {
+		   return(synth(700, "OK"));
+	   }
+   }
+
+   sub vcl_synth {
+	   if (resp.status == 700) {
+		   set resp.status = 200;
+		   set resp.http.Content-Type = "text/plain; charset=utf-8";
+		   if (req.url ~ "/cowsay"){
+		       synthetic(cowsay.cowsay_friends("cow", "moo"));
+		   }
+		   if (req.url ~ "/bunny"){
+		       synthetic(cowsay.cowsay_friends("bunny", "Varnish"));
+		   }
+		   return (deliver);
+		   }
+	   }
+
+   ...
+
+   client c1 {
+	   txreq -url "/cowsay"
+	   rxresp
+	   expect resp.body == {** moo **
+
+    ^__^
+    (oo)\_______
+    (__)\       )\/\
+	 ||----w |
+	 ||     ||
+   }
+   } -run
+
+   client c2 {
+	   txreq -url "/bunny"
+	   rxresp
+	   expect resp.body == {** Varnish **
+    (\/)
+    (..)
+   (")(")
+   }
+   } -run
 
 .. container::  handout
 
    We advise you to start designing your tests.
    In this way, you have very clear the expected results.
 
-   ``test01.vtc``, ``test02.vtc`` and ``test03.vtc`` are examples in https://github.com/aondio/libvmod-cowsay.git. 
+   .. bookmark!
+
+   ``test01.vtc``, ``test02.vtc`` and ``test03.vtc`` are examples in https://github.com/franciscovg/libvmod-cowsay.git. 
    ``test01.vtc`` shows how the HTTP response header field is assigned.
    When client ``c1`` requests the ``/cowsay`` URL, Varnish server ``v1`` assigns the output of the VMOD function ``cowsay_header()`` is assigned to the HTTP request header field ``req.http.x-cow``.
    This field is then assigned to the HTTP response header field ``resp.http.x-cow``.
@@ -6680,8 +6742,6 @@ Exercise: Add Assertions To Your Varnish Tests
 
 ``vmod_cowsay.c``
 .................
-
-.. TODO for the author: To call ``cowsay`` instead of having a variable
 
 ::
 
