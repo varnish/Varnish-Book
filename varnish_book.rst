@@ -436,10 +436,8 @@ Varnish Cache and Varnish Plus
       Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
       Varnish Cache Plus is one of the software components available for Varnish Plus customers.
 
-Varnish Software
-----------------
-
-Varnish timeline:
+Varnish Software Varnish Timeline
+---------------------------------
 
 - 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were looking for alternative cache solutions.
 - 2006: Work began. 
@@ -454,6 +452,9 @@ Varnish timeline:
 - 2012: The fifth Varnish User Group Meeting is held in Paris. 
   Roughly 70 people participate on the User-day and around 30 on the developer-day!
 - 2014: Varnish 4.0 released
+- 2015: Varnish API released
+- 2015: Gartner Selects Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms
+- 2015: Varnish Plus supports SSL/TLS
 
 .. container:: handout
 
