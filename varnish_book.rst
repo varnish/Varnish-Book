@@ -584,7 +584,7 @@ Varnish is designed to:
    .. VMODs
 
    Varnish allows integration of Varnish Modules also known as VMODs.
-   VMODs are tipically coded in VCL and C programming language.
+   VMODs are typically coded in VCL and C programming language.
    A VMOD is a shared library, which can be called from VCL code.
 
    The standard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
@@ -6613,7 +6613,7 @@ Cowsay Varnish Tests
 
 ..   - To call ``cowsay`` Perl script from VMOD, follow http://perldoc.perl.org/perlembed.html.
 
-**test02.vtc**::
+Snippet of **test02.vtc**::
 
    sub vcl_recv {
 	   if (req.url ~ "/cowsay") {
@@ -6644,7 +6644,7 @@ Cowsay Varnish Tests
    }
    } -run
 
-**test03.vtc**::
+Snippet of **test03.vtc**::
 
    sub vcl_recv {
 	   if (req.url ~ "/cowsay" || req.url ~ "/bunny") {
@@ -6694,32 +6694,24 @@ Cowsay Varnish Tests
 .. container::  handout
 
    We advise you to start designing your tests.
-   In this way, you have very clear the expected results.
-
-   .. bookmark!
-
-   ``test01.vtc``, ``test02.vtc`` and ``test03.vtc`` are examples in https://github.com/franciscovg/libvmod-cowsay.git. 
+   ``test01.vtc``, ``test02.vtc`` and ``test03.vtc`` are examples in https://github.com/franciscovg/libvmod-cowsay.git.
    ``test01.vtc`` shows how the HTTP response header field is assigned.
-   When client ``c1`` requests the ``/cowsay`` URL, Varnish server ``v1`` assigns the output of the VMOD function ``cowsay_header()`` is assigned to the HTTP request header field ``req.http.x-cow``.
-   This field is then assigned to the HTTP response header field ``resp.http.x-cow``.
-
-   ``test02.vtc`` and ``test03.vtc`` reuse most of ``test01.vtc``.
-   The differences are in the VCL code inside ``v1``.
+   When client ``c1`` requests the ``/cowsay`` URL, Varnish server ``v1`` assigns the output of the VMOD function ``cowsay_canonical()`` to the HTTP request header field ``req.http.x-cow``.
  
    ``test02.vtc`` shows how to alter the message body in the ``vcl_synth`` subroutine.
-   In this second test, we have also replaced ``cowsay.cowsay_canonical()`` for ``cowsay.cowsay_vsb()``, but you can use any of them for the purpose of the test.
-   The difference between ``cowsay_canonical()`` and ``cowsay.cowsay_vsb()`` is the library used to manipulate the returned string.
-   We discuss the differences of these libraries later in this section.
+   In this second test, we use ``cowsay.cowsay_vsb()``, which return the cowsay ASCII picture.
+   The important difference between ``cowsay_canonical()`` and ``cowsay.cowsay_vsb()`` is the library used to manipulate the returned string.
+   We discuss this difference later in this section.
 
    ``test03.vtc`` reuses most of ``test02.vtc``.
-   The only difference is the replacement of the function ``cowsay.cowsay_vsb()`` for ``cowsay.cowsay_friends("bunny", "ciao"));``.
+   ``test03.vtc`` replaces ``cowsay.cowsay_vsb()`` for ``cowsay.cowsay_friends(arg1, arg2)``, and adds some basic conditions.
+   ``cowsay.cowsay_friends()`` returns the ASCII figure given in ``arg1``, which utters ``arg2``.
    After the design of your tests, you declare the functions in the ``.vcc`` file and implement them in the ``.c`` file.
 
 Exercise: Add Assertions To Your Varnish Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Add assertions using the keyword ``expect`` in the server and client definitions.
-- Use the same keyword to check values of Varnish counters
+- Add more assertions using the keyword ``expect`` to check values of Varnish counters
 
 .. TODO for the author: create a solution
 
@@ -6734,11 +6726,13 @@ Exercise: Add Assertions To Your Varnish Tests
 
 .. container:: handout
 
-   ``cowsay_canonical()`` and ``cowsay_vsb()`` return the cowsay ASCII picture using canonical and Varnish String Buffer string libraries respectively.
-   The output of this function is to be assigned to: 1) HTTP header fields in vcl_recv and vcl_deliver, or 2) HTTP message bodies in vcl_synth.
-
+   ``cowsay_canonical()`` uses the canonical string library, and ``cowsay_vsb()`` uses the Varnish String Buffer string library.
    The VSB library is very useful to manipulate strings.
    Therefore we recommend you to use it instead of the canonical string libraries.
+   
+   .. note::
+      
+      Although VCL allows it, we do not recommend to assign multiple lines to HTTP context header fields.
 
 ``vmod_cowsay.c``
 .................
