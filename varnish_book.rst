@@ -610,15 +610,16 @@ Varnish is designed to:
 How objects are stored
 ----------------------
 
+- Object: local store of HTTP response message
 - Objects in Varnish are stored in memory and addressed by hash keys
 - You can control the hashing
 - Multiple objects can have the same hash key
 
 .. container:: handout
 
+	`Objects` are local stores of response messages as defined in https://tools.ietf.org/html/rfc7234.
 	.. hash
-
-	Varnish has a key/value store in its core. 
+	Varnish maps this objects with a hash key.
 	Objects are stored in memory and references to these objects are kept in a hash tree.
 
 	.. Cache control
@@ -6787,15 +6788,6 @@ Exercise: Add Assertions To Your Varnish Tests
 
    Finally, it is time to ``make``, ``make check`` and ``make install`` your VMOD.
    Note that ``make check`` calls ``varnishtest`` with the needed options.
-
-..
-   Exercise: ``make``, ``make check`` and ``make install`` your VMOD
-
-..
-   Exercise: Call the Linux command ``cowsay`` instead of assigning the global variable ``cow`` statically.
-
-   .. TODO for the author
-
 
 Resources
 ---------
