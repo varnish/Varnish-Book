@@ -6236,6 +6236,8 @@ VMOD Basics
 ``varnishtest``
 ---------------
 
+.. TODO for the author: Document varnishtest commands
+
 .. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
 
 - Script driven program used to test programs written in VCL and VMODs
