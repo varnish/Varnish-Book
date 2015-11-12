@@ -436,8 +436,8 @@ Varnish Cache and Varnish Plus
       Varnish Cache Plus should not be confused with Varnish Plus, a product offering by Varnish Software.
       Varnish Cache Plus is one of the software components available for Varnish Plus customers.
 
-Varnish Software Varnish Timeline
----------------------------------
+Varnish Cache and Varnish Software Timeline
+-------------------------------------------
 
 - 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were looking for alternative cache solutions.
 - 2006: Work began. 
@@ -747,8 +747,21 @@ Utility programs part of the Varnish distribution:
 
       There is a delay in the log process, but usually not noticeable.
 
-Install Varnish and Apache as Backend
--------------------------------------
+Exercise: Install Apache and Varnish
+------------------------------------
+
+- Install Apache.
+  We will use it as backend.
+- Install Varnish
+- When you are done, verify your Varnish version, run ``varnishd -V``
+
+.. container:: handout
+
+   You may skip this exercise if already have a well configured environment to test Varnish.
+   In case you get stuck, you may look at the proposed solution.
+
+Solution: Install Varnish and Apache as Backend
+...............................................
 
 Use packages provided by 
 
@@ -798,7 +811,7 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    For Red Hat, use ``yum install <package>``.
 
 Install Apache
-..............
+~~~~~~~~~~~~~~
 
 To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
 Install the *HTTPie* utility with the command: ``apt-get install httpie``.
@@ -812,7 +825,7 @@ Next:
 #. Verify that Apache still works by typing ``http -h localhost:8080``.
 
 Install Varnish
-...............
+~~~~~~~~~~~~~~~
 
 All the following commands must be executed with root permissions.
 First, make sure you have ``apt-transport-https`` and ``curl``::
@@ -896,9 +909,11 @@ Finally, verify the version you have installed::
       gpgcheck=0
       
 Configure Varnish
-.................
+-----------------
 
-Configure the Varnish ``DAEMON_OPTS``::
+- Configure Varnish to use Apache as backend
+
+Varnish ``DAEMON_OPTS``::
 
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
@@ -958,7 +973,8 @@ Configure the Varnish ``DAEMON_OPTS``::
 Installation Test
 .................
 
-::
+- Run ``http -p Hh localhost``
+- Your output should look as::
 
    # http -p Hh localhost
    GET / HTTP/1.1

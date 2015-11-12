@@ -11,6 +11,7 @@ Tag version-5.1
 - ``vcl_recv`` is in the `VCL Basics` chapter, first as a snippet and then the built-in code.
   This subroutine is revisited in the `VCL built-in subroutines` chapter.
 - `Waiting State` is moved from `VCL Basics` to `VCL Built-in Subroutines`.
+- Install Apache and Varnish are exercises with provided solutions.
 
 General reminders
 -----------------
