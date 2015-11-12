@@ -6316,10 +6316,10 @@ The Varnish Test Case (VTC) Language
    Alternatively, you might want to add backends manually, for example::
 
      varnish v1 -vcl {
-     backend default {
-        .host = "${s1_addr}";
+        backend default {
+	   .host = "${s1_addr}";
 	   .port = "${s1_port}";
-	   }
+	}
      }
 
    Once you start ``s1``, the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend are automatically made available.

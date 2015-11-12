@@ -1,7 +1,7 @@
 backend server1 {
     .host = "server1.example.com";
     .probe = {
-        .url = "/";
+        .url = "/healthtest";
         .timeout = 1s;
         .interval = 4s;
         .window = 5;
