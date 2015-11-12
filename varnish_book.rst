@@ -4799,7 +4799,14 @@ Directors
    .. note::
 
       Directors are defined as loadable VMODs in Varnish 4.
-      Please see the ``vmod_directors`` man page for more information.
+      See the ``vmod_directors`` man page for more information.
+
+   .. warning::
+
+      If you declare backend servers, but do not use them, ``varnishd`` returns error by default.
+      You can avoid this situation by turning off the runtime parameter ``vcc_err_unref``.
+      However, this practice is strongly discouraged.
+      Instead, we advise to declare only what you use.
 
 Random Directors
 ................
@@ -5100,6 +5107,13 @@ Access Control Lists (ACLs)
    To exclude an IP address or range from an ACL, and exclamation mark "``!``" should precede the IP quoted address.
    For example ``!"192.168.1.23"``.
    This is useful when, for example, you want to include all the IP address in a range except the gateway.
+
+   .. warning::
+
+      If you declare ACLs, but do not use them, ``varnishd`` returns error by default.
+      You can avoid this situation by turning off the runtime parameter ``vcc_err_unref``.
+      However, this practice is strongly discouraged.
+      Instead, we advise to declare only what you use.
 
 Content Composition
 ===================
