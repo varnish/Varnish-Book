@@ -1,3 +1,5 @@
+correctspelllled
+
 .. include:: util/frontpage.rst
 
 .. include:: util/printheaders.rst
@@ -443,30 +445,32 @@ Varnish Cache and Varnish Software Timeline
 - 2006: Work began. 
   Redpill Linpro was in charge of project management, infrastructure and supporting development. 
   Poul-Henning Kamp did the majority of the actual development.
-- 2006: Varnish 1.0 released
-- 2008: Varnish 2.0 released
+- 2006: Varnish 1.0 released.
+- 2008: Varnish 2.0 released.
 - 2009: The first Varnish User Group Meeting is held in London.
   Roughly a dozen people participate from all around the world.
 - 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
-- 2011: Varnish 3.0 released
+- 2011: Varnish 3.0 released.
 - 2012: The fifth Varnish User Group Meeting is held in Paris. 
   Roughly 70 people participate on the User-day and around 30 on the developer-day!
-- 2014: Varnish 4.0 released
-- 2015: Varnish API released
-- 2015: Gartner Selects Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms
-- 2015: Varnish Plus supports SSL/TLS
+- 2012: The Varnish Book is published.
+- 2013: Varnish Software chosen as a 2013 Red Herring Top 100 Europe company.
+- 2013: BOSSIE award winner.
+- 2013: Varnish Software receives World Summit on Innovation & Entrepreneurship Global Hot 100 award.
+- 2014: Varnish Plus launched.
+- 2014: Varnish 4.0 released.
+- 2015: Varnish API released.
+- 2015: Gartner names Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms.
+- 2015: Varnish Plus supports SSL/TLS.
 
 .. container:: handout
 
    VG, a large Norwegian newspaper, initiated the Varnish project in cooperation with Linpro. 
-   The lead developer of the Varnish project, Poul-Henning Kamp, is an experienced FreeBSD kernel hacker. 
+   The lead developer of the Varnish project, Poul-Henning Kamp, is an experienced FreeBSD kernel hacker.
    Poul-Henning Kamp continues to bring his wisdom to Varnish in most areas where it counts.
 
-   From 2006 throughout 2008, most of the development was sponsored by
-   VG, API, Escenic and Aftenposten, with project management,
-   infrastructure and extra man-power provided by Redpill Linpro. At
-   the time, Redpill Linpro had roughly 140 employees mostly centered
-   around consulting services.
+   From 2006 throughout 2008, most of the development was sponsored by VG, API, Escenic and Aftenposten, with project management, infrastructure and extra man-power provided by Redpill Linpro.
+   At the time, Redpill Linpro had roughly 140 employees mostly centered around consulting services.
 
    Today Varnish Software is able to fund the core development with income from service agreements, in addition to offering development of specific features on a case-by-case basis.
    The interest in Varnish continues to increase.
@@ -476,14 +480,12 @@ Varnish Cache and Varnish Software Timeline
 
    .. VGB
 
-   Varnish development is governed by the Varnish Governance Board (VGB),
-   which thus far has not needed to intervene. The VGB consists of an
-   architect, a community representative and a representative from Varnish
-   Software.
+   Varnish development is governed by the Varnish Governance Board (VGB), which thus far has not needed to intervene.
+   The VGB consists of an architect, a community representative and a representative from Varnish Software.
    
    .. TODO for the editor: confirm the VGB positions
    
-   As of December 2014, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
+   As of November 2015, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
    On a day-to-day basis, there is little need to interfere with the general flow of development.
 
 What Is New in Varnish 4
