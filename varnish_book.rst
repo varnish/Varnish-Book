@@ -1,5 +1,3 @@
-correctspelllled
-
 .. include:: util/frontpage.rst
 
 .. include:: util/printheaders.rst
