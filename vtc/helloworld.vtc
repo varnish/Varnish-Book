@@ -1,0 +1,45 @@
+varnishtest "Hello, World"
+
+## Consecutive rxreq timeouts
+## Multiple txresp works fine
+## Consecutive blocks work fine regardless number of requests from c1
+
+server s1 {
+   rxreq
+   txresp
+} -start
+
+varnish v1 -vcl {
+   backend default {
+      .host = "${s1_addr}";
+      .port = "${s1_port}";
+   }
+   sub vcl_deliver {
+      set resp.http.hello = "Hello, World";
+   }
+} -start
+
+## Multiple rxresp timeouts
+## Multiple txreq works fine regardless how many rxreq are in s1
+## Consecutive blocks work fine regardless the s1
+client c1 {
+        txreq -url "/"
+        rxresp
+
+        expect resp.http.hello == "Hello, World"
+}
+
+varnish v1 -expect cache_miss == 0
+varnish v1 -expect cache_hit == 0
+
+# number of clients can be run regardless the number of rxreq and txresp in s1
+client c1 -run
+
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 0
+
+client c1 -run
+client c1 -run
+
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 2

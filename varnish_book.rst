@@ -22,7 +22,7 @@
 The Varnish Book is the training material for Varnish Plus courses.
 This book teaches such concepts to understand the theory behind Varnish Cache 4.
 Covered are the Varnish finite state machine, design principles, HTTP, cache invalidation and more.
-With these foundations, the book builds practical knowledge on Varnish Configuration Language (VCL) and Varnish utility programs such as ``varnishlog`` and ``varnishstat``.
+With these foundations, the book builds practical knowledge on Varnish Configuration Language (VCL), Varnish Test Code (VTC) and Varnish utility programs such as ``varnishlog`` and ``varnishstat``.
 Examples and exercises develop the needed skills to administrate and extend the functionality of Varnish.
 Also included are appendices that explain how to develop Varnish Modules (VMODs) and how to use selected modules of Varnish Plus.
 
@@ -104,6 +104,9 @@ The Webdev course requires that you:
 
    You do not need background in theory or application behind Varnish to complete this course.
    However, it is assumed that you have experience and expertise in basic UNIX commands, and that you can install the following software:
+
+   .. TODO: to update this list after introducing varnishtest along the book
+      It might not be needed to install Apache, HTTPie, PHP or curl.
 
    - Varnish Cache 4.x or Varnish Cache Plus 4.x,
    - Apache/2.4 or later,
@@ -251,7 +254,7 @@ The Webdev course requires that you:
 	  }
       }
 
-   The first occurrence of a new term is usually its *definition*, and appears in the same font as the previous occurrence of “definition” in this sentence.
+   The first occurrence of a new term is usually its *definition*, and appears in italics.
    File names are indicated like this: ``/path/to/yourfile``.
    Important notes, tips and warnings are also inside boxes, but they use the normal body text font type.
 
@@ -671,9 +674,9 @@ Getting Started
 In this chapter, you will:
 
 - learn about the Varnish distribution,
-- install Varnish and Apache,
-- configure Varnish to use Apache as backend, and
-- cover basic configuration.
+- install Varnish,
+- learn about ``varnishtest``, and
+- cover basic Varnish configuration.
 
 .. container:: handout
 
@@ -682,10 +685,11 @@ In this chapter, you will:
 
    .. backend definition
 
-   In Varnish terminology, a backend server is whatever server Varnish talks to fetch content.
+   In Varnish terminology, a *backend* server is the origin server.
+   In other words, it is whatever server Varnish talks to fetch content.
    This can be any sort of service as long as it understands HTTP. 
    Most of the time, Varnish talks to a web server or an application frontend server.
-   In this book, we use backend, web server or application frontend server interchangeably.
+   In this book, we use *backend*, *origin server*, *web server* or *application frontend server* interchangeably.
 
 Varnish Distribution
 --------------------
@@ -693,6 +697,7 @@ Varnish Distribution
 Utility programs part of the Varnish distribution:
 
 - ``varnishd``
+- ``varnishtest``
 - ``varnishadm``
 - ``varnishlog``
 - ``varnishstat``
@@ -708,6 +713,13 @@ Utility programs part of the Varnish distribution:
    The central block of Varnish is the Varnish daemon ``varnishd``.
    This daemon accepts HTTP requests from clients, sends requests to a backend and caches the returned objects.
    ``varnishd`` is further explained in the `Varnish Architecture`_ section.
+
+   .. varnishtest
+
+   ``varnishtest`` is a script driven program used to test your Varnish installation.
+   ``varnishtest`` is very powerful because it allows you to create mock-ups of clients and backends to interact with your actual Varnish configuration.
+   ``varnishtest`` is also very useful to learn more about Varnish's behavior.
+   Therefore, ``varnishtest`` is used along the book as main testbed.
 
    .. varnishadm
 
@@ -747,26 +759,21 @@ Utility programs part of the Varnish distribution:
 
       There is a delay in the log process, but usually not noticeable.
 
-Exercise: Install Apache and Varnish
-------------------------------------
+Exercise: Install Varnish
+-------------------------
 
-- Install Apache.
-  We will use it as backend.
 - Install Varnish
+- Use packages provided by 
+
+  - varnish-software.com for Varnish Cache Plus
+  - varnish-cache.org for Varnish Cache
+
 - When you are done, verify your Varnish version, run ``varnishd -V``
 
 .. container:: handout
 
    You may skip this exercise if already have a well configured environment to test Varnish.
    In case you get stuck, you may look at the proposed solution.
-
-Solution: Install Varnish and Apache as Backend
-...............................................
-
-Use packages provided by 
-
-- varnish-software.com for Varnish Cache Plus
-- varnish-cache.org for Varnish Cache
 
 .. table 3
 
@@ -785,17 +792,6 @@ Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
 [3] There is no configuration file.
 Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` instead.
 
-.. table 4
-
-.. csv-table:: Table :counter:`table`: Varnish and Apache Configuration
-   :name: Varnish and Apache Configuration
-   :delim: ;
-   :widths: 20, 30, 50
-   :header-rows: 1
-   :file: tables/varnish_apache.csv
-
-\* These files are for a SysV Ubuntu/Debian configuration.
-
 .. container:: handout
 
    The configuration file is used to give parameters and command line arguments to the Varnish daemon.
@@ -810,22 +806,8 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
    For Red Hat, use ``yum install <package>``.
 
-Install Apache
-~~~~~~~~~~~~~~
-
-To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
-Install the *HTTPie* utility with the command: ``apt-get install httpie``.
-HTTPie allows you to issue arbitrary HTTP requests in the terminal.
-Next:
-
-#. Verify that Apache works by typing ``http -h localhost``.
-   You should see a ``200 OK`` response from Apache.
-#. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
-#. Restart Apache: ``service apache2 restart``.
-#. Verify that Apache still works by typing ``http -h localhost:8080``.
-
-Install Varnish
-~~~~~~~~~~~~~~~
+Solution: Install Varnish
+.........................
 
 All the following commands must be executed with root permissions.
 First, make sure you have ``apt-transport-https`` and ``curl``::
@@ -907,11 +889,168 @@ Finally, verify the version you have installed::
       /varnishtuner/el$releasever
       enabled=1
       gpgcheck=0
+
+``varnishtest``
+---------------
+
+.. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
+.. 
+
+- Script driven program used to test the configuration of your Varnish configuration, regression tests, and VMODs development
+- Useful for system administrators, web developers, and VMODs developers
+
+.. container:: handout
+
+   Varnish is distributed with many utility programs.
+   ``varnishtest`` is the script driven program that we use as testbed in this book.
+   With ``varnishtest`` you can create mock-ups of clients and origin servers to interact with your Varnish installation.
+   This is useful to simulate transactions and provoke a specific behavior.
+
+   You can use ``varnishtest`` when writing VCL code or VMODs.
+   ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
+
+   This section develops basic knowledge about ``varnishtest``, and you will learn more about it along the book.
+   Another way to learn how to create Varnish tests is by reading and running the ones included in Varnish Cache under ``bin/varnishtest/tests/``.
+   Further documentation of ``varnishtest`` is found in its man page ``man varnishtest``, README file ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
+
+   ``varnishtest`` has its own languate: the Varnish Test Case (VTC) language.
+   This language is fairly simple to understand as we shall see next.
+
+The Varnish Test Case (VTC) Language
+....................................
+
+**helloworldtest.vtc**::
+
+   varnishtest "Hello, World"
+
+   server s1 {
+      rxreq
+      txresp
+   } -start
+
+   varnish v1 -vcl+backend {
+      sub vcl_deliver {
+         set resp.http.hello = "Hello, World";
+      }
+   } -start
+
+   client c1 {
+      txreq -url "/"
+         rxresp
+	    expect resp.http.hello == "Hello, World"
+   }
+
+   varnish v1 -expect cache_miss == 0
+   varnish v1 -expect cache_hit == 0
+
+   client c1 -run
+
+   varnish v1 -expect cache_miss == 1
+   varnish v1 -expect cache_hit == 0
+
+   client c1 -run
+   client c1 -run
+
+   varnish v1 -expect cache_miss == 1
+   varnish v1 -expect cache_hit ==2
+
+.. container:: handout
+
+   .. introduction
+
+   ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
+   Depending on your use case, there might be test preparations, executions and assertions all over the place.
+   Unlike the VCL, the VTC is not compiled but simply interpreted on the fly.
+
+   .. origin server (backend)
+
+   When run, the above script simulates an origin server (backend) ``s1``, starts a real instance ``v1`` of Varnish, and simulates a client ``c1``.
+   ``server s1`` declares a simulated origin server.
+   All server declarations must start with ``s``.
+   In the code above, ``s1`` receives a request ``rxreq``, and transmits a response ``txresp``.
+
+   The ``-start`` directive makes Varnish to start the simulated origin server.
+   Once you start ``s1``, the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend are automatically made available.
+   Since ``varnishtest`` launches a real ``varnishd`` instance, it is possible to use real backends instead of mock servers.
+   Thus, you can test your actual backend.
+   You may also start a declaration at a later point in your code, for example ``server s1 -start``.
+
+   .. Varnish server
+
+   ``varnish v1`` declares an instance of your real Varnish server, i.e., ``varnishd``.
+   This instance is controlled through the manager process.
+   You will learn about the this manager in the `The Parent Process: The Manager`_ section.
+   The names for Varnish servers must start with ``v``.
+
+   ``-vcl`` passses the VCL code inside the brackets ``{}`` to ``v1``.
+   ``+backend`` injects the IP address ``${s1_addr}`` and port ``${s1_port}`` of the mocket server ``s1`` to be used as backend.
+   Alternatively, you might want to add backends manually, for example::
+
+     varnish v1 -vcl {
+        backend default {
+	   .host = "${s1_addr}";
+	   .port = "${s1_port}";
+	}
+     }
+
+   Finally, when ``v1`` is started with ``-start``, it loads the VCL code inside the brackets.
+
+   .. client (frontend)
+
+   ``client c1`` declares a simulated client that transmits a request ``txreq`` for the slash URL: ``-url "/"``. 
+   ``c1`` receives a response ``rxresp``.
+
+   .. assertions
+
+   ``varnishtest`` supports assertions with the keyword ``expect``.
+   For example, ``c1`` expects the response header field ``resp.http.hello`` with value ``Hello, World``.
+   Assertions can be inside the declaration of the origin server and client, but not inside the Varnish server.
+   Since Varnish is a proxy, checking requests and responses in it is irrelevant.
+   Instead, you have access to the counters exposed by ``varnishstat`` at any time::
+
+     varnish v1 -expect counter == value
+
+   Assertions are evaluated by reading the shared memory log, which ensures that your assertions are tested against a real Varnish server.
+   Therefore, Varnish tests might take a bit longer than what you are used to in other testing frameworks.
+   Finally, ``client c1 -run`` starts the simulated client ``c1``.
+
+   You will learn how to extend this script to test your VMOD later in this chapter, but before, run and analyze the output of ``helloworldtest.vtc`` to understand ``varnishtest`` better.
+
+Running Your Varnish Tests
+..........................
+
+::
+
+   $varnishtest helloworldtest.vtc
+      top  TEST helloworldtest.vtc passed (1.554)
+
+.. container:: handout
+
+   To run your test, you simply issue ``varnishtest helloworldtest.vtc``
+   By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests.
+   It is strongly recommended that you look at the verbose output to understand what happens under the hood.
+   For that, you run ``varnishtest`` with the ``-v`` option.
+
+   Later in this appendix, when testing VMODs, we will call ``make check`` instead of typing ``varnishtest`` in the command line.
+   ``make check`` calls ``varnishtest`` with the needed options.
+
+   .. TODO for the author:
+      Explain how to read varnishtest output:
+      Use ``awk`` to parse the output, because it can be interleaved due to the nature of async transactions in Varnish
+
+   .. note::
+
+      ``man varnishtest`` shows you all options
+
+``varnishtest`` commands
+........................
+
+
       
 Configure Varnish
 -----------------
 
-- Configure Varnish to use Apache as backend
+- Configure Varnish to use different backends
 
 Varnish ``DAEMON_OPTS``::
 
@@ -940,6 +1079,17 @@ Varnish ``DAEMON_OPTS``::
    After changing a VCL file, you can run ``service varnish reload``.
    This command does **not** restart `varnishd`, it only reloads the VCL code.
    The result of your configuration is resumed in `Table 4 <#table-4>`_.
+
+.. table 4
+
+.. csv-table:: Table :counter:`table`: Varnish and Backend Configuration
+   :name: Varnish and Apache Configuration
+   :delim: ;
+   :widths: 20, 30, 50
+   :header-rows: 1
+   :file: tables/varnish_apache.csv
+
+\* These files are for a SysV Ubuntu/Debian configuration.
 
    You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
    Within the result, you should see something like::
@@ -2439,7 +2589,7 @@ Resources and Representations
    Each resource is identified by a Uniform Resource Identifier (URI), as described in Section 2.7 of [RFC7230].
    A resource can be anything and such a thing can have different representations.
    A representation is an instantiation of a resource.
-   An origin server produces this instantiation based on a list of request field headers, e.g., ``User-Agent`` and ``Accept-encoding``.
+   An origin server, a.k.a. backend,  produces this instantiation based on a list of request field headers, e.g., ``User-Agent`` and ``Accept-encoding``.
 
    When an origin server produces may produce different representations of one resource, it includes a ``Vary`` response header field.
    This response header field is used by Varnish to differentiate between resource variations.
@@ -5963,11 +6113,7 @@ Misc:
 
 .. container:: handout
 
-
    ``varnishlog``, ``varnishadm`` and ``varnishstat`` are explained in the `Examining Varnish Server's Output`_ chapter.
-   ``varnishtest`` is used for regression tests and VMODs development, but it also useful to learn more about Varnish's behavior.
-   For more information about ``varnishtest``, see the `varnishtest`_ section.
-
    Next sections explain ``varnishtop``, ``varnishncsa``, and ``varnishhist``.
 
 ``varnishtop``
@@ -6229,7 +6375,7 @@ VMOD Basics
    If you use the memory management API provided by Varnish, your VMODs are generally easier to maintain, more secure, and much easier to debug in collaboration with other developer.
    In addition, VMODs do not require to reload VCL files to take effect.
 
-   When writing VMODs, you should test it towards ``varnishtest``.
+   When writing VMODs, you should test them towards ``varnishtest``.
    In fact, we recommend you first to write your tests as part of your design, and then implement your VMOD.
    Therefore, we introduce next ``varnishtest`` before proceeding with the implementation the VMOD itself.
 
@@ -6312,7 +6458,7 @@ The Varnish Test Case (VTC) Language
 
    .. Varnish server
 
-   ``varnish v1 -vcl+backend`` declares an instance of a your real Varnish server and loads the VCL code inside the brackets.
+   ``varnish v1 -vcl+backend`` declares an instance of your real Varnish server and loads the VCL code inside the brackets.
    ``varnishtest`` controls ``v1`` through the manager process (see `The Parent Process: The Manager`_).
    The ``+backend`` directive injects the backend (origin server ``s1``) to the VCL code.
    Alternatively, you might want to add backends manually, for example::
@@ -6933,3 +7079,22 @@ VWS
    Varnish Waiter Solaris -- Solaris ports(2) based waiter module.
 
 .. TOFIX: Slides do not show properly VWS
+
+Appendix F: Apache as Origin Server
+===================================
+
+- Install Apache.
+  We will use it as backend.
+
+.. container:: handout
+
+   To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
+   Install the *HTTPie* utility with the command: ``apt-get install httpie``.
+   HTTPie allows you to issue arbitrary HTTP requests in the terminal.
+   Next:
+
+   #. Verify that Apache works by typing ``http -h localhost``.
+      You should see a ``200 OK`` response from Apache.
+   #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
+   #. Restart Apache: ``service apache2 restart``.
+   #. Verify that Apache still works by typing ``http -h localhost:8080``.
