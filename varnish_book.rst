@@ -105,7 +105,7 @@ The Webdev course requires that you:
    You do not need background in theory or application behind Varnish to complete this course.
    However, it is assumed that you have experience and expertise in basic UNIX commands, and that you can install the following software:
 
-   .. TODO: to update this list after introducing varnishtest along the book
+   .. TODO: to update this list after introducing varnishtest throughout the book
       It might not be needed to install Apache, HTTPie, PHP or curl.
 
    - Varnish Cache 4.x or Varnish Cache Plus 4.x,
@@ -685,11 +685,11 @@ In this chapter, you will:
 
    .. backend definition
 
-   In Varnish terminology, a *backend* server is the origin server.
+   In Varnish terminology, a *backend* is the origin server.
    In other words, it is whatever server Varnish talks to fetch content.
    This can be any sort of service as long as it understands HTTP. 
    Most of the time, Varnish talks to a web server or an application frontend server.
-   In this book, we use *backend*, *origin server*, *web server* or *application frontend server* interchangeably.
+   In this book, we use *backend*, *origin server*, *web server* or *application frontend server* depending the context.
 
 Varnish Distribution
 --------------------
@@ -706,20 +706,20 @@ Utility programs part of the Varnish distribution:
 .. container:: handout
 
    The Varnish distribution includes several utility programs that you will use in this course.
-   You will learn how to use this programs as you progress, but it is useful to have a brief introduction about them before we start.
+   You will learn how to use these programs as you progress, but it is useful to have a brief introduction about them before we start.
 
    .. varnishd
 
    The central block of Varnish is the Varnish daemon ``varnishd``.
-   This daemon accepts HTTP requests from clients, sends requests to a backend and caches the returned objects.
+   This daemon accepts HTTP requests from clients, sends requests to a backend, caches the returned objects and replies to the client request.
    ``varnishd`` is further explained in the `Varnish Architecture`_ section.
 
    .. varnishtest
 
    ``varnishtest`` is a script driven program used to test your Varnish installation.
-   ``varnishtest`` is very powerful because it allows you to create mock-ups of clients and backends to interact with your actual Varnish configuration.
-   ``varnishtest`` is also very useful to learn more about Varnish's behavior.
-   Therefore, ``varnishtest`` is used along the book as main testbed.
+   ``varnishtest`` is very powerful because it allows you to create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behaviour.
+   ``varnishtest`` is also very useful to learn more about the behavior of Varnish.
+   Therefore, ``varnishtest`` is used throughout the book as main testbed.
 
    .. varnishadm
 
@@ -754,10 +754,6 @@ Utility programs part of the Varnish distribution:
 
    In addition, there are other utility programs such as ``varnishncsa``, ``varnishtop`` and ``varnishhist``.
    `Appendix B: Varnish Programs`_ explains them.
-
-   .. note::
-
-      There is a delay in the log process, but usually not noticeable.
 
 Exercise: Install Varnish
 -------------------------
@@ -902,16 +898,16 @@ Finally, verify the version you have installed::
 .. container:: handout
 
    Varnish is distributed with many utility programs.
-   ``varnishtest`` is the script driven program that we use as testbed in this book.
-   With ``varnishtest`` you can create mock-ups of clients and origin servers to interact with your Varnish installation.
+   ``varnishtest`` is the script driven program that we use main testbed in this book.
+   With ``varnishtest`` you can create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behaviour.
    This is useful to simulate transactions and provoke a specific behavior.
 
-   You can use ``varnishtest`` when writing VCL code or VMODs.
+   You can use ``varnishtest`` when writing VCL code or developing VMODs.
    ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
 
-   This section develops basic knowledge about ``varnishtest``, and you will learn more about it along the book.
+   This section develops basic knowledge about ``varnishtest``, and you will learn more about it throughout the book.
    Another way to learn how to create Varnish tests is by reading and running the ones included in Varnish Cache under ``bin/varnishtest/tests/``.
-   Further documentation of ``varnishtest`` is found in its man page ``man varnishtest``, README file ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
+   Further documentation of ``varnishtest`` is found in its man page, README file ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
 
    ``varnishtest`` has its own languate: the Varnish Test Case (VTC) language.
    This language is fairly simple to understand as we shall see next.
@@ -919,40 +915,10 @@ Finally, verify the version you have installed::
 The Varnish Test Case (VTC) Language
 ....................................
 
-**helloworldtest.vtc**::
+**helloworldtest.vtc**
 
-   varnishtest "Hello, World"
-
-   server s1 {
-      rxreq
-      txresp
-   } -start
-
-   varnish v1 -vcl+backend {
-      sub vcl_deliver {
-         set resp.http.hello = "Hello, World";
-      }
-   } -start
-
-   client c1 {
-      txreq -url "/"
-         rxresp
-	    expect resp.http.hello == "Hello, World"
-   }
-
-   varnish v1 -expect cache_miss == 0
-   varnish v1 -expect cache_hit == 0
-
-   client c1 -run
-
-   varnish v1 -expect cache_miss == 1
-   varnish v1 -expect cache_hit == 0
-
-   client c1 -run
-   client c1 -run
-
-   varnish v1 -expect cache_miss == 1
-   varnish v1 -expect cache_hit ==2
+.. include:: vtc/helloworld.vtc
+   :literal:
 
 .. container:: handout
 
@@ -1414,9 +1380,9 @@ In this chapter you will learn about:
    
    .. Log data is in shared memory
 
-   Varnish provides log data in real-time, which is accessible through Varnish tools.
-   Varnish logs all its information to `The SHared Memory LOG (SHMLOG)`_.
-   This memory log is overwritten when filled-up in circular order.
+   Varnish logs information of requests, caches and responses to `The SHared Memory LOG (SHMLOG)`_.
+   Logs are available through Varnish tools with a short delay, but usually not noticeable.
+   The SHMLOG is overwritten when filled-up in circular order.
 
    The memory log overwriting has two effects.
    On the one hand, there is no historic data, but on the other hand, there is an abundance of information accessible at a very high speed.
@@ -5984,7 +5950,7 @@ Screenshots of GUI
    .. figure:: ui/img/vcs-ui-chart.png
       :width: 100%
 
-      Figure :counter:`figure`: Summary of metrics along with time based graphs
+      Figure :counter:`figure`: Summary of metrics with time based graphs
 
 Varnish High Availability (VHA)
 -------------------------------
