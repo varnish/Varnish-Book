@@ -717,7 +717,7 @@ Utility programs part of the Varnish distribution:
    .. varnishtest
 
    ``varnishtest`` is a script driven program used to test your Varnish installation.
-   ``varnishtest`` is very powerful because it allows you to create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behaviour.
+   ``varnishtest`` is very powerful because it allows you to create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behavior.
    ``varnishtest`` is also very useful to learn more about the behavior of Varnish.
    Therefore, ``varnishtest`` is used throughout the book as main testbed.
 
@@ -899,17 +899,18 @@ Finally, verify the version you have installed::
 
    Varnish is distributed with many utility programs.
    ``varnishtest`` is the script driven program that we use main testbed in this book.
-   With ``varnishtest`` you can create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behaviour.
+   With ``varnishtest`` you can create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behavior.
    This is useful to simulate transactions and provoke a specific behavior.
 
-   You can use ``varnishtest`` when writing VCL code or developing VMODs.
+   You can use ``varnishtest`` when configuring your Varnish installation, i.e., writting VCL code, or developing VMODs.
+   In fact, we recommend you first to write your tests as part of your design.
    ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
 
    This section develops basic knowledge about ``varnishtest``, and you will learn more about it throughout the book.
    Another way to learn how to create Varnish tests is by reading and running the ones included in Varnish Cache under ``bin/varnishtest/tests/``.
    Further documentation of ``varnishtest`` is found in its man page, README file ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
 
-   ``varnishtest`` has its own languate: the Varnish Test Case (VTC) language.
+   ``varnishtest`` has its own language: the Varnish Test Case (VTC) language.
    This language is fairly simple to understand as we shall see next.
 
 The Varnish Test Case (VTC) Language
@@ -929,7 +930,7 @@ The Varnish Test Case (VTC) Language
    VTC is not compiled but simply interpreted on the fly.
    When run, the above script simulates an origin server ``s1``, starts a real Varnish instance ``v1``, and simulates a client ``c1``.
 
-   .. varnishtestname
+   .. varnish test name
 
    All VTC programs start by naming the test::
 
@@ -952,15 +953,15 @@ The Varnish Test Case (VTC) Language
    This instance is controlled through the manager process.
    You will learn about the this manager in `The Parent Process: The Manager`_ section.
 
-   ``-vcl`` passses the VCL code inside the brackets ``{}`` to ``v1``.
-   ``+backend`` adds the mocket server ``s1`` as backend with the IP address ``${s1_addr}`` and port ``${s1_port}`` by creating and injecting the following block to ``v1``::
+   ``-vcl`` passes the VCL code inside the brackets ``{}`` to ``v1``.
+   ``+backend`` adds the mocked server ``s1`` as backend with the IP address ``${s1_addr}`` and port ``${s1_port}`` by creating and injecting the following block to ``v1``::
 
       backend default {
         .host = "${s1_addr}";
         .port = "${s1_port}";
       }
 
-   Alternatively, you might want to add backends manually, for example::
+   Alternatively, you might want to add your backends manually, for example::
 
      varnish v1 -vcl {
         backend default {
@@ -969,7 +970,12 @@ The Varnish Test Case (VTC) Language
         }
      }
 
-   This is useful if you want to connect to real backends.
+   .. bookmark
+
+   .. Explain -arg "-b 127.0.0.1:80 -a 127.0.0.1:0" as in c00007.vtc
+   .. probably just -b.
+
+   This is useful if you want to test against real backends.
    Note the lack of ``+backend`` directive when declaring the backend manually.
    Finally, when ``v1`` is started with ``-start``, it loads the VCL code inside the brackets.
 
@@ -983,31 +989,24 @@ Running Your Varnish Tests
 
 .. container:: handout
 
-   To run your test, you simply issue ``varnishtest helloworldtest.vtc``
-   By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests.
-   It is strongly recommended that you look at the verbose output to understand what happens under the hood.
-   For that, you run ``varnishtest`` with the ``-v`` option.
+   To run your test, you simply issue the command above.
+   By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests only.
+   If you want to always get a verbose output, run ``varnishtest`` with the ``-v`` option.
 
-   Later in this appendix, when testing VMODs, we will call ``make check`` instead of typing ``varnishtest`` in the command line.
-   ``make check`` calls ``varnishtest`` with the needed options.
+   A passed test means that you have the most basic Varnish configuration in the ``varnishtest`` testbed correctly.
+   In the next section we explain how to configure Varnish in the way you normally would do after your tests have passed or when the ``varnishtest`` testbed is not enough for your needs.
 
-   .. TODO for the author:
-      Explain how to read varnishtest output:
-      Use ``awk`` to parse the output, because it can be interleaved due to the nature of async transactions in Varnish
+   There is much more to explain about ``varnishtest``, but before that, you must learn more about the fundamentals of Varnish.
+   We will introduce new concpets and make a more advanced use of ``varnishtest`` as we progress in the book.
 
    .. note::
 
       ``man varnishtest`` shows you all options
 
-``varnishtest`` commands
-........................
-
-
-      
 Configure Varnish
 -----------------
 
-- Configure Varnish to use different backends
+- Configure Varnish to use real backends
 
 Varnish ``DAEMON_OPTS``::
 
@@ -1026,14 +1025,19 @@ Varnish ``DAEMON_OPTS``::
    The default VCL file location is ``/etc/varnish/default.vcl``.
    You can change this location by editing the configuration file.
    The VCL file contains your VCL and backend definitions.
-   Edit the VCL file to use Apache as backend::
+
+   In this book, we use Apache as backend.
+   Before continuing, make sure you have Apache installed and configured to listen in port 8080.
+   See `Appendix F: Apache as Backend`_ if you do not know how to do it.
+
+   Edit ``/etc/varnish/default.vcl`` to use Apache as backend::
 
      backend default {
        .host = "127.0.0.1";
        .port = "8080";
      }
 
-   After changing a VCL file, you can run ``service varnish reload``.
+   To reload your VCL file, run ``service varnish reload``.
    This command does **not** restart `varnishd`, it only reloads the VCL code.
    The result of your configuration is resumed in `Table 4 <#table-4>`_.
 
@@ -1053,6 +1057,8 @@ Varnish ``DAEMON_OPTS``::
 
     tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
     tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
+
+   .. TOFIX: The compiled book has a half empty page here.
 
    .. note::
 
@@ -1077,8 +1083,8 @@ Varnish ``DAEMON_OPTS``::
 
 	Figure :counter:`figure`: GUI to configure Varnish via the `Varnish Administration Console (VAC)`_.
 
-Installation Test
-.................
+Test Varnish Using Apache as Backend
+....................................
 
 - Run ``http -p Hh localhost``
 - Your output should look as::
@@ -7036,8 +7042,8 @@ VWS
 
 .. TOFIX: Slides do not show properly VWS
 
-Appendix F: Apache as Origin Server
-===================================
+Appendix F: Apache as Backend
+=============================
 
 - Install Apache.
   We will use it as backend.
