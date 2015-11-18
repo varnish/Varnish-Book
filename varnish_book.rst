@@ -575,7 +575,7 @@ Varnish is designed to:
 
    .. VCL   
 
-   In addition, Varnish uses a configuration language (VCL) that is translated to C programming language code.
+   In addition, Varnish uses the *Varnish Configuration Language* (VCL) that is translated to C programming language code.
    This code is compiled with a standard C compiler and then dynamically linked directly into Varnish at run-time. 
    This has several advantages.
    The most practical is the freedom you get as system administrator.
@@ -915,9 +915,9 @@ Finally, verify the version you have installed::
 The Varnish Test Case (VTC) Language
 ....................................
 
-**helloworldtest.vtc**
+**b01.vtc**
 
-.. include:: vtc/helloworld.vtc
+.. include:: vtc/b01.vtc
    :literal:
 
 .. container:: handout
@@ -926,69 +926,60 @@ The Varnish Test Case (VTC) Language
 
    ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
    Depending on your use case, there might be test preparations, executions and assertions all over the place.
-   Unlike the VCL, the VTC is not compiled but simply interpreted on the fly.
+   VTC is not compiled but simply interpreted on the fly.
+   When run, the above script simulates an origin server ``s1``, starts a real Varnish instance ``v1``, and simulates a client ``c1``.
+
+   .. varnishtestname
+
+   All VTC programs start by naming the test::
+
+     varnishtest "Backend initialization"
 
    .. origin server (backend)
 
-   When run, the above script simulates an origin server (backend) ``s1``, starts a real instance ``v1`` of Varnish, and simulates a client ``c1``.
    ``server s1`` declares a simulated origin server.
    All server declarations must start with ``s``.
    In the code above, ``s1`` receives a request ``rxreq``, and transmits a response ``txresp``.
 
-   The ``-start`` directive makes Varnish to start the simulated origin server.
-   Once you start ``s1``, the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend are automatically made available.
+   ``-start`` starts ``s1`` and makes available the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend.
    Since ``varnishtest`` launches a real ``varnishd`` instance, it is possible to use real backends instead of mock servers.
-   Thus, you can test your actual backend.
    You may also start a declaration at a later point in your code, for example ``server s1 -start``.
 
    .. Varnish server
 
    ``varnish v1`` declares an instance of your real Varnish server, i.e., ``varnishd``.
-   This instance is controlled through the manager process.
-   You will learn about the this manager in the `The Parent Process: The Manager`_ section.
    The names for Varnish servers must start with ``v``.
+   This instance is controlled through the manager process.
+   You will learn about the this manager in `The Parent Process: The Manager`_ section.
 
    ``-vcl`` passses the VCL code inside the brackets ``{}`` to ``v1``.
-   ``+backend`` injects the IP address ``${s1_addr}`` and port ``${s1_port}`` of the mocket server ``s1`` to be used as backend.
+   ``+backend`` adds the mocket server ``s1`` as backend with the IP address ``${s1_addr}`` and port ``${s1_port}`` by creating and injecting the following block to ``v1``::
+
+      backend default {
+        .host = "${s1_addr}";
+        .port = "${s1_port}";
+      }
+
    Alternatively, you might want to add backends manually, for example::
 
      varnish v1 -vcl {
         backend default {
-	   .host = "${s1_addr}";
-	   .port = "${s1_port}";
-	}
+          .host = "${another_addr}";
+          .port = "${another_port}";
+        }
      }
 
+   This is useful if you want to connect to real backends.
+   Note the lack of ``+backend`` directive when declaring the backend manually.
    Finally, when ``v1`` is started with ``-start``, it loads the VCL code inside the brackets.
-
-   .. client (frontend)
-
-   ``client c1`` declares a simulated client that transmits a request ``txreq`` for the slash URL: ``-url "/"``. 
-   ``c1`` receives a response ``rxresp``.
-
-   .. assertions
-
-   ``varnishtest`` supports assertions with the keyword ``expect``.
-   For example, ``c1`` expects the response header field ``resp.http.hello`` with value ``Hello, World``.
-   Assertions can be inside the declaration of the origin server and client, but not inside the Varnish server.
-   Since Varnish is a proxy, checking requests and responses in it is irrelevant.
-   Instead, you have access to the counters exposed by ``varnishstat`` at any time::
-
-     varnish v1 -expect counter == value
-
-   Assertions are evaluated by reading the shared memory log, which ensures that your assertions are tested against a real Varnish server.
-   Therefore, Varnish tests might take a bit longer than what you are used to in other testing frameworks.
-   Finally, ``client c1 -run`` starts the simulated client ``c1``.
-
-   You will learn how to extend this script to test your VMOD later in this chapter, but before, run and analyze the output of ``helloworldtest.vtc`` to understand ``varnishtest`` better.
 
 Running Your Varnish Tests
 ..........................
 
 ::
 
-   $varnishtest helloworldtest.vtc
-      top  TEST helloworldtest.vtc passed (1.554)
+   $varnishtest b01.vtc
+   #     top  TEST b01.vtc passed (1.665)
 
 .. container:: handout
 
@@ -6388,8 +6379,8 @@ The Varnish Test Case (VTC) Language
 
    client c1 {
       txreq -url "/"
-         rxresp
-	    expect resp.http.hello == "Hello, World"
+      rxresp
+      expect resp.http.hello == "Hello, World"
    }
 
    varnish v1 -expect cache_miss == 0
@@ -6412,15 +6403,14 @@ The Varnish Test Case (VTC) Language
 
    ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
    Depending on your use case, there might be test preparations, executions and assertions all over the place.
-   Unlike the VCL, the VTC is not compiled but simply interpreted on the fly.
+   VTC is not compiled but simply interpreted on the fly.
+   When run, the above script simulates an origin server ``s1``, starts a real Varnish instance ``v1``, and simulates a client ``c1``.
 
    .. origin server (backend)
 
-   When run, the above script simulates an origin server ``s1``, starts a real instance ``v1`` of Varnish, and simulates a client ``c1``.
    ``server s1`` declares a simulated origin server that receives a request ``rxreq``, and transmits a response ``txresp``.
-
-   The ``-start`` directive at the end of a server or client declaration makes it to be started by ``varnishtest``.
-   You may also start a declaration at a later point in your code, for example ``server s1 -start``.
+   The ``-start`` directive makes an instance of that declaration to be started.
+   ``-start`` can also be at a later point in your code as ``server s1 -start``.
 
    .. Varnish server
 
@@ -6436,7 +6426,7 @@ The Varnish Test Case (VTC) Language
 	}
      }
 
-   Once you start ``s1``, the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend are automatically made available.
+   Once ``s1`` is started, the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend are automatically made available.
    Since ``varnishtest`` launches a real ``varnishd`` instance, it is possible to use a real backend instead of mock servers.
    Thus, you can test your actual backend.
 

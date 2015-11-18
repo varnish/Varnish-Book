@@ -1,0 +1,13 @@
+varnishtest "Backend initialization"
+
+server s1 {
+   rxreq
+   txresp
+} -start
+
+varnish v1 -vcl {
+   backend default {
+      .host = "${s1_addr}";
+      .port = "${s1_port}";
+   }
+} -start
