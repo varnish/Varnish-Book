@@ -968,8 +968,8 @@ The Varnish Test Case (VTC) Language
 
    ``varnish v1`` declares an instance of your real Varnish server, i.e., ``varnishd``.
    The names for Varnish servers must start with ``v``.
-   This instance is controlled through the manager process.
-   You will learn about the this manager in `The Parent Process: The Manager`_ section.
+   This instance is controlled by the manager process, and ``-start`` forks a child, which is the actual cacher process.
+   You will learn about the manager and cacher in `The Parent Process: The Manager`_ and `The Child Process: The Cacher`_ sections.
 
    There are many ways to configure ``varnishd``.
    On way is by passing arguments with ``-arg`` as in ``-arg "-b ${s1_addr}:${s1_port}"``.
@@ -979,7 +979,6 @@ The Varnish Test Case (VTC) Language
 
    There are other ways to define backends.
    The most common one is perhaps by defining them in your VCL code, as we shall see in the next section.
-   We create a real ``varnishd`` instance ``v1`` with ``-start``.
 
    To simulate a client::
 
@@ -1374,6 +1373,37 @@ Exercise: Use the administration interface to learn, review and set Varnish para
 .. container:: handout
 
    You will learn more about how to tune parameters in the `Tunable Parameters`_ section.
+
+Setting Parameters in ``varnishtest``
+-------------------------------------
+
+**vtc/b00003.vtc**
+
+.. include:: vtc/b00003.vtc
+   :literal:
+
+.. container::
+
+   Parameters can also be set in ``varnishtest``.
+   To execute commands via the CLI, you have three options: ``-cli "command"``, ``-cliok "command"`` and ``-clierr "status" "command"``.
+   ``-cli`` executes a command without checking the return status.
+   ``-clickok`` executes a command and expects it to return OK 200 status.
+   ``-clickerr`` executes a command and checks whether the expected return ``status`` matches.
+
+   .. note::
+
+      You have to instruct ``varnishtest`` to assert the expected behavior as much as you can.
+      For example, ``varnish v1 -cli "param.set default_ttl -1"`` does not fail because ``-cli`` does not assert the return status.
+
+   .. note::
+
+      The macro ${bad_ip} translates to 192.0.2.255.
+      This IP address is for test use only, and it is used here because we do not need a backend to set parameters in Varnish.
+      However, we must always declare at least one backend.
+
+   .. note::
+
+      Note that we do not start ``v1``, because in this example, we do not need to start the cacher process.
 
 Exercise: Fetch Data Through Varnish
 ------------------------------------
