@@ -2,7 +2,8 @@ varnishtest "Setting Parameters"
 
 varnish v1 -arg "-b ${bad_ip}:9080"
 
-# Good enough when you are sure that the value is well formatted and in a valid range:
+# Good enough when you are sure that the value is well formatted
+# and in a valid range:
 varnish v1 -cli "param.set default_ttl 50"
 
 # Setting parameters and asserting correct return status:
