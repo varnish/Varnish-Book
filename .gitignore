@@ -11,3 +11,4 @@ varnish_tutorial-*.tar.bz2
 *.DS_Store
 *~
 ui/img/*_fsm.pdf
+\#*

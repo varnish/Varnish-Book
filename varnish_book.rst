@@ -687,7 +687,7 @@ In this chapter, you will:
 
    In Varnish terminology, a *backend* is the origin server.
    In other words, it is whatever server Varnish talks to fetch content.
-   This can be any sort of service as long as it understands HTTP. 
+   This can be any sort of service as long as it understands HTTP.
    Most of the time, Varnish talks to a web server or an application frontend server.
    In this book, we use *backend*, *origin server*, *web server* or *application frontend server* depending the context.
 
@@ -902,7 +902,7 @@ Finally, verify the version you have installed::
    With ``varnishtest`` you can create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behavior.
    This is useful to simulate transactions and provoke a specific behavior.
 
-   You can use ``varnishtest`` when configuring your Varnish installation, i.e., writting VCL code, or developing VMODs.
+   You can use ``varnishtest`` when configuring your Varnish installation, i.e., writing VCL code, or developing VMODs.
    In fact, we recommend you first to write your tests as part of your design.
    ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
 
@@ -916,9 +916,14 @@ Finally, verify the version you have installed::
 The Varnish Test Case (VTC) Language
 ....................................
 
-**b01.vtc**
+- Test against simulated or real backends
+- Starts real instance of ``varnishd``
+- Simulates clients
+- Asserts using ``expect``
 
-.. include:: vtc/b01.vtc
+**b00001.vtc**
+
+.. include:: vtc/b00001.vtc
    :literal:
 
 .. container:: handout
@@ -928,64 +933,77 @@ The Varnish Test Case (VTC) Language
    ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
    Depending on your use case, there might be test preparations, executions and assertions all over the place.
    VTC is not compiled but simply interpreted on the fly.
-   When run, the above script simulates an origin server ``s1``, starts a real Varnish instance ``v1``, and simulates a client ``c1``.
+
+   .. file naming convention
+
+   There is a naming convention for VTC files.
+   Files starting with ``b`` as the example above contain basic functionality tests.
+   The naming scheme is in ``Varnish-Cache/bin/varnishtest/tests/README`` or https://raw.githubusercontent.com/varnish/Varnish-Cache/master/bin/varnishtest/tests/README.
 
    .. varnish test name
 
    All VTC programs start by naming the test::
 
-     varnishtest "Backend initialization"
+     varnishtest "Varnish as Proxy"
 
    .. origin server (backend)
 
-   ``server s1`` declares a simulated origin server.
+   In this example we declare a simulated origin server::
+
+     server s1 {
+	rxreq
+	txresp
+     } -start
+
    All server declarations must start with ``s``.
    In the code above, ``s1`` receives a request ``rxreq``, and transmits a response ``txresp``.
-
-   ``-start`` starts ``s1`` and makes available the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend.
-   Since ``varnishtest`` launches a real ``varnishd`` instance, it is possible to use real backends instead of mock servers.
+   ``-start`` boots ``s1`` and makes available the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend.
    You may also start a declaration at a later point in your code, for example ``server s1 -start``.
 
    .. Varnish server
+
+   To declare an instance of your real Varnish server::
+
+     varnish v1 -arg "-b ${s1_addr}:${s1_port}" -start
 
    ``varnish v1`` declares an instance of your real Varnish server, i.e., ``varnishd``.
    The names for Varnish servers must start with ``v``.
    This instance is controlled through the manager process.
    You will learn about the this manager in `The Parent Process: The Manager`_ section.
 
-   ``-vcl`` passes the VCL code inside the brackets ``{}`` to ``v1``.
-   ``+backend`` adds the mocked server ``s1`` as backend with the IP address ``${s1_addr}`` and port ``${s1_port}`` by creating and injecting the following block to ``v1``::
+   There are many ways to configure ``varnishd``.
+   On way is by passing arguments with ``-arg`` as in ``-arg "-b ${s1_addr}:${s1_port}"``.
+   ``-b`` is a ``varnishd`` option to define the backend.
+   In this case, we use the IP address and port of the simulated backend ``s1``, but you can also use a real backend.
+   Therefore, ``varnishtest`` can be used as integration tool when testing your real backend.
 
-      backend default {
-        .host = "${s1_addr}";
-        .port = "${s1_port}";
-      }
+   There are other ways to define backends.
+   The most common one is perhaps by defining them in your VCL code, as we shall see in the next section.
+   We create a real ``varnishd`` instance ``v1`` with ``-start``.
 
-   Alternatively, you might want to add your backends manually, for example::
+   To simulate a client::
 
-     varnish v1 -vcl {
-        backend default {
-          .host = "${another_addr}";
-          .port = "${another_port}";
-        }
-     }
+      client c1 {
+	 txreq
+	 rxresp
 
-   .. bookmark
+	 expect resp.http.via ~ "varnish"
+      } -run
 
-   .. Explain -arg "-b 127.0.0.1:80 -a 127.0.0.1:0" as in c00007.vtc
-   .. probably just -b.
+   Simulated clients in ``varnishtest`` start with ``c``.
+   In this example, ``c1`` transmits one request and receives one response.
 
-   This is useful if you want to test against real backends.
-   Note the lack of ``+backend`` directive when declaring the backend manually.
-   Finally, when ``v1`` is started with ``-start``, it loads the VCL code inside the brackets.
+   Since Varnish is a proxy, we expect to receive the response from the backend via Varnish.
+   Therefore, ``c1`` expects to the HTTP header field ``via`` with *varnish* in it.
+   We use tilde ``~`` as match operator of regular expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
 
 Running Your Varnish Tests
 ..........................
 
 ::
 
-   $varnishtest b01.vtc
-   #     top  TEST b01.vtc passed (1.665)
+   $varnishtest b00001.vtc
+   #     top  TEST b00001.vtc passed (1.458)
 
 .. container:: handout
 
@@ -993,15 +1011,11 @@ Running Your Varnish Tests
    By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests only.
    If you want to always get a verbose output, run ``varnishtest`` with the ``-v`` option.
 
-   A passed test means that you have the most basic Varnish configuration in the ``varnishtest`` testbed correctly.
+   A passed test means that you have the most basic Varnish configuration correct in the testbed ``varnishtest``.
    In the next section we explain how to configure Varnish in the way you normally would do after your tests have passed or when the ``varnishtest`` testbed is not enough for your needs.
 
    There is much more to explain about ``varnishtest``, but before that, you must learn more about the fundamentals of Varnish.
-   We will introduce new concpets and make a more advanced use of ``varnishtest`` as we progress in the book.
-
-   .. note::
-
-      ``man varnishtest`` shows you all options
+   We will introduce new concepts and make a more advanced use of ``varnishtest`` as we progress in the book.
 
 Configure Varnish
 -----------------
@@ -1114,7 +1128,24 @@ Test Varnish Using Apache as Backend
 .. container:: handout
 
    You can test your Varnish installation by issuing the command ``http -p Hh localhost``.
-   If you see the HTTP response header field ``Via: 1.1 varnish-plus-v4``, then your installation is correct.
+   If you see the HTTP response header field ``Via`` containing ``varnish``, then your installation is correct.
+
+Exercise: Test Apache as Backend with ``varnishtest``
+.....................................................
+
+- Use VTC to test the ``Server`` and ``Via`` HTTP header fields.
+
+.. container:: handout
+
+   In this exercise you have to define a backend pointing to your Apache server and use assertions with ``expect``.
+
+Solution: Test Apache as Backend with ``varnishtest``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**vtc/b00002.vtc**
+
+.. include:: vtc/b00002.vtc
+   :literal:
 
 The Management Interface ``varnishadm``
 ---------------------------------------
