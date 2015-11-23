@@ -1464,16 +1464,16 @@ In this chapter you will learn about:
    On the one hand, there is no historic data, but on the other hand, there is an abundance of information accessible at a very high speed.
    Still, you can instruct Varnish to store logs in files.
 
-   The ``varnishlog`` and ``varnishncsa`` configuration files allow you to enable or disable log writing to disk.
-   Nevertheless, keep in mind that ``varnishlog`` generates large amounts of data!
-   `Table 3 <#table-3>`_ in the `Install Varnish and Apache as backend` section shows the location of the configuration file based on your platform.
+   Varnish generates very large amounts of data, therefore it does not write logs to disk by default, but only to memory.
+   However, if you need to enable logging to disk, as when debugging a crashing Varnish installation, you set ``VARNISHNCSA_ENABLED=1`` or ``VARNISHNCSA_ENABLED=1`` in ``/etc/default/varnishlog`` or ``/etc/default/varnishncsa`` respectively.
+   `Table 3 <#table-3>`_ shows the location of the configuration file based on different platforms.
 
-   Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, and ``varnishstat`` among others.
+   Varnish provides specific tools to parse the content of logs: ``varnishlog``, ``varnishncsa``, ``varnishstat``, and ``varnishstat`` among others.
    ``varnishlog`` and ``varnishstat`` are the two most common used tools.
 
    .. tip::
 
-      All utility programs to display Varnish logs have installed reference manuals.
+      All utility programs have installed reference manuals.
       Use the ``man`` command to retrieve their manual pages.
 
 Log Data Tools
@@ -1483,6 +1483,7 @@ Log Data Tools
 
 - ``varnishlog`` is used to access request-specific data. It provides information about specific clients and requests.
 - ``varnishncsa`` displays Varnish access logs in NCSA Common log format.
+- ``varnishtest`` allows you to display log records and counters from your tests.
 
 **Statistical tools:**
 
@@ -1521,6 +1522,10 @@ Log Layout
    On production traffic, the amount of log data that Varnish produces is staggering, and filtering is a requirement for using ``varnishlog`` effectively.
    Next section explains transactions and how to reorder them.
 
+   ``varnishtest`` starts a real ``varnishd`` process for each test, therefore it also logs in SHMLOG.
+   When your Varnish test fails or you run ``varnishtest`` in verbose mode, you can see the ``vsl`` entry for each Varnish log record.
+   You can also use the ``logexpect`` to assert the expected behaviour in your tests.
+
 Transactions
 ------------
 
@@ -1547,19 +1552,20 @@ Transactions
 
    .. Definition of transaction
 
-   A transaction is a set of log lines that belongs together, e.g. a client request or a backend request.
-   The Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
+   A transaction is a set of log lines that belong together, e.g., a client request or a backend request.
+   Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
    A unique VXID is assigned to each type of transaction.
-   You can use the VXID when you view the log through ``varnishlog``.
+   You can follow the VXID when you analyze the log through ``varnishlog``.
    
    .. More about VXID
 
-   The default is to group the log by VXID.
-   When viewing a log for a simple cache miss, you can see the backend request, the client request and then the session.
-   They are displayed in the order they end.
-   Some people find it a bit counter intuitive that the backend request is logged before the client request, but if you think about it makes sense.
+   Varnish logs are grouped by VXID by default.
+   For example, when viewing a log for a simple cache miss, you see logs in the order they end.
+   That is: 1) backend request, 2) client request and 3) session.
 
    .. Transaction reasons
+
+   .. TODO for the author: explain transaction reasons.
 
 Transaction Groups
 ..................
@@ -1608,9 +1614,13 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. This figure has 70% width to avoid that the label goes to a new page in pdf-slides format.
 
+::
+
+   $ varnishlog -g request -i Begin,Link -d
+
 .. figure 8
 
-.. figure:: ui/img/cache_miss_request_grouping.png
+.. figure:: ui/img/cache_miss_request_grouping.svg
    :width: 70%
 
    Figure :counter:`figure`: Example of Transaction Grouping with ``varnishlog``
