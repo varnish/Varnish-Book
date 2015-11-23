@@ -1,0 +1,20 @@
+varnishtest "Age greater than 0"
+
+server s1 {
+   rxreq
+   txresp
+} -start
+
+varnish v1 -arg "-b ${s1_addr}:${s1_port}" -start
+
+client c1 {
+      txreq
+      rxresp
+
+      delay 1
+
+      txreq
+      rxresp
+
+      expect resp.http.Age == 1
+} -run

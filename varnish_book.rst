@@ -1414,13 +1414,31 @@ Exercise: Fetch Data Through Varnish
 
 .. container:: handout
 
-        ``-p hH`` specifies HTTPie to print only request and response headers, but not the content.
-	The typical HTTP response is "200 OK" or "404 File not found".
-	Feel free to try removing some of the options and observe the effect.
-	For more information about the HTTPie command, type ``man http``.
+   ``-p hH`` specifies HTTPie to print only request and response headers, but not the content.
+   The typical HTTP response is "200 OK" or "404 File not found".
+   Feel free to try removing some of the options and observe the effect.
+   For more information about the HTTPie command, type ``man http``.
 
-	Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
-        Therefore, it is useful to double-check web browsers requests with HTTPie.
+   Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
+   Therefore, it is useful to double-check web browsers requests with HTTPie or ``varnishtest``.
+   For more information about the ``Age`` response header field refer to the ``Age`` subsection.
+
+Fetch Data with ``varnishtest``
+-------------------------------
+
+**vtc/b00004.vtc**
+
+.. include:: vtc/b00004.vtc
+   :literal:
+
+.. container::
+
+   You can use the ``delay`` command in ``varnishtest``.
+   The unit of the command are seconds and it also accepts float numbers.
+   For more information about the ``Age`` response header field refer to the ``Age`` subsection.
+
+   The ``Age`` value depends on the time to live (TTL) value of the cached object.
+   We will learn more about it in `The Initial Value of beresp.ttl`_ section.
 
 Examining Varnish Server's Output
 =================================
