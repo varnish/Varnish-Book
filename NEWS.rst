@@ -5,6 +5,12 @@ This file is meant for trainers.
 Below are the main changes that might affect the flow of a training session.
 Main changes from last training session based on:
 
+Tag version-5.2
+---------------
+
+- Figure to explain reordered output of ``varnishlog``.
+- ``varnishtest`` throughout the book.
+
 Tag version-5.1
 ---------------
 

@@ -217,7 +217,7 @@ The Webdev course requires that you:
 
    Varnish installs several reference manuals that are accessible through the manual page command ``man``.
    You can issue the command ``man -k varnish`` to list the manual pages that mention Varnish in their short description.
-   In addition, the ``vsl`` man page that explains the Varnish Shared Memory Logging (VSL).
+   In addition, the ``vsl`` man page that explains the Varnish Shared memory Logging (VSL).
    This man page does not come out when issuing ``man -k varnish``, because it does not contain the word `varnish` in its short description.
 
    The command ``man varnishd``, for example, retrieves the manual page of the Varnish HTTP accelerator daemon.
@@ -1533,39 +1533,81 @@ Transactions
    The diagram shows: 
 
    - the sooner a transaction ends, the sooner you see it
-   - transactions with VXID 0 are everything that Varnish does but no part of a specific transaction
 
-- One transaction is one work item in Varnish.
-- Share a single Varnish Transaction ID (VXID) per types of transactions.
-  Transaction types are:
+::
 
- - ``session``: TCP session
- - ``request``: Transaction handled by the frontend- or backend worker
+   $ varnishlog -d
 
-- Each transaction has a reason, for examples:
 
- - ESI request
- - restart
- - fetch
+.. figure 8
+
+.. figure:: ui/img/cache_miss_request_default.svg
+   :align: center
+   :width: 100%
+
+   Figure :counter:`figure`: VXIDs in Log Layout
 
 .. container:: handout
 
    .. Definition of transaction
 
-   A transaction is a set of log lines that belong together, e.g., a client request or a backend request.
+   A transaction is one work item in Varnish and it is a set of log lines that belong together, e.g., a client request or a backend request.
    Varnish Transaction IDs (VXIDs) are applied to lots of different kinds of work items.
    A unique VXID is assigned to each type of transaction.
-   You can follow the VXID when you analyze the log through ``varnishlog``.
-   
+   The ``0`` VXID is reserved for everything that Varnish does but not part of a specific transaction.
+   You can follow the VXID when you analyze the log through ``varnishlog`` or ``varnishtest``.
+
+   Transaction types are:
+
+      - ``session``: TCP session
+      - ``request``: Transaction handled by the frontend- or backend worker
+
    .. More about VXID
 
    Varnish logs are grouped by VXID by default.
    For example, when viewing a log for a simple cache miss, you see logs in the order they end.
-   That is: 1) backend request, 2) client request and 3) session.
+   That is: 1) backend request (``BeReq``), 2) client request (``Request``) and 3) session (``Session``).
 
    .. Transaction reasons
 
-   .. TODO for the author: explain transaction reasons.
+   Each transaction has a reason, for examples:
+
+   - Client request
+   - ESI request
+   - restart
+   - fetch
+
+Example of Transactions in ``varnishtest``
+..........................................
+
+::
+
+   $varnishtest -v b00001.vtc
+
+   (...)
+   **** v1    0.3 vsl|          0 CLI             - Rd vcl.load "boot" (...)
+   (...)
+   **** v1    0.4 vsl|       1000 Begin           c sess 0 HTTP/1
+   (...)
+   **** v1    0.4 vsl|       1002 Begin           b bereq 1001 fetch
+   (...)
+   **** v1    0.4 vsl|       1002 End             b
+   **** v1    0.4 vsl|       1001 Begin           c req 1000 rxreq
+   (...)
+   **** v1    0.4 vsl|       1001 End             c
+   (...)
+   **** v1    0.4 vsl|       1000 End             c
+   (...)
+   **** v1    0.5 vsl|          0 CLI             - EOF on CLI connection (...)
+
+.. container:: handout
+
+   Above is a snippet of how Varnish logs are displayed in ``varnishtest``.
+   ``varnishtest`` does not group logs by default as ``varnislog`` does.
+   Still, ``varnishtest`` allows you to group the transactions for assertions with the command ``logexpect``.
+
+   ``varnishtest`` starts client transactions in ``1000``.
+   Note the VXID ``0`` for Varnish specific records.
 
 Transaction Groups
 ..................
@@ -1574,7 +1616,7 @@ Transaction Groups
 .. the VSL-query man page describes the grouping modes and the transaction hierarchy
 .. https://www.varnish-cache.org/docs/trunk/reference/vsl-query.html
 
-- ``varnishlog -g <session | request | vxid | raw>`` groups together transactions
+- ``-g <session | request | vxid | raw>`` groups together transactions in ``varnishlog`` and ``varnishtest``
 - Transaction groups are hierarchical
 - Levels are equal to relationships (parents and children)::
  
@@ -1605,7 +1647,7 @@ Transaction Groups
    .. TODO for the author: explain that levels are equal to relationships.
    .. This explanation will probably go before when explaining subroutines.
    
-   When a subrequest occurs in the log, the subrequest tells us about the relationship to its parent request through the `Link` statement. 
+   When a subrequest occurs in the log, the subrequest tells us about the relationship to its parent request through the ``Link`` statement. 
    This statement contains the VXID of the parent request.
    ``varnishlog`` indents its output based on the level of the request, making it easier to see the level of the current request.
 
@@ -1618,7 +1660,7 @@ Example of Transaction Grouping with ``varnishlog``
 
    $ varnishlog -g request -i Begin,Link -d
 
-.. figure 8
+.. figure 9
 
 .. figure:: ui/img/cache_miss_request_grouping.svg
    :width: 70%
@@ -1627,7 +1669,7 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. container:: handout
 
-   `Figure 8 <#figure-8>`_ shows a client request in a *cache miss* scenario.
+   `Figure 9 <#figure-9>`_ shows a client request in a *cache miss* scenario.
    In the figure, ``varnishlog`` returns records grouped by request.
    For simplicity, we use the ``-i`` option to include only the ``Begin`` and ``Link`` tags.
 
@@ -1828,28 +1870,28 @@ Exercise
 
       You can also see many parameters in real-time graphs with the `Varnish Administration Console (VAC)`_.
 
-      .. figure 9
+      .. figure 10
 
       .. figure:: ui/img/vac_hit_meter.png
          :width: 70%
 
          Figure :counter:`figure`: Cache Hit Meter
 
-      .. figure 10
+      .. figure 11
 
       .. figure:: ui/img/vac_hitrate.png
          :width: 100%
 
          Figure :counter:`figure`: Hit vs Miss vs Hit for Pass
 
-      .. figure 11
+      .. figure 12
 
       .. figure:: ui/img/vac_hitrate_req.png
          :width: 100%
 
          Figure :counter:`figure`: Req/sec, and Hit/sec
 
-      .. figure 12
+      .. figure 13
 
       .. figure:: ui/img/vac_realtime_counters.png
          :width: 70%
@@ -1938,7 +1980,7 @@ This section covers:
 Varnish Architecture
 --------------------
 
-.. figure 13
+.. figure 14
 
 .. figure:: ui/img/architecture.svg
    :align: center
@@ -1948,7 +1990,7 @@ Varnish Architecture
 
 .. container:: handout
 
-   `Figure 13 <#figure-13>`_ shows a block diagram of the Varnish architecture.
+   `Figure 14 <#figure-14>`_ shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
    The main block is the `Manager` process, which is contained in the ``varnishd`` binary program.
@@ -1964,7 +2006,7 @@ Varnish Architecture
    .. vagent2
    
    The Varnish Agent *vagent2* is an open source HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
-   *vagent2* offers a web UI as shown in `Figure 14 <#figure-14>`_, but you can write your own UI since *vagent2* is an open interface.
+   *vagent2* offers a web UI as shown in `Figure 15 <#figure-15>`_, but you can write your own UI since *vagent2* is an open interface.
    Some features of the *vagent2* are:
 
    - VCL uploading, downloading, persisting (storing to disk).
@@ -1974,7 +2016,7 @@ Varnish Architecture
    - banning
    - ``varnishstat`` in JSON format
 
-   .. figure 14
+   .. figure 15
 
    .. figure:: ui/img/vagent2.png
       :width: 100%
@@ -2229,7 +2271,7 @@ Tunable Parameters
 
       Parameters can also be configured via the `Varnish Administration Console (VAC)`_ as shown in the figure below.
 
-      .. figure 15
+      .. figure 16
 
       .. figure:: ui/img/vac_parameters.png
 	 :width: 100%
@@ -2602,7 +2644,7 @@ This chapter covers:
 Protocol Basics
 ---------------
 
-.. figure 16
+.. figure 17
 
 .. figure:: ui/img/httprequestflow.png
    :align: center
@@ -2861,7 +2903,7 @@ When to serve a cached object?
 Cache Matching
 --------------
 
-.. figure 17
+.. figure 18
 
 .. figure:: ui/img/httpcachehit.png
     :align: center
@@ -2872,7 +2914,7 @@ Cache Matching
 - Cache-hits are used to reuse, update or invalidate caches
 - Objects may have variants (``Vary`` and ``Etag``)
  
-.. figure 18
+.. figure 19
 
 .. figure:: ui/img/httpcachemiss.png
     :align: center
@@ -2882,11 +2924,11 @@ Cache Matching
 
 .. container:: handout
 
-   `Figure 17 <#figure-17>`_ shows the flow diagram of a *cache-hit*.
+   `Figure 18 <#figure-18>`_ shows the flow diagram of a *cache-hit*.
    A cache-hit occurs when the requested object (URI) matches a stored HTTP response message (cache).
    If the matched stored message is valid to construct a response for the client, Varnish serves construct a response and serves it without contacting the origin server.
 
-   `Figure 18 <#figure-18>`_ shows the flow diagram of a *cache-miss*.
+   `Figure 19 <#figure-19>`_ shows the flow diagram of a *cache-miss*.
    A *cache-miss* happens when Varnish does not match a cache.
    In this case, Varnish forwards the request to the origin server.
 
@@ -3009,7 +3051,7 @@ Cache Matching
 
        If-None-Match: "1edec-3e3073913b100"
 
-   .. figure 19
+   .. figure 20
 
    .. figure:: ui/img/httpifnonematch.png
       :align: center
@@ -3035,7 +3077,7 @@ Cache Matching
 
        If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
-   .. figure 20
+   .. figure 21
 
    .. figure:: ui/img/httpifmodifiedsince.png
       :align: center
@@ -3287,7 +3329,7 @@ Varnish Finite State Machine
 
 .. Todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
 
-- VCL workflow seen as a finite state machine – See `Figure 21 <#figure-21>`_ in the book
+- VCL workflow seen as a finite state machine – See `Figure 22 <#figure-22>`_ in the book
 - States are conceptualized and implemented as subroutines, e.g., ``sub vcl_recv``
 - Built-in subroutines start with ``vcl_``, which is a reserved prefix
 - ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
@@ -3305,7 +3347,7 @@ Varnish Finite State Machine
 
 .. container:: handout
 
-   .. figure 21
+   .. figure 22
 
    .. figure:: ui/img/simplified_fsm.svg
       :align: center
@@ -3323,10 +3365,10 @@ Varnish Finite State Machine
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
-   `Figure 21 <#figure-21>`_ shows a simplified version of the Varnish finite state machine.
+   `Figure 22 <#figure-22>`_ shows a simplified version of the Varnish finite state machine.
    This version shows by no means all possible transitions, but only a traditional set of them.
-   `Figure 22 <#figure-22>`_ and
-   `Figure 23 <#figure-23>`_ show the detailed version of the state machine for the **frontend** and **backend**  worker respectively.
+   `Figure 23 <#figure-23>`_ and
+   `Figure 24 <#figure-24>`_ show the detailed version of the state machine for the **frontend** and **backend**  worker respectively.
    The figures represent a request flow diagram.
 
    States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
@@ -3360,8 +3402,8 @@ Varnish Finite State Machine
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
 
-- `Figure 22 <#figure-22>`_ shows the detailed request flow diagram of the backend worker.
-- The grayed box is detailed in `Figure 23 <#figure-23>`_.
+- `Figure 23 <#figure-23>`_ shows the detailed request flow diagram of the backend worker.
+- The grayed box is detailed in `Figure 24 <#figure-24>`_.
 
 .. This slide does not contain bullets because it conflicts with the size of the diagram.
 
@@ -3372,7 +3414,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
 .. container:: handout
 
-   .. figure 22
+   .. figure 23
 
    .. figure:: ui/img/detailed_fsm.svg
       :align: center
@@ -3594,7 +3636,7 @@ To have a detailed availability of each variable, refer to the VCL man page by t
 VCL – ``vcl_backend_fetch``
 ---------------------------
 
-- See `Figure 23 <#figure-23>`_ in the book
+- See `Figure 24 <#figure-24>`_ in the book
 
 .. include:: vcl/default-vcl_backend_fetch.vcl
    :literal:
@@ -3603,14 +3645,14 @@ VCL – ``vcl_backend_fetch``
 
    .. TODO for the editor: improve layout of this figure
 
-   .. figure 23
+   .. figure 24
 
    .. figure:: ui/img/detailed_fsm_backend.svg
       :width: 100%
 
       Figure :counter:`figure`: Varnish Request Flow for the Backend Worker Thread.
 
-   `Figure 23 <#figure-23>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
+   `Figure 24 <#figure-24>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to define your caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
@@ -3898,11 +3940,11 @@ VCL – ``vcl_backend_response``
 
 - Sanitize server-response
 - Override cache duration
-- See `Figure 23 <#figure-23>`_ in the book
+- See `Figure 24 <#figure-24>`_ in the book
 
 .. container:: handout
 
-   `Figure 23 <#figure-23>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 24 <#figure-24>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
    Backends might respond with a ``304`` HTTP headers.
@@ -4689,7 +4731,7 @@ Banning
 
       You can also execute ban expressions via the `Varnish Administration Console (VAC)`_.
 
-      .. figure 24
+      .. figure 25
 
       .. figure:: ui/img/vac_bans.png
 	 :width: 100%
@@ -5471,7 +5513,7 @@ Edge Side Includes
 - How to use ESI?
 - Testing ESI without Varnish
 
-.. figure 25
+.. figure 26
 
 .. figure:: ui/img/esi.png
    :align: center
@@ -5483,7 +5525,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   `Figure 25 <#figure-25>`_ depicts this process.
+   `Figure 26 <#figure-26>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -5722,7 +5764,7 @@ Varnish Administration Console (VAC)
 Overview Page of the Varnish Administration Console
 ...................................................
 
-.. figure 26
+.. figure 27
 
 .. figure:: ui/img/vac_screenshot_1.png
    :width: 70%
@@ -5734,7 +5776,7 @@ Configuration Page of the Varnish Administration Console
 
 .. TODO for the author: update screenshot to contain instances of Varnish 4
 
-.. figure 27
+.. figure 28
 
 .. figure:: ui/img/vac_screenshot_2.png
    :width: 70%
@@ -5744,7 +5786,7 @@ Configuration Page of the Varnish Administration Console
 Banning Page of the Varnish Administration Console
 ..................................................
 
-.. figure 28
+.. figure 29
 
 .. figure:: ui/img/vac_screenshot_3.png
    :width: 70%
@@ -5759,7 +5801,7 @@ Varnish Custom Statistics (VCS)
 - Provides an API to retrieve statistics
 - Provides a GUI that presents lists and charts to get a quick overview of the key metrics that matters you
 
-.. figure 29
+.. figure 30
 
 .. figure:: ui/img/vcs-dsms.svg
    :width: 100%
@@ -5799,8 +5841,8 @@ Varnish Custom Statistics (VCS)
 
    .. demo
    
-   `Figure 30 <#figure-30>`_ and 
-   `Figure 31 <#figure-31>`_ are screenshots of the VCS GUI.
+   `Figure 31 <#figure-31>`_ and 
+   `Figure 32 <#figure-32>`_ are screenshots of the VCS GUI.
    These screenshots are from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
 
@@ -6020,7 +6062,7 @@ Screenshots of GUI
 
 .. container:: handout
 
-   .. figure 30
+   .. figure 31
 
    .. figure:: ui/img/vcsui_header_2.png
       :width: 100%
@@ -6031,7 +6073,7 @@ Screenshots of GUI
 
 |
 
-   .. figure 31 
+   .. figure 32 
 
    .. figure:: ui/img/vcs-ui-chart.png
       :width: 100%
@@ -6046,7 +6088,7 @@ Varnish High Availability (VHA)
 - Two-server, circular, multi-master replication
 - Requests to replicate content against Varnish servers, not the backend
 
-.. figure 32
+.. figure 33
 
 .. figure:: ui/img/vha.svg
    :width: 100%
@@ -6693,7 +6735,7 @@ Implementing Functions
 The Workspace Memory Model
 ..........................
 
-.. figure 33
+.. figure 34
 
 .. figure:: ui/img/workspace_memory_model.svg
    :width: 100%
