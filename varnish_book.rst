@@ -1687,6 +1687,10 @@ Example of Transaction Grouping with ``varnishlog``
    Options ``-b`` and ``-c`` display only transactions coming from the backend and client communication respectively.
    You can verify the meaning of your results by double checking the filters, and separating your results with the ``-b`` and ``-c`` options.
 
+   .. note::
+
+      The ``logexpect`` command from ``varnishtest`` accepts the same arguments as ``varnishlog``.
+
 Query Language
 --------------
 
@@ -1754,7 +1758,8 @@ Exercise
 
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
-- Make ``varnishlog`` only print client-requests where the `ReqURL` tag contains ``/favicon.ico``.
+- Make ``varnishlog`` to print only client-requests where the `ReqURL` tag contains ``/favicon.ico``.
+
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
