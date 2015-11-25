@@ -598,7 +598,7 @@ Varnish is designed to:
 
    .. shared memory
 
-   The shared memory log (SHMLOG) allows Varnish to log large amounts of information at almost no cost by having other applications parse the data and extract the useful bits.
+   The Varnish Shared memory Log (VSL) allows Varnish to log large amounts of information at almost no cost by having other applications parse the data and extract the useful bits.
    This design and other mechanisms decrease lock-contention in the heavily threaded environment of Varnish.
 
    .. TODO for the author: Move to fast track
@@ -995,6 +995,84 @@ The Varnish Test Case (VTC) Language
    Since Varnish is a proxy, we expect to receive the response from the backend via Varnish.
    Therefore, ``c1`` expects to the HTTP header field ``via`` with *varnish* in it.
    We use tilde ``~`` as match operator of regular expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
+
+   Finally, you start client ``c1`` with the ``-run`` command.
+
+Synchronize your Varnish tests
+..............................
+
+- Varnish is a multi-threaded program
+- Use ``-wait`` or ``sema`` as synchronization mechanism
+- ``-run``: ``-start -wait``
+
+.. container:: handout
+
+   You might have noticed that we used ``-start`` for ``v1``, but ``-run`` for ``c1``.
+   The difference between these commands is that ``-run`` executes ``-start -wait``.
+
+   Varnish is a multi-threaded program.
+   Therefore, each instance in ``varnishtest``, i.e., ``s1``, ``v1`` and ``c1``, is executed by a different thread.
+   Sometimes, you will need some sort of synchronization mechanism to ensure you avoid race conditions or other non-intuitive behaviors.
+   For those cases, you can use the ``-wait`` command.
+
+   ``-wait`` tells the executor of ``varnishtest`` to wait for a given instance to complete before proceeding to the next instruction in your VTC program.
+   To illustrate this, see the difference between::
+
+      varnishtest "Synchronized"
+
+      server s1 {
+	      rxreq
+	      txresp
+      }
+
+      server s1 -start
+
+      client c1 -connect ${s1_sock} {
+	      txreq
+	      rxresp
+      }
+
+      # -run: -start - wait
+      client c1 -run
+
+      server s1 -wait
+
+   and::
+
+      varnishtest "Unsynchronized"
+
+      server s1 {
+	      rxreq
+	      txresp
+      }
+
+      server s1 -start -wait
+
+      client c1 -connect ${s1_sock} {
+	      txreq
+	      rxresp
+      }
+
+      client c1 -run
+
+   The second test fails in comparison to the first one, because ``varnishtest`` times out while waiting for ``s1`` to receive a request and transmit a response.
+   Therefore, you typically start Varnish servers with the ``-start`` command, but start clients with the ``-run`` command.
+
+   Another important synchronization mechanism is ``sema``.
+   There are many tests under ``Varnish-Cache/bin/varnishtest/tests`` that use ``sema``.
+   Please refer to them in order to learn how to use ``sema``.
+
+   .. TODO for the author: explain ``sema``.
+
+   .. note::
+
+      You will learn more about the `Threading Model`_ of Varnish in
+
+   .. note::
+
+      Note that we do not instantiate a Varnish server in the examples, but connect the client directly to the server.
+      For that purpose we use ${s1_sock}.
+      This macro translates to the IP address and port of ``s1``.
 
 Running Your Varnish Tests
 ..........................
@@ -1456,9 +1534,9 @@ In this chapter you will learn about:
    
    .. Log data is in shared memory
 
-   Varnish logs information of requests, caches and responses to `The SHared Memory LOG (SHMLOG)`_.
+   Varnish logs information of requests, caches and responses to `The Varnish Shared memory Log (VSL)`_.
    Logs are available through Varnish tools with a short delay, but usually not noticeable.
-   The SHMLOG is overwritten when filled-up in circular order.
+   The VSL is overwritten when filled-up in circular order.
 
    The memory log overwriting has two effects.
    On the one hand, there is no historic data, but on the other hand, there is an abundance of information accessible at a very high speed.
@@ -1522,9 +1600,9 @@ Log Layout
    On production traffic, the amount of log data that Varnish produces is staggering, and filtering is a requirement for using ``varnishlog`` effectively.
    Next section explains transactions and how to reorder them.
 
-   ``varnishtest`` starts a real ``varnishd`` process for each test, therefore it also logs in SHMLOG.
+   ``varnishtest`` starts a real ``varnishd`` process for each test, therefore it also logs in VSL.
    When your Varnish test fails or you run ``varnishtest`` in verbose mode, you can see the ``vsl`` entry for each Varnish log record.
-   You can also use the ``logexpect`` to assert the expected behaviour in your tests.
+   You can also use the ``logexpect`` to assert the expected behavior in your tests.
 
 Transactions
 ------------
@@ -1603,7 +1681,7 @@ Example of Transactions in ``varnishtest``
 .. container:: handout
 
    Above is a snippet of how Varnish logs are displayed in ``varnishtest``.
-   ``varnishtest`` does not group logs by default as ``varnislog`` does.
+   ``varnishtest`` does not group logs by default as ``varnishlog`` does.
    Still, ``varnishtest`` allows you to group the transactions for assertions with the command ``logexpect``.
 
    ``varnishtest`` starts client transactions in ``1000``.
@@ -1691,6 +1769,56 @@ Example of Transaction Grouping with ``varnishlog``
 
       The ``logexpect`` command from ``varnishtest`` accepts the same arguments as ``varnishlog``.
 
+``logexpect``
+-------------
+
+- Assert log records in ``varnishtest``
+- Uses ``varnishlog`` API
+
+.. include:: vtc/l00000.vtc
+   :literal:
+
+.. container:: backend::
+
+   ``logexpect`` is a program that uses the ``varnishlog`` API.
+   Therefore, it is able to group and query the Varnishlog just as ``varnishlog`` does.
+   In addition, ``logexpect`` allows you to assert what you are expecting to appear in the VSL.
+
+   Below is a synopsis of arguments, options and ``expect`` syntax of ``logexpect``::
+
+      -v <varnish-instance>
+      -d <0|1> (head/tail mode)
+      -g <grouping-mode>
+      -q <query>
+
+      vsl arguments (vsl_arg.c)
+      -b                   Only display backend records
+      -c                   Only display client records
+      -C                   Caseless regular expressions
+      -i <taglist>         Include tags
+      -I <[taglist:]regex> Include by regex
+      -L <limit>           Incomplete transaction limit
+      -T <seconds>         Transaction end timeout
+
+      logexpect lN -v <id> [-g <grouping>] [-d 0|1] [-q query] [vsl arguments] {
+	 expect <skip> <vxid> <tag> <regex>
+      }
+
+      skip: [uint|*]               Max number of record to skip
+      vxid: [uint|*|=]             vxid to match
+      tag:  [tagname|*|=]          Tag to match against
+      regex:                       regular expression to match against (optional)
+      *:                           Match anything
+      =:                           Match value of last successfully matched record
+
+   .. note::
+
+      Note ``logexpect l1 -wait`` at the end of the script.
+
+.. bookmark:
+
+   todo: to explain more about the last -wait
+
 Query Language
 --------------
 
@@ -1745,24 +1873,26 @@ Examples of Varnish log queries::
 
    .. Benefits for others
 
-   The grouping and the query log processing all happens in the Varnish logging API.
-   This means that other programs using the ``varnishlog`` API automatically get grouping and query language.
+   The grouping and the query log processing all happens in the ``varnishlog`` API.
+   This means that other programs using this API automatically get grouping and query language.
+   For example, ``logexpect`` as we shall see next.
 
    .. tip::
 
       ``man vsl-query`` shows you more details about query expressions.
       ``man vsl`` lists all *taglists* and their syntax.
 
-Exercise
---------
+Exercise: Filter Varnish Log Records
+------------------------------------
 
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
-- Make ``varnishlog`` to print only client-requests where the `ReqURL` tag contains ``/favicon.ico``.
-
+- Use ``varnishlog`` to print transactions for `Service Unavailable` (``RespStatus == 503``) responses
+- Use ``varnishtest`` to provoke a `Service Unavailable` response and assert it by reading VSL with ``logexpect``
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
+
 
 ``varnishstat``
 ---------------
@@ -1835,7 +1965,7 @@ Exercise
 .. container:: handout
 
    ``varnishstat`` looks only at counters.
-   These counters are easily found in the SHMLOG, and are typically polled at reasonable interval to give the impression of real-time updates. 
+   These counters are easily found in the VSL, and are typically polled at reasonable interval to give the impression of real-time updates. 
    Counters, unlike the rest of the log, are not directly mapped to a single request, but represent how many times a specific action has occurred since Varnish started.
 
    ``varnishstat`` gives a good representation of the general health of Varnish.
@@ -2098,14 +2228,15 @@ The main functions of the *Cacher* are:
    The virtual memory usage will indeed be 5GB, but unless you actually use the memory, this is not a problem.
    Your memory controller and operating system will keep track of what you actually use.
 
-   To communicate with the rest of the system, the child process uses the SHMLOG accessible from the file system.
+   To communicate with the rest of the system, the child process uses the VSL accessible from the file system.
    This means that if a thread needs to log something, all it has to do is to grab a lock, write to a memory area and then free the lock. 
    In addition to that, each worker thread has a cache for log-data to reduce lock contention.
    We will discuss more about the `Threading Model`_ later in this chapter.
 
    The log file is usually about 80MB, and split in two. 
    The first part is counters, the second part is request data. 
-   To view the actual data, a number of tools exist that parses the SHMLOG.
+   To view the actual data, a number of tools exist that parses the VSL.
+
    Since the log-data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose. 
    You then use one of the log-parsing tools to extract the piece of information you want -- either to store it permanently or to monitor Varnish in real-time.
 
@@ -2207,32 +2338,33 @@ You can choose one method with the ``-s`` option of ``varnishd``.
    static overhead which you can calculate by starting Varnish without
    any objects. Typically around 100MB.
 
-The SHared Memory Log (SHMLOG)
-------------------------------
+The Varnish Shared memory Log (VSL)
+-----------------------------------
 
-- Avoid I/O operations. 
-- Mount the shared memory log as `tmpfs`.
-- `shm-log` is not persistent.
+- Avoid I/O operations
+- Mount the shared memory log as `tmpfs`
+- VSL is not persistent
 
 .. container:: handout
 
-   Varnish' SHared Memory LOG (SHMLOG) is used to log most data. 
-   It is sometimes called `shm-log`, and operates on a circular buffer.
-   The SHMLOG is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
-   To change the size of the SHMLOG, see the option ``-l`` in the man page of ``varnishd``.
+   The Varnish Shared memory Log (VSL), sometimes called `shm-log` or `SHMLOG`, is used to log most data.
+   VSL operates on a circular buffer.
+   Therefore, there is no a start or an end of it, but you can issue ``varnishlog -d`` to see old log entries.
+
+   VSL is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
+   To change the size of the VSL, see the option ``-l`` in the man page of ``varnishd``.
 
    .. I/O operations
 
-   There is not much you have to do with the SHMLOG, except ensure that it does not cause I/O operations.
-   You can avoid I/O by mounting the SHMLOG as a temporary file storage (`tmpfs`).
+   There is not much you have to do with the VSL, except ensure that it does not cause I/O operations.
+   You can avoid I/O by mounting the VSL as a temporary file storage (`tmpfs`).
    This is typically configured in ``/etc/fstab``, and the `shm-log` is normally kept under ``/var/lib/varnish/`` or equivalent locations.
    You need to restart ``varnishd`` after mounting it as `tmpfs`.
 
    .. no persistent
 
-   The SHMLOG is not persistent.    
-   You can issue ``varnishlog -d`` to see old log entries.
-   All the content under ``/var/lib/varnish/`` directory is safe to delete.
+   VSL is not persistent, i.e., all its data is in memory.
+   This memory space is mapped under ``/var/lib/varnish/``.   
 
    .. warning::
 
@@ -2385,7 +2517,7 @@ Then::
 Threading Model
 ---------------
 
-- The child process runs multiple threads in two tread pools
+- The child process runs multiple threads in two thread pools
 - Threads accept new connections and delegate them
 - One worker threads per client request – it's common to use hundreds of worker threads
 - Expire-threads evict old content from the cache
@@ -6191,7 +6323,7 @@ Commercial:
 Appendix B: Varnish Programs
 ============================
 
-SHared Memory LOG (SHMLOG) tools:
+Varnish Shared memory Log (VSL) tools:
 
 - ``varnishlog``
 - ``varnishncsa``
@@ -6270,7 +6402,7 @@ Misc:
 
 .. container:: handout
 
-   If you already have tools in place to analyze NCSA Common log format, ``varnishncsa`` can be used to print the SHMLOG in this format.
+   If you already have tools in place to analyze NCSA Common log format, ``varnishncsa`` can be used to print the VSL in this format.
    ``varnishncsa`` dumps everything pointing to a certain domain and subdomains.
 
    Filtering works similar to ``varnishlog``.
@@ -6303,7 +6435,7 @@ Misc:
 
 .. container:: handout
 
-   The ``varnishhist`` utility reads the SHMLOG and presents a continuously updated histogram showing the distribution of the last *n* requests.
+   The ``varnishhist`` utility reads the VSL and presents a continuously updated histogram showing the distribution of the last *n* requests.
    ``varnishhist`` is particularly useful to get an idea about the performance of your Varnish Cache server and your backend.
 
    The horizontal axis shows a time range from 1e-6 (1 microsecond) to 1e2 (100 seconds).

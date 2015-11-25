@@ -1,4 +1,4 @@
-varnishtest "VSL"
+varnishtest "Assert in VSL"
 
 server s1 {
    rxreq
@@ -9,12 +9,13 @@ varnish v1 -arg "-b ${s1_addr}:${s1_port}" -start
 
 logexpect l1 -v v1
 
+logexpect l1 {
+      expect * *     ReqURL          /favicon.ico
+} -start
+
 client c1 {
       txreq -url "/favicon.ico"
       rxresp
 } -run
 
-logexpect l1 -d 1 -g request -q "ReqUrl eq '/favicon.ico'"{
-      expect 0 *     Begin    req
-      expect * =     End
-} -run
+logexpect l1 -wait

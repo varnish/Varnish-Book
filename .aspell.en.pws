@@ -1,4 +1,4 @@
-personal_ws-1.1 en 412 
+personal_ws-1.1 en 421 
 ajax
 apache
 google
@@ -15,8 +15,8 @@ CET
 github
 delim
 arg
-HTTP's
 https
+HTTP's
 VMODs
 Naghibi
 nosni
@@ -43,6 +43,7 @@ cacheable
 Verdens
 timeline
 jessie
+logexpect
 RespProtocol
 CType
 SHared
@@ -61,6 +62,7 @@ CTX
 ctx
 Matou≈
 iawk
+EOF
 SPDY
 varnishhist
 esiparser
@@ -78,8 +80,8 @@ MarkOverflow
 Wysocki
 coverPage
 uncomment
-Kacper
 clickok
+Kacper
 RTSP
 memcached
 topbuild
@@ -112,13 +114,14 @@ Blix
 IRC
 runtime
 IPs
-sudo
 cliok
+sudo
 txreq
 RESTful
-ipv
 IPv
+ipv
 Argv
+uint
 Acceptor
 CIDR
 async
@@ -132,8 +135,8 @@ clierr
 LFU
 metadata
 saintmode
-freebsd
 FreeBSD
+freebsd
 gunzip
 linux
 Economization
@@ -143,12 +146,12 @@ Aondio
 enmod
 mgt
 releasever
-RespStatus
 respstatus
+RespStatus
 vmodtool
 getNonMasqueraded
-hashtwo
 HashTwo
+hashtwo
 DDoS
 workspace
 subdomains
@@ -158,8 +161,8 @@ cowsay
 Kamp
 codename
 LRU
-ReqUrl
 ReqURL
+ReqUrl
 asts
 SELinux
 LTS
@@ -173,6 +176,7 @@ ReqHeader
 websockets
 Nginx
 Aftenposten
+Unsynchronized
 Rogier
 tmpfs
 blatti
@@ -219,6 +223,7 @@ preallocated
 tcp
 SLA
 DeviceAtlas
+BeReq
 bereq
 http
 vmod
@@ -236,19 +241,19 @@ smartphone
 helloworldtest
 varnishapi
 ubuntu
-VBE
 rst
+VBE
 VCA
-vcc
 src
+vcc
 recv
 subrequest
 util
 SQL
 VDD
 VBP
-VAV
 vcl
+VAV
 VXIDs
 TLS
 setsebool
@@ -283,8 +288,8 @@ url
 testbed
 hdrbytes
 Arianna
-utf
 VLU
+utf
 BereqURL
 malloc
 dotMobi's
@@ -304,6 +309,7 @@ regsub
 Mulhuijzen
 GoogleAccountsLocale
 vsl
+tagname
 XHR
 VRT
 vrt
@@ -330,6 +336,7 @@ Alloc
 gpgcheck
 VWP
 VWS
+Caseless
 VWx
 workflows
 misconfiguring
@@ -352,6 +359,7 @@ berespbytes
 signIn
 Hh
 hH
+sema
 Finstad
 addr
 chkconfig
@@ -359,14 +367,15 @@ httpheadersexample
 kB
 ip
 revalidate
-secretfile
 clickerr
+secretfile
 JSON
 ACLs
 js
 toolate
 bodybytes
 nd
+lN
 kqueue
 DSMS
 RespHeader
@@ -388,8 +397,8 @@ xb
 VM
 Hagander
 ETags
-WS
 ws
+WS
 TOUPDATE
 Fialka
 acl
@@ -398,8 +407,8 @@ localhost
 vstatdprobe
 Karstensen
 varnishlog
-Etag
 ETag
+Etag
 substring
 noverify
 AUTOEXTEND
