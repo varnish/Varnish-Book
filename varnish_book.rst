@@ -6610,8 +6610,8 @@ VMOD Basics
    In fact, we recommend you first to write your tests as part of your design, and then implement your VMOD.
    Therefore, we introduce next ``varnishtest`` before proceeding with the implementation the VMOD itself.
 
-``varnishtest``
----------------
+``varnishtest`` script program
+------------------------------
 
 .. TODO for the author: Document varnishtest commands
 
@@ -6630,8 +6630,8 @@ VMOD Basics
    Tests of Varnish Cache are in ``bin/varnishtest/tests/``.
    You should also take a look at the README file ``bin/varnishtest/tests/README`` to learn about the naming convention.
 
-The Varnish Test Case (VTC) Language
-....................................
+VTC
+...
 
 .. bookmark: explain that this test is not the same in libvmod-example.
 .. before passing to cowsay, write an exercise for the student to run the varnish test for libvmod-example.
@@ -6725,8 +6725,8 @@ The Varnish Test Case (VTC) Language
 
    You will learn how to extend this script to test your VMOD later in this chapter, but before, run and analyze the output of ``helloworldtest.vtc`` to understand ``varnishtest`` better.
 
-Running Your Varnish Tests
-..........................
+Run Your Varnish Tests
+......................
 
 ::
 
