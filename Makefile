@@ -43,6 +43,7 @@ common = ${mergedrst} \
 	 ${images} \
 	 Makefile \
 	 vcl/*.vcl \
+	 vtc/*.vtc \
 	 util/control.rst \
 	 #${exercises_complete} \
 	 ${exercises_stuff} \
@@ -74,7 +75,7 @@ src/conf.py: src/conf.py.in ${BDIR}/version.rst
 	sed 's/@@VERSION@@/${version}/g; s/@@SHORTVERSION@@/${versionshort}/g;' < $< > $@
 
 sphinx: ${common} src/conf.py
-	for a in util/* vcl material build/version.rst ; do \
+	for a in util/* vcl vtc material build/version.rst ; do \
 		if [ ! -e src/$$a ]; then \
 			ln -s ${PWD}/$$a src/$$a ;\
 		fi; \
@@ -101,7 +102,7 @@ sphinx: ${common} src/conf.py
 
 #	sphinx-build -b html -d build/doctrees src/ build/html
 	@$(MAKE) -C src/ html
-	@$(MAKE) -C src/ epub
+#	@$(MAKE) -C src/ epub
 
 mrproper: clean all
 
