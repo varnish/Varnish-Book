@@ -1473,7 +1473,7 @@ Setting Parameters in ``varnishtest``
 
       The macro ${bad_ip} translates to 192.0.2.255.
       This IP address is for test use only, and it is used here because we do not need a backend to set parameters in Varnish.
-      However, we must always declare at least one backend.
+      However, we must always declare at least one backend when ``varnishd`` is to be started.
 
    .. note::
 
@@ -2087,9 +2087,11 @@ Exercise: Assert Counters in ``varnishtest``
 Solution: Assert Counters in ``varnishtest``
 ............................................
 
+**vtc/b00005.vtc**
+
 .. include:: vtc/b00005.vtc
    :literal:
- 
+
 Tuning
 ======
 
@@ -2704,19 +2706,25 @@ Timers
 
 	.. note::
 
-           Another use-case for increasing ``connect_timeout`` occurs when virtual machines are involved, as they can increase the connection time significantly.
+           Another use-case for increasing ``connect_timeout`` occurs when virtual machines are involved as they can increase the connection time significantly.
 
 	.. tip::
 	   More information in https://www.varnish-software.com/blog/understanding-timeouts-varnish-cache.
 
-Exercise: Tune first_byte_timeout
----------------------------------
+Exercise: Tune ``first_byte_timeout``
+-------------------------------------
 
-.. This line was before inside Varnishlog
+- Set ``first_byte_timeout`` to 2 seconds.
+- Check how Varnish times out the request to the backend.
 
-- Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
+.. container:: handout
 
- - See, analyze and understand how counters in ``varnishstat`` and parameters in ``varnishlog`` change.
+   You can solve this exercise either by interacting with a real backend, or simulating it with ``varnishtest``.
+   To check how ``first_byte_timeout`` impacts the behaviour of Varnish, analyze ``varnishlog`` og ``varnishstat``.
+   Again, you can do that by executing them in shell or by reading and asserting VSL and counters in ``varnishtest``.
+
+Solution: Tune ``first_byte_timeout`` and test it against your real backend
+...........................................................................
 
 - Create a CGI script in ``/usr/lib/cgi-bin/test.cgi`` containing::
 
@@ -2728,16 +2736,29 @@ Exercise: Tune first_byte_timeout
         echo "Hello world"
 	date
 
-#. Make it executable.
-#. Test that it works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``
-#. Test it through Varnish by issuing ``http localhost:80/cgi-bin/test.cgi``
-#. Set ``first_byte_timeout`` to 2 seconds.
-#. Check how Varnish times out the request to the backend.
+- Make it executable.
+- Test that your CGI works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``
+- Test your CGI through Varnish by issuing ``http localhost:80/cgi-bin/test.cgi``
 
-.. tip::
+.. container:: handout
 
-   You may need to enable the cgi module in apache.
-   One way to do that, is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
+   In this solution, we have used HTTPie to send a request to the backend, but you can also test your real backend with ``varnishtest``.
+
+   .. tip::
+
+      Remember to enable the CGI module in Apache.
+      One way to do that is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
+
+Solution: Tune ``first_byte_timeout`` and test it against ``varnishtest``
+.........................................................................
+
+**vtc/b00006.vtc**
+
+.. include:: vtc/b00006.vtc
+   :literal:
+
+.. bookmark
+.. TODO for the author: explain this solution
 
 Exercise: Configure threading
 -----------------------------
