@@ -998,8 +998,8 @@ The Varnish Test Case (VTC) Language
 
    Finally, you start client ``c1`` with the ``-run`` command.
 
-Synchronize your Varnish tests
-..............................
+Semaphores in Varnish Tests 
+............................
 
 - Varnish is a multi-threaded program
 - Use ``-wait`` or ``sema`` as synchronization mechanism
@@ -1403,18 +1403,14 @@ Relevant options for the course are:
 
    .. note::
 
-      Varnish requires that you specify a backend.
-      A backend is normally specified in the VCL file.
-      You specify the VCL file with the ``-f`` option.
-      However, it is possible to start Varnish without a VCL file by specifying the backend server with the ``-b <hostname:port>`` option instead.
-
-      Since the ``-b`` option is mutually exclusive with the ``-f`` option, we use only the ``-f`` option. 
-      You can use ``-b`` if you do not intend to specify any VCL and only have a single backend server.
+      Varnish requires at least one backend, which is normally specified in the VCL file.
+      The VCL file is passed to ``varnishd`` with the ``-f <filename.vcl>`` option.
+      However, it is possible to start Varnish without a VCL file.
+      In this case, the backend is passed directly to ``varnishd``  with the ``-b <hostname:port>`` option.
+      ``-f`` and ``-b`` are mutually exclusive.
 
    .. tip::
       Type ``man varnishd`` to see all options of the Varnish daemon.
-
-   .. review bookmark
 
 Defining a Backend in VCL
 -------------------------
@@ -1782,9 +1778,13 @@ Example of Transaction Grouping with ``varnishlog``
 
    ``logexpect`` is a program that uses the ``varnishlog`` API.
    Therefore, it is able to group and query the Varnishlog just as ``varnishlog`` does.
-   In addition, ``logexpect`` allows you to assert what you are expecting to appear in the VSL.
+   In addition, ``logexpect`` allows you to assert what you are expecting to appear in VSL.
 
-   Below is a synopsis of arguments, options and ``expect`` syntax of ``logexpect``::
+   Note ``logexpect l1 -wait`` at the end of the script.
+   Without it, the test would finish successfully without concluding the assert in ``l1``, because ``varnishtest`` would not wait for it.
+   ``-wait`` instructs the executor of ``varnishtest`` to wait until ``l1`` is done.
+
+   Below is the synopsis of arguments and options of ``logexpect``::
 
       -v <varnish-instance>
       -d <0|1> (head/tail mode)
@@ -1810,14 +1810,6 @@ Example of Transaction Grouping with ``varnishlog``
       regex:                       regular expression to match against (optional)
       *:                           Match anything
       =:                           Match value of last successfully matched record
-
-   .. note::
-
-      Note ``logexpect l1 -wait`` at the end of the script.
-
-.. bookmark:
-
-   todo: to explain more about the last -wait
 
 Query Language
 --------------
@@ -1965,7 +1957,7 @@ Exercise: Filter Varnish Log Records
 .. container:: handout
 
    ``varnishstat`` looks only at counters.
-   These counters are easily found in the VSL, and are typically polled at reasonable interval to give the impression of real-time updates. 
+   These counters are easily found in VSL, and are typically polled at reasonable interval to give the impression of real-time updates. 
    Counters, unlike the rest of the log, are not directly mapped to a single request, but represent how many times a specific action has occurred since Varnish started.
 
    ``varnishstat`` gives a good representation of the general health of Varnish.
@@ -2084,11 +2076,20 @@ Exercise: Try ``varnishstat`` and ``varnishlog`` together
 ---------------------------------------------------------
 
 - Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
-
 - See, analyze and understand how counters and parameters change in ``varnishstat`` and ``varnishlog``.
 
-.. TODO for the author: explain expected learning outcomes in the handout
+Exercise: Assert Counters in ``varnishtest``
+--------------------------------------------
 
+- Write a Varnish test to check the counters for cache misses, cache hits, and number of cached objects.
+- Use ``cache_miss``, ``cache_hit``, and ``n_object`` counters respectively.
+
+Solution: Assert Counters in ``varnishtest``
+............................................
+
+.. include:: vtc/b00005.vtc
+   :literal:
+ 
 Tuning
 ======
 
@@ -6669,7 +6670,7 @@ VTC
    client c1 -run
 
    varnish v1 -expect cache_miss == 1
-   varnish v1 -expect cache_hit ==2
+   varnish v1 -expect cache_hit == 2
 
 .. container:: handout
 
