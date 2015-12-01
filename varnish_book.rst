@@ -22,7 +22,7 @@
 The Varnish Book is the training material for Varnish Plus courses.
 This book teaches such concepts to understand the theory behind Varnish Cache 4.
 Covered are the Varnish finite state machine, design principles, HTTP, cache invalidation and more.
-With these foundations, the book builds practical knowledge on Varnish Configuration Language (VCL), Varnish Test Code (VTC) and Varnish utility programs such as ``varnishlog`` and ``varnishstat``.
+With these foundations, the book builds practical knowledge on Varnish Configuration Language (VCL), Varnish Test Code (VTC) and Varnish utility programs such as ``varnishlog``, ``varnishstat`` and ``varnishtest``.
 Examples and exercises develop the needed skills to administrate and extend the functionality of Varnish.
 Also included are appendices that explain how to develop Varnish Modules (VMODs) and how to use selected modules of Varnish Plus.
 
@@ -1066,7 +1066,7 @@ Synchronize your Varnish tests
 
    .. note::
 
-      You will learn more about the `Threading Model`_ of Varnish in
+      You will learn more about the `Threading Model`_ of Varnish in its own section.
 
    .. note::
 

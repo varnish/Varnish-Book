@@ -84,6 +84,8 @@ sphinx: ${common} src/conf.py
 #Splits chapters into individual files, and creates the index page for sphinx.
 	mkdir -p build/chapters
 	ln -sf ../../ui build/chapters/
+	mkdir -p build/html/chapters
+	ln -sf ../_images build/html/chapters/
 
 #update references in tables:
 	mkdir -p src/chapters/tables
