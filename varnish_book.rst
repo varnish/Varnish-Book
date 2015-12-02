@@ -2720,7 +2720,7 @@ Exercise: Tune ``first_byte_timeout``
 .. container:: handout
 
    You can solve this exercise either by interacting with a real backend, or simulating it with ``varnishtest``.
-   To check how ``first_byte_timeout`` impacts the behaviour of Varnish, analyze ``varnishlog`` og ``varnishstat``.
+   To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze ``varnishlog`` and ``varnishstat``.
    Again, you can do that by executing them in shell or by reading and asserting VSL and counters in ``varnishtest``.
 
 Solution: Tune ``first_byte_timeout`` and test it against your real backend
@@ -2757,8 +2757,16 @@ Solution: Tune ``first_byte_timeout`` and test it against ``varnishtest``
 .. include:: vtc/b00006.vtc
    :literal:
 
-.. bookmark
-.. TODO for the author: explain this solution
+.. container::
+
+   In this example, we introduce ``feature`` in VTC.
+   Feature checks for features to be present in the test environment.
+   If feature is not present, the test is skipped.
+   ``SO_RCVTIMEO_WORKS`` checks for the socket option ``SO_RCVTIMEO`` before executing the test.
+
+   ``b00006.vtc`` is copied from ``Varnish-Cache/bin/varnishtest/tests/b00023.vtc``
+   We advise you to take a look at the many tests under ``Varnish-Cache/bin/varnishtest/tests/``.
+   You will learn so much about Varnish when analyzing them.
 
 Exercise: Configure threading
 -----------------------------
