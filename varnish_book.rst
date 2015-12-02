@@ -2714,7 +2714,7 @@ Timers
 Exercise: Tune ``first_byte_timeout``
 -------------------------------------
 
-- Set ``first_byte_timeout`` to 2 seconds.
+- Set ``first_byte_timeout`` to 1 seconds.
 - Check how Varnish times out the request to the backend.
 
 .. container:: handout
@@ -2757,37 +2757,66 @@ Solution: Tune ``first_byte_timeout`` and test it against ``varnishtest``
 .. include:: vtc/b00006.vtc
    :literal:
 
-.. container::
+.. container:: handout
 
-   In this example, we introduce ``feature`` in VTC.
-   Feature checks for features to be present in the test environment.
-   If feature is not present, the test is skipped.
+   In this example, we introduce ``-vcl+backend`` and ``feature`` in VTC.
+   ``-vcl+backend`` is one way to pass inline VCL code and backend to ``v1``.
+   In this example, ``v1`` receives no inline VCL injects declaration of the backend ``s1``.
+   Thus, ``-vcl+backend{}`` is equivalent to ``-arg "-b ${s1_addr}:${s1_port}"`` in this case.
+
+   ``feature`` checks for features to be present in the test environment.
+   If the feature is not present, the test is skipped.
    ``SO_RCVTIMEO_WORKS`` checks for the socket option ``SO_RCVTIMEO`` before executing the test.
 
    ``b00006.vtc`` is copied from ``Varnish-Cache/bin/varnishtest/tests/b00023.vtc``
    We advise you to take a look at the many tests under ``Varnish-Cache/bin/varnishtest/tests/``.
    You will learn so much about Varnish when analyzing them.
 
-Exercise: Configure threading
+Exercise: Configure Threading
 -----------------------------
 
-While performing this exercise, watch the `MAIN.threads` counter in ``varnishstat`` to know how many threads are running.
+- Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 10 threads running at any given time, but never more than 15.
+- Execute ``varnishadm param.show <parameter>`` to see parameter details.
 
-- Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 100 threads running at any given time, but never more than 400.
-- Make the changes work across Varnish by restarting it
-
-Extra: Experiment with ``thread_pool_add_delay`` and ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread creation and destruction is affected.
-Does ``thread_pool_timeout`` affect already running threads?
+.. TODO for the author: find out whether ``thread_pool_timeout`` is the one that modify the heder sleep time.  Explain it!
+   - Does ``thread_pool_timeout`` affect already running threads?
+     ``thread_pool_timeout`` affects only new threads, but try to find out how low you can set it, and what happens if it is too low.
+   - Experiment with ``thread_pool_add_delay`` and ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread creation and destruction is affected.
+   - You can also try changing the ``thread_pool_stack`` variable to a lower value.
 
 .. container:: handout
 
-   You can also try changing the ``thread_pool_stack`` variable to a lower value. 
-   This will only affect new threads, but try to find out how low you can set it, and what happens if it is too low.
+   It is **not** common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
+   These exercises are for educational purposes, and not intended as an encouragement to change the values.
+   You can learn from this exercise by using ``varnishstat``, ``varnishadm`` and ``varnishstat``
 
-   .. note::
+Solution: Configure Threading with ``varnishadm`` and ``varnishstat``
+.....................................................................
 
-      It is not common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
-      These assignments are for educational purposes, and not intended as an encouragement to change the values.
+- Use ``varnishadm param.set`` to set the value of ``thread_pool_min`` and ``thread_pool_max``.
+- Monitor the `MAIN.threads` counter in ``varnishstat`` to see how many threads are running while performing this exercise.
+
+Solution: Configure Threading with ``varnishtest``
+..................................................
+
+**c00001.vtc**
+
+.. bookmark
+.. TODO for the author: find out what is the heder time in c00001.vtc and how ``thread_pool_timeout`` affects it.
+
+.. include:: vtc/c00001.vtc
+   :literal:
+
+.. container:: handout
+
+   The test above shows you how to set parameters in two ways; passing the argument ``-p`` to ``varnishd`` or calling ``param.set``.
+   ``-p vsl_mask=+WorkThread`` is used to turn on ``WorkThread`` debug logging.
+
+   The test proves that ``varnishd`` starts with the number of threads indicated in ``thread_pool_min``.
+   Changes in ``thread_pool_min`` are applied by the thread heder, which handles the thread pools and adds threads if necessary up the defined maximum.
+   To learn more about other maintenance threads see https://www.varnish-cache.org/trac/wiki/VarnishInternals.
+
+   ``c00001.vtc`` is a simplified version of ``Varnish-Cache/bin/varnishtest/tests/r01490.vtc``.
 
 HTTP
 ====
