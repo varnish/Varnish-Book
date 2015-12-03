@@ -3481,7 +3481,7 @@ Exercise: Test Various Cache Headers
    If the item was in cache, does Varnish query the origin server?
 #. Try the ``Vary`` header field from two different browsers.
 
-**Against a mock-up server in ``varnishtest``:**
+**Against a mock-up server in varnishtest:**
 
 #. Create a backend that includes ``Last-Modified``, ``If-Modified-Since``, ``Cache-Control`` and ``Expire`` in its responses.
 #. Create a Varnish server where you include VCL code and set ``beresp.ttl``, ``beresp.grace``, and ``beresp.keep``.
@@ -3506,7 +3506,7 @@ Solution: Test Various Cache Headers with ``varnishtest``
 
 **vtc/b00007.vtc**
 
-.. include:: vtc/b00006.vtc
+.. include:: vtc/b00007.vtc
    :literal:
 
 VCL Basics
