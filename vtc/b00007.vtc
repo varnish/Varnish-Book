@@ -1,0 +1,48 @@
+# This is a copy of Varnish-Cache/bin/varnishtest/tests/b00039.vtc
+
+varnishtest "Test Backend IMS"
+
+server s1 {
+        rxreq
+        txresp -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" -body "Geoff Rules"
+        rxreq
+        expect req.http.if-modified-since == "Wed, 11 Sep 2013 13:36:55 GMT"
+        txresp -status 304
+} -start
+
+varnish v1 -vcl+backend {
+        sub vcl_backend_response {
+                set beresp.ttl = 2s;
+                set beresp.grace = 20s;
+                set beresp.keep = 1m;
+                set beresp.http.was-304 = beresp.was_304;
+                }
+} -start
+
+client c1 {
+        txreq
+        rxresp
+        expect resp.status == 200
+        expect resp.body == "Geoff Rules"
+        expect resp.http.was-304 == "false"
+} -run
+
+delay 3
+
+client c1 {
+        txreq
+        rxresp
+        expect resp.status == 200
+        expect resp.body == "Geoff Rules"
+        expect resp.http.was-304 == "false"
+} -run
+
+delay 1
+
+client c1 {
+        txreq
+        rxresp
+        expect resp.status == 200
+        expect resp.body == "Geoff Rules"
+        expect resp.http.was-304 == "true"
+} -run

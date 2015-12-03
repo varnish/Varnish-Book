@@ -993,7 +993,7 @@ The Varnish Test Case (VTC) Language
    In this example, ``c1`` transmits one request and receives one response.
 
    Since Varnish is a proxy, we expect to receive the response from the backend via Varnish.
-   Therefore, ``c1`` expects to the HTTP header field ``via`` with *varnish* in it.
+   Therefore, ``c1`` expects ``varnish`` in the ``via`` HTTP header field.
    We use tilde ``~`` as match operator of regular expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
 
    Finally, you start client ``c1`` with the ``-run`` command.
@@ -2749,8 +2749,8 @@ Solution: Tune ``first_byte_timeout`` and test it against your real backend
       Remember to enable the CGI module in Apache.
       One way to do that is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
 
-Solution: Tune ``first_byte_timeout`` and test it against ``varnishtest``
-.........................................................................
+Solution: Tune ``first_byte_timeout`` and test it against mock-up server
+........................................................................
 
 **vtc/b00006.vtc**
 
@@ -2786,7 +2786,8 @@ Exercise: Configure Threading
 
 .. container:: handout
 
-   It is **not** common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
+   .. It is **not** common to modify ``thread_pool_stack``, ``thread_pool_add_delay`` or ``thread_pool_timeout``. 
+
    These exercises are for educational purposes, and not intended as an encouragement to change the values.
    You can learn from this exercise by using ``varnishstat``, ``varnishadm`` and ``varnishstat``
 
@@ -2801,8 +2802,7 @@ Solution: Configure Threading with ``varnishtest``
 
 **c00001.vtc**
 
-.. bookmark
-.. TODO for the author: find out what is the heder time in c00001.vtc and how ``thread_pool_timeout`` affects it.
+.. TODO for the author: find out what is the heder time in c00001.vtc and how ``thread_pool_timeout`` affects it
 
 .. include:: vtc/c00001.vtc
    :literal:
@@ -2813,7 +2813,7 @@ Solution: Configure Threading with ``varnishtest``
    ``-p vsl_mask=+WorkThread`` is used to turn on ``WorkThread`` debug logging.
 
    The test proves that ``varnishd`` starts with the number of threads indicated in ``thread_pool_min``.
-   Changes in ``thread_pool_min`` are applied by the thread heder, which handles the thread pools and adds threads if necessary up the defined maximum.
+   Changes in ``thread_pool_min`` and ``thread_pool_max`` are applied by the thread heder, which handles the thread pools and adds or removes threads if necessary.
    To learn more about other maintenance threads see https://www.varnish-cache.org/trac/wiki/VarnishInternals.
 
    ``c00001.vtc`` is a simplified version of ``Varnish-Cache/bin/varnishtest/tests/r01490.vtc``.
@@ -3409,6 +3409,9 @@ Exercise: Use `article.php` to test ``Age``
    In the next chapters, you will learn how to modify the response headers Varnish sends.
    This also allows your origin server to emit response headers that should be seen and used by Varnish only, not in your browser.
 
+   When browsers decide to load a resource from their local cache, requests are never sent.
+   Therefore this exercise and these type of tests are not possible to be simulated in ``varnishtest``.
+
    .. This explanation is irrelevant for this exercise
    .. By using `s-maxage` instead of `max-age` we limit the number of clients to cache servers, but even `s-maxage` will be used by caching proxies which you do not control.
 
@@ -3467,23 +3470,44 @@ Availability of Header Fields
 Exercise: Test Various Cache Headers
 ------------------------------------
 
-Use `httpheadersexample.php` via your Varnish server to experiment and get a sense of what it all about.
-Use ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` and ``varnishlog -g request -i ReqHeader,RespHeader`` to analyze the responses.
+**Against a real backend:**
 
-1. Try every link several times by clicking on them and refreshing your browser.
-2. Analyze the response in your browser and the activity in your Varnish server.
-3. Discuss what happens when having the ``Cache-Control`` and ``Expires`` fields in the third link.
-4. When testing ``Last-Modified`` and ``If-Modified-Since``, does your browser issue a request to Varnish?
+#. Use `httpheadersexample.php` via your Varnish server to experiment and get a sense of what it is all about.
+#. Use ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` and ``varnishlog -g request -i ReqHeader,RespHeader`` to analyze the responses.
+#. Try every link several times by clicking on them and refreshing your browser.
+#. Analyze the response in your browser and the activity in your Varnish server.
+#. Discuss what happens when having the ``Cache-Control`` and ``Expires`` fields in the third link.
+#. When testing ``Last-Modified`` and ``If-Modified-Since``, does your browser issue a request to Varnish?
    If the item was in cache, does Varnish query the origin server?
-5. Try the ``Vary`` header field from two different browsers.
+#. Try the ``Vary`` header field from two different browsers.
+
+**Against a mock-up server in ``varnishtest``:**
+
+#. Create a backend that includes ``Last-Modified``, ``If-Modified-Since``, ``Cache-Control`` and ``Expire`` in its responses.
+#. Create a Varnish server where you include VCL code and set ``beresp.ttl``, ``beresp.grace``, and ``beresp.keep``.
+#. Create a client that sends requests.
+#. Add delays between client requests to generate ``200`` and ``304`` requests based on the values set in step 1. and 2.
+#. In your client, assert against the HTTP response codes ``200 OK`` and ``304 Not Modified``.
 
 .. container:: handout
 
    When performing this exercise, try to see if you can spot the patterns.
    There are many levels of cache on the web, and you have to consider them besides Varnish.
 
-   If it has not happened  already, it is likely that the local cache of your browser will confuse you at least a few times through this course.
-   When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser.
+   If it has not happened already, it is likely that the local cache of your browser will confuse you at least a few times through this course.
+   When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser, or use client mock-ups of ``varnishtest`` instead of browsers.
+
+Solution: Test Various Cache Headers with ``varnishtest``
+.........................................................
+
+.. bookmark
+
+   TODO for the author: Edit the proposed solution from Varnish-Cache/bin/varnishtest/tests/b00039.vtc to what is needed for the exercise
+
+**vtc/b00007.vtc**
+
+.. include:: vtc/b00006.vtc
+   :literal:
 
 VCL Basics
 ==========
