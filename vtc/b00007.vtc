@@ -1,5 +1,3 @@
-# This is a copy of Varnish-Cache/bin/varnishtest/tests/b00039.vtc
-
 varnishtest "Test Backend IMS"
 
 server s1 {

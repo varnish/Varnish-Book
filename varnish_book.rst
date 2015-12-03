@@ -3509,6 +3509,11 @@ Solution: Test Various Cache Headers with ``varnishtest``
 .. include:: vtc/b00007.vtc
    :literal:
 
+.. container:: handout
+
+   The example above is a copy of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc``.
+   This solution is to be updated.
+
 VCL Basics
 ==========
 
