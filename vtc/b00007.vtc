@@ -2,9 +2,11 @@ varnishtest "Test Backend IMS"
 
 server s1 {
         rxreq
-        txresp -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" -body "Geoff Rules"
+        txresp -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" 
+        txresp -body "Geoff Rules"
         rxreq
-        expect req.http.if-modified-since == "Wed, 11 Sep 2013 13:36:55 GMT"
+        expect req.http.if-modified-since ==
+        "Wed, 11 Sep 2013 13:36:55 GMT"
         txresp -status 304
 } -start
 
