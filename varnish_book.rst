@@ -3502,10 +3502,6 @@ Exercise: Test Various Cache Headers
 Solution: Test Various Cache Headers with ``varnishtest``
 .........................................................
 
-.. bookmark
-
-   TODO for the author: Edit the proposed solution from Varnish-Cache/bin/varnishtest/tests/b00039.vtc to what is needed for the exercise
-
 **vtc/b00007.vtc**
 
 .. include:: vtc/b00007.vtc
@@ -3513,11 +3509,13 @@ Solution: Test Various Cache Headers with ``varnishtest``
 
 .. container:: handout
 
-   The example above is a copy of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc``.
-   This solution is to be updated.
+   The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
 
    ``beresp.was_304`` is a new variable in Varnish 4.1 available in the subroutine ``vcl_backend_response``.
    This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
+
+   .. bookmark TODO: To add ``Cache-Control`` and ``Expire`` in the solution.
+      See examples in test
 
 VCL Basics
 ==========

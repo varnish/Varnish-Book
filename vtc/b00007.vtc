@@ -1,22 +1,24 @@
 varnishtest "Test Backend IMS"
 
 server s1 {
+        # Request 1
         rxreq
-        txresp -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" 
-        txresp -body "Geoff Rules"
+        txresp -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" -body "Geoff Rules"
+        # Request 2
         rxreq
-        expect req.http.if-modified-since ==
-        "Wed, 11 Sep 2013 13:36:55 GMT"
+        expect req.http.if-modified-since == "Wed, 11 Sep 2013 13:36:55 GMT"
         txresp -status 304
+        # There will be no need to handle a third request in this example.
 } -start
 
 varnish v1 -vcl+backend {
         sub vcl_backend_response {
                 set beresp.ttl = 2s;
-                set beresp.grace = 20s;
-                set beresp.keep = 1m;
+                set beresp.grace = 5s;
+                # beresp.was_304 is ``true`` if the response from the backend was
+                # a positive result of a conditional fetch (``304 Not Modified``).
                 set beresp.http.was-304 = beresp.was_304;
-                }
+        }
 } -start
 
 client c1 {
@@ -24,11 +26,15 @@ client c1 {
         rxresp
         expect resp.status == 200
         expect resp.body == "Geoff Rules"
+        # this was not a conditional fetch
         expect resp.http.was-304 == "false"
 } -run
 
 delay 3
 
+# Age of object = 3 seconds
+# TTL has expired, but grace object is delivered
+# Backend fetch in background is triggered
 client c1 {
         txreq
         rxresp
@@ -39,6 +45,9 @@ client c1 {
 
 delay 1
 
+# Age of object = 1 second
+# TTL is *not* expired
+# Fresh object, with 304 status from background fetch, is delivered
 client c1 {
         txreq
         rxresp
