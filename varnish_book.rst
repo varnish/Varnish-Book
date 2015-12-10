@@ -1207,6 +1207,11 @@ Test Varnish Using Apache as Backend
    You can test your Varnish installation by issuing the command ``http -p Hh localhost``.
    If you see the HTTP response header field ``Via`` containing ``varnish``, then your installation is correct.
 
+   The ``X-Varnish`` HTTP header field contains the Varnish Transaction ID (VXID) of the client request and if applicable, the VXID of the backend transaction that stored in cache the object delivered.
+   ``X-Varnish`` is useful to find the correct log entries in the Varnish log.
+   For a cache hit, ``X-Varnish`` contains both the ID of the current request and the ID of the request that populated the cache.
+   You will learn more about VXIDs in the `Transactions`_ section.
+
 Exercise: Test Apache as Backend with ``varnishtest``
 .....................................................
 
@@ -2778,7 +2783,7 @@ Exercise: Configure Threading
 - Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 10 threads running at any given time, but never more than 15.
 - Execute ``varnishadm param.show <parameter>`` to see parameter details.
 
-.. TODO for the author: find out whether ``thread_pool_timeout`` is the one that modify the heder sleep time.  Explain it!
+.. TODO for the author: find out whether ``thread_pool_timeout`` is the one that modify the herder sleep time.  Explain it!
    - Does ``thread_pool_timeout`` affect already running threads?
      ``thread_pool_timeout`` affects only new threads, but try to find out how low you can set it, and what happens if it is too low.
    - Experiment with ``thread_pool_add_delay`` and ``thread_pool_timeout`` while watching ``varnishstat`` to see how thread creation and destruction is affected.
@@ -2802,7 +2807,7 @@ Solution: Configure Threading with ``varnishtest``
 
 **c00001.vtc**
 
-.. TODO for the author: find out what is the heder time in c00001.vtc and how ``thread_pool_timeout`` affects it
+.. TODO for the author: find out what is the herder time in c00001.vtc and how ``thread_pool_timeout`` affects it
 
 .. include:: vtc/c00001.vtc
    :literal:
@@ -2813,7 +2818,7 @@ Solution: Configure Threading with ``varnishtest``
    ``-p vsl_mask=+WorkThread`` is used to turn on ``WorkThread`` debug logging.
 
    The test proves that ``varnishd`` starts with the number of threads indicated in ``thread_pool_min``.
-   Changes in ``thread_pool_min`` and ``thread_pool_max`` are applied by the thread heder, which handles the thread pools and adds or removes threads if necessary.
+   Changes in ``thread_pool_min`` and ``thread_pool_max`` are applied by the thread herder, which handles the thread pools and adds or removes threads if necessary.
    To learn more about other maintenance threads see https://www.varnish-cache.org/trac/wiki/VarnishInternals.
 
    ``c00001.vtc`` is a simplified version of ``Varnish-Cache/bin/varnishtest/tests/r01490.vtc``.
@@ -2881,7 +2886,7 @@ Resources and Representations
    A representation is an instantiation of a resource.
    An origin server, a.k.a. backend,  produces this instantiation based on a list of request field headers, e.g., ``User-Agent`` and ``Accept-encoding``.
 
-   When an origin server produces may produce different representations of one resource, it includes a ``Vary`` response header field.
+   When an origin server produces different representations of one resource, it includes a ``Vary`` response header field.
    This response header field is used by Varnish to differentiate between resource variations.
    More details on this are in the `Vary`_ subsection.
 
@@ -3131,31 +3136,23 @@ Cache Matching
 ``Vary``
 ........
 
-- Selects a representation or a resource
+- Selects a representation of a resource
 - Be careful when using ``Vary``
 - Wrong usage can create a very large number of cached objects and reduce efficiency
 
 .. container:: handout
 
-   If an origin server sends ``Vary`` in a response, Varnish does **not** use this response to satisfy a later request unless the later request has the same values for the listed fields in ``Vary`` as the original request.
-   In other words, ``Vary`` expands the cache key required to match a new request to the stored cache entry.
+   If the origin server sends ``Vary`` in a response, Varnish does **not** use this response to satisfy a later request unless the later request has the same values for the listed fields in ``Vary`` as the original request.
+   As a consequence, ``Vary`` expands the cache key required to match a new request to the stored cache entry.
 
    ``Vary`` is one of the trickiest headers to deal with when caching.
    A caching server like Varnish does not necessarily understand the semantics of a header, or what part triggers different variants of a response.
    In other words, an inappropriate use of ``Vary`` might create a very large number of cached objects, and reduce the efficiency of your cache server.
    Therefore, you must be extremely cautious when using ``Vary``.
 
-   .. good usage
-
-   The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
-   For example, a web page can be delivered compressed or uncompressed depending on the client.
-   For more details on how to use ``Vary`` for compressions, please refer to https://www.varnish-cache.org/docs/trunk/users-guide/compression.html.
-
-   .. TODO for the author: Add compression to the Saving a Request chapter.
-
    .. bad usage
 
-   Caching objects taking into consideration all differences from requesters creates a very fine-grained cache.
+   Caching objects taking into consideration all differences from requesters creates a very fine-grained caching policy.
    This practice is not recommended, because those cached objects are most likely retrieved only by their original requester.
    Thus, fine-grained caching strategies do not scale well.
    This is a common mistake if ``Vary`` is not used carefully.
@@ -3166,18 +3163,77 @@ Cache Matching
 
    Another example of bad usage is when using only ``Vary: Cookie`` to differentiate a response.
    Again, there could be a very large number of cookies and hence a very large number of cached objects, which are going to be retrieved most likely only by their original requesters.
+
+   .. good usage
+
+   The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
+   For example, a web page can be delivered compressed or uncompressed depending on the client.
+   For more details on how to use ``Vary`` for compressions, refer to https://www.varnish-cache.org/docs/trunk/users-guide/compression.html.
+
+   .. TODO for the author: Add compression to the Saving a Request chapter.
+      Add varnishtest g00007.vtc
    
    One way to assist ``Vary`` is by building the response body from cached and non-cached objects.
    We will discuss this further in the `Content Composition`_ chapter.
+
+   .. note::
+
+      Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
+
+Example: Test ``Vary`` functionality in ``varnishtest``
+.......................................................
+
+**vtc/c00002.vtc**
+
+.. include:: vtc/c00002.vtc
+   :literal:
+
+.. container:: handout
+
+   In ``c00002.vtc``, ``c1`` requests ``/same-url`` three times.
+   Since the backend ``s1`` returns ``Vary: Foobar``, Varnish maps the cached object to both ``req.url`` and ``http.foobar``.
+   Therefore, the second request misses the cached object and fetches from ``s1`` a new variation mapped to ``Foobar: 2``.
+
+   The third request from ``c1`` matches both ``req.url`` and ``http.foobar`` values from the first request.
+   Thus, this request does not trigger a backend request.
+
+   Recall that ``X-Varnish`` contains the transaction ID of the client request and if applicable, the ID of the backend transaction that stored the object delivered.
+   You can see this behavior in the third request.
+   That also means that the VXID counting does not increase to ``1006`` in the third client request.
+ 
+   If your backend returns ``Vary:``, it must also handle situations when clients do not send the request header to identify a variation.
+   For example, when ``c1`` does not send ``Footbar:``::
+
+        txreq -url "/same-url"
+        rxresp
+
+   your backend should handle the lack of that header field specifically.
+   You can test it as the following assertion shows::
+
+        rxreq
+	expect req.http.foobar == <undef>
+        txresp -hdr "Vary: Foobar" -hdr "Snafu: 3" -body "3333\n"
+
+   Be aware that the lack of a header field sent by a client is not the same as sending the field with an empty value.
+   Therefore, requests like::
+
+     txreq -hdr "Foobar:  "
+
+   should be handled in your backend specifically.
+   You can test it as::
+
+     rxreq
+     expect req.http.foobar == ""
+     txresp -hdr "Vary: Foobar" -hdr "Snafu: 4" -body "4444\n"
+
+   ``c00002.vtc`` is a modified version for teaching purposes from ``Varnish-Cache/bin/varnishtest/tests/c00004.vtc``.
+   We advise you to look at the many tests included in ``Varnish-Cache``.
 
    .. conditional requests
 
    Next we cover four important header fields used in conditional requests.
    Two validator fields: ``ETag`` and ``Last-Modified``; and two precondition header fields: ``If-None-Match`` and ``If-Modified-Since``.
 
-   .. note::
-
-      Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
 
 ``ETag``
 ........
@@ -3281,7 +3337,25 @@ Cache Matching
 
       Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
-   .. TOVERIFY: does Varnish triggers an asynchronous request to the origin server?
+.. bookmark TODO: make this either an exercise or an example.
+
+Test ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
+...................................................................
+
+**vtc/b00007.vtc**
+
+.. include:: vtc/b00007.vtc
+   :literal:
+
+.. container:: handout
+
+   The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
+
+   ``beresp.was_304`` is a new variable in Varnish 4.1 available in the subroutine ``vcl_backend_response``.
+   This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
+
+   We hope that this exercise has motivated you to use ``varnishtest`` when designing your cache policies.
+   As you could see, ``varnishtest`` is very precise when testing caching objects against different timing settings.
 
 Allowance
 ---------
@@ -3499,23 +3573,6 @@ Exercise: Test Various Cache Headers
    If it has not happened already, it is likely that the local cache of your browser will confuse you at least a few times through this course.
    When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser, or use client mock-ups of ``varnishtest`` instead of browsers.
 
-Solution: Test Various Cache Headers with ``varnishtest``
-.........................................................
-
-**vtc/b00007.vtc**
-
-.. include:: vtc/b00007.vtc
-   :literal:
-
-.. container:: handout
-
-   The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
-
-   ``beresp.was_304`` is a new variable in Varnish 4.1 available in the subroutine ``vcl_backend_response``.
-   This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
-
-   .. bookmark TODO: To add ``Cache-Control`` and ``Expire`` in the solution.
-      See examples in test
 
 VCL Basics
 ==========
@@ -4522,7 +4579,7 @@ VCL – ``vcl_miss``
 
    The subroutines ``vcl_hit`` and ``vcl_miss`` are closely related.
    It is rare that you customize them, because modification of HTTP request headers is typically done in ``vcl_recv``.
-   However, if you do not wish to send a `X-Varnish` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
+   However, if you do not wish to send the ``X-Varnish`` header to the backend server, you can remove it in ``vcl_miss`` or ``vcl_pass``.
    For that case, you can use ``unset bereq.http.x-varnish;``.
 
 VCL – ``vcl_deliver``
