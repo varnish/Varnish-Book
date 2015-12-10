@@ -3180,7 +3180,7 @@ Cache Matching
 
       Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
 
-Example: Test ``Vary`` functionality in ``varnishtest``
+Understanding ``Vary`` functionality in ``varnishtest``
 .......................................................
 
 **vtc/c00002.vtc**
@@ -3233,7 +3233,6 @@ Example: Test ``Vary`` functionality in ``varnishtest``
 
    Next we cover four important header fields used in conditional requests.
    Two validator fields: ``ETag`` and ``Last-Modified``; and two precondition header fields: ``If-None-Match`` and ``If-Modified-Since``.
-
 
 ``ETag``
 ........
@@ -3337,10 +3336,8 @@ Example: Test ``Vary`` functionality in ``varnishtest``
 
       Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
-.. bookmark TODO: make this either an exercise or an example.
-
-Test ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
-...................................................................
+Understanding ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
+............................................................................
 
 **vtc/b00007.vtc**
 
@@ -3350,12 +3347,28 @@ Test ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
 .. container:: handout
 
    The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
+   The example introduces inserts VCL code::
 
-   ``beresp.was_304`` is a new variable in Varnish 4.1 available in the subroutine ``vcl_backend_response``.
+      sub vcl_backend_response {
+         set beresp.ttl = 2s;
+	 set beresp.grace = 5s;
+	 # beresp.was_304 is ``true`` if the response from the backend was
+	 # a positive result of a conditional fetch (``304 Not Modified``).
+	 set beresp.http.was-304 = beresp.was_304;
+      }
+
+   You will learn all details about VCL in the following sections, but for now it is enough to understand that this code sets the time to live TTL and grace time of cached objects to 2 and 5 seconds respectively.
+   Recall the object lifetime from `Figure 2 <#figure-2>`_ to understand the expected behaviour.
+
+   The code also adds a HTTP response header field ``was-304`` with the boolean value of the ``beresp.was_304``.
    This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
 
-   We hope that this exercise has motivated you to use ``varnishtest`` when designing your cache policies.
-   As you could see, ``varnishtest`` is very precise when testing caching objects against different timing settings.
+   We hope that this exercise motivates you to use ``varnishtest`` when designing your cache policies.
+   As you can see, ``varnishtest`` is very precise when testing caching objects against different time settings.
+
+   .. note::
+
+      ``beresp.was_304`` is a variable available in Varnish 4.1
 
 Allowance
 ---------
@@ -3518,8 +3531,8 @@ Exercise: Use `article.php` to test ``Age``
 
    It is recommended not to define ``Expires`` too far in the future.
    Setting it to 1 year is usually enough.
-   Using ``Expires`` does not prevent the cached object from being updated.
-   For example, if a resource is updated changing its name by using a version number.
+   The use of ``Expires`` does not prevent the cached object from being updated.
+   For example, if the name of the resource is updated.
 
    ``Expires`` and ``Cache-Control`` do more or less the same job, but ``Cache-Control`` gives you more control. 
    The most significant differences between these two headers is:
@@ -3530,6 +3543,8 @@ Exercise: Use `article.php` to test ``Age``
        - ``Expires`` is a **response** header field only
 
    ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
+
+
 
 Availability of Header Fields
 -----------------------------
@@ -3559,11 +3574,7 @@ Exercise: Test Various Cache Headers
 
 **Against a mock-up server in varnishtest:**
 
-#. Create a backend that includes ``Last-Modified``, ``If-Modified-Since``, ``Cache-Control`` and ``Expire`` in its responses.
-#. Create a Varnish server where you include VCL code and set ``beresp.ttl``, ``beresp.grace``, and ``beresp.keep``.
-#. Create a client that sends requests.
-#. Add delays between client requests to generate ``200`` and ``304`` requests based on the values set in step 1. and 2.
-#. In your client, assert against the HTTP response codes ``200 OK`` and ``304 Not Modified``.
+#. Create a backend that includes ``Cache-Control`` and ``Expire`` in its responses.
 
 .. container:: handout
 

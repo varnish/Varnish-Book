@@ -1,4 +1,4 @@
-varnishtest "Test Backend IMS-"
+varnishtest "Test Backend IMS"
 
 server s1 {
    # Request 1
