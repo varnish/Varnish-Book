@@ -3544,7 +3544,19 @@ Exercise: Use `article.php` to test ``Age``
 
    ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
 
+Understanding ``Expires`` in ``varnishtest``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+**b00008.vtc**
+
+.. include:: vtc/b00008.vtc
+   :literal:
+
+.. container:: handout
+
+   In Varnish, an expired object is an object that has exceeded the ``TTL + grace + keep`` time.
+   In the example above, the ``Expires`` header field sets ``TTL`` to 1, and changes ``default_grace`` from ``10`` to ``2``.
+   ``default_keep`` is already ``0``, but we show it explicitly anyway.
 
 Availability of Header Fields
 -----------------------------

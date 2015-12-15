@@ -1,0 +1,24 @@
+varnishtest "Expired objects"
+
+server s1 {
+        rxreq
+        txresp -hdr "Date: Thu, 01 Jan 2015 00:00:00 GMT" \
+            -hdr "Expires: Thu, 01 Jan 2015 00:00:01 GMT"
+
+} -start
+
+varnish v1 -vcl+backend { } -start
+
+varnish v1 -cliok "param.set default_grace 1"
+varnish v1 -cliok "param.set default_keep 0" #default
+
+client c1 {
+        txreq
+        rxresp
+} -run
+
+varnish v1 -expect n_expired == 0
+
+delay 3
+
+varnish v1 -expect n_expired == 1
