@@ -7123,7 +7123,7 @@ Exercise: Build and Test ``libvmod_example``
    $./configure
    $make
    $make check
-   $make install
+   #make install
 
 - Examine how ``libvmod_example`` is imported in ``src/tests/test01.vtc``
 
