@@ -3506,7 +3506,7 @@ Freshness
 Exercise: Use `article.php` to test ``Age``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Copy the PHP file from ``Varnish-Book/material/webdev/`` to  ``/var/www/html/``
+#. Copy ``article.php`` from ``Varnish-Book/material/webdev/`` to  ``/var/www/html/``
 #. Send a request to `article.php` via Varnish, and see the response ``Age`` header field in ``varnishlog -g request -i ReqHeader,RespHeader``
 #. Click the link several times and refresh your browser. Can you identify patterns?
 #. Analyze the output of ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` in addition to ``varnishlog``
@@ -3542,6 +3542,9 @@ Exercise: Use `article.php` to test ``Age``
       An easy way to see the difference between having and removing ``must-revalidate`` is to wait more than 10 seconds between clicking the link.
       When having ``must-revalidate``, you should never see an ``Age`` over 10, which is contrary to tests without ``must-revalidate``.
 
+    .. tip::
+
+       Take a look at ``r00956.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/`` to get an idea on how to test ``Age`` in ``varnishtest``.
 
 ``Expires``
 ...........
@@ -3605,8 +3608,8 @@ Availability of Header Fields
    :header-rows: 1
    :file: tables/header-availability.csv
 
-Exercise: Test Various Cache Headers
-------------------------------------
+Exercise: Test Various Cache Headers Fields with a Real Browser
+---------------------------------------------------------------
 
 **Against a real backend:**
 
@@ -3619,10 +3622,6 @@ Exercise: Test Various Cache Headers
 #. When testing ``Last-Modified`` and ``If-Modified-Since``, does your browser issue a request to Varnish?
    If the item was in cache, does Varnish query the origin server?
 #. Try the ``Vary`` header field from two different browsers.
-
-**Against a mock-up server in varnishtest:**
-
-#. Create a backend that includes ``Cache-Control`` and ``Expire`` in its responses.
 
 .. container:: handout
 
