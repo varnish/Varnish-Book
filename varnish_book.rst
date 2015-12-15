@@ -7092,7 +7092,7 @@ Headers
 
 .. container:: handout
 
-   The ``vtr.h`` header provides data structures and functions needed by compiled VCL programs and VMODs.
+   The ``vrt.h`` header provides data structures and functions needed by compiled VCL programs and VMODs.
    ``cache.h`` declares the function prototypes for the workspace memory model among others.
    These functions are implemented in ``cache_ws.c``.
 
