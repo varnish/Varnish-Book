@@ -3347,7 +3347,7 @@ Understanding ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
 .. container:: handout
 
    The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
-   The example introduces inserts VCL code::
+   The example introduces how to insert VCL code in ``varnishtest``::
 
       sub vcl_backend_response {
          set beresp.ttl = 2s;
@@ -3627,10 +3627,8 @@ Exercise: Test Various Cache Headers Fields with a Real Browser
 
    When performing this exercise, try to see if you can spot the patterns.
    There are many levels of cache on the web, and you have to consider them besides Varnish.
-
    If it has not happened already, it is likely that the local cache of your browser will confuse you at least a few times through this course.
-   When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser, or use client mock-ups of ``varnishtest`` instead of browsers.
-
+   When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser, or use client mock-ups in ``varnishtest`` instead of browsers.
 
 VCL Basics
 ==========
@@ -3829,7 +3827,21 @@ VCL Syntax
    
       If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
 
-.. bookmark: This edition creates a new blank page in slides
+VCL in ``varnishtest``
+......................
+
+**Snippet from vcl_recv subroutine in varnishtest**
+
+.. include:: vtc/b00000.vtc
+   :literal:
+
+.. container:: handout
+
+   ``varnishtest`` allows you to insert VCL code with the ``-vcl`` directive  when declaring a Varnish server.
+   This VCL code is inserted above the subroutines in built-in code in ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
+   Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
+
+.. TOFIX: This edition creates a new blank page in slides
 
 Example: built-in ``vcl_recv``
 ------------------------------
@@ -6839,7 +6851,7 @@ VMOD Basics
 VTC
 ...
 
-.. bookmark: explain that this test is not the same in libvmod-example.
+.. TODO: explain that this test is not the same in libvmod-example.
 .. before passing to cowsay, write an exercise for the student to run the varnish test for libvmod-example.
 
 **helloworldtest.vtc**::
