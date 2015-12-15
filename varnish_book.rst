@@ -3358,7 +3358,7 @@ Understanding ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
       }
 
    You will learn all details about VCL in the following sections, but for now it is enough to understand that this code sets the time to live TTL and grace time of cached objects to 2 and 5 seconds respectively.
-   Recall the object lifetime from `Figure 2 <#figure-2>`_ to understand the expected behaviour.
+   Recall the object lifetime from `Figure 2 <#figure-2>`_ to understand the expected behavior.
 
    The code also adds a HTTP response header field ``was-304`` with the boolean value of the ``beresp.was_304``.
    This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
@@ -3420,6 +3420,34 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
 
        By default, Varnish does not care about the ``Cache-Control`` request header.  
        If you want to let users update the cache via a force refresh you need to do it yourself.
+
+Understanding ``Cache-Control`` in ``varnishtest``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**b00009.vtc**
+
+.. include:: vtc/b00009.vtc
+   :literal:
+
+.. container:: handout
+
+   The example above shows how ``Cache-control: max-age=3`` overwrites ``TTL`` for cached objects.
+   The default ``TTL`` is 120 seconds, but we set it here to 1 just to explicitly show that the cached object is not expired after a delay of 2 seconds, because ``max-age=3``.
+   Therefore, the second assert::
+
+     expect resp.bodylen == 3
+
+   is 3 but not 6 (size of ``FOOBAR``).
+
+   If you are curious, you can remove::
+
+     -hdr "Cache-control: max-age=3"
+
+   from the first ``txresp``, and you you will that the second request will contain a body length of 5.
+
+   .. tip::
+
+      Take a look at ``b00941.vtc``, ``b00956.vtc`` and ``r01578.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more.
 
 ``Pragma``
 ..........
@@ -3557,6 +3585,14 @@ Understanding ``Expires`` in ``varnishtest``
    In Varnish, an expired object is an object that has exceeded the ``TTL + grace + keep`` time.
    In the example above, the ``Expires`` header field sets ``TTL`` to 1, and changes ``default_grace`` from ``10`` to ``2``.
    ``default_keep`` is already ``0``, but we show it explicitly anyway.
+
+   .. tip::
+
+      Take a look at ``s00000.vtc`` and ``s00001.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/``.
+
+   .. tip::
+
+      To get more information about ``n_expire``, issue ``man varnish-counters``.
 
 Availability of Header Fields
 -----------------------------

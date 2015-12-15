@@ -1,0 +1,23 @@
+varnishtest "Understanding Cache-Control"
+
+server s1 {
+        rxreq
+        txresp -hdr "Cache-control: max-age=3" -body "FOO"
+        rxreq
+        txresp -body "FOOBAR"
+} -start
+
+varnish v1 -vcl+backend { } -start
+
+varnish v1 -cliok "param.set default_grace 0"
+varnish v1 -cliok "param.set default_ttl 1"
+
+client c1 {
+        txreq
+        rxresp
+        expect resp.bodylen == 3
+        delay 2
+        txreq
+        rxresp
+        expect resp.bodylen == 3
+} -run
