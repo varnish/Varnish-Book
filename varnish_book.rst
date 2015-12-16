@@ -3841,8 +3841,6 @@ VCL in ``varnishtest``
    This VCL code is inserted above the subroutines in built-in code in ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
    Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
 
-.. TOFIX: This edition creates a new blank page in slides
-
 Example: built-in ``vcl_recv``
 ------------------------------
 
@@ -4182,14 +4180,12 @@ Exercise: Rewrite URLs and Host Header Fields
    `http://example.com/sport/`. For example:
    `http://sport.example.com/article1.html` to
    `http://example.com/sport/article1.html`.
-#. Use ``varnishlog`` to verify the result.
+#. Use HTTPie or ``varnishtest`` to verify the result.
 
 Extra: Make sure `/` and `/index.html` are cached as one object.
 
 Extra 2: Make the redirection work for any domain with `sport.` at the front.
 E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
-
-.. TODO for the author: create solution for extras
 
 .. container:: handout
 
@@ -4207,25 +4203,15 @@ E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
    In the second case, you can set the host header by removing the string that precedes the domain name ``set req.http.host = regsub(req.http.host,"^sport\.", "");``
    Finally, you rewrite the URL in this way: ``set req.url = regsub(req.url, "^", "/sport");``.
 
-   To simulate client requests, you can issue the following command::
-
-     http -p hH --proxy=http:http://localhost sport.example.com/article1.html
-
-   To verify your result, you can issue the following command::
-
-     ``varnishlog -i ReqHeader,ReqURL``.
+   To simulate client requests, you can either use HTTPie or ``varnishtest``.
 
    .. tip::
       Remember that ``man vcl`` contains a reference manual with the syntax and details of functions such as ``regsub(str, regex, sub)``.
       We recommend you to leave the default VCL file untouched and create a new file for your VCL code.
-      Remember to update the location of the VCL file in the Varnish configuration file and restart Varnish.
+      Remember to update the location of the VCL file in the Varnish configuration file and reload it.
 
 Solution: Rewrite URLs and Host Headers Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``http -p hH --proxy=http:http://localhost sport.example.com/index.html``
-
-``varnishlog -i ReqHeader,ReqURL``
 
 ::
 
@@ -4248,6 +4234,23 @@ Solution: Rewrite URLs and Host Headers Fields
         set req.url = regsub(req.url, "^", "/sport");
       }
  }
+
+.. container:: handout
+
+   You can test this solution via HTTPie or ``varnishtest``.
+   Using HTTPie::
+
+     http -p hH --proxy=http:http://localhost sport.example.com/index.html
+
+   Then you verify your results by issuing the following command and analyzing the output::
+
+     varnishlog -i ReqHeader,ReqURL
+
+   ``varnishtest`` solution::
+
+   .. include:: vtc/b00010.vtc
+      :literal:
+
 
 VCL – ``vcl_pass``
 ------------------
