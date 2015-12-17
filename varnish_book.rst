@@ -4777,6 +4777,10 @@ Solution: Change the error message
 .. container:: handout
 
    The suggested solution forces a ``503`` error by misconfiguring ``.port`` in the `default` backend.
+   For ``varnishtest``:
+
+.. include:: vtc/b00011.vtc
+   :literal:
 
 Cache Invalidation
 ==================

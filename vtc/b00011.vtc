@@ -1,0 +1,16 @@
+varnishtest "Force 503 error"
+
+# First test that an internally generated error is not cached
+
+varnish v1 -vcl {
+        backend foo {
+                .host = "${bad_ip}";
+                .port = "9080";
+        }
+} -start
+
+client c1 {
+        txreq -url "/"
+        rxresp
+        expect resp.status == 503
+} -run
