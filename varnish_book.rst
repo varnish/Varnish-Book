@@ -4171,21 +4171,20 @@ https://www.varnish-cache.org/docs/trunk/users-guide/devicedetection.html
 .. TODO for the author: mention Varnish Mobile Device Detection, powered by dotMobi’s DeviceAtlas.
 .. https://www.varnish-software.com/product/varnish-mobile-device-detection
 
-Exercise: Rewrite URLs and Host Header Fields
-.............................................
+Exercise: Rewrite URL and Host Header Fields
+............................................
 
 #. Copy the ``Host`` header field (``req.http.Host``) and URL (``req.url``) to two new request headers: ``req.http.x-host`` and ``req.http.x-url``.
 #. Ensure that `www.example.com` and `example.com` are cached as one, using ``regsub()``.
 #. Rewrite all URLs under `http://sport.example.com` to
    `http://example.com/sport/`. For example:
-   `http://sport.example.com/article1.html` to
-   `http://example.com/sport/article1.html`.
+   `http://sport.example.com/index.html` to
+   `http://example.com/sport/index.html`.
 #. Use HTTPie or ``varnishtest`` to verify the result.
 
-Extra: Make sure `/` and `/index.html` are cached as one object.
-
-Extra 2: Make the redirection work for any domain with `sport.` at the front.
-E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
+- Extra: Make sure `/` and `/index.html` are cached as one object.
+- Extra 2: Make the redirection work for any domain with `sport.` at the front.
+  E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
 
 .. container:: handout
 
@@ -4210,8 +4209,8 @@ E.g: `sport.example.com`, `sport.foobar.example.net`, `sport.blatti`, etc.
       We recommend you to leave the default VCL file untouched and create a new file for your VCL code.
       Remember to update the location of the VCL file in the Varnish configuration file and reload it.
 
-Solution: Rewrite URLs and Host Headers Fields
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Solution: Rewrite URL and Host Header Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -4246,11 +4245,10 @@ Solution: Rewrite URLs and Host Headers Fields
 
      varnishlog -i ReqHeader,ReqURL
 
-   ``varnishtest`` solution::
+   ``varnishtest`` solution:
 
-   .. include:: vtc/b00010.vtc
-      :literal:
-
+.. include:: vtc/b00010.vtc
+   :literal:
 
 VCL – ``vcl_pass``
 ------------------

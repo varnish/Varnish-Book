@@ -1,4 +1,11 @@
-varnishtest "Proxy"
+varnishtest "Rewrite URL and Host Header Fields"
+
+server s1 {
+        rxreq
+        expect req.http.Host == "example.com"
+        expect req.http.ReqURL == "/sport/index.html"
+        txresp
+}
 
 varnish v1 -vcl {
    backend default {
@@ -6,10 +13,8 @@ varnish v1 -vcl {
       .port = "80";
    }
    sub vcl_recv {
-
        set req.http.x-host = req.http.host;
        set req.http.x-url = req.url;
-
        set req.http.host = regsub(req.http.host, "^www\.", "");
 
        /* Alternative 1 */
@@ -17,16 +22,10 @@ varnish v1 -vcl {
            set req.http.host = "example.com";
            set req.url = "/sport" + req.url;
         }
-
-        /* Alternative 2 */
-        # if (req.http.host ~ "^sport\.") {
-        #   set req.http.host = regsub(req.http.host,"^sport\.", "");
-        #   set req.url = regsub(req.url, "^", "/sport");
-        # }
    }
 } -start
 
 client c1 {
-        txreq -url "index.html" -hdr "Host: sport.example.com"
+        txreq -url "/index.html" -hdr "Host: sport.example.com"
         rxresp
 } -run
