@@ -5563,21 +5563,10 @@ Grace Mode
 
    To understand best *grace mode*, recall `Figure 2 <#figure-2>`_, which shows the lifetime of cached objects.
    When Varnish is in *grace mode*, Varnish is capable of delivering a stale object and issues an asynchronous refresh request.
-   When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
+   When possible, Varnish delivers a fresh object, otherwise Varnish builds a response from a stale object.
    This procedure is also known as ``stale-while-revalidate``.
 
    .. use cases
-
-   The most common reason for Varnish to deliver a `graced object` is when a backend health-probe indicates a sick backend.
-   Varnish reads the variable ``obj.grace``, which default is 10 seconds, but you can change it by three means:
-
-   1) by parsing the HTTP Cache-Control field ``stale-while-revalidate`` that comes from the backend,
-   2) by setting the variable ``beresp.grace`` in VCL, or
-   3) by changing the grace default value with ``varnishadm param.set default_grace 20``.
-
-   In the first case, Varnish parses ``stale-while-revalidate`` automatically, as in: ``"Cache-control: max-age=5, stale-while-revalidate=30"``.
-   In this example, the result of fetched object's variables are: ``obj.ttl=5`` and ``obj.grace=30``.
-   The second and third case are self descriptive.
 
    The typical way to use grace is to store an object for several hours after its ``TTL`` has elapsed.
    In this way, Varnish has always a copy to be delivered immediately, while fetching a new object asynchronously.
@@ -5588,8 +5577,20 @@ Grace Mode
    .. include:: vcl/grace.vcl
       :literal:
 
+   Graced objects are those with a grace time that has not yet expired.
+   The grace time is stored in ``obj.grace``, which default is 10 seconds.
+   You can change this value by three means:
+
+   1) by parsing the HTTP ``Cache-Control`` field ``stale-while-revalidate`` that comes from the backend,
+   2) by setting the variable ``beresp.grace`` in VCL, or
+   3) by changing the grace default value with ``varnishadm param.set default_grace <value>``.
+
+   In the first case, Varnish parses ``stale-while-revalidate`` automatically, as in: ``"Cache-control: max-age=5, stale-while-revalidate=30"``.
+   In this example, the result of the variables of the fetched objects are: ``obj.ttl=5`` and ``obj.grace=30``.
+   The second and third case are self descriptive.
+
    .. note::
-      
+
       ``obj.ttl`` and ``obj.grace`` are countdown timers.
       Objects are valid in cache as long as they have a positive remaining time equal to ``obj.ttl`` + ``obj.grace``.
 
