@@ -5561,6 +5561,7 @@ Grace Mode
 
    .. what is grace mode
 
+   To understand best *grace mode*, recall `Figure 2 <#figure-2>`_, which shows the lifetime of cached objects.
    When Varnish is in *grace mode*, Varnish is capable of delivering a stale object and issues an asynchronous refresh request.
    When possible, Varnish delivers a fresh object, otherwise Varnish looks for a stale object.
    This procedure is also known as ``stale-while-revalidate``.
@@ -5611,13 +5612,12 @@ or set in VCL::
 
 .. container:: handout
 
-   In this time-line example, it is assumed that the object is never refreshed.
-
+   In this timeline example, it is assumed that the object is never refreshed.
    If you do not want that objects with a negative ``TTL`` are delivered, set ``beresp.grace = 0``.
    The downside of this is that all grace functionality is disabled, regardless any reason.
 
-When Can Grace Happen
-.....................
+Understanding Grace
+...................
 
 - A request is already pending for some specific content
 - No healthy backend is available
@@ -5627,6 +5627,16 @@ When Can Grace Happen
    The main goal of `grace mode` is to avoid requests to pile up whenever a popular object has expired in cache. 
    As long as a request is waiting for new content, Varnish delivers graced objects instead of queuing incoming requests.
    These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
+
+Understanding Grace using ``varnishtest``
+.........................................
+
+**Varnish-Cache/bin/varnishtest/tests/b00043.vtc**:
+
+.. include:: vtc/b00043.vtc
+   :literal:
+
+.. bookmark: TODO: Explain b00043.vtc
 
 Exercise: Grace
 ...............
@@ -5651,7 +5661,7 @@ Exercise: Grace
 
 .. container:: handout
 
-   With this exercise, you should see that as long as the cached object is within its TTL, Varnish delivers the cached object as normal.
+   With this exercise you should see that as long as the cached object is within its TTL, Varnish delivers the cached object as normal.
    Once the TTL expires, Varnish delivers the graced copy, and asynchronously fetches an object from the backend.
    Therefore, after 10 seconds of triggering the asynchronous fetch, an updated object is available in the cache.
 
