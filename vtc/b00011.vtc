@@ -1,16 +1,25 @@
 varnishtest "Force 503 error"
 
-# First test that an internally generated error is not cached
-
 varnish v1 -vcl {
-        backend foo {
-                .host = "${bad_ip}";
-                .port = "9080";
-        }
+   backend foo {
+           .host = "${bad_ip}";
+           .port = "9080";
+   }
+   /* Customize error responses */
+   sub vcl_backend_error {
+       if (beresp.status == 503){
+          set beresp.status = 200;
+          synthetic( {"
+              <html><body><!-- Here goes a more friendly error message. -->
+              </body></html>
+          "} );
+          return (deliver);
+       }
+   }
 } -start
 
 client c1 {
         txreq -url "/"
         rxresp
-        expect resp.status == 503
+        expect resp.status == 200
 } -run

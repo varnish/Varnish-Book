@@ -4771,16 +4771,23 @@ Exercise: Change the error message
 Solution: Change the error message
 ..................................
 
+**vcl/customized_error.vcl**
+
 .. include:: vcl/customized_error.vcl
    :literal:
 
 .. container:: handout
 
    The suggested solution forces a ``503`` error by misconfiguring ``.port`` in the `default` backend.
-   For ``varnishtest``:
+   You can also force a 503 response by using ``${bad_ip}`` in ``varnishtest``.
+   The macro ``${bad_ip}`` translates to 192.0.2.255.
+
+   **vtc/b00011.vtc**
 
 .. include:: vtc/b00011.vtc
    :literal:
+
+   Note that in the proposed solution the client receives a ``200`` response code.
 
 Cache Invalidation
 ==================
@@ -4904,22 +4911,38 @@ VCL – ``vcl_purge``
 Example: ``PURGE``
 ..................
 
-In order to support purging in Varnish, you need the following VCL in place.
+**vcl/PURGE.vcl**
 
 .. include:: vcl/PURGE.vcl
    :literal:
-
-Test your VCL by issuing::
-   http -p hH --proxy=http:http://localhost PURGE www.example.com
 
 .. container:: handout
 
    ``acl`` is a reserved keyword that is used to create `Access Control Lists (ACLs)`_.
    ACLs are used to control which client IP addresses are allowed to purge cached objects.
 
-   Note the ``purge`` return action in ``vcl_recv``.
-   This action ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
+   In the example above, ``return (purge)`` ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
+
+   You can test this code with HTTPie by issuing::
+
+      http -p hH --proxy=http:http://localhost PURGE www.example.com
+
+   Alternatively, you can test it with ``varnishtest``:
+
+**vtc/b00012.vtc**
+
+.. include:: vtc/b00012.vtc
+   :literal:
+
+   The example above is a modification of ``Varnish-Cache/bin/varnishtest/tests/b00036.vtc``.
+   In this VTC you can see how the second request of ``c1`` is constructed out from the cached object.
+   After purging the implicit resource ``/``, the third request from ``c1`` fetches a new object from ``s1``.
+
+   A quick way for you to double check the ``acl`` authorization is by changing the IP address in it.
+   So you should see that the ``PURGE`` request coming from ``localhost`` will not pass the condition::
+
+      if (!client.ip ~ purgers)
 
 Exercise: ``PURGE`` an article from the backend
 ...............................................

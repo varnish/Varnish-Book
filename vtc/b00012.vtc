@@ -1,0 +1,44 @@
+varnishtest "PURGE with acl"
+
+server s1 {
+   rxreq
+   txresp -hdr "foo: 1"
+   rxreq
+   txresp -hdr "foo: 2"
+} -start
+
+varnish v1 -vcl+backend {
+   acl purgers {
+      "127.0.0.1";
+      "192.168.0.0"/24;
+   }
+   sub vcl_recv {
+      if (req.method == "PURGE") {
+         if (!client.ip ~ purgers) {
+            return (synth(405));
+         }
+         return (purge);
+      }
+   }
+} -start
+
+client c1 {
+   txreq
+   rxresp
+   expect resp.http.foo == 1
+
+   txreq
+   rxresp
+   expect resp.http.foo == 1
+
+   txreq -req PURGE
+   rxresp
+   expect resp.msg == "Purged"
+} -run
+
+client c1 {
+   txreq
+   rxresp
+   expect resp.http.foo == 2
+
+} -run
