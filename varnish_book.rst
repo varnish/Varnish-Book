@@ -4784,8 +4784,8 @@ Solution: Change the error message
 
    **vtc/b00011.vtc**
 
-.. include:: vtc/b00011.vtc
-   :literal:
+   .. include:: vtc/b00011.vtc
+      :literal:
 
    Note that in the proposed solution the client receives a ``200`` response code.
 
@@ -4875,6 +4875,7 @@ HTTP PURGE
 - Frees up memory, removes all ``Vary:``-variants of the object
 - Leaves it to the next client to refresh the content
 - Often combined with ``return(restart);``
+- As easy as handling any other HTTP request
 
 .. container:: handout
 
@@ -4930,10 +4931,10 @@ Example: ``PURGE``
 
    Alternatively, you can test it with ``varnishtest``:
 
-**vtc/b00012.vtc**
+   **vtc/b00012.vtc**
 
-.. include:: vtc/b00012.vtc
-   :literal:
+   .. include:: vtc/b00012.vtc
+      :literal:
 
    The example above is a modification of ``Varnish-Cache/bin/varnishtest/tests/b00036.vtc``.
    In this VTC you can see how the second request of ``c1`` is constructed out from the cached object.
@@ -4949,7 +4950,7 @@ Exercise: ``PURGE`` an article from the backend
 
 .. TODO for the author: Add a description of the main idea in this exercise:
    Those with permissions can initiate invalidation.
-   You can come with either direct invalidation or another component like VAC if you have are on a complicated infrastructure.
+   You can come with either direct invalidation or another component like VAC if you have a complex infrastructure.
 
 - Send a ``PURGE`` request to Varnish from your backend server after an article is published. 
 
@@ -4958,7 +4959,6 @@ Exercise: ``PURGE`` an article from the backend
 
 .. container:: handout
 
-   Now you know that purging can be as easy as sending a specific HTTP request.
    You are provided with ``article.php``, which fakes an article.
    It is recommended to create a separate php file to implement purging.
 
@@ -5148,22 +5148,21 @@ Lurker-Friendly Bans
 
    The following snippet shows an example on how to preserve the context of a client request in the cached object::
 
-     sub vcl_backend_response {
-        set beresp.http.x-url = bereq.url;
-     }
+      sub vcl_backend_response {
+         set beresp.http.x-url = bereq.url;
+      }
 
-     sub vcl_deliver {
-        # The X-Url header is for internal use only
-        unset resp.http.x-url;
-     }
+      sub vcl_deliver {
+         # The X-Url header is for internal use only
+         unset resp.http.x-url;
+      }
 
-   Now imagine that you just changed the blog post template.
-   To invalidate all blog posts, you can then issue a ban such as::
+   Now imagine that you just changed a blog post template that requires all blog posts that have been cached.
+   For this you can issue a ban such as::
 
-     $ varnishadm ban 'obj.http.x-url ~ ^/blog'
+      $ varnishadm ban 'obj.http.x-url ~ ^/blog'
 
-   Since it uses a *lurker-friendly ban* expression, the ban inserted in the ban-list will be gradually evaluated against all cached objects until all
-   blog posts are invalidated.
+   Since it uses a *lurker-friendly ban* expression, the ban inserted in the ban-list will be gradually evaluated against all cached objects until all blog posts are invalidated.
    The snippet below shows how to insert the same expression into the ban-list in the ``vcl_recv`` subroutine::
 
       sub vcl_recv {
@@ -5186,12 +5185,22 @@ Exercise: Write a VCL program using *purge* and *ban*
 
 .. container:: handout
 
-   To test this exercise, you can use *httpie*. Example commands::
+   To test this exercise, you can use HTTPie::
 
      http -p hH PURGE http://localhost/testpage
      http -p hH BAN http://localhost/ 'X-Ban-Url: .*html$' \
                                       'X-Ban-Host: .*\.example\.com'
      http -p hH REFRESH http://localhost/testpage
+
+   You can also send ``PURGE``, ``BAN`` and ``REFRESH`` requests in  ``varnishtest``::
+
+     client c1 {
+        txreq -req BAN
+	rxres
+     } -run
+
+   Remember that you still need specify the requested ``URL`` in ``c1`` if is other than ``/``.
+   We advise you to search for ``purge`` and ``ban`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more on how to invalidate caches.
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
