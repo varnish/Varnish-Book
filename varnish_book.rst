@@ -1144,8 +1144,8 @@ Varnish ``DAEMON_OPTS``::
    You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
    Within the result, you should see something like::
 
-    tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
-    tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
+      tcp     0     0 0.0.0.0:80         0.0.0.0:*     LISTEN     9223/varnishd
+      tcp     0     0 127.0.0.1:1234     0.0.0.0:*     LISTEN     9221/varnishd
 
    .. TOFIX: The compiled book has a half empty page here.
 
