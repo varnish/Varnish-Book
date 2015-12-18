@@ -892,25 +892,23 @@ Finally, verify the version you have installed::
 .. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
 .. 
 
-- Script driven program used to test the configuration of your Varnish configuration, regression tests, and VMODs development
+- Script driven program used to test the configuration of Varnish, run regression tests, and develop VMODs
 - Useful for system administrators, web developers, and VMODs developers
 
 .. container:: handout
 
    Varnish is distributed with many utility programs.
-   ``varnishtest`` is the script driven program that we use main testbed in this book.
-   With ``varnishtest`` you can create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behavior.
-   This is useful to simulate transactions and provoke a specific behavior.
+   ``varnishtest`` is a script driven program that allows you create client mock-ups, simulate transactions, fetch content from mock-up or real backends, interact with your actual Varnish configuration and assert expected behaviors.
 
    You can use ``varnishtest`` when configuring your Varnish installation, i.e., writing VCL code, or developing VMODs.
-   In fact, we recommend you first to write your tests as part of your design.
+   In fact, we recommend you first to write *Varnish Case Tests* (VTCs) as part of your design.
    ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
 
    This section develops basic knowledge about ``varnishtest``, and you will learn more about it throughout the book.
-   Another way to learn how to create Varnish tests is by reading and running the ones included in Varnish Cache under ``bin/varnishtest/tests/``.
-   Further documentation of ``varnishtest`` is found in its man page, README file ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
+   Another way to learn how to create VTCs is by reading and running the ``.vtc`` files included in Varnish Cache under ``bin/varnishtest/tests/``.
+   Further documentation of ``varnishtest`` is found in its man page, ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
 
-   ``varnishtest`` has its own language: the Varnish Test Case (VTC) language.
+   ``varnishtest`` has its own language: the *Varnish Test Case (VTC) language*.
    This language is fairly simple to understand as we shall see next.
 
 The Varnish Test Case (VTC) Language
