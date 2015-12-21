@@ -5635,7 +5635,12 @@ Understanding Grace using ``varnishtest``
 .. include:: vtc/b00043.vtc
    :literal:
 
-.. bookmark: TODO: Explain b00043.vtc
+.. container:: handout
+
+   This example shows you how the HTTP response header field ``Cache-Control`` sets ``max-age`` to ``ttl`` and ``stale-while-revalidate`` to ``grace``.
+   ``ttl`` and ``grace`` are attributes of cached objects.
+   The VCL code in ``v1`` includes these attributes in the HTTP response header fields ``http.ttl`` and ``http.grace`` that are sent to the client.
+   ``c1`` asserts the values of these fields.
 
 Exercise: Grace
 ...............
@@ -5884,8 +5889,8 @@ This ensures that all cached pages are stripped of ``Set-Cookie``.
 Exercise: Compare ``Vary`` and ``hash_data``
 ............................................
 
-Both a ``Vary: Cookie`` response header and ``hash_data(req.http.Cookie);`` create separate objects in the cache.
-This exercise is all about ``Vary`` and hash mechanisms.
+- Use ``Vary: Cookie`` and ``hash_data(req.http.Cookie);`` to create separate objects in the cache.
+
 
 #. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
 #. Test ``cookies.php`` by issuing::
@@ -5902,9 +5907,11 @@ This exercise is all about ``Vary`` and hash mechanisms.
 
 .. container:: handout
 
+   This exercise is all about ``Vary`` and hash mechanisms.
    After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
    The exercise only looks for the ``Cookie`` header field, but the same rules apply to any other header.
 
+.. bookmark
 .. TODO for the author: to create a solution for this exercise
 
 Edge Side Includes
