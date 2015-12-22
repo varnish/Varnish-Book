@@ -1,0 +1,101 @@
+varnishtest "Comparing Vary and hash_data()"
+
+server s1 {
+
+        rxreq
+        expect req.url == "/cookie.php"
+        # If Varnish is forced to store responeses with cookies,
+        # ``Vary`` ensures that Varnsh stores resources and per URL and Cookie.
+        # This is an alternative to ``hash_data(req.http.Cookie)`` in ``sub vcl_hash``.
+        txresp -hdr "Vary: Cookie"
+
+        rxreq
+        expect req.url == "/cookie.php"
+        txresp -hdr "Vary: Cookie"
+
+        rxreq
+        expect req.url == "/article.html"
+        txresp -hdr "Vary: Cookie"
+
+        # if ``hash_data()``, comment
+        rxreq
+        expect req.url == "/cookie.php"
+        txresp -hdr "Vary: Cookie"
+
+        rxreq
+        expect req.url == "/article.html"
+        txresp -hdr "Vary: Cookie"
+
+} -start
+
+varnish v1 -vcl+backend {
+        sub vcl_recv{
+               if (req.http.Cookie){
+                              # Forces Varnish to cache requests with cookies
+                       return (hash);
+                              }
+               if (req.method == "PURGE") {
+                              return (purge);
+                                     }
+                                     }
+        sub vcl_hash{
+                # Adds request header field ``Cookie`` to the hashkey.
+                # Otherwise, Varnish has no way to discern between backend responeses
+                # linked to a specific request header field.
+                # This is an alternative to ``Vary`` response header field.
+
+                # hash_data(req.http.Cookie);
+                }
+        sub vcl_backend_response{
+                # Uncomment to remove effect from Vary
+                # unset beresp.http.Vary;
+                }
+} -start
+
+client c1 {
+        txreq -url "/cookie.php" -hdr "Cookie: user: Alice"
+        rxresp
+        expect resp.http.X-Varnish == "1001"
+
+        txreq -url "/cookie.php" -hdr "Cookie: user: Bob"
+        rxresp
+        expect resp.http.X-Varnish == "1003"
+
+        txreq -url "/cookie.php" -hdr "Cookie: user: Alice"
+        rxresp
+        expect resp.http.X-Varnish == "1005 1002"
+
+        txreq -url "/article.html" -hdr "Cookie: user: Alice"
+        rxresp
+        expect resp.http.X-Varnish == "1006"
+
+        txreq -url "/article.html" -hdr "Cookie: user: Alice"
+        rxresp
+        expect resp.http.X-Varnish == "1008 1007"
+} -run
+
+varnish v1 -expect n_object == 3
+
+client c1 {
+        # If ``Vary`` used, purges ``/cookie.php`` for Alice and Bob
+        # If ``hash_data`` used, purges nothing
+        txreq -req PURGE -url "/cookie.php"
+        rxresp
+} -run
+
+# if ``hash_data()``, update ``n_object == 3``
+varnish v1 -expect n_object == 1
+
+client c1 {
+        txreq -url "/cookie.php" -hdr "Cookie: user: Alice"
+        rxresp
+        # if ``hash_data()``, update to "1012 1002"
+        expect resp.http.X-Varnish == "1012"
+
+        txreq -url "/article.html" -hdr "Cookie: user: Bob"
+        rxresp
+        # if ``hash_data()``, update to "1013"
+        expect resp.http.X-Varnish == "1014"
+} -run
+
+varnish v1 -expect n_object == 3

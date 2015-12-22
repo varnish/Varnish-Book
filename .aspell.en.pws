@@ -1,4 +1,4 @@
-personal_ws-1.1 en 426 
+personal_ws-1.1 en 428 
 ajax
 apache
 google
@@ -16,8 +16,8 @@ CET
 github
 delim
 arg
-HTTP's
 https
+HTTP's
 VMODs
 Naghibi
 nosni
@@ -120,8 +120,8 @@ cliok
 sudo
 txreq
 RESTful
-ipv
 IPv
+ipv
 Argv
 uint
 Acceptor
@@ -137,8 +137,8 @@ clierr
 LFU
 metadata
 saintmode
-freebsd
 FreeBSD
+freebsd
 gunzip
 linux
 Economization
@@ -149,12 +149,12 @@ Aondio
 enmod
 mgt
 releasever
-RespStatus
 respstatus
+RespStatus
 vmodtool
 getNonMasqueraded
-hashtwo
 HashTwo
+hashtwo
 DDoS
 workspace
 subdomains
@@ -165,8 +165,8 @@ cowsay
 Kamp
 codename
 LRU
-ReqUrl
 ReqURL
+ReqUrl
 asts
 SELinux
 LTS
@@ -247,19 +247,19 @@ helloworldtest
 varnishapi
 ubuntu
 Footbar
-VBE
 rst
+VBE
 VCA
-vcc
 src
+vcc
 recv
 subrequest
 util
 SQL
 VDD
 VBP
-VAV
 vcl
+VAV
 VXIDs
 TLS
 setsebool
@@ -285,6 +285,7 @@ systemctl
 VIN
 ttl
 rxreq
+rxres
 Hitrate
 hitrate
 scalability
@@ -294,8 +295,8 @@ url
 testbed
 hdrbytes
 Arianna
-utf
 VLU
+utf
 BereqURL
 malloc
 dotMobi's
@@ -333,6 +334,7 @@ taglists
 Pragma
 VWE
 epoll
+VTCs
 eserved
 priv
 VWK
@@ -380,8 +382,8 @@ ACLs
 js
 toolate
 bodybytes
-lN
 nd
+lN
 kqueue
 DSMS
 RespHeader
@@ -412,8 +414,8 @@ localhost
 vstatdprobe
 Karstensen
 varnishlog
-Etag
 ETag
+Etag
 substring
 noverify
 AUTOEXTEND

@@ -3178,8 +3178,8 @@ Cache Matching
 
       Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
 
-Understanding ``Vary`` functionality in ``varnishtest``
-.......................................................
+Understanding ``Vary`` in ``varnishtest``
+.........................................
 
 **vtc/c00002.vtc**
 
@@ -5817,10 +5817,9 @@ Cookies
 -------
 
 - **Be careful when caching cookies!**
-
-Cookies are frequently used to identify unique users, or user's choices. 
-They can be used for anything from identifying a user-session in a web-shop to opting for a mobile version of a web page.
-Varnish can handle cookies coming from two different sources:
+- Cookies are frequently used to identify unique users, or user's choices. 
+- They can be used for anything from identifying a user-session in a web-shop to opting for a mobile version of a web page.
+- Varnish can handle cookies coming from two different sources:
 
 - ``req.http.Cookie`` header field from clients
 - ``beresp.http.Set-Cookie`` header field from servers
@@ -5878,32 +5877,47 @@ Best Practices for Cookies
 
 - Add the ``req.http.Cookie`` request header to the cache hash by issuing ``hash_data(req.http.cookie);`` in ``vcl_hash``.
 - Never cache a ``Set-Cookie`` header. Either remove the header before caching or do not cache the object at all.
-- Finish ``vcl_backend_response`` with something similar to::
+- To ensure that all cached pages are stripped of ``Set-Cookie``, finish ``vcl_backend_response`` with something similar to::
 
     if (beresp.ttl > 0s) {
         unset beresp.http.Set-cookie;
     }
 
-This ensures that all cached pages are stripped of ``Set-Cookie``.
+Exercise: Compare ``Vary`` and ``hash_data`` in ``varnishtest``
+...............................................................
 
-Exercise: Compare ``Vary`` and ``hash_data``
-............................................
+In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
 
-- Use ``Vary: Cookie`` and ``hash_data(req.http.Cookie);`` to create separate objects in the cache.
+.. vary
 
+**Vary: Part 1**:
 
-#. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
-#. Test ``cookies.php`` by issuing::
+#. Write a VTC program that forces Varnish to cache client requests with cookies.
+#. Send two client requests for the same URL; one for user Alice and one for user Bob.
+#. Does Varnish use different backend responses to build and deliver the response to the client?
+#. Make the your simulated server send the ``Vary: Cookie`` response header field, then analyze the response to the client.
+#. Remove ``beresp.http.Vary`` in `vcl_backend_response` and see if Varnish still honors the ``Vary`` header.
 
-    http -p hH http://localhost/cookies.php "Cookie: user=John"
+.. purge vary
 
-#. Write a VCL program to force Varnish to cache the response from ``cookies.php``.
-#. Change the cookie, and see if you get a new value.
-#. Make ``cookies.php`` send a ``Vary: Cookie`` header, then try changing the cookie again.
-#. Try to `purge` the ``cookies.php`` cached object. Check if it affects all, none or just one of the objects in cache (e.g: change the value of the cookie and see if the ``PURGE`` method has purged all of them).
-#. Remove ``beresp.http.Vary`` in `vcl_backend_fetch` and see if Varnish still honors the ``Vary`` header.
-#. Add ``hash_data(req.http.cookie);`` in `vcl_hash`. Check how multiple values of cookie give individual cached pages.
-#. Try `purging` again, and check the result difference after using ``hash_data()`` instead of ``Vary: Cookie``.
+**Vary: Part 2**:
+
+#. Purge the cached object for resource ``/cookies.php``.
+#. Check if it affects all, none or just one of the objects in cache (e.g: change the value of the cookie and see if the ``PURGE`` method has purged all of them).
+
+.. hash_data
+
+**hash_data: Part 1**:
+
+#. Write another VTC program or add conditions and asserts to differentiate requests handled by ``Vary`` and ``hash_data()``.
+#. Add ``hash_data(req.http.Cookie);`` in `vcl_hash`.
+#. Check how multiple values of ``Cookie`` give individual cached objects.
+
+.. purge hash_data
+
+**hash_data: Part 2**:
+
+#. Purge the cache again and check the result after using ``hash_data()`` instead of ``Vary: Cookie``.
 
 .. container:: handout
 
@@ -5911,8 +5925,79 @@ Exercise: Compare ``Vary`` and ``hash_data``
    After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
    The exercise only looks for the ``Cookie`` header field, but the same rules apply to any other header.
 
-.. bookmark
-.. TODO for the author: to create a solution for this exercise
+Solution: Compare ``Vary`` and ``hash_data`` in ``varnishtest``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**vtc/c00003.vtc**
+
+.. include:: vtc/c00002.vtc
+   :literal:
+
+.. container:: handout
+
+   ``Vary`` and ``hash_data()`` might behave very similar at first sight and they might even seem like alternatives for handling cookies.
+   However, cached objects are not referenced in the same way.
+
+   In the suggested solution, the most important difference is at lines::
+
+     # if ``hash_data()``, update ``n_object == 3``
+     varnish v1 -expect n_object == 1
+
+   If ``hash_data()`` is used, no objects are purged with::
+
+     txreq -req PURGE -url "/cookie.php"
+
+.. bookmark:
+
+   TODO: To explain how to purge objects stored when using ``hash_data()``
+
+Exercise: Compare ``Vary`` and ``hash_data`` with HTTPie
+........................................................
+
+In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
+For that, prepare the testbed and test with HTTPie:
+
+#. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
+#. Send different requests in HTTPie changing ``/cookies.php`` and ``user=Alice`` for ``/article.html`` and ``user=Bob``, e.g.::
+
+    http -p hH http://localhost/cookies.php "Cookie: user=Alice"
+
+.. vary
+
+**Vary: Part 1**:
+
+#. Write a VCL program to force Varnish to cache client requests with cookies.
+#. Send two client requests for the same URL; one for user Alice and one for user Bob.
+#. Does Varnish use different backend responses to build and deliver the response to the client?
+#. Make ``cookies.php`` send the ``Vary: Cookie`` response header field, then analyze the response to the client.
+#. Remove ``beresp.http.Vary`` in `vcl_backend_response` and see if Varnish still honors the ``Vary`` header.
+
+.. purge vary
+
+**Vary: Part 2**:
+
+#. Purge the cached object for resource ``/cookies.php``.
+#. Check if it affects all, none or just one of the objects in cache (e.g: change the value of the cookie and see if the ``PURGE`` method has purged all of them).
+
+.. hash_data
+
+**hash_data(): Part 1**:
+
+#. Write another VCL program or add conditions to differentiate requests handled by ``Vary`` and ``hash_data()``.
+#. Add ``hash_data(req.http.Cookie);`` in `vcl_hash`.
+#. Check how multiple values of ``Cookie`` give individual cached objects.
+
+.. purge hash_data
+
+**hash_data(): Part 2**:
+
+#. Purge the cache again and check the result after using ``hash_data()`` instead of ``Vary: Cookie``.
+
+.. container:: handout
+
+   This exercise is all about ``Vary`` and hash mechanisms.
+   After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
+   The exercise only looks for the ``Cookie`` header field, but the same rules apply to any other header.
 
 Edge Side Includes
 ------------------
