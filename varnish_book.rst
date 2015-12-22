@@ -5930,7 +5930,7 @@ Solution: Compare ``Vary`` and ``hash_data`` in ``varnishtest``
 
 **vtc/c00003.vtc**
 
-.. include:: vtc/c00002.vtc
+.. include:: vtc/c00003.vtc
    :literal:
 
 .. container:: handout
