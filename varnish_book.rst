@@ -5938,7 +5938,7 @@ Solution: Handle Cookies with  ``Vary`` in ``varnishtest``
    ``Vary`` and ``hash_data()`` might behave very similar at first sight and they might even seem like alternatives for handling cookies.
    However, cached objects are referenced in different ways.
 
-   If Varnish is forced to store responeses with cookies, ``Vary`` ensures that Varnish stores resources per URL and Cookie.
+   If Varnish is forced to store responses with cookies, ``Vary`` ensures that Varnish stores resources per URL and Cookie.
    If ``Vary: Cookie`` is used, objects are purged in this way::
 
      txreq -req PURGE -url "/cookie.php"
@@ -5955,8 +5955,8 @@ Solution: Handle Cookies with  ``hash_data()`` in ``varnishtest``
 
 .. container:: handout
 
-      ``hash_data(req.http.Cookie)`` adds the request header field ``Cookie`` to the hashkey.
-      So Varnish can discern between backend responeses linked to a specific request header field.
+      ``hash_data(req.http.Cookie)`` adds the request header field ``Cookie`` to the hash key.
+      So Varnish can discern between backend responses linked to a specific request header field.
 
       To purge cached objects in this case, you have to specify the header field used in ``hash_data()``::
 
@@ -6075,6 +6075,38 @@ This is done in `vcl_recv`.
 
        Varnish outputs ESI parsing errors in ``varnishstat`` and ``varnishlog``.
 
+Understanding ESI in ``varnishtest``
+....................................
+
+**Varnish-Cache/bin/varnishtest/tests/e00004.vtc**:
+
+.. include:: vtc/e00004.vtc
+   :literal:
+
+.. container:: handout
+
+   ``e00004.vtc`` shows how ESI substitution works.
+   When Varnish reads ``<!--esi <esi:include src="/body"/> -->``, it triggers a request with URL ``/body``.
+   The result of this request replaces the ``<!--esi -->`` tag.
+
+   We have counted the expected body length after the substitution and assert it in the VTC, but if you do not trust us, you can easily see the replacement by executing::
+
+     varnishtest -v e00004.vtc | grep "chunk|"
+
+   In the result::
+
+     **** c1    0.4 chunk| \n
+     **** c1    0.4 chunk| \t\t<html>\n
+     **** c1    0.4 chunk| \t\tBefore include\n
+     **** c1    0.4 chunk| \t\t
+     **** c1    0.4 chunk| \n
+     **** c1    0.4 chunk| \t\tIncluded file\n
+     **** c1    0.4 chunk| \t \n
+     **** c1    0.4 chunk| \t\tAfter include\n
+     **** c1    0.4 chunk| \t
+
+   you can see the HTML document after ESI has been processed.
+
 Example: Using ESI
 ..................
 
@@ -6119,6 +6151,7 @@ Exercise: Enable ESI and Cookies
    You may also want to try ``PURGE``.
    If so, you have to purge each of the objects, because purging just ``/esi-top.php`` does not purge ``/esi-user.php``.
 
+   .. bookmark:
    .. TODO for the author: To create a solution for this exercise.
 
 Testing ESI without Varnish
