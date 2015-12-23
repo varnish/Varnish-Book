@@ -6089,6 +6089,9 @@ Understanding ESI in ``varnishtest``
    When Varnish reads ``<!--esi <esi:include src="/body"/> -->``, it triggers a request with URL ``/body``.
    The result of this request replaces the ``<!--esi -->`` tag.
 
+   Since there are two different requests, one for the root ``/`` resource and other for the ``/body`` resource, you can handle their cached objects separately.
+   For example, you can set different TTLs for them or apply different invalidation policies.
+
    We have counted the expected body length after the substitution and assert it in the VTC, but if you do not trust us, you can easily see the replacement by executing::
 
      varnishtest -v e00004.vtc | grep "chunk|"
