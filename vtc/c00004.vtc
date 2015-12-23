@@ -1,21 +1,21 @@
-varnishtest "Purge objects with Vary: Cookie"
+varnishtest "Purge objects after hash_data(cookie)"
 
 server s1 {
    rxreq
    expect req.url == "/cookie.php"
-   txresp -hdr "Vary: Cookie"
+   txresp
    rxreq
    expect req.url == "/cookie.php"
-   txresp -hdr "Vary: Cookie"
+   txresp
    rxreq
    expect req.url == "/article.html"
-   txresp -hdr "Vary: Cookie"
+   txresp
    rxreq
    expect req.url == "/cookie.php"
-   txresp -hdr "Vary: Cookie"
+   txresp
    rxreq
    expect req.url == "/article.html"
-   txresp -hdr "Vary: Cookie"
+   txresp
 } -start
 
 varnish v1 -vcl+backend {
@@ -24,13 +24,11 @@ varnish v1 -vcl+backend {
         return (purge);
      }
      else if (req.http.Cookie){
-        # Forces Varnish to cache requests with cookies
         return (hash);
      }
    }
-   sub vcl_backend_response{
-      # Uncomment to remove effect from Vary
-      # unset beresp.http.Vary;
+   sub vcl_hash{
+      hash_data(req.http.Cookie);
    }
 } -start
 
@@ -55,11 +53,11 @@ client c1 {
 varnish v1 -expect n_object == 3
 
 client c1 {
-   txreq -req PURGE -url "/cookie.php"
+   txreq -req PURGE -url "/cookie.php" -hdr "Cookie: user: Alice"
    rxresp
 } -run
 
-varnish v1 -expect n_object == 1
+varnish v1 -expect n_object == 2
 
 client c1 {
    txreq -url "/cookie.php" -hdr "Cookie: user: Alice"
@@ -70,4 +68,4 @@ client c1 {
    expect resp.http.X-Varnish == "1014"
 } -run
 
-varnish v1 -expect n_object == 3
+varnish v1 -expect n_object == 4
