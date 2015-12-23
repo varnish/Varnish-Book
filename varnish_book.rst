@@ -5939,9 +5939,7 @@ Solution: Handle Cookies with  ``Vary`` in ``varnishtest``
    However, cached objects are referenced in different ways.
 
    If Varnish is forced to store responeses with cookies, ``Vary`` ensures that Varnish stores resources per URL and Cookie.
-
-
-   If ``Vary: Cookie`` is used, objects are purged with::
+   If ``Vary: Cookie`` is used, objects are purged in this way::
 
      txreq -req PURGE -url "/cookie.php"
 
@@ -5957,9 +5955,8 @@ Solution: Handle Cookies with  ``hash_data()`` in ``varnishtest``
 
 .. container:: handout
 
-      An alternative to ``Vary`` is ``hash_data()``.
       ``hash_data(req.http.Cookie)`` adds the request header field ``Cookie`` to the hashkey.
-      In this way, Varnish can discern between backend responeses linked to a specific request header field.
+      So Varnish can discern between backend responeses linked to a specific request header field.
 
       To purge cached objects in this case, you have to specify the header field used in ``hash_data()``::
 
@@ -5968,7 +5965,8 @@ Solution: Handle Cookies with  ``hash_data()`` in ``varnishtest``
 Exercise: Compare ``Vary`` and ``hash_data`` with HTTPie
 ........................................................
 
-In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
+In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data()``.
+The exercise uses the ``Cookie`` header field, but the same rules apply to any other field.
 For that, prepare the testbed and test with HTTPie:
 
 #. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
@@ -6011,7 +6009,6 @@ For that, prepare the testbed and test with HTTPie:
 
    This exercise is all about ``Vary`` and hash mechanisms.
    After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
-   The exercise only looks for the ``Cookie`` header field, but the same rules apply to any other header.
 
 Edge Side Includes
 ------------------
@@ -6082,25 +6079,25 @@ Example: Using ESI
 ..................
 
 Copy ``material/webdev/esi-date.php`` to ``/var/www/html/``.
-This file contains an ESI include tag.
+This file contains an ESI include tag:
 
 .. include:: material/webdev/esi-date.php
    :literal:
 
 Copy ``material/webdev/esi-date.cgi`` to ``/usr/lib/cgi-bin/``.
-This file is a simple CGI that outputs the date of the server.
+This file is a simple CGI that outputs the date of the server:
 
 .. include:: material/webdev/esi-date.cgi
    :literal:
 
-For the ESI to work, load the following VCL code.
+For ESI to work, load the following VCL code:
 
 .. include:: vcl/esi_date.vcl
    :literal:
 
 Then reload Varnish and issue the command ``http http://localhost/esi-date.php``.
 The output should show you how Varnish replaces the ESI tag with the response from ``esi-date.cgi``.
-This example also tries to show you how the glued objects have different TTLs.
+Note the different TTLs from the glued objects.
 
 Exercise: Enable ESI and Cookies
 ................................
