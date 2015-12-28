@@ -6,7 +6,7 @@ $date = new DateTime();
 $now = $date->format( DateTime::RFC2822 );
 ?>
 <p>This is content on the user-specific ESI-include. This part of 
-the page is can be cached in Varnish separately since it emits 
+the page is cached in Varnish separately since it emits 
 a "Vary: Cookie"-header. We can not affect the client-cache of 
 this sub-page, since that is determined by the cache-control 
 headers on the top-element.</p>

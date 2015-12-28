@@ -448,6 +448,7 @@ Varnish Cache and Varnish Software Timeline
   Poul-Henning Kamp did the majority of the actual development.
 - 2006: Varnish 1.0 released.
 - 2008: Varnish 2.0 released.
+- 2008: ``varnishtest`` is introduced.
 - 2009: The first Varnish User Group Meeting is held in London.
   Roughly a dozen people participate from all around the world.
 - 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
@@ -1091,6 +1092,9 @@ Running Your Varnish Tests
 
    There is much more to explain about ``varnishtest``, but before that, you must learn more about the fundamentals of Varnish.
    We will introduce new concepts and make a more advanced use of ``varnishtest`` as we progress in the book.
+
+.. bookmark
+.. TODO for the author: Add vtctrans
 
 Configure Varnish
 -----------------
@@ -5883,7 +5887,7 @@ Best Practices for Cookies
         unset beresp.http.Set-cookie;
     }
 
-Exercise: Compare ``Vary`` and ``hash_data`` in ``varnishtest``
+Exercise: Handle Cookies with ``Vary`` and ``hash_data()`` in ``varnishtest``
 ...............................................................
 
 In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
@@ -5962,8 +5966,8 @@ Solution: Handle Cookies with  ``hash_data()`` in ``varnishtest``
 
 	txreq -req PURGE -url "/cookie.php" -hdr "Cookie: user: Alice"
 
-Exercise: Compare ``Vary`` and ``hash_data`` with HTTPie
-........................................................
+Exercise: Handle Cookies with ``Vary`` and ``hash_data`` with HTTPie
+....................................................................
 
 In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data()``.
 The exercise uses the ``Cookie`` header field, but the same rules apply to any other field.
@@ -6144,6 +6148,8 @@ Exercise: Enable ESI and Cookies
 #. Let ``esi-user.php`` cache too. It emits ``Vary: Cookie``, but might need some help.
 
 .. container:: handout
+
+   See `Exercise: Handle Cookies Vary and hash_data() in varnishtest`_ 
 
    Try to avoid ``return (hash);`` in `vcl_recv`  and ``return (deliver);`` in ``vcl_backend_response`` as much as you can.
    This is a general rule to make safer Varnish setups.
