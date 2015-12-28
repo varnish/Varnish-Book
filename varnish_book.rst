@@ -6149,8 +6149,7 @@ Exercise: Enable ESI and Cookies
 
 .. container:: handout
 
-   See `Exercise: Handle Cookies Vary and hash_data() in varnishtest`_ 
-
+   See the suggested solutions of `Exercise: Handle Cookies Vary and hash_data() in varnishtest`_ to get an idea on how to solve this exercise.
    Try to avoid ``return (hash);`` in `vcl_recv`  and ``return (deliver);`` in ``vcl_backend_response`` as much as you can.
    This is a general rule to make safer Varnish setups.
 
@@ -6162,6 +6161,7 @@ Exercise: Enable ESI and Cookies
 
    .. bookmark:
    .. TODO for the author: To create a solution for this exercise.
+   .. TODO for the author: Understand the difference between maxage and s-maxage described in the php files, then write a solution for varnishtest.
 
 Testing ESI without Varnish
 ...........................
