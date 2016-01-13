@@ -360,7 +360,8 @@ What is Varnish?
    .. Benefits:
 
    Varnish is flexible because you can configure it and write your own caching policies in its Varnish Configuration Language (VCL).
-   VCL is a domain specific language based on C, therefore it compiles and executes lightning fast.
+   VCL is a domain specific language based on C.
+   VCL is then translated to C code and compiled, therefore Varnish executes lightning fast.
    Varnish has shown itself to work well both on large (and expensive) servers and tiny appliances.
 
    .. Varnish use
@@ -369,7 +370,7 @@ What is Varnish?
    Depending on the installation, Varnish can also be used as:
 
    - web application firewall,
-   - DDoS attacks defender,
+   - DDoS attack defender,
    - load balancer,
    - integration point,
    - single sign-on gateway,
@@ -490,8 +491,8 @@ Varnish Cache and Varnish Software Timeline
    As of November 2015, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
    On a day-to-day basis, there is little need to interfere with the general flow of development.
 
-What Is New in Varnish 4
-------------------------
+What Is New in Varnish 4?
+-------------------------
 
 - Version statement ``vcl 4.0;``
 - ``req.request`` is now ``req.method``
@@ -576,19 +577,17 @@ Varnish is designed to:
 
    .. VCL   
 
-   In addition, Varnish uses the *Varnish Configuration Language* (VCL) that is translated to C programming language code.
-   This code is compiled with a standard C compiler and then dynamically linked directly into Varnish at run-time. 
-   This has several advantages.
-   The most practical is the freedom you get as system administrator.
+   Varnish uses the *Varnish Configuration Language* (VCL) that allows you to specify exactly how to use and combine the features of Varnish.
+   VCL is translated to C programming language code.
+   This code is compiled with a standard C compiler and then dynamically linked directly into Varnish at run-time.
 
-   You can use VCL to decide how you want to interact with Varnish, instead of having a developer trying to predict every possible caching scenario.
-   The fact that VCL is translated to C code, gives Varnish a very high performance.
-   You can also by-pass the process of code translation and write raw C code, this is called in-line C in VCL.
-   In short: VCL allows you to specify exactly how to use and combine the features of Varnish.
+   When you need functionalities that VCL does not provide, e.g., look for an IP address in a database, you can write raw C code in your VCL.
+   That is in-line C in VCL.
+   However, in-line C is strongly discouraged because in-line C is more difficult to debug, maintain and develop with other developers.
+   Instead in adding in-line C, you should modularized your C code in Varnish modules, also known as VMODs.
 
    .. VMODs
 
-   Varnish allows integration of Varnish Modules also known as VMODs.
    VMODs are typically coded in VCL and C programming language.
    A VMOD is a shared library, which can be called from VCL code.
 
@@ -997,8 +996,8 @@ The Varnish Test Case (VTC) Language
 
    Finally, you start client ``c1`` with the ``-run`` command.
 
-Semaphores in Varnish Tests 
-............................
+Semaphores in Varnish Tests
+...........................
 
 - Varnish is a multi-threaded program
 - Use ``-wait`` or ``sema`` as synchronization mechanism
@@ -2269,9 +2268,9 @@ VCL Compilation
 
    Configuring the caching policies of Varnish is done in the Varnish Configuration Language (VCL).
    Your VCL is then translated by the VCC process to C, which is compiled by a normal C compiler – typically ``gcc``, and linked into the running Varnish instance.
-   Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish by accidentally loading an ill-formatted VCL.
+   Since the VCL compilation is done outside of the child process, there is no risk of affecting the running Varnish instance by accidentally loading an ill-formatted VCL.
 
-   As a result of this, changing configuration while running Varnish is very cheap.
+   As a result, changing configuration while running Varnish is very cheap.
    Policies of the new VCL takes effect immediately.
    However, objects cached with an older configuration may persist until they have no more old references or the  new configuration acts on them.
 
@@ -3860,7 +3859,7 @@ Example: built-in ``vcl_recv``
    Policies for no caching data are to be defined in your VCL.
    Built-in VCL code is executed right after any user-defined VCL code, and is always present.
    You can not remove built-in subroutines, however, you can avoid them if your VCL code reaches one of the terminating actions: ``pass``, ``pipe``, ``hash``, or ``synth``.
-   These terminating actions return control from the VRT (VCL Run-Time) to Varnish.
+   These terminating actions return control from the VRT (Varnish Run-Time) to Varnish.
 
    For a well-behaving Varnish server, most of the logic in the built-in VCL is needed.
    Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
@@ -3901,7 +3900,7 @@ All functions are available in all subroutines, except the listed in the table b
 
 .. container:: handout
 
-   VCL offers a handful of simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control from the VCL Run Time (VRT) environment to Varnish.
+   VCL offers a handful of simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control to the Varnish Run Time (VRT) environment.
    This book describes the most important functions in later sections, so the description at this point is brief.
 
    .. regsub and regsuball
@@ -6718,7 +6717,7 @@ Community driven:
 - http://repo.varnish-cache.org
 - https://www.varnish-cache.org/trac/wiki/VCLExamples
 - Public mailing lists: https://www.varnish-cache.org/trac/wiki/MailingLists
-- Public IRC channel: #varnish at irc.linpro.no
+- Public IRC channel: ``#varnish`` at ``irc.linpro.no``
 
 Commercial:
 
