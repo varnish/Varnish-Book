@@ -5888,7 +5888,7 @@ Best Practices for Cookies
     }
 
 Exercise: Handle Cookies with ``Vary`` and ``hash_data()`` in ``varnishtest``
-...............................................................
+.............................................................................
 
 In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
 The exercise uses the ``Cookie`` header field, but the same rules apply to any other field.
@@ -6149,7 +6149,7 @@ Exercise: Enable ESI and Cookies
 
 .. container:: handout
 
-   See the suggested solutions of `Exercise: Handle Cookies Vary and hash_data() in varnishtest`_ to get an idea on how to solve this exercise.
+   See the suggested solutions of `Exercise: Handle Cookies with Vary and hash_data() in varnishtest`_ to get an idea on how to solve this exercise.
    Try to avoid ``return (hash);`` in `vcl_recv`  and ``return (deliver);`` in ``vcl_backend_response`` as much as you can.
    This is a general rule to make safer Varnish setups.
 
