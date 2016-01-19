@@ -19,7 +19,7 @@ BEGIN {
 	}
 }
 
-/^[-=.][-=.][-=.]+$/ {
+/^[-=.~][-=.~][-=.~]+$/ {
 #	print NR " chapter: " prev
 	if (cignore == 1) {
 		cignore = 2
@@ -58,4 +58,3 @@ END {
 	if (ignore == 0)
 		print prev
 }
-

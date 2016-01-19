@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-/^--+$/ || /^\.\.+$/ {
+/^--+$/ || /^\.\.+$/{
 	if (length(last) == length($0)) {
 		sub_chapter_done(subchapter);
 		subchapterindex[nsubchapterindex++] = chapter

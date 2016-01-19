@@ -10,6 +10,9 @@ Tag version-5.2
 
 - Figure to explain reordered output of ``varnishlog``.
 - ``varnishtest`` throughout the book.
+- Installation of Apache as backend is in Appendix F.
+- Solutions are moved to Appendix G.
+
 
 Tag version-5.1
 ---------------

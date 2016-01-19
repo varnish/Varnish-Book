@@ -211,7 +211,7 @@ The Webdev course requires that you:
    .. Exercises
 
    There are almost always many ways to do an exercise.
-   The solutions provided in this book or by your instructor are not necessarily better than your own.
+   The solutions provided in `Appendix G: Solutions`_ are not necessarily better than yours.
 
    .. man pages and help commands
 
@@ -801,91 +801,9 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
 
    To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
    For Red Hat, use ``yum install <package>``.
-
-Solution: Install Varnish
-.........................
-
-All the following commands must be executed with root permissions.
-First, make sure you have ``apt-transport-https`` and ``curl``::
-
-  $ apt-get install apt-transport-https
-  $ apt-get install curl
-
-To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty::
-
-  $ curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
-    | apt-key add -
-
-To use the **varnish-cache.org** repository and install **Varnish Cache** 4 on Ubuntu 14.04 trusty::
-
-  $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-  $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
-    /etc/apt/sources.list.d/varnish-cache.list
-
-If you are installing **Varnish Cache Plus**, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
-
-   # Remember to replace DISTRO and RELEASE with what applies to your system.
-   # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
-
-   # Varnish Cache Plus 4.0 and VMODs
-   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   $ varnish-4.0-plus
-
-   # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
-   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   $ non-free
-
-Re-synchronize the package index files of your repository::
-
-   $ apt-get update
-
-Install **Varnish Cache Plus**::
-
-   $ apt-get install varnish-plus
-
-Install **Varnish-Cache**::
-
-   $ apt-get install varnish
-
-Finally, verify the version you have installed::
-
-   $ varnishd -V
-
-.. container:: handout
-
-   All software related to **Varnish Cache Plus** including VMODs are available in RedHat and Debian package repositories.
-   These repositories are available on http://repo.varnish-software.com/, using your customer specific username and password.
-
-   Varnish is already distributed in many package repositories, but those packages might contain an outdated Varnish version.
-   Therefore, we recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
-   Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
-   However, these packages might still work fine on newer releases.
-
-   To use Varnish Cache Plus repositories on RHEL 6, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo``::
-
-      [varnish-4.0-plus]
-      name=Varnish Cache Plus
-      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat
-      /varnish-4.0-plus/el$releasever
-      enabled=1
-      gpgcheck=0
-
-      [varnish-admin-console]
-      name=Varnish Administration Console
-      baseurl=
-      https://<username>:<password>@repo.varnish-software.com/redhat
-      /vac/el$releasever
-      enabled=1
-      gpgcheck=0
-
-      [varnishtuner]
-      name=Varnish Tuner
-      baseurl=
-      https://<username>:<password>@repo.varnish-software.com/redhat
-      /varnishtuner/el$releasever
-      enabled=1
-      gpgcheck=0
-
+   
+   You might want to look at `Solution: Install Varnish`_ if you need help.
+   
 ``varnishtest``
 ---------------
 
@@ -6209,13 +6127,12 @@ Exercise: write a VCL that masquerades XHR calls
 .. include:: material/webdev/ajax.html
    :literal:
 
-
 Use the provided ``ajax.html`` page.
 Note that function ``getNonMasqueraded()`` fails because the origin is distinct to the ``google.com`` domain.
 Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
-Solution: write a VCL that masquerades XHR calls
+Solution: Write a VCL that masquerades XHR calls
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
@@ -7736,3 +7653,90 @@ Appendix F: Apache as Backend
    #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
    #. Restart Apache: ``service apache2 restart``.
    #. Verify that Apache still works by typing ``http -h localhost:8080``.
+
+Appendix G: Solutions
+=====================
+
+Solution: Install Varnish
+-------------------------
+
+All the following commands must be executed with root permissions.
+First, make sure you have ``apt-transport-https`` and ``curl``::
+
+  $ apt-get install apt-transport-https
+  $ apt-get install curl
+
+To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty::
+
+  $ curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
+    | apt-key add -
+
+To use the **varnish-cache.org** repository and install **Varnish Cache** 4 on Ubuntu 14.04 trusty::
+
+  $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+  $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+    /etc/apt/sources.list.d/varnish-cache.list
+
+If you are installing **Varnish Cache Plus**, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
+
+   # Remember to replace DISTRO and RELEASE with what applies to your system.
+   # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
+
+   # Varnish Cache Plus 4.0 and VMODs
+   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   $ varnish-4.0-plus
+
+   # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
+   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   $ non-free
+
+Re-synchronize the package index files of your repository::
+
+   $ apt-get update
+
+Install **Varnish Cache Plus**::
+
+   $ apt-get install varnish-plus
+
+Install **Varnish-Cache**::
+
+   $ apt-get install varnish
+
+Finally, verify the version you have installed::
+
+   $ varnishd -V
+
+.. container:: handout
+
+   All software related to **Varnish Cache Plus** including VMODs are available in RedHat and Debian package repositories.
+   These repositories are available on http://repo.varnish-software.com/, using your customer specific username and password.
+
+   Varnish is already distributed in many package repositories, but those packages might contain an outdated Varnish version.
+   Therefore, we recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
+   Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
+   However, these packages might still work fine on newer releases.
+
+   To use Varnish Cache Plus repositories on RHEL 6, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo``::
+
+      [varnish-4.0-plus]
+      name=Varnish Cache Plus
+      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat
+      /varnish-4.0-plus/el$releasever
+      enabled=1
+      gpgcheck=0
+
+      [varnish-admin-console]
+      name=Varnish Administration Console
+      baseurl=
+      https://<username>:<password>@repo.varnish-software.com/redhat
+      /vac/el$releasever
+      enabled=1
+      gpgcheck=0
+
+      [varnishtuner]
+      name=Varnish Tuner
+      baseurl=
+      https://<username>:<password>@repo.varnish-software.com/redhat
+      /varnishtuner/el$releasever
+      enabled=1
+      gpgcheck=0
