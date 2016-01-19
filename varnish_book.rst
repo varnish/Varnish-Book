@@ -1139,14 +1139,7 @@ Exercise: Test Apache as Backend with ``varnishtest``
 .. container:: handout
 
    In this exercise you have to define a backend pointing to your Apache server and use assertions with ``expect``.
-
-Solution: Test Apache as Backend with ``varnishtest``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**vtc/b00002.vtc**
-
-.. include:: vtc/b00002.vtc
-   :literal:
+   If you need help, take a look at `Solution: Test Apache as Backend with varnishtest`_.
 
 The Management Interface ``varnishadm``
 ---------------------------------------
@@ -2008,13 +2001,9 @@ Exercise: Assert Counters in ``varnishtest``
 - Write a Varnish test to check the counters for cache misses, cache hits, and number of cached objects.
 - Use ``cache_miss``, ``cache_hit``, and ``n_object`` counters respectively.
 
-Solution: Assert Counters in ``varnishtest``
-............................................
+.. container:: handout
 
-**vtc/b00005.vtc**
-
-.. include:: vtc/b00005.vtc
-   :literal:
+   If you need help, take a look at `Solution: Assert Counters in varnishtest`_.
 
 Tuning
 ======
@@ -2647,54 +2636,7 @@ Exercise: Tune ``first_byte_timeout``
    To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze ``varnishlog`` and ``varnishstat``.
    Again, you can do that by executing them in shell or by reading and asserting VSL and counters in ``varnishtest``.
 
-Solution: Tune ``first_byte_timeout`` and test it against your real backend
-...........................................................................
-
-- Create a CGI script in ``/usr/lib/cgi-bin/test.cgi`` containing::
-
-        #! /bin/sh
-        sleep 5
-        echo "Content-type: text/plain"
-        echo "Cache-control: max-age=0"
-        echo
-        echo "Hello world"
-	date
-
-- Make it executable.
-- Test that your CGI works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``
-- Test your CGI through Varnish by issuing ``http localhost:80/cgi-bin/test.cgi``
-
-.. container:: handout
-
-   In this solution, we have used HTTPie to send a request to the backend, but you can also test your real backend with ``varnishtest``.
-
-   .. tip::
-
-      Remember to enable the CGI module in Apache.
-      One way to do that is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
-
-Solution: Tune ``first_byte_timeout`` and test it against mock-up server
-........................................................................
-
-**vtc/b00006.vtc**
-
-.. include:: vtc/b00006.vtc
-   :literal:
-
-.. container:: handout
-
-   In this example, we introduce ``-vcl+backend`` and ``feature`` in VTC.
-   ``-vcl+backend`` is one way to pass inline VCL code and backend to ``v1``.
-   In this example, ``v1`` receives no inline VCL injects declaration of the backend ``s1``.
-   Thus, ``-vcl+backend{}`` is equivalent to ``-arg "-b ${s1_addr}:${s1_port}"`` in this case.
-
-   ``feature`` checks for features to be present in the test environment.
-   If the feature is not present, the test is skipped.
-   ``SO_RCVTIMEO_WORKS`` checks for the socket option ``SO_RCVTIMEO`` before executing the test.
-
-   ``b00006.vtc`` is copied from ``Varnish-Cache/bin/varnishtest/tests/b00023.vtc``
-   We advise you to take a look at the many tests under ``Varnish-Cache/bin/varnishtest/tests/``.
-   You will learn so much about Varnish when analyzing them.
+   If you need help, look at both solutions we suggest: `Solution: Tune first_byte_timeout and test it against your real backend`_ and `Solution: Tune first_byte_timeout and test it against mock-up server`_.
 
 Exercise: Configure Threading
 -----------------------------
@@ -2715,32 +2657,7 @@ Exercise: Configure Threading
    These exercises are for educational purposes, and not intended as an encouragement to change the values.
    You can learn from this exercise by using ``varnishstat``, ``varnishadm`` and ``varnishstat``
 
-Solution: Configure Threading with ``varnishadm`` and ``varnishstat``
-.....................................................................
-
-- Use ``varnishadm param.set`` to set the value of ``thread_pool_min`` and ``thread_pool_max``.
-- Monitor the `MAIN.threads` counter in ``varnishstat`` to see how many threads are running while performing this exercise.
-
-Solution: Configure Threading with ``varnishtest``
-..................................................
-
-**c00001.vtc**
-
-.. TODO for the author: find out what is the herder time in c00001.vtc and how ``thread_pool_timeout`` affects it
-
-.. include:: vtc/c00001.vtc
-   :literal:
-
-.. container:: handout
-
-   The test above shows you how to set parameters in two ways; passing the argument ``-p`` to ``varnishd`` or calling ``param.set``.
-   ``-p vsl_mask=+WorkThread`` is used to turn on ``WorkThread`` debug logging.
-
-   The test proves that ``varnishd`` starts with the number of threads indicated in ``thread_pool_min``.
-   Changes in ``thread_pool_min`` and ``thread_pool_max`` are applied by the thread herder, which handles the thread pools and adds or removes threads if necessary.
-   To learn more about other maintenance threads see https://www.varnish-cache.org/trac/wiki/VarnishInternals.
-
-   ``c00001.vtc`` is a simplified version of ``Varnish-Cache/bin/varnishtest/tests/r01490.vtc``.
+   If you need help, see `Solution: Configure Threading with varnishadm and varnishstat`_ or `Solution: Configure Threading with varnishtest`_.
 
 HTTP
 ====
@@ -4122,52 +4039,12 @@ Exercise: Rewrite URL and Host Header Fields
    Finally, you rewrite the URL in this way: ``set req.url = regsub(req.url, "^", "/sport");``.
 
    To simulate client requests, you can either use HTTPie or ``varnishtest``.
+   If you need help, see `Solution: Rewrite URL and Host Header Fields`_.
 
    .. tip::
       Remember that ``man vcl`` contains a reference manual with the syntax and details of functions such as ``regsub(str, regex, sub)``.
       We recommend you to leave the default VCL file untouched and create a new file for your VCL code.
       Remember to update the location of the VCL file in the Varnish configuration file and reload it.
-
-Solution: Rewrite URL and Host Header Fields
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
- sub vcl_recv {
-
-     set req.http.x-host = req.http.host;
-     set req.http.x-url = req.url;
-
-     set req.http.host = regsub(req.http.host, "^www\.", "");
-
-     /* Alternative 1 */
-     if (req.http.host == "sport.example.com") {
-         set req.http.host = "example.com";
-         set req.url = "/sport" + req.url;
-      }
-
-      /* Alternative 2 */
-      if (req.http.host ~ "^sport\.") {
-        set req.http.host = regsub(req.http.host,"^sport\.", "");
-        set req.url = regsub(req.url, "^", "/sport");
-      }
- }
-
-.. container:: handout
-
-   You can test this solution via HTTPie or ``varnishtest``.
-   Using HTTPie::
-
-     http -p hH --proxy=http:http://localhost sport.example.com/index.html
-
-   Then you verify your results by issuing the following command and analyzing the output::
-
-     varnishlog -i ReqHeader,ReqURL
-
-   ``varnishtest`` solution:
-
-.. include:: vtc/b00010.vtc
-   :literal:
 
 VCL – ``vcl_pass``
 ------------------
@@ -4385,35 +4262,7 @@ Exercise: Avoid Caching a Page
    For example, in a request to `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, ``req.http.host`` has the value `www.example.com` and ``req.url`` the value `/index.html`.
    Note how the leading ``/`` is included in ``req.url``.
 
-Solution: Avoid caching a page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-   // Suggested solution A
-   sub vcl_recv {
-	if (req.url ~ "^/index\.html" || req.url ~ "^/$") {
-		return(pass);
-	}
-   }
-
-   // Suggested solution B
-   sub vcl_backend_response {
-       if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
-	  set beresp.uncacheable = true;
-       }
-   }
-
-
-.. TOVERIFY: Solution B was previously done in vcl_backend_fetch
-   Documentation in ``man vcl`` suggests that this should be done as before, using bereq.uncacheable.
-   Double check what is correct and update man page if needed.
-
-.. container:: handout
-
-   Usually it is most convenient to do as much as possible in ``vcl_recv``.
-   The usage of ``bereq.uncacheable`` in ``vcl_backend_fetch`` creates a *hit-for-pass* object.
-   See the `hit-for-pass`_ section for detailed description about this type of object.
+   If you need help, see `Solution: Avoid caching a page`_.
 
 Exercise: Either use s-maxage or set TTL by file type
 .....................................................
@@ -4427,6 +4276,8 @@ Write a VCL that:
 
 .. container:: handout
 
+   If you need help, see `Solution: Either use s-maxage or set TTL by file type`_.
+
    .. tip::
 
       Divide and conquer!
@@ -4437,18 +4288,6 @@ Write a VCL that:
 
       Varnish automatically parses ``s-maxage`` for you, so you only need to check if it is there or not.
       Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
-
-Solution: Either use s-maxage or set ttl by file type
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. include:: vcl/s-maxage_cookies_filetypes.vcl
-   :literal:
-
-.. container:: handout
-
-        There are many ways to solve this exercise, and this solution is only one of them.
-	The first condition checks the presence of ``s-maxage`` and handles ``.jpg`` and ``.html`` files to make them cacheable for 30 and 10 seconds respectively.
-	If ``s-maxage`` is present with a positive TTL, we consider the response cacheable by removing ``beresp.http.Set-Cookie``.
 
 Waiting State
 -------------
@@ -4663,50 +4502,18 @@ Exercise: Modify the HTTP response header fields
 - Add a header field holding the string ``HIT`` if the requested resourced was found in cache, or ``MISS`` otherwise
 - "Rename" the ``Age`` header field to ``X-Age``
 
-Solution: Modify the HTTP response header fields
-................................................
-
-.. include:: vcl/modify_headers.vcl
-   :literal:
-
 .. container:: handout
 
-      It is a good practice to ensure that a variable has the expected type.
-      You should do this before acting on the content of a variable.
-      Therefore, in this solution, we use the `greater than` comparison operator ``obj.hits > 0`` instead of the `not equal to` operator ``obj.hits != 0``.
-
-      There have been some bugs when converting strings.
-      Those bugs happened when the variable to be converted had an unexpected value.
-      This may apply to all variable types – and all languages for that matter.
-      Thus it is important that you always check the variable type.
-
-      .. TODO for the author: Add: There is no a "rename" operation in Varnish, you have to create another header field and then remove the previous.
+   If you need help, see `Solution: Modify the HTTP response header fields`_.
 
 Exercise: Change the error message
 ----------------------------------
 
 - Make the default error message more friendly.
 
-Solution: Change the error message
-..................................
-
-**vcl/customized_error.vcl**
-
-.. include:: vcl/customized_error.vcl
-   :literal:
-
 .. container:: handout
 
-   The suggested solution forces a ``503`` error by misconfiguring ``.port`` in the `default` backend.
-   You can also force a 503 response by using ``${bad_ip}`` in ``varnishtest``.
-   The macro ``${bad_ip}`` translates to 192.0.2.255.
-
-   **vtc/b00011.vtc**
-
-   .. include:: vtc/b00011.vtc
-      :literal:
-
-   Note that in the proposed solution the client receives a ``200`` response code.
+   If you need help, see `Solution: Change the error message`_.
 
 Cache Invalidation
 ==================
@@ -4886,34 +4693,13 @@ Exercise: ``PURGE`` an article from the backend
    .. include:: material/webdev/article.php
       :literal:
 
+   If you need help, see `Solution: PURGE an article from the backend`_.
+
    .. tip::
       Remember to place your php files under ``/var/www/html/``.
 
-Solution: PURGE an article from the backend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**purgearticle.php**
-
-.. include:: material/webdev/purgearticle.php
-   :literal:
-
-.. raw:: pdf
-
-   PageBreak
-
-**solution-purge-from-backend.vcl**
-
-.. TODO for the author: in v3, purge was called in vcl_hit and vcl_miss.
-.. purge is not available in those subroutines in v4.
-.. should we mention something about it?
-
-.. include:: vcl/solution-purge-from-backend.vcl
-   :literal:
-
-.. TODO for the author: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
-
-PURGE with ``restart`` return action
-------------------------------------
+``PURGE`` with ``restart`` return action
+----------------------------------------
 
 - Start the VCL processing again from the top of ``vcl_recv``
 - Any changes made are kept
@@ -7740,3 +7526,242 @@ Finally, verify the version you have installed::
       /varnishtuner/el$releasever
       enabled=1
       gpgcheck=0
+
+Solution: Test Apache as Backend with ``varnishtest``
+-----------------------------------------------------
+
+**vtc/b00002.vtc**
+
+.. include:: vtc/b00002.vtc
+   :literal:
+
+Solution: Assert Counters in ``varnishtest``
+--------------------------------------------
+
+**vtc/b00005.vtc**
+
+.. include:: vtc/b00005.vtc
+   :literal:
+
+Solution: Tune ``first_byte_timeout`` and test it against your real backend
+---------------------------------------------------------------------------
+
+- Create a CGI script in ``/usr/lib/cgi-bin/test.cgi`` containing::
+
+        #! /bin/sh
+        sleep 5
+        echo "Content-type: text/plain"
+        echo "Cache-control: max-age=0"
+        echo
+        echo "Hello world"
+	date
+
+- Make it executable.
+- Test that your CGI works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``
+- Test your CGI through Varnish by issuing ``http localhost:80/cgi-bin/test.cgi``
+
+.. container:: handout
+
+   In this solution, we have used HTTPie to send a request to the backend, but you can also test your real backend with ``varnishtest``.
+
+   .. tip::
+
+      Remember to enable the CGI module in Apache.
+      One way to do that is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
+
+Solution: Tune ``first_byte_timeout`` and test it against mock-up server
+------------------------------------------------------------------------
+
+**vtc/b00006.vtc**
+
+.. include:: vtc/b00006.vtc
+   :literal:
+
+.. container:: handout
+
+   In this example, we introduce ``-vcl+backend`` and ``feature`` in VTC.
+   ``-vcl+backend`` is one way to pass inline VCL code and backend to ``v1``.
+   In this example, ``v1`` receives no inline VCL injects declaration of the backend ``s1``.
+   Thus, ``-vcl+backend{}`` is equivalent to ``-arg "-b ${s1_addr}:${s1_port}"`` in this case.
+
+   ``feature`` checks for features to be present in the test environment.
+   If the feature is not present, the test is skipped.
+   ``SO_RCVTIMEO_WORKS`` checks for the socket option ``SO_RCVTIMEO`` before executing the test.
+
+   ``b00006.vtc`` is copied from ``Varnish-Cache/bin/varnishtest/tests/b00023.vtc``
+   We advise you to take a look at the many tests under ``Varnish-Cache/bin/varnishtest/tests/``.
+   You will learn so much about Varnish when analyzing them.
+
+Solution: Configure Threading with ``varnishadm`` and ``varnishstat``
+---------------------------------------------------------------------
+
+- Use ``varnishadm param.set`` to set the value of ``thread_pool_min`` and ``thread_pool_max``.
+- Monitor the `MAIN.threads` counter in ``varnishstat`` to see how many threads are running while performing this exercise.
+
+Solution: Configure Threading with ``varnishtest``
+--------------------------------------------------
+
+**c00001.vtc**
+
+.. TODO for the author: find out what is the herder time in c00001.vtc and how ``thread_pool_timeout`` affects it
+
+.. include:: vtc/c00001.vtc
+   :literal:
+
+.. container:: handout
+
+   The test above shows you how to set parameters in two ways; passing the argument ``-p`` to ``varnishd`` or calling ``param.set``.
+   ``-p vsl_mask=+WorkThread`` is used to turn on ``WorkThread`` debug logging.
+
+   The test proves that ``varnishd`` starts with the number of threads indicated in ``thread_pool_min``.
+   Changes in ``thread_pool_min`` and ``thread_pool_max`` are applied by the thread herder, which handles the thread pools and adds or removes threads if necessary.
+   To learn more about other maintenance threads see https://www.varnish-cache.org/trac/wiki/VarnishInternals.
+
+   ``c00001.vtc`` is a simplified version of ``Varnish-Cache/bin/varnishtest/tests/r01490.vtc``.
+
+Solution: Rewrite URL and Host Header Fields
+--------------------------------------------
+
+::
+
+ sub vcl_recv {
+
+     set req.http.x-host = req.http.host;
+     set req.http.x-url = req.url;
+
+     set req.http.host = regsub(req.http.host, "^www\.", "");
+
+     /* Alternative 1 */
+     if (req.http.host == "sport.example.com") {
+         set req.http.host = "example.com";
+         set req.url = "/sport" + req.url;
+      }
+
+      /* Alternative 2 */
+      if (req.http.host ~ "^sport\.") {
+        set req.http.host = regsub(req.http.host,"^sport\.", "");
+        set req.url = regsub(req.url, "^", "/sport");
+      }
+ }
+
+.. container:: handout
+
+   You can test this solution via HTTPie or ``varnishtest``.
+   Using HTTPie::
+
+     http -p hH --proxy=http:http://localhost sport.example.com/index.html
+
+   Then you verify your results by issuing the following command and analyzing the output::
+
+     varnishlog -i ReqHeader,ReqURL
+
+   ``varnishtest`` solution:
+
+.. include:: vtc/b00010.vtc
+   :literal:
+
+Solution: Avoid caching a page
+------------------------------
+
+::
+
+   // Suggested solution A
+   sub vcl_recv {
+	if (req.url ~ "^/index\.html" || req.url ~ "^/$") {
+		return(pass);
+	}
+   }
+
+   // Suggested solution B
+   sub vcl_backend_response {
+       if (bereq.url ~ "^/index\.html" || bereq.url ~ "^/$") {
+	  set beresp.uncacheable = true;
+       }
+   }
+
+
+.. TOVERIFY: Solution B was previously done in vcl_backend_fetch
+   Documentation in ``man vcl`` suggests that this should be done as before, using bereq.uncacheable.
+   Double check what is correct and update man page if needed.
+
+.. container:: handout
+
+   Usually it is most convenient to do as much as possible in ``vcl_recv``.
+   The usage of ``bereq.uncacheable`` in ``vcl_backend_fetch`` creates a *hit-for-pass* object.
+   See the `hit-for-pass`_ section for detailed description about this type of object.
+
+Solution: Either use ``s-maxage`` or set TTL by file type
+---------------------------------------------------------
+
+.. include:: vcl/s-maxage_cookies_filetypes.vcl
+   :literal:
+
+.. container:: handout
+
+        There are many ways to solve this exercise, and this solution is only one of them.
+	The first condition checks the presence of ``s-maxage`` and handles ``.jpg`` and ``.html`` files to make them cacheable for 30 and 10 seconds respectively.
+	If ``s-maxage`` is present with a positive TTL, we consider the response cacheable by removing ``beresp.http.Set-Cookie``.
+
+Solution: Modify the HTTP response header fields
+------------------------------------------------
+
+.. include:: vcl/modify_headers.vcl
+   :literal:
+
+.. container:: handout
+
+      It is a good practice to ensure that a variable has the expected type.
+      You should do this before acting on the content of a variable.
+      Therefore, in this solution, we use the `greater than` comparison operator ``obj.hits > 0`` instead of the `not equal to` operator ``obj.hits != 0``.
+
+      There have been some bugs when converting strings.
+      Those bugs happened when the variable to be converted had an unexpected value.
+      This may apply to all variable types – and all languages for that matter.
+      Thus it is important that you always check the variable type.
+
+      .. TODO for the author: Add: There is no a "rename" operation in Varnish, you have to create another header field and then remove the previous.
+
+Solution: Change the error message
+----------------------------------
+
+**vcl/customized_error.vcl**
+
+.. include:: vcl/customized_error.vcl
+   :literal:
+
+.. container:: handout
+
+   The suggested solution forces a ``503`` error by misconfiguring ``.port`` in the `default` backend.
+   You can also force a 503 response by using ``${bad_ip}`` in ``varnishtest``.
+   The macro ``${bad_ip}`` translates to 192.0.2.255.
+
+   **vtc/b00011.vtc**
+
+   .. include:: vtc/b00011.vtc
+      :literal:
+
+   Note that in the proposed solution the client receives a ``200`` response code.
+
+Solution: ``PURGE`` an article from the backend
+-----------------------------------------------
+
+**purgearticle.php**
+
+.. include:: material/webdev/purgearticle.php
+   :literal:
+
+.. raw:: pdf
+
+   PageBreak
+
+**solution-purge-from-backend.vcl**
+
+.. TODO for the author: in v3, purge was called in vcl_hit and vcl_miss.
+.. purge is not available in those subroutines in v4.
+.. should we mention something about it?
+
+.. include:: vcl/solution-purge-from-backend.vcl
+   :literal:
+
+.. TODO for the author: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
+
