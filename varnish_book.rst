@@ -4906,18 +4906,7 @@ Exercise: Write a VCL program using *purge* and *ban*
 
    Remember that you still need specify the requested ``URL`` in ``c1`` if is other than ``/``.
    We advise you to search for ``purge`` and ``ban`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more on how to invalidate caches.
-
-.. TOFIX: Here there is an empty page in slides
-.. Look at util/strip-class.gawk
-
-Solution: Write a VCL program using *purge* and *ban*
-.....................................................
-
-.. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
-.. This is not possible in v4. Should we comment about it?
-
-.. include:: vcl/solution-bans-etc.vcl
-   :literal:
+   If you need help, see `Solution: Write a VCL program using purge and ban`_.
 
 Force Cache Misses
 ------------------
@@ -5631,43 +5620,7 @@ The exercise uses the ``Cookie`` header field, but the same rules apply to any o
 
    This exercise is all about ``Vary`` and hash mechanisms.
    After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data()`` work.
-
-Solution: Handle Cookies with  ``Vary`` in ``varnishtest``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**vtc/c00003.vtc**
-
-.. include:: vtc/c00003.vtc
-   :literal:
-
-.. container:: handout
-
-   ``Vary`` and ``hash_data()`` might behave very similar at first sight and they might even seem like alternatives for handling cookies.
-   However, cached objects are referenced in different ways.
-
-   If Varnish is forced to store responses with cookies, ``Vary`` ensures that Varnish stores resources per URL and Cookie.
-   If ``Vary: Cookie`` is used, objects are purged in this way::
-
-     txreq -req PURGE -url "/cookie.php"
-
-   but something different is needed when using ``hash_data(req.http.Cookie)``, as you can see it in the next suggested solution.
-
-Solution: Handle Cookies with  ``hash_data()`` in ``varnishtest``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**vtc/c00004.vtc**
-
-.. include:: vtc/c00004.vtc
-   :literal:
-
-.. container:: handout
-
-      ``hash_data(req.http.Cookie)`` adds the request header field ``Cookie`` to the hash key.
-      So Varnish can discern between backend responses linked to a specific request header field.
-
-      To purge cached objects in this case, you have to specify the header field used in ``hash_data()``::
-
-	txreq -req PURGE -url "/cookie.php" -hdr "Cookie: user: Alice"
+   If you need help, see `Solution: Handle Cookies with  Vary in varnishtest`_ or `Solution: Handle Cookies with  hash_data() in varnishtest`_.
 
 Exercise: Handle Cookies with ``Vary`` and ``hash_data`` with HTTPie
 ....................................................................
@@ -5918,15 +5871,7 @@ Note that function ``getNonMasqueraded()`` fails because the origin is distinct 
 Function ``getMasqueraded()`` can do the job if a proper VCL code handles it.
 Write the VCL code that masquerades the Ajax request to ``http://www.google.com/robots.txt``.
 
-Solution: Write a VCL that masquerades XHR calls
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
-
-.. include:: vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl
-   :literal:
-
-Note that the ``getMasqueraded()`` works now after being processed in ``vcl_recv()``.
+If you need help, see `Solution: Write a VCL that masquerades XHR calls`_.
 
 Varnish Plus Software Components
 ================================
@@ -7765,3 +7710,58 @@ Solution: ``PURGE`` an article from the backend
 
 .. TODO for the author: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
 
+Solution: Write a VCL program using *purge* and *ban*
+-----------------------------------------------------
+
+.. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
+.. This is not possible in v4. Should we comment about it?
+
+.. include:: vcl/solution-bans-etc.vcl
+   :literal:
+
+Solution: Handle Cookies with  ``Vary`` in ``varnishtest``
+----------------------------------------------------------
+
+**vtc/c00003.vtc**
+
+.. include:: vtc/c00003.vtc
+   :literal:
+
+.. container:: handout
+
+   ``Vary`` and ``hash_data()`` might behave very similar at first sight and they might even seem like alternatives for handling cookies.
+   However, cached objects are referenced in different ways.
+
+   If Varnish is forced to store responses with cookies, ``Vary`` ensures that Varnish stores resources per URL and Cookie.
+   If ``Vary: Cookie`` is used, objects are purged in this way::
+
+     txreq -req PURGE -url "/cookie.php"
+
+   but something different is needed when using ``hash_data(req.http.Cookie)``, as you can see it in the next suggested solution.
+
+Solution: Handle Cookies with  ``hash_data()`` in ``varnishtest``
+-----------------------------------------------------------------
+
+**vtc/c00004.vtc**
+
+.. include:: vtc/c00004.vtc
+   :literal:
+
+.. container:: handout
+
+      ``hash_data(req.http.Cookie)`` adds the request header field ``Cookie`` to the hash key.
+      So Varnish can discern between backend responses linked to a specific request header field.
+
+      To purge cached objects in this case, you have to specify the header field used in ``hash_data()``::
+
+	txreq -req PURGE -url "/cookie.php" -hdr "Cookie: user: Alice"
+
+Solution: Write a VCL that masquerades XHR calls
+------------------------------------------------
+
+``vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl``
+
+.. include:: vcl/solution-vcl_fetch-masquerade-ajax-requests.vcl
+   :literal:
+
+Note that the ``getMasqueraded()`` works now after being processed in ``vcl_recv()``.
