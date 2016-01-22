@@ -7710,8 +7710,8 @@ Solution: ``PURGE`` an article from the backend
 
 .. TODO for the author: doublecheck the new with the old code of vcl/PURGE-and-restart.vcl.
 
-Solution: Write a VCL program using *purge* and *ban*
------------------------------------------------------
+Solution: Write a VCL program using purge and ban
+-------------------------------------------------
 
 .. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
 .. This is not possible in v4. Should we comment about it?
