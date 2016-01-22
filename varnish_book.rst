@@ -5541,6 +5541,29 @@ Access Control Lists (ACLs)
       However, this practice is strongly discouraged.
       Instead, we advise to declare only what you use.
 
+Compression
+-----------
+
+- 
+
+.. container:: handout
+
+   It is sensible to compress objects before storing them in cache.
+   Objects can be compressed either at the backend or your Varnish server.
+
+
+   Varnish can compress objects before storing them in cache, so you should decide where to do 
+   The compression algorithm spends some CPU cycles, but our experience shows that it is better to spend those CPU resources in the host where you run Varnish instead of compressing on the web server.
+   This assuming that your web server demands more CPU resources than Varnish itself, which is normally the case.
+
+   You should avoid compressing already compressed content such as JPEG, PNG, GIF, or MP3 files.
+   This 
+   Compression is enabled by default in Varnish 4.0.
+   
+
+   https://www.varnish-cache.org/docs/trunk/phk/gzip.html
+   https://www.varnish-cache.org/docs/trunk/users-guide/compression.html
+
 Content Composition
 ===================
 
