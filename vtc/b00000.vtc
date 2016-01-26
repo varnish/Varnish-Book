@@ -1,8 +1,7 @@
 varnish v1 -vcl {
    sub vcl_recv {
-       if (req.method != "GET" && req.method != "HEAD") {
+       if (req.url ~ ^/admin/){
            return (pass);
        }
-       return (hash);
    }
 } -start

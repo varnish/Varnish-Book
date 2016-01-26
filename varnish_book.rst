@@ -3493,7 +3493,7 @@ In this chapter, you will learn the following topics:
    .. Section overview
 
    This chapter focuses on the most important tasks to write effective VCL code.
-   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``vcl_recv`` and ``vcl_backend_fetch``.
+   For this, you will learn the basic syntax of VCL, and the most important VCL built-in subroutines: ``vcl_recv`` and ``vcl_backend_response``.
    All other built-in subroutines are taught in the next chapter.
 
    .. tip::
@@ -3680,6 +3680,8 @@ Built-in ``vcl_recv``
 
 .. include:: vcl/default-vcl_recv.vcl
    :literal:
+
+- We will revisit ``vcl_recv`` after we learn more about built-in functions, keywords, variables and return actions
 
 .. container:: handout
 
