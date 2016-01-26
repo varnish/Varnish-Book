@@ -3543,15 +3543,13 @@ Varnish Finite State Machine
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
    `Figure 22 <#figure-22>`_ shows a simplified version of the Varnish finite state machine.
-   This version shows by no means all possible transitions, but only a traditional set of them.
+   This version shows by no means all possible transitions, but only a typical set of them.
    `Figure 23 <#figure-23>`_ and
    `Figure 24 <#figure-24>`_ show the detailed version of the state machine for the **frontend** and **backend**  worker respectively.
-   The figures represent a request flow diagram.
-
-   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
 
    .. Subroutines
 
+   States in VCL are conceptualized as subroutines, with the exception of the *waiting* state described in `Waiting State`_
    Subroutines in VCL take neither arguments nor return values.
    Each subroutine terminates by calling ``return (action)``, where ``action`` is a keyword that indicates the desired outcome.
    Subroutines may inspect and manipulate HTTP header fields and various other aspects of each request.
@@ -3677,8 +3675,8 @@ VCL in ``varnishtest``
    This VCL code is inserted above the subroutines in built-in code in ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
    Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
 
-Example: built-in ``vcl_recv``
-------------------------------
+Built-in ``vcl_recv``
+---------------------
 
 .. include:: vcl/default-vcl_recv.vcl
    :literal:
@@ -3822,13 +3820,10 @@ To have a detailed availability of each variable, refer to the VCL man page by t
    Many but not all of the variables are self-explanatory.
    To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
 
-VCL – ``vcl_backend_fetch``
----------------------------
+Detailed Varnish Request Flow for the Backend Worker Thread
+-----------------------------------------------------------
 
 - See `Figure 24 <#figure-24>`_ in the book
-
-.. include:: vcl/default-vcl_backend_fetch.vcl
-   :literal:
 
 .. container:: handout
 
@@ -3839,29 +3834,218 @@ VCL – ``vcl_backend_fetch``
    .. figure:: ui/img/detailed_fsm_backend.svg
       :width: 100%
 
-      Figure :counter:`figure`: Varnish Request Flow for the Backend Worker Thread.
-
    `Figure 24 <#figure-24>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to define your caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
 
-   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
-   When ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
-   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
+   You will learn more about ``vcl_backend_fetch`` in the next chapter, but before we review ``vcl_backend_response`` because the backend response is normally processed there.
+
+VCL – ``vcl_backend_response``
+------------------------------
+
+- Override cache time for certain URLs
+- Strip ``Set-Cookie`` header fields that are not needed
+- Strip bugged ``Vary`` header fields
+- Add helper-headers to the object for use in banning (more information in later sections)
+- Sanitize server response
+- Override cache duration
+- Apply other caching policies
+
+.. container:: handout
+
+   `Figure 24 <#figure-24>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
+
+   Backends might respond with a ``304`` HTTP headers.
+   ``304`` responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
+   If the request hits a non fresh object (see `Figure 2 <#figure-2>`_), Varnish adds the ``If-Modified-Since`` header with the value of ``t_origin`` to the request and sends it to the backend.
+
+   ``304`` responses do not contain a message body.
+   Thus, Varnish builds the response using the body from cache.
+   ``304`` responses update the attributes of the cached object.
+
+``vcl_backend_response``
+........................
+
+**built-in vcl_backend_response**
+
+.. include:: vcl/default-vcl_backend_response.vcl
+   :literal:
+
+.. container:: handout
+
+   The ``vcl_backend_response`` built-in subroutine is designed to avoid caching in conditions that are most probably undesired.
+   For example, it avoids caching responses with cookies, i.e., responses with ``Set-Cookie`` HTTP header field.
+   This built-in subroutine also avoids *request serialization* described in the `Waiting State`_ section.
+
+   To avoid *request serialization*, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
+   The `hit-for-pass`_ section explains in detail this object type.
+
+   If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
+   If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
+
+   .. note::
+
+      Varnish 3.x has a *hit_for_pass* return action.
+      In Varnish 4, this action is achieved by setting ``beresp.uncacheable`` to ``true``.
+      The `hit-for-pass`_ section explains this in more detail.
+
+.. TOFIX: Here there is an empty page in slides
+.. Look at util/strip-class.gawk
+
+The Initial Value of ``beresp.ttl``
+...................................
+
+Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has already been set to a value. 
+``beresp.ttl`` is initialized with the first value it finds among:
+
+- The ``s-maxage`` variable in the ``Cache-Control`` response header field
+- The ``max-age`` variable in the ``Cache-Control`` response header field
+- The ``Expires`` response header field
+- The ``default_ttl`` parameter.
+
+Only the following status codes will be cached by default:
+
+.. TODO for the author:
+   Verify 204 and 308 in source code
+
+- 200: OK
+- 203: Non-Authoritative Information
+- 300: Multiple Choices
+- 301: Moved Permanently
+- 302: Moved Temporarily
+- 304: Not modified
+- 307: Temporary Redirect
+- 410: Gone
+- 404: Not Found
+
+.. TODO for the author:
+   Find the right place to add the following:
+   DDoS attackers use scripts to create a bunch of 404 and replace useful cache objects.
+   How do you mitigate it?: pick the junk Varnish server to do not evict rightful
+
+.. container:: handout
+
+   You can cache other status codes than the ones listed above, but you have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response``.
+   Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
+   ``Cache-Control`` directives are defined in RFC7234 Section 5.2.
+
+   A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
+   This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
+   For example, if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
+   This also means that responses with ``Age`` values between 301 and 3600 seconds are not cached by the clients' web browser, because ``Age`` is greater than ``max-age``.
+
+   A sensible approach is to use the ``s-maxage`` directive to instruct Varnish to cache the response.
+   Then, remove the ``s-maxage`` directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
+   In this way, you can safely use ``s-maxage`` as the cache duration for Varnish servers, and set ``max-age`` as the cache duration for clients.
+
+   .. warning::
+
+      Bear in mind that removing or altering the ``Age`` response header field may affect how responses are handled downstream.
+      The impact of removing the ``Age`` field depends on the HTTP implementation of downstream intermediaries or clients.
+
+      For example, imagine that you have a three Varnish-server serial setup.
+      If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume ``Age=0``.
+      In this case, you might inadvertently be delivering stale objects to your client.
+
+Example: Setting TTL of .jpg URLs to 60 seconds
+...............................................
+
+.. include:: vcl/cache_jpg.vcl
+   :literal:
+
+.. container:: handout
+
+   The above example caches all URLs ending with .jpg for 60 seconds.
+   Keep in mind that the built-in VCL is still executed.
+   That means that images with a ``Set-Cookie`` field are not cached.
+
+   .. TODO for the editor: double check builtin or built-in for consistency
+
+Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
+......................................................................
+
+.. include:: vcl/cache_jpg_smaxage.vcl
+   :literal:
+
+.. container:: handout
    
-   A relevant variable is ``bereq.uncacheable``.
-   This variable indicates whether the object requested from the backend may be cached or not.
-   However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
+   The purpose of the above example is to allow a gradual migration to using a backend-controlled caching policy.
+   If the backend does not supply ``s-maxage``, and the URL is a jpg file, then Varnish sets ``beresp.ttl`` to 60 seconds.
 
-   ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
-   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
-   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
-   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
-   You will learn more about ``vcl_backend_response`` in the `VCL – vcl_backend_response`_ section.
+   The ``Cache-Control`` response header field can contain a number of directives.
+   Varnish parses this field and looks for ``s-maxage`` and ``max-age``.
 
-Summary of VCL
---------------
+   By default, Varnish sets ``beresp.ttl`` to the value of ``s-maxage`` if found.
+   If ``s-maxage`` is not found, Varnish uses the value ``max-age``.
+   If neither exists, Varnish uses the ``Expires`` response header field to set the TTL.
+   If none of those header fields exist, Varnish uses the default TTL, which is 120 seconds.
+
+   The default parsing and TTL assignment are done before ``vcl_backend_response`` is executed.
+   The TTL changing process is recorded in the ``TTL`` tag of ``varnishlog``.
+
+Exercise: Avoid Caching a Page
+..............................
+
+- Write a VCL which avoids caching the index page at all
+- Your VCL should cover both resource targets: `/` and `/index.html`
+
+.. container:: handout
+
+   When trying this out, remember that Varnish keeps the ``Host`` header field in ``req.http.host`` and the requested resource in ``req.url``.
+   For example, in a request to `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, ``req.http.host`` has the value `www.example.com` and ``req.url`` the value `/index.html`.
+   Note how the leading ``/`` is included in ``req.url``.
+
+   If you need help, see `Solution: Avoid caching a page`_.
+
+Exercise: Either use s-maxage or set TTL by file type
+.....................................................
+
+Write a VCL that:
+
+- uses ``Cache-Control: s-maxage`` when present,
+- caches ``.jpg`` for 30 seconds if ``s-maxage`` is not present,
+- caches ``.html`` for 10 seconds if ``s-maxage`` isn't present, and
+- removes the ``Set-Cookie`` header field if ``s-maxage`` **or** the above rules indicate that Varnish should cache.
+
+.. container:: handout
+
+   If you need help, see `Solution: Either use s-maxage or set TTL by file type`_.
+
+   .. tip::
+
+      Divide and conquer!
+      Most somewhat complex VCL tasks are easily solved when you divide the tasks into smaller problems and solve them individually.
+      Try solving each part of the exercise by itself first.
+
+   .. note::
+
+      Varnish automatically parses ``s-maxage`` for you, so you only need to check if it is there or not.
+      Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
+
+Waiting State
+-------------
+
+- *Request serialization* is a non desired side-effect that is handled in the `vcl_backend_response`_  subroutine
+- Designed to improve response performance
+
+.. container:: handout
+
+    The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled at the backend.
+    In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
+    If the fetched object from request 0 is cacheable, all *n* requests in the waiting list call the lookup operation again.
+    This retry will hopefully hit the desired object in cache.
+    As a result, only one request is sent to the backend.
+
+    The *waiting* state is designed to improve response performance.
+    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched object is uncacheable, and so is recursively the next request in the waiting list.
+    This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
+    Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
+    The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
+
+Summary of VCL Basics
+---------------------
 
 - VCL is all about policies
 - VCL provides a state machine for controlling Varnish
@@ -4087,227 +4271,26 @@ hit-for-pass
    As any other cached object, *hit-for-pass* objects have a TTL.
    Once the object's TTL has elapsed, the object is removed from the cache.
 
-VCL – ``vcl_backend_response``
-------------------------------
+VCL – ``vcl_backend_fetch``
+---------------------------
 
-- Sanitize server-response
-- Override cache duration
-- See `Figure 24 <#figure-24>`_ in the book
-
-.. container:: handout
-
-   `Figure 24 <#figure-24>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
-   The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
-
-   Backends might respond with a ``304`` HTTP headers.
-   ``304`` responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
-   If the request hits a non fresh object (see `Figure 2 <#figure-2>`_), Varnish adds the ``If-Modified-Since`` header with the value of ``t_origin`` to the request and sends it to the backend.
-
-   ``304`` responses do not contain a message-body.
-   Thus, Varnish tries to *steal* the body from cache, merge it with the header response and deliver it.
-   This process updates the attributes of the cached object.
-
-   Typical tasks performed in ``vcl_backend_fetch`` or ``vcl_backend_response`` include:
-
-   - Overriding cache time for certain URLs
-   - Stripping ``Set-Cookie`` header fields that are not needed
-   - Stripping bugged ``Vary`` header fields
-   - Adding helper-headers to the object for use in banning (more information in later sections)
-   - Applying other caching policies
-
-``vcl_backend_response``
-........................
-
-**built-in vcl_backend_response**
-
-::
-  
-   sub vcl_backend_response {
-       if (beresp.ttl <= 0s ||
-	 beresp.http.Set-Cookie ||
-	 beresp.http.Surrogate-control ~ "no-store" ||
-	 (!beresp.http.Surrogate-Control &&
-	   beresp.http.Cache-Control ~ "no-cache|no-store|private") ||
-	 beresp.http.Vary == "*") {
-	   /*
-	    * Mark as "Hit-For-Pass" for the next 2 minutes
-	    */
-	   set beresp.ttl = 120s;
-	   set beresp.uncacheable = true;
-       }
-       return (deliver);
-   }
-
-.. container:: handout
-
-   The ``vcl_backend_response`` built-in subroutine is designed to avoid caching in conditions that are most probably undesired.
-   For example, it avoids caching responses with cookies, i.e., responses with ``Set-Cookie`` HTTP header field.
-   This built-in subroutine also avoids *request serialization* described in the `Waiting State`_ section.
-
-   To avoid *request serialization*, ``beresp.uncacheable`` is set to ``true``, which in turn creates a ``hit-for-pass`` object.
-   The `hit-for-pass`_ section explains in detail this object type.
-
-   If you still decide to skip the built-in ``vcl_backend_response`` subroutine by having your own and returning ``deliver``, be sure to **never** set ``beresp.ttl`` to ``0``.
-   If you skip the built-in subroutine and set ``0`` as TTL value, you are effectively removing objects from cache that could eventually be used to avoid *request serialization*.
-
-   .. note::
-
-      Varnish 3.x has a *hit_for_pass* return action.
-      In Varnish 4, this action is achieved by setting ``beresp.uncacheable`` to ``true``.
-      The `hit-for-pass`_ section explains this in more detail.
-
-.. TOFIX: Here there is an empty page in slides
-.. Look at util/strip-class.gawk
-
-The Initial Value of ``beresp.ttl``
-...................................
-
-Before Varnish runs ``vcl_backend_response``, the ``beresp.ttl`` variable has already been set to a value. 
-``beresp.ttl`` is initialized with the first value it finds among:
-
-- The ``s-maxage`` variable in the ``Cache-Control`` response header field
-- The ``max-age`` variable in the ``Cache-Control`` response header field
-- The ``Expires`` response header field
-- The ``default_ttl`` parameter.
-
-Only the following status codes will be cached by default:
-
-.. TODO for the author:
-   Verify 204 and 308 in source code
-
-- 200: OK
-- 203: Non-Authoritative Information
-- 300: Multiple Choices
-- 301: Moved Permanently
-- 302: Moved Temporarily
-- 304: Not modified
-- 307: Temporary Redirect
-- 410: Gone
-- 404: Not Found
-
-.. TODO for the author:
-   Find the right place to add the following:
-   DDoS attackers use scripts to create a bunch of 404 and replace useful cache objects.
-   How do you mitigate it?: pick the junk Varnish server to do not evict rightful
-
-.. container:: handout
-
-   You can cache other status codes than the ones listed above, but you have to set the ``beresp.ttl`` to a positive value in ``vcl_backend_response``.
-   Since ``beresp.ttl`` is set before ``vcl_backend_response`` is executed, you can modify the directives of the ``Cache-Control`` header field without affecting ``beresp.ttl``, and vice versa.
-   ``Cache-Control`` directives are defined in RFC7234 Section 5.2.
-
-   A backend response may include the response header field of maximum age for shared caches ``s-maxage``.
-   This field overrides all ``max-age`` values throughout all Varnish servers in a multiple Varnish-server setup.
-   For example, if the backend sends ``Cache-Control: max-age=300, s-maxage=3600``, all Varnish installations will cache objects with an ``Age`` value less or equal to 3600 seconds.
-   This also means that responses with ``Age`` values between 301 and 3600 seconds are not cached by the clients' web browser, because ``Age`` is greater than ``max-age``.
-
-   A sensible approach is to use the ``s-maxage`` directive to instruct Varnish to cache the response.
-   Then, remove the ``s-maxage`` directive using ``regsub()`` in ``vcl_backend_response`` before delivering the response.
-   In this way, you can safely use ``s-maxage`` as the cache duration for Varnish servers, and set ``max-age`` as the cache duration for clients.
-
-   .. warning::
-
-      Bear in mind that removing or altering the ``Age`` response header field may affect how responses are handled downstream.
-      The impact of removing the ``Age`` field depends on the HTTP implementation of downstream intermediaries or clients.
-
-      For example, imagine that you have a three Varnish-server serial setup.
-      If you remove the ``Age`` field in the first Varnish server, then the second Varnish server will assume ``Age=0``.
-      In this case, you might inadvertently be delivering stale objects to your client.
-
-Example: Setting TTL of .jpg URLs to 60 seconds
-...............................................
-
-.. include:: vcl/cache_jpg.vcl
+.. include:: vcl/default-vcl_backend_fetch.vcl
    :literal:
 
 .. container:: handout
 
-   The above example caches all URLs ending with .jpg for 60 seconds.
-   Keep in mind that the built-in VCL is still executed.
-   That means that images with a ``Set-Cookie`` field are not cached.
-
-   .. TODO for the editor: double check builtin or built-in for consistency
-
-Example: Cache .jpg for 60 seconds only if ``s-maxage`` is not present
-......................................................................
-
-.. include:: vcl/cache_jpg_smaxage.vcl
-   :literal:
-
-.. container:: handout
+   ``vcl_backend_fetch`` can be called from ``vcl_miss`` or ``vcl_pass``.
+   When ``vcl_backend_fetch`` is called from ``vcl_miss``, the fetched object may be cached.
+   If ``vcl_backend_fetch`` is called from ``vcl_pass``, the fetched object is **not** cached even if ``obj.ttl`` or ``obj.keep`` variables are greater than zero.
    
-   The purpose of the above example is to allow a gradual migration to using a backend-controlled caching policy.
-   If the backend does not supply ``s-maxage``, and the URL is a jpg file, then Varnish sets ``beresp.ttl`` to 60 seconds.
+   A relevant variable is ``bereq.uncacheable``.
+   This variable indicates whether the object requested from the backend may be cached or not.
+   However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
 
-   The ``Cache-Control`` response header field can contain a number of directives.
-   Varnish parses this field and looks for ``s-maxage`` and ``max-age``.
-
-   By default, Varnish sets ``beresp.ttl`` to the value of ``s-maxage`` if found.
-   If ``s-maxage`` is not found, Varnish uses the value ``max-age``.
-   If neither exists, Varnish uses the ``Expires`` response header field to set the TTL.
-   If none of those header fields exist, Varnish uses the default TTL, which is 120 seconds.
-
-   The default parsing and TTL assignment are done before ``vcl_backend_response`` is executed.
-   The TTL changing process is recorded in the ``TTL`` tag of ``varnishlog``.
-
-Exercise: Avoid Caching a Page
-..............................
-
-- Write a VCL which avoids caching the index page at all
-- Your VCL should cover both resource targets: `/` and `/index.html`
-
-.. container:: handout
-
-   When trying this out, remember that Varnish keeps the ``Host`` header field in ``req.http.host`` and the requested resource in ``req.url``.
-   For example, in a request to `http://www.example.com/index.html`, the `http://` part is not seen by Varnish at all, ``req.http.host`` has the value `www.example.com` and ``req.url`` the value `/index.html`.
-   Note how the leading ``/`` is included in ``req.url``.
-
-   If you need help, see `Solution: Avoid caching a page`_.
-
-Exercise: Either use s-maxage or set TTL by file type
-.....................................................
-
-Write a VCL that:
-
-- uses ``Cache-Control: s-maxage`` when present,
-- caches ``.jpg`` for 30 seconds if ``s-maxage`` is not present,
-- caches ``.html`` for 10 seconds if ``s-maxage`` isn't present, and
-- removes the ``Set-Cookie`` header field if ``s-maxage`` **or** the above rules indicate that Varnish should cache.
-
-.. container:: handout
-
-   If you need help, see `Solution: Either use s-maxage or set TTL by file type`_.
-
-   .. tip::
-
-      Divide and conquer!
-      Most somewhat complex VCL tasks are easily solved when you divide the tasks into smaller problems and solve them individually.
-      Try solving each part of the exercise by itself first.
-
-   .. note::
-
-      Varnish automatically parses ``s-maxage`` for you, so you only need to check if it is there or not.
-      Remember that if ``s-maxage`` is present, Varnish has already used it to set ``beresp.ttl``.
-
-Waiting State
--------------
-
-- *Request serialization* is a non desired side-effect that is handled in the `vcl_backend_response`_  subroutine
-- Designed to improve response performance
-
-.. container:: handout
-
-    The *waiting* state is reached when a request *n* arrives while a previous identical request 0 is being handled at the backend.
-    In this case, request 0 is set as *busy* and all subsequent requests *n* are queued in a waiting list.
-    If the fetched object from request 0 is cacheable, all *n* requests in the waiting list call the lookup operation again.
-    This retry will hopefully hit the desired object in cache.
-    As a result, only one request is sent to the backend.
-
-    The *waiting* state is designed to improve response performance.
-    However, a counterproductive scenario, namely *request serialization*, may occur if the fetched object is uncacheable, and so is recursively the next request in the waiting list.
-    This situation forces every single request in the waiting list to be sent to the backend in a serial manner.
-    Serialized requests should be avoided because their performance is normally poorer than sending multiple requests in parallel.
-    The built-in `vcl_backend_response`_  subroutine avoids *request serialization*.
+   ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
+   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
+   The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
+   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
 
 VCL – ``vcl_hash``
 ------------------

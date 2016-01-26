@@ -12,7 +12,7 @@ Tag version-5.2
 - ``varnishtest`` throughout the book.
 - Installation of Apache as backend is in Appendix F.
 - Solutions are moved to Appendix G.
-
+- ``vcl_backend_response`` together with the `Waiting State`_ section are now in `VCL_Basics`_ chapter
 
 Tag version-5.1
 ---------------
