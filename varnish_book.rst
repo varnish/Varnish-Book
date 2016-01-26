@@ -249,7 +249,7 @@ The Webdev course requires that you:
 
       sub vcl_recv {
 	  # Do request header transformations here.
-	  if (req.url ~ "/admin") {
+	  if (req.url ~ "^/admin") {
 	      return(pass);
 	  }
       }
@@ -3664,7 +3664,7 @@ VCL Syntax
 VCL in ``varnishtest``
 ......................
 
-**Snippet from vcl_recv subroutine in varnishtest**
+**vtc/b00000.vtc:**
 
 .. include:: vtc/b00000.vtc
    :literal:

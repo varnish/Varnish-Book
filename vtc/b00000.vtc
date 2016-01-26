@@ -1,6 +1,6 @@
 varnish v1 -vcl {
    sub vcl_recv {
-       if (req.url ~ ^/admin/){
+       if (req.url ~ "^/admin/"){
            return (pass);
        }
    }
