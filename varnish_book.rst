@@ -5166,9 +5166,8 @@ Health Checks
 - Poke your web server every N seconds
 - Affects backend selection
 - ``std.healthy(req.backend_hint)``
-- Varnish allows at most `threshold` amount of failed probes within a set of the last `window` probes
-- `threshold` and `window` are parameters
 - Set using ``.probe``
+- Varnish allows at most ``.threshold`` amount of failed probes within a set of the last ``.window`` probes
 - ``varnishlog``: Backend_health
 
 .. TODO for the author: To verify the VCL code for health: health.vcl and health_request.vcl.
@@ -5189,37 +5188,143 @@ Health Checks
    This variable defines how many times the *probe* must succeed to mark the backend as healthy.
    The ``.initial`` default value is equal to ``.threshold – 1``.
 
-   The variable ``Backend_health`` of ``varnishlog`` shows the result of a backend health probe.
-   Issue ``man vsl`` to see its detailed syntax.
-
    When Varnish has no healthy backend available, it attempts to use a *graced* copy of the cached object that a request is looking for.
    The next section `Grace Mode`_ explains this concept in detail.
 
-   .. include:: vcl/health_request.vcl
-     :literal:
-
-   .. raw:: pdf
-
-         PageBreak
-
    You can also declare standalone probes and reuse them for several backends.
-   It is particularly useful when you use directors with identical behaviors,
-   or when you use the same health check procedure across different web
-   applications.
+   It is particularly useful when you use directors with identical behaviors, or when you use the same health check procedure across different web applications.
 
    .. include:: vcl/health_standalone.vcl
      :literal:
 
    .. note::
 
-      Varnish does NOT send a Host header with health checks. 
+      Varnish does **not** send a Host header  with health checks.
       If you need that, you can define an entire request using ``.request`` instead of ``.url``.
+
+      .. include:: vcl/health_request.vcl
+         :literal:
 
    .. note::
 
       The ``healthy`` function is implemented as VMOD in Varnish 4.
       ``req.backend.healthy`` from Varnish 3 is replaced by ``std.healthy(req.backend_hint)``.
       Do not forget to include the import line: ``import std;``
+
+Analyzing health probes
+.......................
+
+- ``Backend_health`` tag in ``varnishlog -g raw -i Backend_health``
+
+   .. parsed-literal:: 
+      :class: tinycode
+
+      # varnishlog -g raw -i Backend_health
+      0 Backend_health - default Still healthy 4--X-RH 5 3 5 0.012166 0.013693 HTTP/1.0 200 OK
+
+- ``varnishadm debug.health``::
+
+      Backend default is Healthy
+      Current states  good:  5 threshold:  3 window:  5
+      Average responsetime of good probes: 0.016226
+      Oldest                                                    Newest
+      ================================================================
+      44444444444444444444444444444444444444444444--44----444444444444 Good IPv4
+      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XX----XXXXXXXXXXXX Good Xmit
+      RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR--RR----RRRRRRRRRRRR Good Recv
+      HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH--HH----HHHHHHHHHHHH Happy
+
+- ``varnishadm backend.list``::
+
+      Backend name                   Refs   Admin      Probe
+      default(127.0.0.1,,8081)       1      probe      Healthy 4/5
+
+.. container:: handout
+
+   .. varnishlog
+
+   Every health test is recorded in the shared memory log with ``0`` VXID (see `Transactions`_).
+   If you want to see ``Backend_health`` records in ``varnishlog``, you have to change the default grouping by XVID to raw::
+
+     varnishlog -g raw -i Backend_health
+
+   ``Backend_health`` records are led by ``0``, which is the VXID number.
+   The rest of the probe record is in the following format::
+
+     Backend_health - %s %s %s %u %u %u %f %f %s
+		      |  |  |  |  |  |  |  |  |
+		      |  |  |  |  |  |  |  |  +- Probe HTTP response
+		      |  |  |  |  |  |  |  +---- Average response time
+		      |  |  |  |  |  |  +------- Response time
+		      |  |  |  |  |  +---------- Probe window size
+		      |  |  |  |  +------------- Probe threshold level
+		      |  |  |  +---------------- Number of good probes in window
+		      |  |  +------------------- Probe window bits
+		      |  +---------------------- Status message
+		      +------------------------- Backend name
+   
+   Most of the fields are self-descriptive, but we clarify next the `Probe window bits` and `Status message`.
+
+   The `Probe window bits` field details the last probe with the following format::
+
+     %c %c %c %c %c %c %c
+     |  |  |  |  |  |  |
+     |  |  |  |  |  |  +- H -- Happy
+     |  |  |  |  |  +---- R -- Good Received (response from the backend received)
+     |  |  |  |  +------- r -- Error Received (no response from the backend)
+     |  |  |  +---------- X -- Good Xmit (Request to test backend sent)
+     |  |  +------------- x -- Error Xmit (Request to test backend not be sent)
+     |  +---------------- 6 -- Good IPv6
+     +------------------- 4 -- Good IPv4
+
+   `Status message` is a two word state indicator, which can be:
+
+   - Still healthy
+   - Back healthy
+   - Still sick
+   - Went sick
+
+   Note that `Still` indicates unchanged state, `Back` and `Went` indicate a change of state.
+   The second word indicates the present state.
+
+   .. varnishadm debug.health
+
+   Another method to analyze health probes is by calling ``varnishadm debug.health``.
+   This command presents first data from the last ``Backend_health`` log::
+
+     Backend default is Healthy
+     Current states  good:  5 threshold:  3 window:  5
+     Average responsetime of good probes: 0.016226
+      
+   and the last 64 window bits of probes::
+
+      Oldest                                                    Newest
+      ================================================================
+      44444444444444444444444444444444444444444444--44----444444444444 Good IPv4
+      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XX----XXXXXXXXXXXX Good Xmit
+      RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR--RR----RRRRRRRRRRRR Good Recv
+      HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH--HH----HHHHHHHHHHHH Happy     
+
+  .. varnishadm backend.list
+
+  Still another form to analyze your probes is by calling ``varnishadm backend.list``.
+  At this point, the output of this command should be clear for the careful reader.
+
+Demo: Health Probes
+...................
+
+See the power of health probes!
+
+.. container:: handout
+
+   Suggested steps for the demo:
+
+   #. Configure a probe like in `Health Checks`_.
+   #. Run ``watch -n.5 "varnishadm debug.health"`` in one terminal
+   #. Run ``watch -n.5 "varnishadm backend.list"`` in another terminal
+   #. Start and stop your backend
+      For this, you might want to simulate very quickly a backend with the command ``python -m SimpleHTTPServer [port]``.
+   #. The watch command makes the effect of an animated health prober!
 
 Grace Mode
 ----------
@@ -5343,10 +5448,6 @@ Exercise: Grace
    With this exercise you should see that as long as the cached object is within its TTL, Varnish delivers the cached object as normal.
    Once the TTL expires, Varnish delivers the graced copy, and asynchronously fetches an object from the backend.
    Therefore, after 10 seconds of triggering the asynchronous fetch, an updated object is available in the cache.
-
-.. TODO for the author: Before, it was a no finished section called: "Demo: Health probes and grace". Should we add it?
-
-.. TODO for the author: To mention that saintmode is gone in Varnish 4?
 
 ``retry`` Return Action
 -----------------------
