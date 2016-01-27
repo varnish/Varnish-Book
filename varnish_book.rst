@@ -914,11 +914,11 @@ The Varnish Test Case (VTC) Language
 
    Finally, you start client ``c1`` with the ``-run`` command.
 
-Semaphores in Varnish Tests
-...........................
+Synchronization in Varnish Tests
+................................
 
 - Varnish is a multi-threaded program
-- Use ``-wait`` or ``sema`` as synchronization mechanism
+- Use ``-wait`` as synchronization mechanism
 - ``-run``: ``-start -wait``
 
 .. container:: handout
@@ -973,12 +973,6 @@ Semaphores in Varnish Tests
 
    The second test fails in comparison to the first one, because ``varnishtest`` times out while waiting for ``s1`` to receive a request and transmit a response.
    Therefore, you typically start Varnish servers with the ``-start`` command, but start clients with the ``-run`` command.
-
-   Another important synchronization mechanism is ``sema``.
-   There are many tests under ``Varnish-Cache/bin/varnishtest/tests`` that use ``sema``.
-   Please refer to them in order to learn how to use ``sema``.
-
-   .. TODO for the author: explain ``sema``.
 
    .. note::
 
