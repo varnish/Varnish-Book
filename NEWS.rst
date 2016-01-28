@@ -5,6 +5,12 @@ This file is meant for trainers.
 Below are the main changes that might affect the flow of a training session.
 Main changes from last training session based on:
 
+Tag version-5.3
+---------------
+
+- ``vcl_backend_response`` together with the `Waiting State`_ section are now in `VCL_Basics`_ chapter
+- Demo for health probes
+
 Tag version-5.2
 ---------------
 
@@ -12,7 +18,7 @@ Tag version-5.2
 - ``varnishtest`` throughout the book.
 - Installation of Apache as backend is in Appendix F.
 - Solutions are moved to Appendix G.
-- ``vcl_backend_response`` together with the `Waiting State`_ section are now in `VCL_Basics`_ chapter
+
 
 Tag version-5.1
 ---------------
