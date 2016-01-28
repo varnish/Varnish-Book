@@ -4292,7 +4292,7 @@ VCL – ``vcl_hash``
 ------------------
 
 - Defines what is unique about a request.
-- Executed when ``vcl_recv`` returns the ``hash`` action keyword.
+- ``vcl_hash`` is always visited after ``vcl_recv`` or when another subroutine returns the ``hash`` action keyword.
 
 .. include:: vcl/default-vcl_hash.vcl
    :literal:
@@ -4315,8 +4315,7 @@ VCL – ``vcl_hash``
 
    The ``vcl_hash`` subroutine returns the ``lookup`` action keyword.
    Unlike other action keywords, ``lookup`` is an operation, not a subroutine.
-   Depending on what ``lookup`` finds in the cache, it has four possible outcomes:
-   ``hit``, ``miss``, ``hit-for-pass``, or ``purge``.
+   The next state to visit after ``vcl_hash`` dpeends on what ``lookup`` finds in the cache.
 
    .. busy object
 
