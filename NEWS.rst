@@ -14,6 +14,8 @@ Tag version-5.3
 Tag version-5.2
 ---------------
 
+This is the printed version for Arianna's training.
+
 - Figure to explain reordered output of ``varnishlog``.
 - ``varnishtest`` throughout the book.
 - Installation of Apache as backend is in Appendix F.

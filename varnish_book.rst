@@ -316,6 +316,7 @@ In addition to the authors, the following deserve special thanks (in no particul
 - Magnus Hagander
 - Arianna Aondio
 - Poul-Henning Kamp
+- Guillaume Quintard
 - Everyone who has participated on the training courses
 
 .. raw:: pdf
@@ -462,7 +463,7 @@ Varnish Cache and Varnish Software Timeline
 - 2013: Varnish Software receives World Summit on Innovation & Entrepreneurship Global Hot 100 award
 - 2014: Varnish Plus launched
 - 2014: Varnish 4.0 released
-- 2015: Varnish API released
+- 2015: Varnish API Engine released
 - 2015: Gartner names Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms
 - 2015: Varnish Plus supports SSL/TLS
 
