@@ -11,6 +11,7 @@ Tag version-5.3
 - ``vcl_backend_response`` together with the `Waiting State`_ section are now in `VCL_Basics`_ chapter
 - Demo for health probes
 - `Compression`_ subsection added in `Saving a Request`_ chapter.
+- VCL is shown for first time in the introduction
 
 Tag version-5.2
 ---------------
