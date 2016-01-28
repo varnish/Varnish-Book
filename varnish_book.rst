@@ -5623,7 +5623,6 @@ Cookies
 ``Vary`` and Cookies
 ....................
 
-- Not advised
 - Used to cache content that varies on cookies
 - By default, Varnish **does not store** responses when cookies are involved
 - The ``Vary`` response header field can be used to store responses that are based on the value of cookies
