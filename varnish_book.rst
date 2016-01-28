@@ -443,28 +443,28 @@ Varnish Cache and Varnish Plus
 Varnish Cache and Varnish Software Timeline
 -------------------------------------------
 
-- 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were looking for alternative cache solutions.
-- 2006: Work began. 
-  Redpill Linpro was in charge of project management, infrastructure and supporting development. 
-  Poul-Henning Kamp did the majority of the actual development.
-- 2006: Varnish 1.0 released.
-- 2008: Varnish 2.0 released.
-- 2008: ``varnishtest`` is introduced.
-- 2009: The first Varnish User Group Meeting is held in London.
-  Roughly a dozen people participate from all around the world.
-- 2010: Varnish Software is born as a spin-off to Redpill Linpro AS.
-- 2011: Varnish 3.0 released.
-- 2012: The fifth Varnish User Group Meeting is held in Paris. 
+- 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were looking for alternative cache solutions
+- 2006: Work began
+  Redpill Linpro was in charge of project management, infrastructure and supporting development
+  Poul-Henning Kamp did the majority of the actual development
+- 2006: Varnish 1.0 released
+- 2008: Varnish 2.0 released
+- 2008: ``varnishtest`` is introduced
+- 2009: The first Varnish User Group Meeting is held in London
+  Roughly a dozen people participate from all around the world
+- 2010: Varnish Software is born as a spin-off to Redpill Linpro AS
+- 2011: Varnish 3.0 released
+- 2012: The fifth Varnish User Group Meeting is held in Paris
   Roughly 70 people participate on the User-day and around 30 on the developer-day!
-- 2012: The Varnish Book is published.
-- 2013: Varnish Software chosen as a 2013 Red Herring Top 100 Europe company.
-- 2013: BOSSIE award winner.
-- 2013: Varnish Software receives World Summit on Innovation & Entrepreneurship Global Hot 100 award.
-- 2014: Varnish Plus launched.
-- 2014: Varnish 4.0 released.
-- 2015: Varnish API released.
-- 2015: Gartner names Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms.
-- 2015: Varnish Plus supports SSL/TLS.
+- 2012: The Varnish Book is published
+- 2013: Varnish Software chosen as a 2013 Red Herring Top 100 Europe company
+- 2013: BOSSIE award winner
+- 2013: Varnish Software receives World Summit on Innovation & Entrepreneurship Global Hot 100 award
+- 2014: Varnish Plus launched
+- 2014: Varnish 4.0 released
+- 2015: Varnish API released
+- 2015: Gartner names Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms
+- 2015: Varnish Plus supports SSL/TLS
 
 .. container:: handout
 
