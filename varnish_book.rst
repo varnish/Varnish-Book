@@ -4316,7 +4316,7 @@ VCL – ``vcl_hash``
 
    The ``vcl_hash`` subroutine returns the ``lookup`` action keyword.
    Unlike other action keywords, ``lookup`` is an operation, not a subroutine.
-   The next state to visit after ``vcl_hash`` dpeends on what ``lookup`` finds in the cache.
+   The next state to visit after ``vcl_hash`` depends on what ``lookup`` finds in the cache.
 
    .. busy object
 
@@ -5544,25 +5544,33 @@ Access Control Lists (ACLs)
 Compression
 -----------
 
-- 
+- Make a decision on where to compress
+- Avoid compressing already compressed files
+- Works with ESI
 
 .. container:: handout
 
    It is sensible to compress objects before storing them in cache.
-   Objects can be compressed either at the backend or your Varnish server.
+   Objects can be compressed either at the backend or your Varnish server, so you have to make a decision on where to do it.
+   Factors that you can take into consideration are:
 
+   - Where to store the logic of what should be compressed and what not
+   - Available CPU resources
 
-   Varnish can compress objects before storing them in cache, so you should decide where to do 
-   The compression algorithm spends some CPU cycles, but our experience shows that it is better to spend those CPU resources in the host where you run Varnish instead of compressing on the web server.
-   This assuming that your web server demands more CPU resources than Varnish itself, which is normally the case.
-
-   You should avoid compressing already compressed content such as JPEG, PNG, GIF, or MP3 files.
-   This 
-   Compression is enabled by default in Varnish 4.0.
+   Also, keep in mind that files such as JPEG, PNG, GIF, or MP3 are already compressed.
+   So you should avoid compressing them in Varnish.
    
+   If you compose your content using Edge Side Includes (ESI), we inform you that ESI and GZIP work together really well.
+   In the next chapter we will explain how to compose your content using Varnish and Edge Side Includes (ESI).
 
-   https://www.varnish-cache.org/docs/trunk/phk/gzip.html
-   https://www.varnish-cache.org/docs/trunk/users-guide/compression.html
+   Further details on compression mechanisms in Varnish can be found at:
+
+   - https://www.varnish-cache.org/docs/trunk/phk/gzip.html
+   - https://www.varnish-cache.org/docs/trunk/users-guide/compression.html
+
+   .. note::
+
+      Compression is enabled by default in Varnish 4.0.
 
 Content Composition
 ===================

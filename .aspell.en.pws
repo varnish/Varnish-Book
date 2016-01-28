@@ -1,4 +1,4 @@
-personal_ws-1.1 en 444 
+personal_ws-1.1 en 448 
 ajax
 apache
 google
@@ -16,8 +16,8 @@ CET
 github
 delim
 arg
-HTTP's
 https
+HTTP's
 VMODs
 Naghibi
 nosni
@@ -52,8 +52,8 @@ RespProtocol
 CType
 SHared
 Henning
-DNS
 CSS
+DNS
 csv
 compressions
 gcc
@@ -96,8 +96,8 @@ subrequests
 HMAC
 strcmp
 README
-HTTPie
 httpie
+HTTPie
 varnishtop
 urlencoded
 regex
@@ -110,6 +110,7 @@ maxage
 oneColumn
 vagent
 cgid
+Quintard
 Todo
 frontend
 objectcore
@@ -119,6 +120,7 @@ param
 Blix
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 IRC
+Guillaume
 runtime
 responsetime
 IPs
@@ -126,8 +128,8 @@ cliok
 sudo
 txreq
 RESTful
-ipv
 IPv
+ipv
 Argv
 uint
 Acceptor
@@ -143,8 +145,8 @@ clierr
 LFU
 metadata
 saintmode
-freebsd
 FreeBSD
+freebsd
 gunzip
 linux
 Economization
@@ -156,12 +158,12 @@ Aondio
 enmod
 mgt
 releasever
-RespStatus
 respstatus
+RespStatus
 vmodtool
 getNonMasqueraded
-hashtwo
 HashTwo
+hashtwo
 tIncluded
 DDoS
 workspace
@@ -171,12 +173,12 @@ backend
 extendible
 WorkThread
 cowsay
-Kamp
 SimpleHTTPServer
+Kamp
 codename
 LRU
-ReqUrl
 ReqURL
+ReqUrl
 asts
 SELinux
 LTS
@@ -206,6 +208,7 @@ scalable
 init
 TTLs
 travis
+PNG
 Redpill
 Sevan
 ree
@@ -230,8 +233,8 @@ Grydeland
 conf
 bodylen
 URIs
-shm
 RRRRRRRRRRRR
+shm
 respbytes
 snprintf
 conn
@@ -259,19 +262,19 @@ helloworldtest
 varnishapi
 ubuntu
 Footbar
-VBE
 rst
+VBE
 VCA
-vcc
 src
+vcc
 recv
 subrequest
 util
 SQL
 VDD
 VBP
-VAV
 vcl
+VAV
 VXIDs
 TLS
 setsebool
@@ -285,8 +288,8 @@ VGB
 VGC
 screenshots
 balancer
-vha
 XXXXXXXXXXXX
+vha
 str
 objecthead
 VEV
@@ -296,6 +299,7 @@ Rubén
 Webdev
 systemctl
 VIN
+JPEG
 ttl
 rxreq
 rxres
@@ -308,8 +312,8 @@ url
 testbed
 hdrbytes
 Arianna
-utf
 VLU
+utf
 BereqURL
 malloc
 dotMobi's
@@ -430,8 +434,8 @@ localhost
 vstatdprobe
 Karstensen
 varnishlog
-Etag
 ETag
+Etag
 substring
 noverify
 AUTOEXTEND
