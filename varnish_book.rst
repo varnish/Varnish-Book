@@ -6101,19 +6101,15 @@ Appendix E: Regular-Expressions in Varnish
 .. container:: handout
 
    This appendix is a brief introduction and usage of regular-expressions for Varnish.
-   A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be s\
-earched for within a longer piece of text.
+   A regular-expression is a sequence of symbols (metacharacters) and text literals expressing a pattern to be searched for within a longer piece of text.
    They are very powerful and they are available in VCL, VSL query expressions, and the CLI.
    Regular-expressions are commonly used by ``varnishlog``, bans, ``regsub()``, ``regsuball()``, and VCS.
-   Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics\
-the syntax and semantics of Perl regular expressions.
+   Varnish supports Perl Compatible Regular Expressions (PCRE), which is a regular-expression engine that mimics the syntax and semantics of Perl regular expressions.
 
-   Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very larg\
-e Varnish log.
+   Regular-expressions allow you to verify HTTP requests and responses, as well as to sift through the very large Varnish log.
    Regular-expressions are built up from small building block units.
    You can combine them in an infinite number of ways to achieve a particular goal.
-   This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish \
-Book.
+   This chapter provides a quick overview of some regular-expression concepts that are mentioned in The Varnish Book.
 
    .. note::
 
@@ -6136,7 +6132,5 @@ Regular-Expressions in This Book
       ban("obj.http.x-url ~ " + req.http.x-ban);
       where req.http.x-ban`` is a regular-expression.
 
-   To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E\
-. F. Friedl.
-   The PCRE manual page ``man pcre`` is also a valuable resource, specially ``man pcresyntax`` and ``man pcrepat\
-tern``.
+   To learn more about regular-expressions, we recommend you the book Mastering Regular-Expressions by Jeffrey E. F. Friedl.
+   The PCRE manual page ``man pcre`` is also a valuable resource, specially ``man pcresyntax`` and ``man pcrepattern``.
