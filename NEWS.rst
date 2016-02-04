@@ -5,8 +5,15 @@ This file is meant for trainers.
 Below are the main changes that might affect the flow of a training session.
 Main changes from last training session based on:
 
-Changes for future tag ``version-5.3``
+Changes for future tag ``version-5.4``
 --------------------------------------
+
+Add most relevant changes here!
+
+Tag version-5.3
+---------------
+
+Printed version for training held by Dridi on February 1, 2016
 
 - ``vcl_backend_response`` together with the `Waiting State`_ section are now in `VCL_Basics`_ chapter
 - Demo for health probes
