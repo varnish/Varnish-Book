@@ -3013,7 +3013,7 @@ Cache Matching
    This tells Varnish that for absolutely *any* difference in ``User-Agent``, the response from the origin server *might* look different.
    This is not optimal because there are probably thousands of `User-Agent` strings out there.
 
-   Another example of bad usage is when using only ``Vary: Cookie`` to differentiate a response.
+   Another example of bad usage is when using ``Vary: Cookie`` to differentiate a response.
    Again, there could be a very large number of cookies and hence a very large number of cached objects, which are going to be retrieved most likely only by their original requesters.
 
    .. good usage
