@@ -644,9 +644,8 @@ How objects are stored
 .. container:: handout
 
 	`Objects` are local stores of response messages as defined in https://tools.ietf.org/html/rfc7234.
-	.. hash
-	Varnish maps this objects with a hash key.
-	Objects are stored in memory and references to these objects are kept in a hash tree.
+	They are mapped with a hash key and they are stored in memory.
+	References to objects in memory are kept in a hash tree.
 
 	.. Cache control
 
@@ -2766,6 +2765,7 @@ Requests and Responses
 
    The first line of a request message is called `Request-Line`, whereas the first line of a response message is called `Status-Line`.
    The Request-Line begins with a method token, followed by the requested resource (URI) and the protocol version.
+
    .. Methods
 
    A request method informs the web server what sort of request this is:
@@ -3646,7 +3646,6 @@ VCL Syntax
 - No loops, state-limited variables
 - Terminating statements with a keyword for next action as argument of the ``return()`` function, i.e.: ``return(action)``
 - Domain-specific
-- Add as little or as much as you want
 
 .. TODO for the author:
    give a reference to .el highlighting lisp file for emacs
@@ -3824,8 +3823,8 @@ To have a detailed availability of each variable, refer to the VCL man page by t
  
    These additional prefixes and variables are practically accessible everywhere.
 
-   Remember that changes made to ``beresp.`` variables are stored in ``obj.`` afterwards. 
-   And the ``resp.`` variables are copies of what is about to be returned to the client.
+   Remember that changes made to ``beresp.`` variables are stored in ``obj.``.
+   ``resp.`` variables are copies of what is about to be returned to the client.
    The values of ``resp.`` variables come possibly from ``obj.``. 
 
    A change to ``beresp.`` variables, in other words, affects ``obj.`` and ``resp.`` variables. 
@@ -4115,12 +4114,12 @@ VCL – ``vcl_recv``
 ------------------
 
 .. TODO for the author:
-   Letting client-input to decide your caching policy can make DDoS attack
+   Letting client input to decide your caching policy can make DDoS attack
 
-- Normalize client-input
+- Normalize client input
 - Pick a backend web server
 - Re-write client-data for web applications
-- Decide caching policy based on client-input
+- Decide caching policy based on client input
 - Access Control Lists (ACL)
 - Security barriers, e.g., against SQL injection attacks
 - Fixing mistakes, e.g., ``index.htlm`` -> ``index.html``
@@ -5326,10 +5325,10 @@ Analyzing health probes
       RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR--RR----RRRRRRRRRRRR Good Recv
       HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH--HH----HHHHHHHHHHHH Happy     
 
-  .. varnishadm backend.list
+   .. varnishadm backend.list
 
-  Still another form to analyze your probes is by calling ``varnishadm backend.list``.
-  At this point, the output of this command should be clear for the careful reader.
+   Still another form to analyze your probes is by calling ``varnishadm backend.list``.
+   At this point, the output of this command should be clear for the careful reader.
 
 Demo: Health Probes
 ...................
@@ -5573,16 +5572,16 @@ Compression
 
    It is sensible to compress objects before storing them in cache.
    Objects can be compressed either at the backend or your Varnish server, so you have to make a decision on where to do it.
-   Factors that you can take into consideration are:
+   Factors that you should take into consideration are:
 
-   - Where to store the logic of what should be compressed and what not
-   - Available CPU resources
+   - where to store the logic of what should be compressed and what not
+   - available CPU resources
 
-   Also, keep in mind that files such as JPEG, PNG, GIF, or MP3 are already compressed.
-   So you should avoid compressing them in Varnish.
+   Also, keep in mind that files such as JPEG, PNG, GIF or MP3 are already compressed.
+   So you should avoid compressing them again in Varnish.
    
-   If you compose your content using Edge Side Includes (ESI), we inform you that ESI and GZIP work together really well.
-   In the next chapter we will explain how to compose your content using Varnish and Edge Side Includes (ESI).
+   If you compose your content using Edge Side Includes (ESI), you should know that ESI and GZIP work together.
+   Next chapter explains how to compose your content using Varnish and Edge Side Includes (ESI).
 
    Further details on compression mechanisms in Varnish can be found at:
 
@@ -7783,19 +7782,6 @@ Solution: Modify the HTTP response header fields
 
 .. include:: vcl/modify_headers.vcl
    :literal:
-
-.. container:: handout
-
-      It is a good practice to ensure that a variable has the expected type.
-      You should do this before acting on the content of a variable.
-      Therefore, in this solution, we use the `greater than` comparison operator ``obj.hits > 0`` instead of the `not equal to` operator ``obj.hits != 0``.
-
-      There have been some bugs when converting strings.
-      Those bugs happened when the variable to be converted had an unexpected value.
-      This may apply to all variable types – and all languages for that matter.
-      Thus it is important that you always check the variable type.
-
-      .. TODO for the author: Add: There is no a "rename" operation in Varnish, you have to create another header field and then remove the previous.
 
 Solution: Change the error message
 ----------------------------------
