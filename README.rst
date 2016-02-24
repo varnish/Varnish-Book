@@ -52,7 +52,7 @@ Install the following packages with their dependencies.
 - php5
 - python3-sphinx
 - python-docutils
-- inskscape
+- inkscape
 
 You also need the "Open Source" font type.
 To check whether you have it, type ``fc-match "Open Sans"`` in the terminal.
