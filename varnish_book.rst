@@ -820,16 +820,15 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
 
    .. Introduction to apt-get and yum
 
-   To install packages on Ubuntu and Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
-   For Red Hat, use ``yum install <package>``.
+   To install packages on Ubuntu or Debian, use the command ``apt-get install <package>``, e.g., ``apt-get install varnish``. 
+   For CentOS, RHEL or Fedora, use ``yum install <package>``.
    
-   You might want to look at `Solution: Install Varnish`_ if you need help.
+   You might want to look at `Solution: Install Varnish`_, if you need help.
    
 ``varnishtest``
 ---------------
 
 .. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
-.. 
 
 - Script driven program used to test the configuration of Varnish, run regression tests, and develop VMODs
 - Useful for system administrators, web developers, and VMODs developers
@@ -1042,7 +1041,9 @@ Varnish ``DAEMON_OPTS``::
 
    See `Table 3 <#table-3>`_ and locate the Varnish configuration file for your installation.
    Open and edit that file to listen on port ``80`` and have a management interface on port `1234`.
-   This is configured with the variable  ``DAEMON_OPTS``, and options ``-a`` and ``-T`` respectively.
+
+   In Ubuntu and Debian, this is configured with options ``-a`` and ``-T`` of variable  ``DAEMON_OPTS``.
+   In CentOS, RHEL, and Fedora, use ``VARNISH_LISTEN_PORT`` and ``VARNISH_ADMIN_LISTEN_PORT`` respectively.
 
    In order for changes in the configuration file to take effect, `varnishd` must be restarted.
    The safest way to restart Varnish is by using ``service varnish restart``.
@@ -1052,7 +1053,7 @@ Varnish ``DAEMON_OPTS``::
    The VCL file contains your VCL and backend definitions.
 
    In this book, we use Apache as backend.
-   Before continuing, make sure you have Apache installed and configured to listen in port 8080.
+   Before continuing, make sure you have Apache installed and configured to listen in port ``8080``.
    See `Appendix F: Apache as Backend`_ if you do not know how to do it.
 
    Edit ``/etc/varnish/default.vcl`` to use Apache as backend::
@@ -1066,17 +1067,17 @@ Varnish ``DAEMON_OPTS``::
    This command does **not** restart `varnishd`, it only reloads the VCL code.
    The result of your configuration is resumed in `Table 4 <#table-4>`_.
 
-.. table 4
+   .. table 4
 
-.. csv-table:: Table :counter:`table`: Varnish and Backend Configuration
-   :name: Varnish and Apache Configuration
-   :delim: ;
-   :widths: 20, 30, 50
-   :header-rows: 1
-   :file: tables/varnish_apache.csv
+   .. csv-table:: Table :counter:`table`: Varnish and Backend Configuration
+      :name: Varnish and Apache Configuration
+      :delim: ;
+      :widths: 20, 30, 50
+      :header-rows: 1
+      :file: tables/varnish_apache.csv
 
-\* These files are for a SysV Ubuntu/Debian configuration.
-
+   `\* These files are for a SysV Ubuntu/Debian configuration`
+	     
    You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
    Within the result, you should see something like::
 
@@ -6181,8 +6182,12 @@ VCS Data Model
 - API to query data model
 - API outputs in JSON and JSONP format
 
-.. TODO for the editor: sub-columns is not reflected in PDF formats
-.. A temporary solution is using bold in the first column
+..
+   Windows are temporal context in event-triggered/based systems
+
+..   
+   TODO for the editor: sub-columns in table 20 is not reflected in PDF formats
+   A temporary solution is using bold in the first column
 
 .. table 20
 
@@ -7501,27 +7506,48 @@ Appendix F: Apache as Backend
 
 - Install Apache.
   We will use it as backend.
-
+- All commands are executed as ``root`` user
+  
 .. container:: handout
+	       
+   To install Apache in Ubuntu or Debian, type the command::
 
-   To install Apache in Ubuntu, type the command: ``apt-get install apache2``.
-   Install the *HTTPie* utility with the command: ``apt-get install httpie``.
-   HTTPie allows you to issue arbitrary HTTP requests in the terminal.
+     $ apt-get install apache2
+
+   For CentOS, RHEL or Fedora::
+
+     $ yum install httpd
+
+   ``curl`` is the tool typically used to transfer data from or to a server, but you might want to use something else, like ``HTTPie``, which has a very pretty color printing in the terminal.
+   To install *HTTPie* in Ubuntu or Debian::
+
+     $ apt-get install httpie
+
    Next:
 
    #. Verify that Apache works by typing ``http -h localhost``.
       You should see a ``200 OK`` response from Apache.
-   #. Change Apache's port from 80 to 8080 in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
-   #. Restart Apache: ``service apache2 restart``.
+   #. Change Apache's port from 80 to 8080.
+      In Ubuntu or Debian, you do this in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
+      In CentOS, RHEL or Fedora, edit ``/etc/httpd/conf/httpd.conf``.
+   #. Restart Apache.
+      In Ubuntu or Debian type ``service apache2 restart``.
+      In CentOS, RHEL or Fedora::
+
+	$ systemctl enable httpd.service
+	$ apachectl start
+
    #. Verify that Apache still works by typing ``http -h localhost:8080``.
 
 Appendix G: Solutions
 =====================
 
+This appendix contains the solutions of exercises throughout the book.
+
 Solution: Install Varnish
 -------------------------
 
-All the following commands must be executed with root permissions.
+All the following commands are for Ubuntu and must be executed with root permissions.
 First, make sure you have ``apt-transport-https`` and ``curl``::
 
   $ apt-get install apt-transport-https
@@ -7601,6 +7627,10 @@ Finally, verify the version you have installed::
       /varnishtuner/el$releasever
       enabled=1
       gpgcheck=0
+
+   .. note::
+
+      More details on Varnish Plus installation can be found at http://files.varnish-software.com/pdfs/varnish-cache-plus-manual-latest.pdf
 
 Solution: Test Apache as Backend with ``varnishtest``
 -----------------------------------------------------
