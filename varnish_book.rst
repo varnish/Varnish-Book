@@ -4447,9 +4447,11 @@ VCL – ``vcl_deliver``
 VCL – ``vcl_synth``
 -------------------
 
-- Used to generate content from within Varnish, without talking to the backend
-- Error messages go here by default
-- Other use cases: Redirecting users (301/302 redirects)
+- Used to generate content within Varnish
+- Error messages can be created here
+- Other use cases: redirecting users (301/302 redirects)
+
+**vcl/default-vcl_synth.vcl**:
 
 .. include:: vcl/default-vcl_synth.vcl
    :literal:
@@ -4458,22 +4460,23 @@ VCL – ``vcl_synth``
 
 .. container:: handout
 
-   To make a distinction between VCL synthetic responses and internally generated errors (when trying to fetch an object), there are two subroutines that handle errors in Varnish.
-   One is ``vcl_synth``, and the other is ``vcl_backend_error``.
-   To return control to ``vcl_synth``,call the ``synth()`` function like this::
+   You can create synthetic responses, e.g., personalized error messages, in ``vcl_synth``.
+   To call this subroutine you do::
 
      return (synth(status_code, "reason"));
 
-   Note that the syntax ``synth`` is not a keyword, but a function with arguments.
+   Note that ``synth`` is not a keyword, but a function with arguments.
   
    You must explicitly return the ``status code`` and ``reason`` arguments for ``vcl_synth``.
    Setting headers on synthetic response bodies are done on ``resp.http``.
 
    .. note::
-      Note how you can use ``{"`` and ``"}`` to make multi-line strings. 
-      This is not limited to the ``synthetic()`` function, but can be used anywhere.
+
+      From ``vcl/default-vcl_synth.vcl``, note that ``{"`` and ``"}`` can be used to make multi-line strings. 
+      This is not limited to the ``synthetic()`` function, but one can be used anywhere.
 
    .. note::
+
       A ``vcl_synth`` defined object is never stored in cache, contrary to a ``vcl_backend_error`` defined object, which may end up in cache.
       ``vcl_synth`` and ``vcl_backend_error`` replace ``vcl_error`` from Varnish 3.
 
