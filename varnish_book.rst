@@ -2240,14 +2240,14 @@ You can choose one method with the ``-s`` option of ``varnishd``.
 
    .. MSE
 
-   The Varnish Massive Storage Engine (MSE) is an improved storage backend for Varnish Plus only.
-   Its main improvements are decreased disk IO load and lower storage fragmentation.
-   MSE is designed and tested with storage sizes up to 10 TB.
+   The Varnish `Massive Storage Engine` (MSE) is an improved storage method for Varnish Plus only.
+   MSE main improvements are decreased disk I/O load and lower storage fragmentation.
+   MSE is designed to store and handle over 100 TB.
 
    MSE uses a hybrid of two cache algorithms, least recently used (LRU) and least frequently used (LFU), to manage memory.
    Benchmarks show that this algorithm outperforms the ``malloc`` and ``file`` strategies.
    MSE also implements a mechanism to eliminate internal fragmentation.
-   For more details about its design, implementation and benchmark results, please refer to https://www.varnish-software.com/blog/introducing-varnish-massive-storage-engine.
+   For more details about its design, implementation and benchmark results, please visit https://www.varnish-software.com/blog/introducing-varnish-massive-storage-engine.
 
    .. Choosing the storage backend
 
@@ -4456,8 +4456,6 @@ VCL – ``vcl_synth``
 .. include:: vcl/default-vcl_synth.vcl
    :literal:
 
-.. TODO for the editor: Create a title and numeration for the code.
-
 .. container:: handout
 
    You can create synthetic responses, e.g., personalized error messages, in ``vcl_synth``.
@@ -6449,25 +6447,6 @@ Varnish High Availability (VHA)
    The replication of cached objects may bring the need for multiple cache invalidation.
    For that purpose, you can use the `Varnish Administration Console (VAC)`_.
    Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
-
-.. Varnish API Engine
-   ------------------
-
-   .. figure 23
-
-   .. figure:: ui/img/api.png
-      :width: 100%
-
-      Figure :counter:`figure`: High level overview of an environment running the Varnish API Engine
-
-   .. container:: handout
-
-      Varnish API Engine is a high performance HTTP API gateway with features such as caching, authentication, authorization and throttling of client requests. 
-      A variety of real time counters are available for integration with third party monitoring tools.
-      The centralized management is used to configure backends, directors, endpoints and rules, and is available through its own REST API.
-      A command line tool to interface with this REST API is included.
-      The API Engine is highly configurable and tunable by design. 
-      Being modular, it is easy to scale horizontally for increased fault tolerance and performance.
 
 SSL/TLS Support
 ---------------
