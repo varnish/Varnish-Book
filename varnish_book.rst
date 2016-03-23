@@ -4550,11 +4550,12 @@ Cache Invalidation
      - May create multiple objects as side effect
      - Does not necessarily free up memory at once
 
-   4) Hashtwo -> Varnish Plus only!
+   4) Hashtwo / Xkey
 
      - For websites with the need for cache invalidation at a very large scale
      - Varnish Software's implementation of surrogate keys
      - Flexible cache invalidation based on cache tags
+     - Xkey VMOD open sourced as part of the Varnish Cache 4.1 release
 
 Purge vs. Bans vs. Hashtwo vs. Cache Misses
 -------------------------------------------
