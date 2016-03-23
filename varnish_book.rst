@@ -1086,13 +1086,11 @@ Varnish ``DAEMON_OPTS``::
 
    .. TOFIX: The compiled book has a half empty page here.
 
-   .. note::
+   .. warning::
 
-     Varnish 4.0 does not start when enforcing Security-Enhanced Linux (SELinux).
-     A quick workaround, although a bad practice, is to disable SELinux.
-     If you prefer otherwise, then set the boolean ``varnishd_connect_any`` variable to 1.
+     If you have Security-Enhanced Linux (SELinux), be aware that SELinux defines ports ``6081`` and ``6082`` for ``varnishd``.
+     If you need to use another port number, you need either to disable SELinux or set the boolean ``varnishd_connect_any`` variable to 1.
      You can do that by executing the command ``sudo setsebool varnishd_connect_any 1``.
-     Also, be aware that SELinux defines the ports 6081 and 6082 for ``varnishd``.
 
    .. tip::
 
@@ -6440,7 +6438,7 @@ Varnish High Availability (VHA)
 
    Typical uses of VHA include:
 
-   - Business critical Varnish Plus installations
+   - Business critical Varnish installations
    - Any multi-cache Varnish setup
    - Multi node CDN POP installations
 
