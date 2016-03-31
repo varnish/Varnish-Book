@@ -5,4 +5,4 @@ Scalability,"High when used properly, e.g., when using lurker friendly bans, hav
 Flexibility,High,Low,High,Low
 CLI,Yes,No,No,No
 VCL,Yes,Yes,Yes,Yes
-Availability,Varnish Cache,Varnish Cache,Varnish Plus only,Varnish Cache
+Availability,Varnish Cache,Varnish Cache,Xkey VMOD with Varnish Cache 4.1 or later,Varnish Cache
