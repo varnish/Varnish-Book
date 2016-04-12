@@ -824,6 +824,14 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
    For CentOS, RHEL or Fedora, use ``yum install <package>``.
    
    You might want to look at `Solution: Install Varnish`_, if you need help.
+
+   If the command ``service varnish restart`` fail, try to start Varnish manually to get direct feedback from the shell.
+   Command example::
+     
+        $ sudo /usr/sbin/varnishd -j unix,user=varnish,ccgroup=varnish \
+        -P /var/run/varnish.pid -f /etc/varnish/default.vcl -a :80 -a :6081,PROXY \
+        -T 127.0.0.1:6082 -t 120 -S /etc/varnish/secret \
+        - s malloc,256MB -F
    
 ``varnishtest``
 ---------------
@@ -1754,8 +1762,10 @@ Query Language
   - integer and float matching, e.g.: ``RespStatus == 200``
   - boolean operators, e.g.: ``RespStatus >= 500 and RespStatus < 600``
   - parenthesis hierarchy
-  - negation using ``not``
 
+- Operators: ``== != < <= > >= eq ne ~ !~``
+- Operands: ``a-z A-Z 0-9 + - _ . *``
+  
 Examples of Varnish log queries::
 
    varnishlog -q 'RespStatus < 500'
@@ -1815,7 +1825,6 @@ Exercise: Filter Varnish Log Records
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
-
 
 ``varnishstat``
 ---------------
@@ -2330,7 +2339,7 @@ Tunable Parameters
    Most of the defaults are optimal.
    If you do not have a very specific need, it is generally better to use the default values.
 
-   A few hidden debug commands exist in the CLI, which can be revealed with ``help -d``. 
+   A few debug commands exist in the CLI, which can be revealed with ``help -d``. 
    These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
    They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
 
@@ -5702,7 +5711,8 @@ Best Practices for Cookies
    - etc.
 
 - Add the ``req.http.Cookie`` request header to the cache hash by issuing ``hash_data(req.http.cookie);`` in ``vcl_hash``.
-- Never cache a ``Set-Cookie`` header. Either remove the header before caching or do not cache the object at all.
+- Never cache a ``Set-Cookie`` header.
+  Either remove the header before caching or do not cache the object at all.
 - To ensure that all cached pages are stripped of ``Set-Cookie``, finish ``vcl_backend_response`` with something similar to::
 
     if (beresp.ttl > 0s) {
@@ -5920,7 +5930,7 @@ For ESI to work, load the following VCL code:
 .. include:: vcl/esi_date.vcl
    :literal:
 
-Then reload Varnish and issue the command ``http http://localhost/esi-date.php``.
+Then reload your VCL (see `Table 6 <#table-6>`_ for reload instructions) and issue the command ``http http://localhost/esi-date.php``.
 The output should show you how Varnish replaces the ESI tag with the response from ``esi-date.cgi``.
 Note the different TTLs from the glued objects.
 
@@ -6209,7 +6219,7 @@ VCS Data Model
 
    `Table 20 <#table-20>`_ shows the data model in VCS.
    This table is basically a representation of two windows seen as two records in a conventional database.
-   In this example, data shows two windows of 30 second based on the ``example.com`` ``vcs-key``.
+   In this example, data shows two windows of 30 seconds based on the ``example.com`` ``vcs-key``.
    For presentation purposes in this page, the distribution of this table is of a database that grows from left to right.
 
    .. Data Model
@@ -6450,7 +6460,7 @@ SSL/TLS Support
 ---------------
 
 - SSL/TLS support on both the HTTP backend and client side.
-- Easy configuration::
+- Backend easy configuration::
 
     backend default {
         .host = "host.name";
@@ -6462,13 +6472,12 @@ SSL/TLS Support
 
 .. container:: handout
 
-   Varnish Plus allows you to improve your website security without having to rely on third-party solutions.
-   SSL/TLS support allows you to encrypt and secure communication on both the front and backend as Varnish acts as both HTTP server and client.
-   On the client side, the HTTP server intercepts web requests before they reach a web server.
-   The SSL/TLS support on this side enables traffic encryption between the client and Varnish. 
+   Varnish Plus allows you to improve your website security without third-party solutions.
+   SSL/TLS support allows you to encrypt and secure communication on both the frontend and backend side of Varnish.
 
-   On the backend, the HTTP client fetches content missing in the cache from the web server.
-   This enables content to be fetched over the encrypted SSL/TLS, which particularly benefits customers who run a fully encrypted data center or have web servers that reside in a different location to their Varnish Plus servers.
+   The SSL/TLS support on the frontend (client) side enables traffic encryption between clients and Varnish.
+   On the backend (origin server and Varnish), SSL/TLS support encrypts all backend communication.
+   Backend encryption is useful for deployements with geographically distributed origin servers such as CDNs.
 
 Appendix A: Resources
 =====================
