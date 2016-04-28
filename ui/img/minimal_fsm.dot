@@ -1,0 +1,29 @@
+digraph G {
+	compound=true;
+	
+subgraph cluster0 {
+	label="Frontend";
+	vcl_recv;
+	vcl_hash;
+	{
+		rank=same;
+		
+		vcl_miss;
+		vcl_hit;
+	}
+	
+	vcl_deliver;
+}
+
+vcl_recv->vcl_hash;
+vcl_hash->vcl_miss;
+vcl_hash->vcl_hit;
+vcl_hit->vcl_deliver;
+
+subgraph cluster1 {
+	label="Backend";
+	vcl_backend_fetch;
+}
+vcl_miss -> vcl_backend_fetch [lhead=cluster1];
+vcl_backend_fetch -> vcl_deliver [ltail=cluster1];
+}

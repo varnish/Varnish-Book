@@ -2075,13 +2075,13 @@ Varnish Architecture
    The Manager's command line interface (CLI) is accessible through:
    1) ``varnishadm`` as explained in `The Management Interface varnishadm`_ section,
    2) the Varnish Agent *vagent2*, or
-   2) the `Varnish Administration Console (VAC)`_ (via *vagent2*).
+   3) the `Varnish Administration Console (VAC)`_ (via *vagent2*)
 
    .. vagent2
-   
+
    The Varnish Agent *vagent2* is an open source HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
    *vagent2* offers a web UI as shown in `Figure 15 <#figure-15>`_, but you can write your own UI since *vagent2* is an open interface.
-   Some features of the *vagent2* are:
+   Some features of *vagent2* are:
 
    - VCL uploading, downloading, persisting (storing to disk).
    - parameter viewing, storing (not persisting yet)
