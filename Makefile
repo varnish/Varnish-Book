@@ -1,33 +1,13 @@
 RST2PDF=/usr/bin/rst2pdf
 BDIR=build
-#CACHECENTERC is not in Varnish-Cache-Plus github
-#CACHECENTERC=../varnish-cache/bin/varnishd/cache_center.c
 PICK = "./util/pickchapter2.igawk"
 
 pdf_slide_style = ui/pdf_slide.style
 pdf_style = ui/pdf.style
 
-# The following are chapter lists for the relevant versions of the PDFs.
-# Please note that they need to be exact. No extra spaces, case sensitive
-# etc.
-# 
-# If you want a new set, just make a new variable and that's the name of
-# the pdfs you can now build.
-
 book = "*"
 slides = "*"
 slides-A4 = "*"
-
-#"Introduction,Design Principles,Getting Started,Examining Data Provided by Varnish,Tuning,HTTP,VCL Basics,VCL Built-in Subroutines,Cache Invalidation,Saving a Request,Content Composition,Varnish Plus Software Components,Appendix A: Resources,Appendix B: Varnish Programs,Appendix C: Extra Material,Appendix D: From Varnish 3 to Varnish 4,Appendix E: Varnish Three Letter Acronyms"
-
-# Selecting chapters in this way does not work.
-# The script Varnish-Book/util/pickchapter2.igawk unsort them until the third chapter.
-
-# TOFIX: sysadmin and webdev targets do not compiling as expected.
-# sysadmin = "Abstract,Preface,Introduction,Getting\ started,The\ Varnish\ Log,Tuning,VCL\ Basics,VCL\ built-in\ subroutines,Cache\ invalidation,Appendix\ A:\ Vanish\ Programs"
-# sysadmint = ${BDIR}/varnish-sysadmin.pdf ${BDIR}/varnish_slide-sysadmin.pdf
-# webdev = "Introduction,Getting started,HTTP,VCL Basics,VCL functions,Cache invalidation,Content Composition,Finishing words"
-# webdevt = ${BDIR}/varnish-webdev.pdf ${BDIR}/varnish_slide-webdev.pdf
 
 bookt= ${BDIR}/varnish-book.pdf
 slidest= ${BDIR}/varnish_slides.pdf
@@ -45,8 +25,6 @@ common = ${mergedrst} \
 	 vcl/*.vcl \
 	 vtc/*.vtc \
 	 util/control.rst \
-	 #${exercises_complete} \
-	 ${exercises_stuff} \
 	 material/webdev/*
 
 bookutil =  util/frontpage.rst \
@@ -60,8 +38,6 @@ targets = book slides sphinx
 all: ${common} ${bookutil} ${targets}
 
 webdev: ${webdevt}
-
-# sysadmin: ${sysadmint}
 
 book: ${bookt}
 
@@ -125,9 +101,6 @@ ui/img/%.svg: ui/img/%.dot
 ui/img/%.pdf: ui/img/%.dot
 	dot -Tpdf < $< > $@
 
-#flowchartupdate:
-#	sed -n '/^DOT/s///p' ${CACHECENTERC} > ui/img/detailed_fsm.dot
-
 ${BDIR}/ui:
 	@mkdir -p ${BDIR}
 	@ln -s ${PWD}/ui ./${BDIR}/ui
@@ -158,6 +131,7 @@ sourceupdate: util/param.rst flowchartupdate
 
 clean:
 	-rm -r build/
+	-rm ${images}
 
 material/webdev/index.html: material/webdev/index.rst
 	rst2html $< > $@
