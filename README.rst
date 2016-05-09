@@ -50,7 +50,7 @@ Install the following packages with their dependencies.
 - ``make``
 - ``graphviz``
 - ``php5``
-- ``sphinx`` > 1.3
+- ``sphinx`` 1.3 or later
 - ``python-docutils``
 - ``inkscape``
 
