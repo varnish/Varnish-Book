@@ -1071,8 +1071,38 @@ Varnish ``DAEMON_OPTS``::
        .port = "8080";
      }
 
-   To reload your VCL file, run ``service varnish reload``.
-   This command does **not** restart `varnishd`, it only reloads the VCL code.
+
+VCL Reload
+..........
+
+- ``varnishd`` can reload VCL programs without restart
+
+::
+
+   service varnish reload
+
+or
+
+::
+
+   varnishadm vcl.load vcl01 /etc/varnish/default.vcl
+   varnishadm vcl.use vcl01
+
+.. container:: handout
+
+   ``service varnish reload`` is a shortcut to reload VCL programs.
+   ``varnishadm vcl.load <compiledVCL> <VCLsourcecode>`` compiles the VCL program you specify.
+   You can have multiple compiled files in Varnish.
+   To see them, run::
+
+     varnish vcl.list
+
+   To apply a compiled VCL program, type::
+
+     varnishadm vcl.use <compiledVCL>
+
+   This command does **not** restart ``varnishd``, it only reloads the compiled VCL code.
+
    The result of your configuration is resumed in `Table 4 <#table-4>`_.
 
    .. table 4
@@ -1085,7 +1115,7 @@ Varnish ``DAEMON_OPTS``::
       :file: tables/varnish_apache.csv
 
    `\* These files are for a SysV Ubuntu/Debian configuration`
-	     
+
    You can get an overview over services listening on TCP ports by issuing the command ``netstat -nlpt``.
    Within the result, you should see something like::
 

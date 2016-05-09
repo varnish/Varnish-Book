@@ -44,15 +44,15 @@ Building the material
 
 Install the following packages with their dependencies.
 
-- rst2pdf
-- gawk
-- git
-- make
-- graphviz
-- php5
-- python3-sphinx
-- python-docutils
-- inkscape
+- ``rst2pdf``
+- ``gawk``
+- ``git``
+- ``make``
+- ``graphviz``
+- ``php5``
+- ``sphinx`` > 1.3
+- ``python-docutils``
+- ``inkscape``
 
 You also need the "Open Source" font type.
 To check whether you have it, type ``fc-match "Open Sans"`` in the terminal.
