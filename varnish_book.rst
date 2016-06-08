@@ -2735,7 +2735,7 @@ Cache Matching
    One way to assist ``Vary`` is by building the response body from cached and non-cached objects.
    We will discuss this further in the `Content Composition`_ chapter.
 
-   Varnish Test Cases (VTC) in ``varnishtest`` can also help you to understand and isolate the behaviour of ``Vary``.
+   Varnish Test Cases (VTC) in ``varnishtest`` can also help you to understand and isolate the behavior of ``Vary``.
    For more information about it, refer to the subsection `Understanding Vary in varnishtest`_.
 
    .. note::
@@ -3029,7 +3029,7 @@ Exercise: Use `article.php` to test ``Age``
    
    .. tip::
 
-      To learn more about the behaviour of ``Expires``, refer to the subsection `Understanding Expires in varnishtest`_.
+      To learn more about the behavior of ``Expires``, refer to the subsection `Understanding Expires in varnishtest`_.
 
 Availability of Header Fields
 -----------------------------
@@ -4978,7 +4978,7 @@ Understanding Grace
    As long as a request is waiting for new content, Varnish delivers graced objects instead of queuing incoming requests.
    These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
 
-   Grace can also be explained when comparing the caching behaviour with ``TTL``.
+   Grace can also be explained when comparing the caching behavior with ``TTL``.
    Such comparison is explained in a VTC in the subsection `Understanding Grace using varnishtest`_.
 
 Exercise: Grace
@@ -5933,7 +5933,7 @@ SSL/TLS Support
 
    The SSL/TLS support on the frontend (client) side enables traffic encryption between clients and Varnish.
    On the backend (origin server and Varnish), SSL/TLS support encrypts all backend communication.
-   Backend encryption is useful for deployements with geographically distributed origin servers such as CDNs.
+   Backend encryption is useful for deployments with geographically distributed origin servers such as CDNs.
 
 Appendix A: Resources
 =====================
@@ -6111,7 +6111,7 @@ Exercise: Try ``varnishstat``, ``varnishlog`` and ``varnishhist``
 
    You can use ``varnishtest`` when configuring your Varnish installation, i.e., writing VCL code, or developing VMODs.
    ``varnishtest`` has its own language: the *Varnish Test Case (VTC) language*.
-   This language has a fairly simple sintax.
+   This language has a fairly simple syntax.
    In fact, when designing your caching algorithm or any other functionality in Varnish, we recommend you first to write *Varnish Case Tests* (VTCs) as part of your design.
    VTCs are also useful to reproduce bugs when filing a bug report.
 
