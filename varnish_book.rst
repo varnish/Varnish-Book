@@ -105,9 +105,6 @@ The Webdev course requires that you:
    You do not need background in theory or application behind Varnish to complete this course.
    However, it is assumed that you have experience and expertise in basic UNIX commands, and that you can install the following software:
 
-   .. TODO: to update this list after introducing varnishtest throughout the book
-      It might not be needed to install Apache, HTTPie, PHP or curl.
-
    - Varnish Cache 4.x or Varnish Cache Plus 4.x,
    - Apache/2.4 or later,
    - HTTPie 0.8.0 or later,
@@ -696,8 +693,7 @@ Getting Started
 In this chapter, you will:
 
 - learn about the Varnish distribution,
-- install Varnish,
-- learn about ``varnishtest``, and
+- install Varnish, and
 - cover basic Varnish configuration.
 
 .. container:: handout
@@ -741,7 +737,6 @@ Utility programs part of the Varnish distribution:
    ``varnishtest`` is a script driven program used to test your Varnish installation.
    ``varnishtest`` is very powerful because it allows you to create client mock-ups, fetch content from mock-up or real backends, interact with your actual Varnish configuration, and assert the expected behavior.
    ``varnishtest`` is also very useful to learn more about the behavior of Varnish.
-   Therefore, ``varnishtest`` is used throughout the book as main testbed.
 
    .. varnishadm
 
@@ -833,208 +828,6 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
         -P /var/run/varnish.pid -f /etc/varnish/default.vcl -a :80 -a :6081,PROXY \
         -T 127.0.0.1:6082 -t 120 -S /etc/varnish/secret \
         - s malloc,256MB -F
-   
-``varnishtest``
----------------
-
-.. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
-
-- Script driven program used to test the configuration of Varnish, run regression tests, and develop VMODs
-- Useful for system administrators, web developers, and VMODs developers
-
-.. container:: handout
-
-   Varnish is distributed with many utility programs.
-   ``varnishtest`` is a script driven program that allows you create client mock-ups, simulate transactions, fetch content from mock-up or real backends, interact with your actual Varnish configuration and assert expected behaviors.
-
-   You can use ``varnishtest`` when configuring your Varnish installation, i.e., writing VCL code, or developing VMODs.
-   In fact, we recommend you first to write *Varnish Case Tests* (VTCs) as part of your design.
-   ``varnishtest`` is also useful to reproduce bugs when filing a bug report.
-
-   This section develops basic knowledge about ``varnishtest``, and you will learn more about it throughout the book.
-   Another way to learn how to create VTCs is by reading and running the ``.vtc`` files included in Varnish Cache under ``bin/varnishtest/tests/``.
-   Further documentation of ``varnishtest`` is found in its man page, ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
-
-   ``varnishtest`` has its own language: the *Varnish Test Case (VTC) language*.
-   This language is fairly simple to understand as we shall see next.
-
-The Varnish Test Case (VTC) Language
-....................................
-
-- Test against simulated or real backends
-- Starts real instance of ``varnishd``
-- Simulates clients
-- Asserts using ``expect``
-
-**b00001.vtc**
-
-.. include:: vtc/b00001.vtc
-   :literal:
-
-.. container:: handout
-
-   .. introduction
-
-   ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
-   Depending on your use case, there might be test preparations, executions and assertions all over the place.
-   VTC is not compiled but simply interpreted on the fly.
-
-   .. file naming convention
-
-   There is a naming convention for VTC files.
-   Files starting with ``b`` as the example above contain basic functionality tests.
-   The naming scheme is in ``Varnish-Cache/bin/varnishtest/tests/README`` or https://raw.githubusercontent.com/varnish/Varnish-Cache/master/bin/varnishtest/tests/README.
-
-   .. varnish test name
-
-   All VTC programs start by naming the test::
-
-     varnishtest "Varnish as Proxy"
-
-   .. origin server (backend)
-
-   In this example we declare a simulated origin server::
-
-     server s1 {
-	rxreq
-	txresp
-     } -start
-
-   All server declarations must start with ``s``.
-   In the code above, ``s1`` receives a request ``rxreq``, and transmits a response ``txresp``.
-   ``-start`` boots ``s1`` and makes available the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend.
-   You may also start a declaration at a later point in your code, for example ``server s1 -start``.
-
-   .. Varnish server
-
-   To declare an instance of your real Varnish server::
-
-     varnish v1 -arg "-b ${s1_addr}:${s1_port}" -start
-
-   ``varnish v1`` declares an instance of your real Varnish server, i.e., ``varnishd``.
-   The names for Varnish servers must start with ``v``.
-   This instance is controlled by the manager process, and ``-start`` forks a child, which is the actual cacher process.
-   You will learn about the manager and cacher in `The Parent Process: The Manager`_ and `The Child Process: The Cacher`_ sections.
-
-   There are many ways to configure ``varnishd``.
-   On way is by passing arguments with ``-arg`` as in ``-arg "-b ${s1_addr}:${s1_port}"``.
-   ``-b`` is a ``varnishd`` option to define the backend.
-   In this case, we use the IP address and port of the simulated backend ``s1``, but you can also use a real backend.
-   Therefore, ``varnishtest`` can be used as integration tool when testing your real backend.
-
-   There are other ways to define backends.
-   The most common one is perhaps by defining them in your VCL code, as we shall see in the next section.
-
-   To simulate a client::
-
-      client c1 {
-	 txreq
-	 rxresp
-
-	 expect resp.http.via ~ "varnish"
-      } -run
-
-   Simulated clients in ``varnishtest`` start with ``c``.
-   In this example, ``c1`` transmits one request and receives one response.
-
-   Since Varnish is a proxy, we expect to receive the response from the backend via Varnish.
-   Therefore, ``c1`` expects ``varnish`` in the ``via`` HTTP header field.
-   We use tilde ``~`` as match operator of regular expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
-
-   Finally, you start client ``c1`` with the ``-run`` command.
-
-Synchronization in Varnish Tests
-................................
-
-- Varnish is a multi-threaded program
-- Use ``-wait`` as synchronization mechanism
-- ``-run``: ``-start -wait``
-
-.. container:: handout
-
-   You might have noticed that we used ``-start`` for ``v1``, but ``-run`` for ``c1``.
-   The difference between these commands is that ``-run`` executes ``-start -wait``.
-
-   Varnish is a multi-threaded program.
-   Therefore, each instance in ``varnishtest``, i.e., ``s1``, ``v1`` and ``c1``, is executed by a different thread.
-   Sometimes, you will need some sort of synchronization mechanism to ensure you avoid race conditions or other non-intuitive behaviors.
-   For those cases, you can use the ``-wait`` command.
-
-   ``-wait`` tells the executor of ``varnishtest`` to wait for a given instance to complete before proceeding to the next instruction in your VTC program.
-   To illustrate this, see the difference between::
-
-      varnishtest "Synchronized"
-
-      server s1 {
-	      rxreq
-	      txresp
-      }
-
-      server s1 -start
-
-      client c1 -connect ${s1_sock} {
-	      txreq
-	      rxresp
-      }
-
-      # -run: -start - wait
-      client c1 -run
-
-      server s1 -wait
-
-   and::
-
-      varnishtest "Unsynchronized"
-
-      server s1 {
-	      rxreq
-	      txresp
-      }
-
-      server s1 -start -wait
-
-      client c1 -connect ${s1_sock} {
-	      txreq
-	      rxresp
-      }
-
-      client c1 -run
-
-   The second test fails in comparison to the first one, because ``varnishtest`` times out while waiting for ``s1`` to receive a request and transmit a response.
-   Therefore, you typically start Varnish servers with the ``-start`` command, but start clients with the ``-run`` command.
-
-   .. note::
-
-      You will learn more about the `Threading Model`_ of Varnish in its own section.
-
-   .. note::
-
-      Note that we do not instantiate a Varnish server in the examples, but connect the client directly to the server.
-      For that purpose we use ${s1_sock}.
-      This macro translates to the IP address and port of ``s1``.
-
-Running Your Varnish Tests
-..........................
-
-::
-
-   $varnishtest b00001.vtc
-   #     top  TEST b00001.vtc passed (1.458)
-
-.. container:: handout
-
-   To run your test, you simply issue the command above.
-   By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests only.
-   If you want to always get a verbose output, run ``varnishtest`` with the ``-v`` option.
-
-   A passed test means that you have the most basic Varnish configuration correct in the testbed ``varnishtest``.
-   In the next section we explain how to configure Varnish in the way you normally would do after your tests have passed or when the ``varnishtest`` testbed is not enough for your needs.
-
-   There is much more to explain about ``varnishtest``, but before that, you must learn more about the fundamentals of Varnish.
-   We will introduce new concepts and make a more advanced use of ``varnishtest`` as we progress in the book.
-
-.. bookmark
-.. TODO for the author: Add vtctrans
 
 Configure Varnish
 -----------------
@@ -1184,15 +977,8 @@ Test Varnish Using Apache as Backend
    For a cache hit, ``X-Varnish`` contains both the ID of the current request and the ID of the request that populated the cache.
    You will learn more about VXIDs in the `Transactions`_ section.
 
-Exercise: Test Apache as Backend with ``varnishtest``
-.....................................................
-
-- Use VTC to test the ``Server`` and ``Via`` HTTP header fields.
-
-.. container:: handout
-
-   In this exercise you have to define a backend pointing to your Apache server and use assertions with ``expect``.
-   If you need help, take a look at `Solution: Test Apache as Backend with varnishtest`_.
+   You can also define and test connectivity against any backend in ``varnishtest``.
+   Learn how to it by doing the `Exercise: Test Apache as Backend with varnishtest`_.
 
 The Management Interface ``varnishadm``
 ---------------------------------------
@@ -1416,38 +1202,8 @@ Exercise: Use the administration interface to learn, review and set Varnish para
 
 .. container:: handout
 
+   Parameters can also be set in ``varnishtest`` as explained in `Setting Parameters in varnishtest`_.
    You will learn more about how to tune parameters in the `Tunable Parameters`_ section.
-
-Setting Parameters in ``varnishtest``
--------------------------------------
-
-**vtc/b00003.vtc**
-
-.. include:: vtc/b00003.vtc
-   :literal:
-
-.. container::
-
-   Parameters can also be set in ``varnishtest``.
-   To execute commands via the CLI, you have three options: ``-cli "command"``, ``-cliok "command"`` and ``-clierr "status" "command"``.
-   ``-cli`` executes a command without checking the return status.
-   ``-clickok`` executes a command and expects it to return OK 200 status.
-   ``-clickerr`` executes a command and checks whether the expected return ``status`` matches.
-
-   .. note::
-
-      You have to instruct ``varnishtest`` to assert the expected behavior as much as you can.
-      For example, ``varnish v1 -cli "param.set default_ttl -1"`` does not fail because ``-cli`` does not assert the return status.
-
-   .. note::
-
-      The macro ${bad_ip} translates to 192.0.2.255.
-      This IP address is for test use only, and it is used here because we do not need a backend to set parameters in Varnish.
-      However, we must always declare at least one backend when ``varnishd`` is to be started.
-
-   .. note::
-
-      Note that we do not start ``v1``, because in this example, we do not need to start the cacher process.
 
 Exercise: Fetch Data Through Varnish
 ------------------------------------
@@ -1464,25 +1220,8 @@ Exercise: Fetch Data Through Varnish
    For more information about the HTTPie command, type ``man http``.
 
    Testing Varnish with a web browser can be confusing, because web browsers have their own cache.
-   Therefore, it is useful to double-check web browsers requests with HTTPie or ``varnishtest``.
+   Therefore, it is useful to double-check web browsers requests with HTTPie or ``varnishtest`` as explained in `Fetch Data with varnishtest`_.
    For more information about the ``Age`` response header field refer to the ``Age`` subsection.
-
-Fetch Data with ``varnishtest``
--------------------------------
-
-**vtc/b00004.vtc**
-
-.. include:: vtc/b00004.vtc
-   :literal:
-
-.. container::
-
-   You can use the ``delay`` command in ``varnishtest``.
-   The unit of the command are seconds and it also accepts float numbers.
-   For more information about the ``Age`` response header field refer to the ``Age`` subsection.
-
-   The ``Age`` value depends on the time to live (TTL) value of the cached object.
-   We will learn more about it in `The Initial Value of beresp.ttl`_ section.
 
 Examining Varnish Server's Output
 =================================
@@ -1621,37 +1360,7 @@ Transactions
    - restart
    - fetch
 
-Example of Transactions in ``varnishtest``
-..........................................
-
-::
-
-   $varnishtest -v b00001.vtc
-
-   (...)
-   **** v1    0.3 vsl|          0 CLI             - Rd vcl.load "boot" (...)
-   (...)
-   **** v1    0.4 vsl|       1000 Begin           c sess 0 HTTP/1
-   (...)
-   **** v1    0.4 vsl|       1002 Begin           b bereq 1001 fetch
-   (...)
-   **** v1    0.4 vsl|       1002 End             b
-   **** v1    0.4 vsl|       1001 Begin           c req 1000 rxreq
-   (...)
-   **** v1    0.4 vsl|       1001 End             c
-   (...)
-   **** v1    0.4 vsl|       1000 End             c
-   (...)
-   **** v1    0.5 vsl|          0 CLI             - EOF on CLI connection (...)
-
-.. container:: handout
-
-   Above is a snippet of how Varnish logs are displayed in ``varnishtest``.
-   ``varnishtest`` does not group logs by default as ``varnishlog`` does.
-   Still, ``varnishtest`` allows you to group the transactions for assertions with the command ``logexpect``.
-
-   ``varnishtest`` starts client transactions in ``1000``.
-   Note the VXID ``0`` for Varnish specific records.
+   To learn more about this topic in ``varnishtest``, refer to the section: `Example of Transactions in varnishtest`_.
 
 Transaction Groups
 ..................
@@ -1733,53 +1442,7 @@ Example of Transaction Grouping with ``varnishlog``
 
    .. note::
 
-      The ``logexpect`` command from ``varnishtest`` accepts the same arguments as ``varnishlog``.
-
-``logexpect``
--------------
-
-- Assert log records in ``varnishtest``
-- Uses ``varnishlog`` API
-
-.. include:: vtc/l00000.vtc
-   :literal:
-
-.. container:: backend::
-
-   ``logexpect`` is a program that uses the ``varnishlog`` API.
-   Therefore, it is able to group and query the Varnishlog just as ``varnishlog`` does.
-   In addition, ``logexpect`` allows you to assert what you are expecting to appear in VSL.
-
-   Note ``logexpect l1 -wait`` at the end of the script.
-   Without it, the test would finish successfully without concluding the assert in ``l1``, because ``varnishtest`` would not wait for it.
-   ``-wait`` instructs the executor of ``varnishtest`` to wait until ``l1`` is done.
-
-   Below is the synopsis of arguments and options of ``logexpect``::
-
-      -v <varnish-instance>
-      -d <0|1> (head/tail mode)
-      -g <grouping-mode>
-      -q <query>
-
-      vsl arguments (vsl_arg.c)
-      -b                   Only display backend records
-      -c                   Only display client records
-      -C                   Caseless regular expressions
-      -i <taglist>         Include tags
-      -I <[taglist:]regex> Include by regex
-      -L <limit>           Incomplete transaction limit
-      -T <seconds>         Transaction end timeout
-
-      logexpect lN -v <id> [-g <grouping>] [-d 0|1] [-q query] [vsl arguments] {
-	 expect <skip> <vxid> <tag> <regex>
-      }
-
-      skip: [uint|*]               Max number of record to skip
-      vxid: [uint|*|=]             vxid to match
-      tag:  [tagname|*|=]          Tag to match against
-      regex:                       regular expression to match against (optional)
-      *:                           Match anything
-      =:                           Match value of last successfully matched record
+      The `logexpect`_ command from ``varnishtest`` accepts the same arguments as ``varnishlog``.
 
 Query Language
 --------------
@@ -1852,7 +1515,15 @@ Exercise: Filter Varnish Log Records
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
 - Use ``varnishlog`` to print transactions for `Service Unavailable` (``RespStatus == 503``) responses
-- Use ``varnishtest`` to provoke a `Service Unavailable` response and assert it by reading VSL with ``logexpect``
+
+.. container:: handout
+
+   There are multiple ways to filter log records.
+   The purpose of this exercise is that you try the query option ``-q``, but you might also want to use the include tags ``-i`` or ``-I`` option and ``grep``.
+   
+   .. note::
+
+      You can also use ``varnishtest`` to provoke a `Service Unavailable` response and assert it by reading VSL with ``logexpect``.
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
@@ -2049,15 +1720,10 @@ Exercise: Try ``varnishstat`` and ``varnishlog`` together
 - Run ``varnishstat`` and ``varnishlog`` while performing a few requests.
 - See, analyze and understand how counters and parameters change in ``varnishstat`` and ``varnishlog``.
 
-Exercise: Assert Counters in ``varnishtest``
---------------------------------------------
-
-- Write a Varnish test to check the counters for cache misses, cache hits, and number of cached objects.
-- Use ``cache_miss``, ``cache_hit``, and ``n_object`` counters respectively.
-
 .. container:: handout
 
-   If you need help, take a look at `Solution: Assert Counters in varnishtest`_.
+   Counters are also accessible from ``varnishtest``.
+   If you are done with this exercise and have still time, try to assert some counters as described in `Exercise: Assert Counters in varnishtest`_.
 
 Tuning
 ======
@@ -2686,11 +2352,12 @@ Exercise: Tune ``first_byte_timeout``
 
 .. container:: handout
 
-   You can solve this exercise either by interacting with a real backend, or simulating it with ``varnishtest``.
    To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze ``varnishlog`` and ``varnishstat``.
-   Again, you can do that by executing them in shell or by reading and asserting VSL and counters in ``varnishtest``.
+   You can do that by executing them in shell.
+   If you need help, look at both solutions we suggest: `Solution: Tune first_byte_timeout and test it against your real backend`_.
 
-   If you need help, look at both solutions we suggest: `Solution: Tune first_byte_timeout and test it against your real backend`_ and `Solution: Tune first_byte_timeout and test it against mock-up server`_.
+   Alternatively, you can read and assert VSL records and counters in ``varnishtest``.
+   The subsection `Solution: Tune first_byte_timeout and test it against mock-up server`_ shows you how to do it.
 
 Exercise: Configure Threading
 -----------------------------
@@ -2923,11 +2590,11 @@ Response Example
    - 4xx: Client Error – The request contains bad syntax or cannot be fulfilled
    - 5xx: Server Error –  The server failed to fulfill an apparently valid request
 
-HTTP Properties
----------------
+HTTP Characteristics
+--------------------
 
 - HTTP is a stateless protocol
-- Properties of methods: safe, idempotent and **cacheable**
+- Common methods: safe, idempotent and **cacheable**
 - Most common cacheable request methods are ``GET`` and ``HEAD``
 
 .. container:: handout
@@ -2940,10 +2607,11 @@ HTTP Properties
     Therefore, for compatibility reasons, persistent connections may be explicitly negotiated as they are not the default behavior in HTTP/1.0 [https://tools.ietf.org/html/rfc7230#appendix-A.1.2].
     In practice, there is a header called ``Keep-Alive`` you may use if you want to control the connection persistence between the client and the server.
 
-    Safe methods are considered "safe" if they are read-only; i.e., the client request does not alter any state on the server.
+    A method is "safe" if it is read-only; i.e., the client request does not alter any state on the server.
     ``GET``, ``HEAD``, ``OPTIONS``, and ``TRACE`` methods are defined to be safe.
     An `idempotent` method is such that multiple identical requests have the same effect as a single request.
     ``PUT``, ``DELETE`` and safe requests methods are idempotent.
+
     **Cacheable methods** are those that allow to store their responses for future reuse.
     RFC7231 specifies ``GET``, ``HEAD`` and ``POST`` as cacheable.
     However, responses from ``POST`` are very rarely treated as cacheable.
@@ -3067,63 +2735,12 @@ Cache Matching
    One way to assist ``Vary`` is by building the response body from cached and non-cached objects.
    We will discuss this further in the `Content Composition`_ chapter.
 
+   Varnish Test Cases (VTC) in ``varnishtest`` can also help you to understand and isolate the behaviour of ``Vary``.
+   For more information about it, refer to the subsection `Understanding Vary in varnishtest`_.
+
    .. note::
 
       Varnish can handle ``Accept-Encoding`` and ``Vary: Accept-Encoding``, because Varnish has support for gzip compression.
-
-Understanding ``Vary`` in ``varnishtest``
-.........................................
-
-**vtc/c00002.vtc**
-
-.. include:: vtc/c00002.vtc
-   :literal:
-
-.. container:: handout
-
-   In ``c00002.vtc``, ``c1`` requests ``/same-url`` three times.
-   Since the backend ``s1`` returns ``Vary: Foobar``, Varnish maps the cached object to both ``req.url`` and ``http.foobar``.
-   Therefore, the second request misses the cached object and fetches from ``s1`` a new variation mapped to ``Foobar: 2``.
-
-   The third request from ``c1`` matches both ``req.url`` and ``http.foobar`` values from the first request.
-   Thus, this request does not trigger a backend request.
-
-   Recall that ``X-Varnish`` contains the transaction ID of the client request and if applicable, the ID of the backend transaction that stored the object delivered.
-   You can see this behavior in the third request.
-   That also means that the VXID counting does not increase to ``1006`` in the third client request.
- 
-   If your backend returns ``Vary:``, it must also handle situations when clients do not send the request header to identify a variation.
-   For example, when ``c1`` does not send ``Footbar:``::
-
-        txreq -url "/same-url"
-        rxresp
-
-   your backend should handle the lack of that header field specifically.
-   You can test it as the following assertion shows::
-
-        rxreq
-	expect req.http.foobar == <undef>
-        txresp -hdr "Vary: Foobar" -hdr "Snafu: 3" -body "3333\n"
-
-   Be aware that the lack of a header field sent by a client is not the same as sending the field with an empty value.
-   Therefore, requests like::
-
-     txreq -hdr "Foobar:  "
-
-   should be handled in your backend specifically.
-   You can test it as::
-
-     rxreq
-     expect req.http.foobar == ""
-     txresp -hdr "Vary: Foobar" -hdr "Snafu: 4" -body "4444\n"
-
-   ``c00002.vtc`` is a modified version for teaching purposes from ``Varnish-Cache/bin/varnishtest/tests/c00004.vtc``.
-   We advise you to look at the many tests included in ``Varnish-Cache``.
-
-   .. conditional requests
-
-   Next we cover four important header fields used in conditional requests.
-   Two validator fields: ``ETag`` and ``Last-Modified``; and two precondition header fields: ``If-None-Match`` and ``If-Modified-Since``.
 
 ``ETag``
 ........
@@ -3227,39 +2844,9 @@ Understanding ``Vary`` in ``varnishtest``
 
       Figure :counter:`figure`: If-Modified-Since control flow diagram.
 
-Understanding ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
-............................................................................
+   .. tip::
 
-**vtc/b00007.vtc**
-
-.. include:: vtc/b00007.vtc
-   :literal:
-
-.. container:: handout
-
-   The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
-   The example introduces how to insert VCL code in ``varnishtest``::
-
-      sub vcl_backend_response {
-         set beresp.ttl = 2s;
-	 set beresp.grace = 5s;
-	 # beresp.was_304 is ``true`` if the response from the backend was
-	 # a positive result of a conditional fetch (``304 Not Modified``).
-	 set beresp.http.was-304 = beresp.was_304;
-      }
-
-   You will learn all details about VCL in the following sections, but for now it is enough to understand that this code sets the time to live TTL and grace time of cached objects to 2 and 5 seconds respectively.
-   Recall the object lifetime from `Figure 2 <#figure-2>`_ to understand the expected behavior.
-
-   The code also adds a HTTP response header field ``was-304`` with the boolean value of the ``beresp.was_304``.
-   This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
-
-   We hope that this exercise motivates you to use ``varnishtest`` when designing your cache policies.
-   As you can see, ``varnishtest`` is very precise when testing caching objects against different time settings.
-
-   .. note::
-
-      ``beresp.was_304`` is a variable available in Varnish 4.1
+      The subsection `Understanding Last-Modified and If-Modified-Since in varnishtest`_ explains further these concepts with a practical VTC example.
 
 Allowance
 ---------
@@ -3303,6 +2890,8 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
 
        Cache-Control: public, must-revalidate, max-age=2592000
 
+   A more hands-on explanation as VTC can be found in the subsection `Understanding Cache-Control in varnishtest`_.
+
    .. Note::
 
        Cache-Control **always** overrides Expires.
@@ -3311,34 +2900,6 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
 
        By default, Varnish does not care about the ``Cache-Control`` request header.  
        If you want to let users update the cache via a force refresh you need to do it yourself.
-
-Understanding ``Cache-Control`` in ``varnishtest``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**b00009.vtc**
-
-.. include:: vtc/b00009.vtc
-   :literal:
-
-.. container:: handout
-
-   The example above shows how ``Cache-control: max-age=3`` overwrites ``TTL`` for cached objects.
-   The default ``TTL`` is 120 seconds, but we set it here to 1 just to explicitly show that the cached object is not expired after a delay of 2 seconds, because ``max-age=3``.
-   Therefore, the second assert::
-
-     expect resp.bodylen == 3
-
-   is 3 but not 6 (size of ``FOOBAR``).
-
-   If you are curious, you can remove::
-
-     -hdr "Cache-control: max-age=3"
-
-   from the first ``txresp``, and you you will that the second request will contain a body length of 5.
-
-   .. tip::
-
-      Take a look at ``b00941.vtc``, ``b00956.vtc`` and ``r01578.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more.
 
 ``Pragma``
 ..........
@@ -3465,28 +3026,10 @@ Exercise: Use `article.php` to test ``Age``
        - ``Expires`` is a **response** header field only
 
    ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
-
-Understanding ``Expires`` in ``varnishtest``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**b00008.vtc**
-
-.. include:: vtc/b00008.vtc
-   :literal:
-
-.. container:: handout
-
-   In Varnish, an expired object is an object that has exceeded the ``TTL + grace + keep`` time.
-   In the example above, the ``Expires`` header field sets ``TTL`` to 1, and changes ``default_grace`` from ``10`` to ``2``.
-   ``default_keep`` is already ``0``, but we show it explicitly anyway.
-
+   
    .. tip::
 
-      Take a look at ``s00000.vtc`` and ``s00001.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/``.
-
-   .. tip::
-
-      To get more information about ``n_expire``, issue ``man varnish-counters``.
+      To learn more about the behaviour of ``Expires``, refer to the subsection `Understanding Expires in varnishtest`_.
 
 Availability of Header Fields
 -----------------------------
@@ -3711,23 +3254,12 @@ VCL Syntax
    For example, "look this up in cache", "do not look this up in the cache", or "generate an error message".
    To check which actions are available at a given built-in subroutine, see the `Legal Return Actions`_ section or see the manual page of VCL.
 
+   VCL code is part of Varnish Test Cases (VTC) in ``varnishtest``.
+   To learn how to insert your VCL code in a VTC, refer to the subsection `VCL in varnishtest`_.
+
    .. warning::
    
       If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
-
-VCL in ``varnishtest``
-......................
-
-**vtc/b00000.vtc:**
-
-.. include:: vtc/b00000.vtc
-   :literal:
-
-.. container:: handout
-
-   ``varnishtest`` allows you to insert VCL code with the ``-vcl`` directive  when declaring a Varnish server.
-   This VCL code is inserted above the subroutines in built-in code in ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
-   Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
 
 Built-in ``vcl_recv``
 ---------------------
@@ -4256,7 +3788,7 @@ Exercise: Rewrite URL and Host Header Fields
    `http://example.com/sport/`. For example:
    `http://sport.example.com/index.html` to
    `http://example.com/sport/index.html`.
-#. Use HTTPie or ``varnishtest`` to verify the result.
+#. Use HTTPie to verify the result.
 
 - Extra: Make sure `/` and `/index.html` are cached as one object.
 - Extra 2: Make the redirection work for any domain with `sport.` at the front.
@@ -4695,21 +4227,7 @@ Example: ``PURGE``
 
       http -p hH --proxy=http:http://localhost PURGE www.example.com
 
-   Alternatively, you can test it with ``varnishtest``:
-
-   **vtc/b00012.vtc**
-
-   .. include:: vtc/b00012.vtc
-      :literal:
-
-   The example above is a modification of ``Varnish-Cache/bin/varnishtest/tests/b00036.vtc``.
-   In this VTC you can see how the second request of ``c1`` is constructed out from the cached object.
-   After purging the implicit resource ``/``, the third request from ``c1`` fetches a new object from ``s1``.
-
-   A quick way for you to double check the ``acl`` authorization is by changing the IP address in it.
-   So you should see that the ``PURGE`` request coming from ``localhost`` will not pass the condition::
-
-      if (!client.ip ~ purgers)
+   Alternatively, you can test it with ``varnishtest`` as in the subsection `PURGE in varnishtest`_.
 
 Exercise: ``PURGE`` an article from the backend
 ...............................................
@@ -4937,15 +4455,7 @@ Exercise: Write a VCL program using *purge* and *ban*
                                       'X-Ban-Host: .*\.example\.com'
      http -p hH REFRESH http://localhost/testpage
 
-   You can also send ``PURGE``, ``BAN`` and ``REFRESH`` requests in  ``varnishtest``::
-
-     client c1 {
-        txreq -req BAN
-	rxres
-     } -run
-
-   Remember that you still need specify the requested ``URL`` in ``c1`` if is other than ``/``.
-   We advise you to search for ``purge`` and ``ban`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more on how to invalidate caches.
+   For information on cache invalidation in ``varnishtest``, refer to the subsection `Cache Invalidation in varnishtest`_.
    If you need help, see `Solution: Write a VCL program using purge and ban`_.
 
 Force Cache Misses
@@ -5468,20 +4978,8 @@ Understanding Grace
    As long as a request is waiting for new content, Varnish delivers graced objects instead of queuing incoming requests.
    These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
 
-Understanding Grace using ``varnishtest``
-.........................................
-
-**Varnish-Cache/bin/varnishtest/tests/b00043.vtc**:
-
-.. include:: vtc/b00043.vtc
-   :literal:
-
-.. container:: handout
-
-   This example shows you how the HTTP response header field ``Cache-Control`` sets ``max-age`` to ``ttl`` and ``stale-while-revalidate`` to ``grace``.
-   ``ttl`` and ``grace`` are attributes of cached objects.
-   The VCL code in ``v1`` includes these attributes in the HTTP response header fields ``http.ttl`` and ``http.grace`` that are sent to the client.
-   ``c1`` asserts the values of these fields.
+   Grace can also be explained when comparing the caching behaviour with ``TTL``.
+   Such comparison is explained in a VTC in the subsection `Understanding Grace using varnishtest`_.
 
 Exercise: Grace
 ...............
@@ -5751,49 +5249,6 @@ Best Practices for Cookies
         unset beresp.http.Set-cookie;
     }
 
-Exercise: Handle Cookies with ``Vary`` and ``hash_data()`` in ``varnishtest``
-.............................................................................
-
-In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
-The exercise uses the ``Cookie`` header field, but the same rules apply to any other field.
-
-.. vary
-
-**Vary: Part 1**:
-
-#. Write a VTC program that forces Varnish to cache client requests with cookies.
-#. Send two client requests for the same URL; one for user Alice and one for user Bob.
-#. Does Varnish use different backend responses to build and deliver the response to the client?
-#. Make the your simulated server send the ``Vary: Cookie`` response header field, then analyze the response to the client.
-#. Remove ``beresp.http.Vary`` in `vcl_backend_response` and see if Varnish still honors the ``Vary`` header.
-
-.. purge vary
-
-**Vary: Part 2**:
-
-#. Purge the cached object for resource ``/cookies.php``.
-#. Check if it affects all, none or just one of the objects in cache (e.g: change the value of the cookie and see if the ``PURGE`` method has purged all of them).
-
-.. hash_data
-
-**hash_data(): Part 1**:
-
-#. Write another VTC program or add conditions and asserts to differentiate requests handled by ``Vary`` and ``hash_data()``.
-#. Add ``hash_data(req.http.Cookie);`` in `vcl_hash`.
-#. Check how multiple values of ``Cookie`` give individual cached objects.
-
-.. purge hash_data
-
-**hash_data(): Part 2**:
-
-#. Purge the cache again and check the result after using ``hash_data()`` instead of ``Vary: Cookie``.
-
-.. container:: handout
-
-   This exercise is all about ``Vary`` and hash mechanisms.
-   After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data()`` work.
-   If you need help, see `Solution: Handle Cookies with  Vary in varnishtest`_ or `Solution: Handle Cookies with  hash_data() in varnishtest`_.
-
 Exercise: Handle Cookies with ``Vary`` and ``hash_data`` with HTTPie
 ....................................................................
 
@@ -5840,7 +5295,9 @@ For that, prepare the testbed and test with HTTPie:
 .. container:: handout
 
    This exercise is all about ``Vary`` and hash mechanisms.
-   After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data();`` work.
+   These mechanisms can also be tested and learned through ``varnishtest``.
+   If you have time and curious enough, please do the `Exercise: Handle Cookies with Vary and hash_data() in varnishtest`_.
+   After solving these exercises, you will understand very well how ``Vary`` and ``hash_data();`` work.
 
 Edge Side Includes
 ------------------
@@ -5903,44 +5360,12 @@ This is done in `vcl_recv`.
             This ESI tag is not processed: <esi:include src="example">
         -->
 
+    ``varnishtest`` is a useful tool to understand how ESI works.
+    The subsection `Understanding ESI in varnishtest`_ contains a Varnish Test Case (VTC) using ESI.
+
     .. note::
 
        Varnish outputs ESI parsing errors in ``varnishstat`` and ``varnishlog``.
-
-Understanding ESI in ``varnishtest``
-....................................
-
-**Varnish-Cache/bin/varnishtest/tests/e00004.vtc**:
-
-.. include:: vtc/e00004.vtc
-   :literal:
-
-.. container:: handout
-
-   ``e00004.vtc`` shows how ESI substitution works.
-   When Varnish reads ``<!--esi <esi:include src="/body"/> -->``, it triggers a request with URL ``/body``.
-   The result of this request replaces the ``<!--esi -->`` tag.
-
-   Since there are two different requests, one for the root ``/`` resource and other for the ``/body`` resource, you can handle their cached objects separately.
-   For example, you can set different TTLs for them or apply different invalidation policies.
-
-   We have counted the expected body length after the substitution and assert it in the VTC, but if you do not trust us, you can easily see the replacement by executing::
-
-     varnishtest -v e00004.vtc | grep "chunk|"
-
-   In the result::
-
-     **** c1    0.4 chunk| \n
-     **** c1    0.4 chunk| \t\t<html>\n
-     **** c1    0.4 chunk| \t\tBefore include\n
-     **** c1    0.4 chunk| \t\t
-     **** c1    0.4 chunk| \n
-     **** c1    0.4 chunk| \t\tIncluded file\n
-     **** c1    0.4 chunk| \t \n
-     **** c1    0.4 chunk| \t\tAfter include\n
-     **** c1    0.4 chunk| \t
-
-   you can see the HTML document after ESI has been processed.
 
 Example: Using ESI
 ..................
@@ -5987,9 +5412,8 @@ Exercise: Enable ESI and Cookies
    You may also want to try ``PURGE``.
    If so, you have to purge each of the objects, because purging just ``/esi-top.php`` does not purge ``/esi-user.php``.
 
-   .. bookmark:
    .. TODO for the author: To create a solution for this exercise.
-   .. TODO for the author: Understand the difference between maxage and s-maxage described in the php files, then write a solution for varnishtest.
+   .. TODO for the author: Explain the difference between maxage and s-maxage described in the php files and write a solution for varnishtest.
 
 Testing ESI without Varnish
 ...........................
@@ -6550,7 +5974,7 @@ Global counters:
 
 - ``varnishstat``
 
-Misc:
+Design and debug:
 
 - ``varnishtest``
 
@@ -6662,15 +6086,641 @@ Misc:
    Where *m* represent the number of times that each marker is found.
    On the right top corner, you can see the name of the host.
 
-Exercise: Try the tools
------------------------
+Exercise: Try ``varnishstat``, ``varnishlog`` and ``varnishhist``
+-----------------------------------------------------------------
 
 - Send a few requests to Varnish using ``http -p hH http://localhost/``
 - verify you have some cached objects using ``varnishstat``
 - look at the communication with the clients, using ``varnishlog``.
   Try sending various headers and see them appear in ``varnishlog``.
 - Install ``siege``
-- Run siege against localhost while looking at varnishhist
+- Run ``siege`` against ``localhost`` while looking at ``varnishhist``
+
+``varnishtest``
+---------------
+
+.. This subsection is based on http://blog.zenika.com/index.php?post/2012/08/27/Introducing-varnishtest.
+
+- Script driven program used to test the configuration of Varnish, run regression tests, and develop VMODs
+- Useful for system administrators, web developers, and VMODs developers
+
+.. container:: handout
+
+   Varnish is distributed with many utility programs.
+   ``varnishtest`` is a script driven program that allows you create client mock-ups, simulate transactions, fetch content from mock-up or real backends, interact with your actual Varnish configuration and assert expected behaviors.
+
+   You can use ``varnishtest`` when configuring your Varnish installation, i.e., writing VCL code, or developing VMODs.
+   ``varnishtest`` has its own language: the *Varnish Test Case (VTC) language*.
+   This language has a fairly simple sintax.
+   In fact, when designing your caching algorithm or any other functionality in Varnish, we recommend you first to write *Varnish Case Tests* (VTCs) as part of your design.
+   VTCs are also useful to reproduce bugs when filing a bug report.
+
+   There are many ``.vtc`` files included in Varnish Cache under ``bin/varnishtest/tests/``.
+   Think about those files as a learning source.
+   Further documentation of ``varnishtest`` is found in its man page, ``bin/varnishtest/tests/README`` and https://www.varnish-cache.org/docs/trunk/reference/varnishtest.html.
+
+The Varnish Test Case (VTC) Language
+....................................
+
+- Test against simulated or real backends
+- Starts real instance of ``varnishd``
+- Simulates clients
+- Asserts using ``expect``
+
+**b00001.vtc**
+
+.. include:: vtc/b00001.vtc
+   :literal:
+
+.. container:: handout
+
+   .. introduction
+
+   ``varnishtest`` does not follow the unit testing framework (up/test/assert/tear down) nor behavior-driven development (given/when/then).
+   Depending on your use case, there might be test preparations, executions and assertions all over the place.
+   VTC is not compiled but simply interpreted on the fly.
+
+   .. file naming convention
+
+   There is a naming convention for VTC files.
+   Files starting with ``b`` as the example above contain basic functionality tests.
+   The naming scheme is in ``Varnish-Cache/bin/varnishtest/tests/README`` or https://raw.githubusercontent.com/varnish/Varnish-Cache/master/bin/varnishtest/tests/README.
+
+   .. varnish test name
+
+   All VTC programs start by naming the test::
+
+     varnishtest "Varnish as Proxy"
+
+   .. origin server (backend)
+
+   In this example we declare a simulated origin server::
+
+     server s1 {
+	rxreq
+	txresp
+     } -start
+
+   All server declarations must start with ``s``.
+   In the code above, ``s1`` receives a request ``rxreq``, and transmits a response ``txresp``.
+   ``-start`` boots ``s1`` and makes available the macros ``${s1_addr}`` and ``${s1_port}`` with the IP address and port of your simulated backend.
+   You may also start a declaration at a later point in your code, for example ``server s1 -start``.
+
+   .. Varnish server
+
+   To declare an instance of your real Varnish server::
+
+     varnish v1 -arg "-b ${s1_addr}:${s1_port}" -start
+
+   ``varnish v1`` declares an instance of your real Varnish server, i.e., ``varnishd``.
+   The names for Varnish servers must start with ``v``.
+   This instance is controlled by the manager process, and ``-start`` forks a child, which is the actual cacher process.
+   You will learn about the manager and cacher in `The Parent Process: The Manager`_ and `The Child Process: The Cacher`_ sections.
+
+   There are many ways to configure ``varnishd``.
+   On way is by passing arguments with ``-arg`` as in ``-arg "-b ${s1_addr}:${s1_port}"``.
+   ``-b`` is a ``varnishd`` option to define the backend.
+   In this case, we use the IP address and port of the simulated backend ``s1``, but you can also use a real backend.
+   Therefore, ``varnishtest`` can be used as integration tool when testing your real backend.
+
+   There are other ways to define backends.
+   The most common one is perhaps by defining them in your VCL code, as we shall see in the next section.
+
+   To simulate a client::
+
+      client c1 {
+	 txreq
+	 rxresp
+
+	 expect resp.http.via ~ "varnish"
+      } -run
+
+   Simulated clients in ``varnishtest`` start with ``c``.
+   In this example, ``c1`` transmits one request and receives one response.
+
+   Since Varnish is a proxy, we expect to receive the response from the backend via Varnish.
+   Therefore, ``c1`` expects ``varnish`` in the ``via`` HTTP header field.
+   We use tilde ``~`` as match operator of regular expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
+
+   Finally, you start client ``c1`` with the ``-run`` command.
+
+Synchronization in Varnish Tests
+................................
+
+- Varnish is a multi-threaded program
+- Use ``-wait`` as synchronization mechanism
+- ``-run``: ``-start -wait``
+
+.. container:: handout
+
+   You might have noticed that we used ``-start`` for ``v1``, but ``-run`` for ``c1``.
+   The difference between these commands is that ``-run`` executes ``-start -wait``.
+
+   Varnish is a multi-threaded program.
+   Therefore, each instance in ``varnishtest``, i.e., ``s1``, ``v1`` and ``c1``, is executed by a different thread.
+   Sometimes, you will need some sort of synchronization mechanism to ensure you avoid race conditions or other non-intuitive behaviors.
+   For those cases, you can use the ``-wait`` command.
+
+   ``-wait`` tells the executor of ``varnishtest`` to wait for a given instance to complete before proceeding to the next instruction in your VTC program.
+   To illustrate this, see the difference between::
+
+      varnishtest "Synchronized"
+
+      server s1 {
+	      rxreq
+	      txresp
+      }
+
+      server s1 -start
+
+      client c1 -connect ${s1_sock} {
+	      txreq
+	      rxresp
+      }
+
+      # -run: -start - wait
+      client c1 -run
+
+      server s1 -wait
+
+   and::
+
+      varnishtest "Unsynchronized"
+
+      server s1 {
+	      rxreq
+	      txresp
+      }
+
+      server s1 -start -wait
+
+      client c1 -connect ${s1_sock} {
+	      txreq
+	      rxresp
+      }
+
+      client c1 -run
+
+   The second test fails in comparison to the first one, because ``varnishtest`` times out while waiting for ``s1`` to receive a request and transmit a response.
+   Therefore, you typically start Varnish servers with the ``-start`` command, but start clients with the ``-run`` command.
+
+   .. note::
+
+      You will learn more about the `Threading Model`_ of Varnish in its own section.
+
+   .. note::
+
+      Note that we do not instantiate a Varnish server in the examples, but connect the client directly to the server.
+      For that purpose we use ${s1_sock}.
+      This macro translates to the IP address and port of ``s1``.
+
+Running Your Varnish Test Cases
+...............................
+
+::
+
+   $varnishtest b00001.vtc
+   #     top  TEST b00001.vtc passed (1.458)
+
+.. container:: handout
+
+   To run your test, you simply issue the command above.
+   By default, ``varnishtest`` outputs the summary of passed tests, and a verbose output for failed tests only.
+   If you want to always get a verbose output, run ``varnishtest`` with the ``-v`` option.
+
+   A passed test means that you have the most basic Varnish configuration correct in the testbed ``varnishtest``.
+   In the next section we explain how to configure Varnish in the way you normally would do after your tests have passed or when the ``varnishtest`` testbed is not enough for your needs.
+
+   There is much more to explain about ``varnishtest``, but before that, you must learn more about the fundamentals of Varnish.
+   We will introduce new concepts and make a more advanced use of ``varnishtest`` as we progress in the book.
+
+.. TODO for the author: Add vtctrans
+
+Exercise: Test Apache as Backend with ``varnishtest``
+.....................................................
+
+- Use VTC to test the ``Server`` and ``Via`` HTTP header fields.
+
+.. container:: handout
+
+   In this exercise you have to define a backend pointing to your Apache server and use assertions with ``expect``.
+   If you need help, take a look at `Solution: Test Apache as Backend with varnishtest`_.
+
+Setting Parameters in ``varnishtest``
+.....................................
+
+**vtc/b00003.vtc**
+
+.. include:: vtc/b00003.vtc
+   :literal:
+
+.. container::
+
+   Parameters can also be set in ``varnishtest``.
+   To execute commands via the CLI, you have three options: ``-cli "command"``, ``-cliok "command"`` and ``-clierr "status" "command"``.
+   ``-cli`` executes a command without checking the return status.
+   ``-clickok`` executes a command and expects it to return OK 200 status.
+   ``-clickerr`` executes a command and checks whether the expected return ``status`` matches.
+
+   .. note::
+
+      You have to instruct ``varnishtest`` to assert the expected behavior as much as you can.
+      For example, ``varnish v1 -cli "param.set default_ttl -1"`` does not fail because ``-cli`` does not assert the return status.
+
+   .. note::
+
+      The macro ${bad_ip} translates to 192.0.2.255.
+      This IP address is for test use only, and it is used here because we do not need a backend to set parameters in Varnish.
+      However, we must always declare at least one backend when ``varnishd`` is to be started.
+
+   .. note::
+
+      Note that we do not start ``v1``, because in this example, we do not need to start the cacher process.
+
+Fetch Data with ``varnishtest``
+...............................
+
+**vtc/b00004.vtc**
+
+.. include:: vtc/b00004.vtc
+   :literal:
+
+.. container::
+
+   You can use the ``delay`` command in ``varnishtest``.
+   The unit of the command are seconds and it also accepts float numbers.
+   For more information about the ``Age`` response header field refer to the `Age`_ subsection.
+
+   The ``Age`` value depends on the time to live (TTL) value of the cached object.
+   We will learn more about it in `The Initial Value of beresp.ttl`_ section.
+
+Understanding ``Expires`` in ``varnishtest``
+............................................
+
+**b00008.vtc**
+
+.. include:: vtc/b00008.vtc
+   :literal:
+
+.. container:: handout
+
+   In Varnish, an expired object is an object that has exceeded the ``TTL + grace + keep`` time.
+   In the example above, the ``Expires`` header field sets ``TTL`` to 1, and changes ``default_grace`` from ``10`` to ``2``.
+   ``default_keep`` is already ``0``, but we show it explicitly anyway.
+
+   .. tip::
+
+      Take a look at ``s00000.vtc`` and ``s00001.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/``.
+
+   .. tip::
+
+      To get more information about ``n_expire``, issue ``man varnish-counters``.
+
+Example of Transactions in ``varnishtest``
+..........................................
+
+::
+
+   $varnishtest -v b00001.vtc
+
+   (...)
+   **** v1    0.3 vsl|          0 CLI             - Rd vcl.load "boot" (...)
+   (...)
+   **** v1    0.4 vsl|       1000 Begin           c sess 0 HTTP/1
+   (...)
+   **** v1    0.4 vsl|       1002 Begin           b bereq 1001 fetch
+   (...)
+   **** v1    0.4 vsl|       1002 End             b
+   **** v1    0.4 vsl|       1001 Begin           c req 1000 rxreq
+   (...)
+   **** v1    0.4 vsl|       1001 End             c
+   (...)
+   **** v1    0.4 vsl|       1000 End             c
+   (...)
+   **** v1    0.5 vsl|          0 CLI             - EOF on CLI connection (...)
+
+.. container:: handout
+
+   Above is a snippet of how Varnish logs are displayed in ``varnishtest``.
+   ``varnishtest`` does not group logs by default as ``varnishlog`` does.
+   Still, ``varnishtest`` allows you to group the transactions for assertions with the command ``logexpect``.
+
+   ``varnishtest`` starts client transactions in ``1000``.
+   Note the VXID ``0`` for Varnish specific records.
+
+``logexpect``
+.............
+
+- Allows you to assert log records
+- Uses ``varnishlog`` API
+
+.. include:: vtc/l00000.vtc
+   :literal:
+
+.. container:: backend::
+
+   ``logexpect`` is a program that uses the ``varnishlog`` API.
+   Therefore, it is able to group and query the Varnishlog just as ``varnishlog`` does.
+   In addition, ``logexpect`` allows you to assert what you are expecting to appear in VSL.
+
+   Note ``logexpect l1 -wait`` at the end of the script.
+   Without it, the test would finish successfully without concluding the assert in ``l1``, because ``varnishtest`` would not wait for it.
+   ``-wait`` instructs the executor of ``varnishtest`` to wait until ``l1`` is done.
+
+   Below is the synopsis of arguments and options of ``logexpect``::
+
+      -v <varnish-instance>
+      -d <0|1> (head/tail mode)
+      -g <grouping-mode>
+      -q <query>
+
+      vsl arguments (vsl_arg.c)
+      -b                   Only display backend records
+      -c                   Only display client records
+      -C                   Caseless regular expressions
+      -i <taglist>         Include tags
+      -I <[taglist:]regex> Include by regex
+      -L <limit>           Incomplete transaction limit
+      -T <seconds>         Transaction end timeout
+
+      logexpect lN -v <id> [-g <grouping>] [-d 0|1] [-q query] [vsl arguments] {
+	 expect <skip> <vxid> <tag> <regex>
+      }
+
+      skip: [uint|*]               Max number of record to skip
+      vxid: [uint|*|=]             vxid to match
+      tag:  [tagname|*|=]          Tag to match against
+      regex:                       regular expression to match against (optional)
+      *:                           Match anything
+      =:                           Match value of last successfully matched record
+
+Exercise: Assert Counters in ``varnishtest``
+............................................
+
+- Write a Varnish test to check the counters for cache misses, cache hits, and number of cached objects.
+- Use ``cache_miss``, ``cache_hit``, and ``n_object`` counters respectively.
+
+.. container:: handout
+
+   If you need help, take a look at `Solution: Assert Counters in varnishtest`_.
+
+Understanding ``Vary`` in ``varnishtest``
+.........................................
+
+**vtc/c00002.vtc**
+
+.. include:: vtc/c00002.vtc
+   :literal:
+
+.. container:: handout
+
+   In ``c00002.vtc``, ``c1`` requests ``/same-url`` three times.
+   Since the backend ``s1`` returns ``Vary: Foobar``, Varnish maps the cached object to both ``req.url`` and ``http.foobar``.
+   Therefore, the second request misses the cached object and fetches from ``s1`` a new variation mapped to ``Foobar: 2``.
+
+   The third request from ``c1`` matches both ``req.url`` and ``http.foobar`` values from the first request.
+   Thus, this request does not trigger a backend request.
+
+   Recall that ``X-Varnish`` contains the transaction ID of the client request and if applicable, the ID of the backend transaction that stored the object delivered.
+   You can see this behavior in the third request.
+   That also means that the VXID counting does not increase to ``1006`` in the third client request.
+ 
+   If your backend returns ``Vary:``, it must also handle situations when clients do not send the request header to identify a variation.
+   For example, when ``c1`` does not send ``Footbar:``::
+
+        txreq -url "/same-url"
+        rxresp
+
+   your backend should handle the lack of that header field specifically.
+   You can test it as the following assertion shows::
+
+        rxreq
+	expect req.http.foobar == <undef>
+        txresp -hdr "Vary: Foobar" -hdr "Snafu: 3" -body "3333\n"
+
+   Be aware that the lack of a header field sent by a client is not the same as sending the field with an empty value.
+   Therefore, requests like::
+
+     txreq -hdr "Foobar:  "
+
+   should be handled in your backend specifically.
+   You can test it as::
+
+     rxreq
+     expect req.http.foobar == ""
+     txresp -hdr "Vary: Foobar" -hdr "Snafu: 4" -body "4444\n"
+
+   ``c00002.vtc`` is a modified version for teaching purposes from ``Varnish-Cache/bin/varnishtest/tests/c00004.vtc``.
+   We advise you to look at the many tests included in ``Varnish-Cache``.
+
+   .. conditional requests
+
+   Next we cover four important header fields used in conditional requests.
+   Two validator fields: ``ETag`` and ``Last-Modified``; and two precondition header fields: ``If-None-Match`` and ``If-Modified-Since``.
+
+Understanding ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
+............................................................................
+
+**vtc/b00007.vtc**
+
+.. include:: vtc/b00007.vtc
+   :literal:
+
+.. container:: handout
+
+   The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
+   The example introduces how to insert VCL code in ``varnishtest``::
+
+      sub vcl_backend_response {
+         set beresp.ttl = 2s;
+	 set beresp.grace = 5s;
+	 # beresp.was_304 is ``true`` if the response from the backend was
+	 # a positive result of a conditional fetch (``304 Not Modified``).
+	 set beresp.http.was-304 = beresp.was_304;
+      }
+
+   You will learn all details about VCL in the following sections, but for now it is enough to understand that this code sets the time to live TTL and grace time of cached objects to 2 and 5 seconds respectively.
+   Recall the object lifetime from `Figure 2 <#figure-2>`_ to understand the expected behavior.
+
+   The code also adds a HTTP response header field ``was-304`` with the boolean value of the ``beresp.was_304``.
+   This variable is set to ``true`` if the response from the backend was a positive result of a conditional fetch (``304 Not Modified``).
+
+   We hope that this exercise motivates you to use ``varnishtest`` when designing your cache policies.
+   As you can see, ``varnishtest`` is very precise when testing caching objects against different time settings.
+
+   .. note::
+
+      ``beresp.was_304`` is a variable available in Varnish 4.1
+
+Understanding ``Cache-Control`` in ``varnishtest``
+..................................................
+
+**b00009.vtc**
+
+.. include:: vtc/b00009.vtc
+   :literal:
+
+.. container:: handout
+
+   The example above shows how ``Cache-control: max-age=3`` overwrites ``TTL`` for cached objects.
+   The default ``TTL`` is 120 seconds, but we set it here to 1 just to explicitly show that the cached object is not expired after a delay of 2 seconds, because ``max-age=3``.
+   Therefore, the second assert::
+
+     expect resp.bodylen == 3
+
+   is 3 but not 6 (size of ``FOOBAR``).
+
+   If you are curious, you can remove::
+
+     -hdr "Cache-control: max-age=3"
+
+   from the first ``txresp``, and you you will that the second request will contain a body length of 5.
+
+   .. tip::
+
+      Take a look at ``b00941.vtc``, ``b00956.vtc`` and ``r01578.vtc`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more.
+
+VCL in ``varnishtest``
+......................
+
+**vtc/b00000.vtc:**
+
+.. include:: vtc/b00000.vtc
+   :literal:
+
+.. container:: handout
+
+   ``varnishtest`` allows you to insert VCL code with the ``-vcl`` directive  when declaring a Varnish server.
+   This VCL code is inserted above the subroutines in built-in code in ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
+   Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
+
+``PURGE`` in ``varnishtest``
+............................
+
+**vtc/b00012.vtc**
+
+.. include:: vtc/b00012.vtc
+   :literal:
+
+.. container:: handout
+
+   The example above is a modification of ``Varnish-Cache/bin/varnishtest/tests/b00036.vtc``.
+   In this VTC you can see how the second request of ``c1`` is constructed out from the cached object.
+   After purging the implicit resource ``/``, the third request from ``c1`` fetches a new object from ``s1``.
+
+   A quick way for you to double check the ``acl`` authorization is by changing the IP address in it.
+   So you should see that the ``PURGE`` request coming from ``localhost`` will not pass the condition::
+
+      if (!client.ip ~ purgers)
+
+Cache Invalidation in ``varnishtest``
+.....................................
+
+::
+
+     client c1 {
+        txreq -req BAN
+	rxres
+     } -run
+
+.. container:: handout
+
+   You can send ``PURGE``, ``BAN`` and ``REFRESH`` requests in  ``varnishtest``, so your VCL program acts accordingly.
+   Remember that you still need specify the requested ``URL`` in ``txreq`` if the URL is other than root ``/``.
+   We advise you to search for ``purge`` and ``ban`` in ``Varnish-Cache/bin/varnishtest/tests/`` to learn more on how to invalidate caches.
+
+Understanding Grace using ``varnishtest``
+.........................................
+
+**Varnish-Cache/bin/varnishtest/tests/b00043.vtc**:
+
+.. include:: vtc/b00043.vtc
+   :literal:
+
+.. container:: handout
+
+   This example shows you how the HTTP response header field ``Cache-Control`` sets ``max-age`` to ``ttl`` and ``stale-while-revalidate`` to ``grace``.
+   ``ttl`` and ``grace`` are attributes of cached objects.
+   The VCL code in ``v1`` includes these attributes in the HTTP response header fields ``http.ttl`` and ``http.grace`` that are sent to the client.
+   ``c1`` asserts the values of these fields.
+
+Exercise: Handle Cookies with ``Vary`` and ``hash_data()`` in ``varnishtest``
+.............................................................................
+
+In this exercise you have to use two cache techniques; first ``Vary`` and then ``hash_data``.
+The exercise uses the ``Cookie`` header field, but the same rules apply to any other field.
+
+.. vary
+
+**Vary: Part 1**:
+
+#. Write a VTC program that forces Varnish to cache client requests with cookies.
+#. Send two client requests for the same URL; one for user Alice and one for user Bob.
+#. Does Varnish use different backend responses to build and deliver the response to the client?
+#. Make the your simulated server send the ``Vary: Cookie`` response header field, then analyze the response to the client.
+#. Remove ``beresp.http.Vary`` in `vcl_backend_response` and see if Varnish still honors the ``Vary`` header.
+
+.. purge vary
+
+**Vary: Part 2**:
+
+#. Purge the cached object for resource ``/cookies.php``.
+#. Check if it affects all, none or just one of the objects in cache (e.g: change the value of the cookie and see if the ``PURGE`` method has purged all of them).
+
+.. hash_data
+
+**hash_data(): Part 1**:
+
+#. Write another VTC program or add conditions and asserts to differentiate requests handled by ``Vary`` and ``hash_data()``.
+#. Add ``hash_data(req.http.Cookie);`` in `vcl_hash`.
+#. Check how multiple values of ``Cookie`` give individual cached objects.
+
+.. purge hash_data
+
+**hash_data(): Part 2**:
+
+#. Purge the cache again and check the result after using ``hash_data()`` instead of ``Vary: Cookie``.
+
+.. container:: handout
+
+   This exercise is all about ``Vary`` and hash mechanisms.
+   After this exercise, you should have a very good idea on how ``Vary`` and ``hash_data()`` work.
+   If you need help, see `Solution: Handle Cookies with  Vary in varnishtest`_ or `Solution: Handle Cookies with  hash_data() in varnishtest`_.
+
+Understanding ESI in ``varnishtest``
+....................................
+
+**Varnish-Cache/bin/varnishtest/tests/e00004.vtc**:
+
+.. include:: vtc/e00004.vtc
+   :literal:
+
+.. container:: handout
+
+   ``e00004.vtc`` shows how ESI substitution works.
+   When Varnish reads ``<!--esi <esi:include src="/body"/> -->``, it triggers a request with URL ``/body``.
+   The result of this request replaces the ``<!--esi -->`` tag.
+
+   Since there are two different requests, one for the root ``/`` resource and other for the ``/body`` resource, you can handle their cached objects separately.
+   For example, you can set different TTLs for them or apply different invalidation policies.
+
+   We have counted the expected body length after the substitution and assert it in the VTC, but if you do not trust us, you can easily see the replacement by executing::
+
+     varnishtest -v e00004.vtc | grep "chunk|"
+
+   In the result::
+
+     **** c1    0.4 chunk| \n
+     **** c1    0.4 chunk| \t\t<html>\n
+     **** c1    0.4 chunk| \t\tBefore include\n
+     **** c1    0.4 chunk| \t\t
+     **** c1    0.4 chunk| \n
+     **** c1    0.4 chunk| \t\tIncluded file\n
+     **** c1    0.4 chunk| \t \n
+     **** c1    0.4 chunk| \t\tAfter include\n
+     **** c1    0.4 chunk| \t
+
+   you can see the HTML document after ESI has been processed.
 
 Appendix C: Extra Material
 ==========================
@@ -7773,6 +7823,7 @@ Solution: Rewrite URL and Host Header Fields
 .. container:: handout
 
    You can test this solution via HTTPie or ``varnishtest``.
+
    Using HTTPie::
 
      http -p hH --proxy=http:http://localhost sport.example.com/index.html
@@ -7869,9 +7920,8 @@ Solution: ``PURGE`` an article from the backend
 
 **solution-purge-from-backend.vcl**
 
-.. TODO for the author: in v3, purge was called in vcl_hit and vcl_miss.
+.. In v3, purge was called in vcl_hit and vcl_miss.
 .. purge is not available in those subroutines in v4.
-.. should we mention something about it?
 
 .. include:: vcl/solution-purge-from-backend.vcl
    :literal:
@@ -7881,8 +7931,8 @@ Solution: ``PURGE`` an article from the backend
 Solution: Write a VCL program using purge and ban
 -------------------------------------------------
 
-.. TODO for the author: In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
-.. This is not possible in v4. Should we comment about it?
+.. In the book v3, PURGE was checked also in vcl_hit and vcl_miss.
+.. This is not possible in v4.
 
 .. include:: vcl/solution-bans-etc.vcl
    :literal:
