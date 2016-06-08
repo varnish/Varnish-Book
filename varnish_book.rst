@@ -367,6 +367,7 @@ What is Varnish?
 
    - web application firewall,
    - DDoS attack defender,
+   - hotlinking protector,
    - load balancer,
    - integration point,
    - single sign-on gateway,
