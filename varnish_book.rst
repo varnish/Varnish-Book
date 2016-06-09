@@ -4139,7 +4139,7 @@ Which one to use and when?
 .. csv-table:: Table :counter:`table`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
    :name: purge_ban_hash2_force
    :header-rows: 1
-   :widths: 14,29,19,19,19
+   :widths: 14,18,18,18,18,18
    :file: tables/purge_ban_hash2_force.csv
 
 .. container:: handout
@@ -4281,8 +4281,8 @@ Exercise: ``PURGE`` an article from the backend
 Banning
 -------
 
-- Use ``ban`` to prevent Varnish from serving a cached object
-- Does not free up memory
+- Use ``ban`` to invalidate caches on cache hits
+- Frees memory on ban patterns matching
 - Examples in the ``varnishadm`` command line interface:
 
   - ``ban req.url ~ /foo``
@@ -4293,7 +4293,7 @@ Banning
 
   - ``ban("req.url ~ /foo");``
 
-- Example of VCL code to catch the ``HTTP BAN`` request method::
+- Example of VCL code to act on ``HTTP BAN`` request method::
 
     sub vcl_recv {
         if (req.method == "BAN") {
@@ -4305,6 +4305,7 @@ Banning
     }
 
 .. container:: handout
+
 
    .. ban regex
 
@@ -4320,8 +4321,8 @@ Banning
    .. ban expressions
 
    Ban expressions match against ``req.*`` or ``obj.*`` variables.
-   Think about a ban expression as; "the requested URL starts with /sport", or "the cached object has a Server-header matching lighttpd".
-   You can add ban expressions in VCL syntax via VCL code, HTTP request method, or CLI.
+   Think about a ban expression as; "the requested URL starts with ``/sport``", or "the cached object has a header field with value matching ``lighttpd``".
+   You can add ban expressions in three ways: 1) VCL code, 2) use a customized HTTP request method, or 3) issuing commands in the ``varnishadm`` CLI.
 
    .. ban-list
 
@@ -4341,7 +4342,7 @@ Banning
 
    .. ban-list entry
    .. TODO for the author: To consider to include, clarify and elaborate this paragraph.
-   .. Every single object in the cache always points to a ban-list entry.
+   .. Every single cached object points to a ban-list entry.
    .. This ban-list entry is the last entry that the object is checked against.
 
    .. ban-list pointer update
@@ -4351,7 +4352,7 @@ Banning
    .. Then, if the object does not match any of them, Varnish updates the ban-list pointer of the object.
 
    Varnish tests bans whenever a request hits a cached object.
-   A cached object is checked only against bans added after the last checked ban.
+   A cached object is checked against bans added after the last checked ban.
    That means that each object checks against a ban expression only once.
 
    .. ban lurker
@@ -4359,6 +4360,13 @@ Banning
    Bans that match only against ``obj.*`` are also checked by a background worker thread called the *ban lurker*.
    The parameter ``ban_lurker_sleep`` controls how often the *ban lurker* tests ``obj.*`` bans.
    The ban lurker can be disabled by setting ``ban_lurker_sleep`` to 0.
+
+   .. ban best practices
+
+   Bans can be free memory in a very scalable manner if used properly.
+   Bans free memory only after a ban expression hits an object.
+   However, since bans do not prevent new backend responses to be inserted in the cache, client requests that trigger the eviction of an object will most likely insert a new one.
+   Therefore, ban lurker banning is more effective when freeing memory, as we shall see next.
 
    .. note::
 
@@ -4430,7 +4438,8 @@ Lurker-Friendly Bans
 
       sub vcl_recv {
          if (req.method == "BAN") {
-            # Assumes the ``X-Ban`` header is a regex,
+   
+         # Assumes the ``X-Ban`` header is a regex,
             # this might be a bit too simple.
 
             ban("obj.http.x-url ~ " + req.http.x-ban);
@@ -4465,7 +4474,7 @@ Force Cache Misses
 - Causes Varnish to look the object up in cache, but ignore any copy it finds
 - Useful way to do a controlled refresh of a specific object
 - If the server is down, the cached object is left untouched
-- Depending on Varnish-version, it may leave extra copies in the cache
+- Depending on the Varnish version, it might leave extra copies in the cache
 - Useful to refresh slowly generated content
 
 .. container:: handout
@@ -4490,8 +4499,8 @@ Force Cache Misses
 
       Forcing cache misses do not evict old content.
       This means that causes Varnish to have multiple copies of the content in cache.
-      The newest copy is always used.
-      If you cache your content for a long period of time, the memory usage will increase gradually.
+      In such cases, the newest copy is always used.
+      Keep in mind that duplicated objects will stay as long as their time-to-live is positive.
 
 Hashtwo (Varnish Software Implementation of Surrogate Keys)
 -----------------------------------------------------------
