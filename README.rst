@@ -53,11 +53,18 @@ Install the following packages with their dependencies.
 - ``sphinx`` 1.3 or later
 - ``python-docutils``
 - ``inkscape``
+- ``Open Sans`` font type
 
 You also need the "Open Source" font type.
 To check whether you have it, type ``fc-match "Open Sans"`` in the terminal.
 The command should output ``OpenSans-Regular.ttf: "Open Sans" "Regular"``.
-Otherwise, download it and install it.
+Otherwise, do the following::
+
+  $ wget http://www.fontsquirrel.com/fonts/download/open-sans
+  $ sudo unzip open-sans -d /usr/local/share/fonts/truetype/
+  $ rm open-sans
+  $ fc-cache
+  $ fc-match "Open Sans"
 
 Download the source code of this book::
 

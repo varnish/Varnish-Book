@@ -2,13 +2,16 @@
   "pageSetup" : {
     "firstTemplate": "coverPage"
   },
+   "fontsAlias" : {
+     "stdMono": "Courier"
+   },
   "pageTemplates" : {
     "coverPage": {
         "frames": [
             ["0cm", "0cm", "100%", "100%"]
           ],
         "background" : "ui/img/front_page_book.pdf",
-         "showHeader" : false,
+        "showHeader" : false,
         "showFooter" : false,
 	"fontSize": 0
     },
@@ -61,11 +64,10 @@
   },
   "styles" : [
     ["bodytext", {
-            "fontName": "Open Sans",
-	    "fontSize": 10,
-	    "borderPadding": 0
-	}
-	],
+        "fontName": "Open Sans",
+	"fontSize": 10,
+	"borderPadding": 0
+    }],
     ["title", {
         "fontName": "Open Sans",
         "fontSize": 48

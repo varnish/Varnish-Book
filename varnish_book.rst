@@ -4136,7 +4136,7 @@ Which one to use and when?
 
 .. table 18
 
-.. csv-table:: Table :counter:`table`: Bans vs. Purge vs. Hashtwo vs. Force Cache Misses
+.. csv-table:: Table :counter:`table`: Comparison Between: Purge, Softpurge, Bans, Force Cache Misses and Hashtwo
    :name: purge_ban_hash2_force
    :header-rows: 1
    :widths: 14,18,18,18,18,18
@@ -4290,8 +4290,8 @@ Exercise: ``PURGE`` an article from the backend
    Softpurge is cache invalidation mechanism that sets TTL to 0 but keeps the grace value of a cached object.
    This is useful if you want to build responses using the cached object while updating it.
    
-   Softpurge is a VMOD part of `varnish-modules <https://github.com/varnish/varnish-modules>`_.
-   For installation and usage details, please refer to `its own documentation <https://github.com/varnish/varnish-modules/blob/master/docs/softpurge.rst>`_.
+   Softpurge is a VMOD part of varnish-modules https://github.com/varnish/varnish-modules.
+   For installation and usage details, please refer to its own documentation https://github.com/varnish/varnish-modules/blob/master/docs/softpurge.rst.
 
 Banning
 -------
