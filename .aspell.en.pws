@@ -1,4 +1,4 @@
-personal_ws-1.1 en 459 
+personal_ws-1.1 en 460 
 ajax
 apache
 google
@@ -17,8 +17,8 @@ CET
 github
 delim
 arg
-https
 HTTP's
+https
 VMODs
 Naghibi
 nosni
@@ -53,8 +53,8 @@ RespProtocol
 CType
 SHared
 Henning
-CSS
 DNS
+CSS
 csv
 compressions
 gcc
@@ -94,13 +94,14 @@ memcached
 topbuild
 ico
 subrequests
-HMAC
 CDNs
+HMAC
 strcmp
 README
-httpie
 HTTPie
+httpie
 varnishtop
+Softpurge
 urlencoded
 regex
 VaRY
@@ -131,8 +132,8 @@ cliok
 sudo
 txreq
 RESTful
-IPv
 ipv
+IPv
 Argv
 uint
 Acceptor
@@ -148,8 +149,8 @@ clierr
 LFU
 metadata
 saintmode
-FreeBSD
 freebsd
+FreeBSD
 gunzip
 linux
 Economization
@@ -161,12 +162,12 @@ Aondio
 enmod
 mgt
 releasever
-respstatus
 RespStatus
+respstatus
 vmodtool
 getNonMasqueraded
-HashTwo
 hashtwo
+HashTwo
 tIncluded
 DDoS
 workspace
@@ -180,8 +181,8 @@ SimpleHTTPServer
 Kamp
 codename
 LRU
-ReqURL
 ReqUrl
+ReqURL
 asts
 SELinux
 LTS
@@ -267,20 +268,20 @@ helloworldtest
 varnishapi
 ubuntu
 Footbar
-rst
 VBE
+rst
 VCA
 ccgroup
-src
 vcc
+src
 recv
 subrequest
 util
 SQL
 VDD
 VBP
-vcl
 VAV
+vcl
 VXIDs
 TLS
 setsebool
@@ -318,8 +319,8 @@ url
 testbed
 hdrbytes
 Arianna
-VLU
 utf
+VLU
 BereqURL
 malloc
 dotMobi's
@@ -392,8 +393,8 @@ Xkey
 eq
 berespbytes
 signIn
-Hh
 hH
+Hh
 sema
 Finstad
 addr
@@ -445,8 +446,8 @@ localhost
 vstatdprobe
 Karstensen
 varnishlog
-ETag
 Etag
+ETag
 substring
 noverify
 AUTOEXTEND

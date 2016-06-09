@@ -4257,7 +4257,7 @@ Exercise: ``PURGE`` an article from the backend
       Remember to place your php files under ``/var/www/html/``.
 
 ``PURGE`` with ``restart`` return action
-----------------------------------------
+........................................
 
 - Start the VCL processing again from the top of ``vcl_recv``
 - Any changes made are kept
@@ -4277,6 +4277,21 @@ Exercise: ``PURGE`` an article from the backend
    .. warning::
 
       Restarts are likely to cause a hit against the backend, so do not increase ``max_restarts`` thoughtlessly.
+
+``Softpurge``
+-------------
+
+- Sets TTL to 0
+- Allows Varnish to serve stale content to users if the backend is unavailable
+- Asynchronous and automatic backend fetching to update object
+
+.. container:: handout
+
+   Softpurge is cache invalidation mechanism that sets TTL to 0 but keeps the grace value of a cached object.
+   This is useful if you want to build responses using the cached object while updating it.
+   
+   Softpurge is a VMOD part of `varnish-modules <https://github.com/varnish/varnish-modules>`_.
+   For installation and usage details, please refer to `its own documentation <https://github.com/varnish/varnish-modules/blob/master/docs/softpurge.rst>`_.
 
 Banning
 -------
