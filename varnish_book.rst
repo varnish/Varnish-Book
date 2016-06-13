@@ -865,6 +865,19 @@ Varnish ``DAEMON_OPTS``::
        .port = "8080";
      }
 
+   Varnish supports SSL/TLS encryption.
+   To encrypt connections between Varnish and the backend, you specify it as follows::
+
+      backend default {
+        .host = "host.name";
+	.port = "https";       # This defaults to https when SSL
+	.ssl = 1;              # Turns on SSL support
+	.ssl_nosni = 1;        # Disable SNI extension
+	.ssl_noverify = 1;     # Don't verify peer
+      }
+
+   For Varnish to accept incoming encrypted connections from clients, you need a terminator for encrypted connections such as hitch https://github.com/varnish/hitch.
+   Varnish Plus has integrated this functionality and you can easily configure it as detailed in `SSL/TLS frontend support with hitch`_.
 
 VCL Reload
 ..........
@@ -5507,7 +5520,7 @@ The Varnish Plus offer of software products includes:
    - `Varnish Administration Console (VAC)`_,
    - `Varnish Custom Statistics (VCS)`_,
    - `Varnish High Availability (VHA)`_,
-   - `SSL/TLS Support`_,
+   - `SSL/TLS frontend support with hitch`_,
    - and more.
 
 .. container:: handout
@@ -5936,28 +5949,85 @@ Varnish High Availability (VHA)
    For that purpose, you can use the `Varnish Administration Console (VAC)`_.
    Remember: you should define the rules on how to invalidate cached objects before caching them in production environments.
 
-SSL/TLS Support
----------------
+SSL/TLS frontend support with hitch
+-----------------------------------
 
-- SSL/TLS support on both the HTTP backend and client side.
-- Backend easy configuration::
+- Varnish supports SSL/TLS encryption
 
-    backend default {
-        .host = "host.name";
-        .port = "https";                # This defaults to https when SSL
-        .ssl = 1;                       # Turns on SSL support
-        .ssl_nosni = 1;                 # Disable SNI extension
-        .ssl_noverify = 1;              # Don't verify peer
-    }
+  - Backend encryption in Varnish Cache
+  - Client encryption in Varnish Plus with *hitch*
+
+- Hitch: network proxy that terminates SSL/TLS connections and forwards the unencrypted traffic
+- Configuration file: ``/etc/hitch/hitch.conf``
+- Configure Varnish to listen to ``PROXY`` requests in ``/etc/varnish/varnish.params``
 
 .. container:: handout
 
-   Varnish Plus allows you to improve your website security without third-party solutions.
-   SSL/TLS support allows you to encrypt and secure communication on both the frontend and backend side of Varnish.
-
-   The SSL/TLS support on the frontend (client) side enables traffic encryption between clients and Varnish.
-   On the backend (origin server and Varnish), SSL/TLS support encrypts all backend communication.
    Backend encryption is useful for deployments with geographically distributed origin servers such as CDNs.
+   Varnish supports SSL/TLS encryption to secure communication on both: backend and frontend.
+   SSL/TLS configuration for connections between Varnish and the backend is described in `Configure Varnish`_.
+
+   Varnish Plus allows you to encrypt and decrypt frontend connections without third-party solutions.
+   For this purpose, Varnish Plus uses hitch_.
+   Following are the steps to configure Varnish to accept SSL/TLS connections.
+
+   #. Install hitch::
+
+	$ yum install hitch
+
+   #. Create a key ``.pem`` file::
+
+	$ /etc/pki/tls/certs/make-dummy-cert your-cdn.pem
+
+      For the purposes of this book, we create a *dummy* key and certification file concatenated in the ``.pem`` file.  
+      See https://github.com/varnish/hitch/blob/master/docs/certificates.md for alternative methods.
+
+   #. Configure hitch in ``/etc/hitch/hitch.conf``::
+
+	frontend = "[*]:443"
+	backend = "[127.0.0.1]:6081"
+	pem-file = "/path/to/your-cdn.pem"
+	ciphers = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+	prefer-server-ciphers = off
+	ssl-engine = ""
+	workers = 1
+	backlog = 100
+	keepalive = 3600
+	chroot = ""
+	user = "hitch"
+	group = "hitch"
+	quiet = off
+	syslog = on
+	syslog-facility = "daemon"
+	daemon = on
+	write-ip = off
+	write-proxy-v1 = on
+	write-proxy-v2 = off
+	proxy-proxy = off
+	sni-nomatch-abort = off
+
+   #. If your server is behind a firewall, ensure it can accept HTTPS connections.
+
+   #. In ``/etc/varnish/varnish.params``, configure Varnish Plus to listen to
+      ``PROXY`` requests on port ``6081``::
+
+	DAEMON_OPTS="-a :6081,PROXY"
+
+   #. Start hitch::
+
+	$ service hitch start
+
+      At the moment of writing this text, ``service hitch start`` did not output starting errors.  
+      You should check whether hitch has started, if not, try the following command to debug::
+
+	$ /usr/sbin/hitch --pidfile=/run/hitch/hitch.pid \
+	--config=/etc/hitch/hitch.conf
+
+   .. note::
+
+      Hitch has its own documentation at https://github.com/varnish/hitch
+
+.. _hitch: https://github.com/varnish/hitch
 
 Appendix A: Resources
 =====================
