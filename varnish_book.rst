@@ -3149,7 +3149,7 @@ Varnish Finite State Machine
 
    .. State machine
 
-   VCL is also often described as a finite state machine.
+   VCL is often described as a finite state machine.
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
