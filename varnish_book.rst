@@ -4988,7 +4988,7 @@ Backend response HTTP Cache-Control header field::
 
 or set in VCL::
 
-   set req.ttl = 60s;
+   set beresp.ttl = 60s;
    set beresp.grace = 30s;
 
 - 50s: Normal delivery
