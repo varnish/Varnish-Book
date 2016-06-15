@@ -19,4 +19,4 @@ Massive Storage Engine (MSE),No,Yes
 `Varnish Custom Statistics (VCS)`_,No,Yes
 `Varnish High Availability (VHA)`_,No,Yes
 `SSL/TLS frontend support with hitch`_,Yes,Yes
-`SSL/TLS backend support`_,No,Yes
+SSL/TLS backend support,No,Yes
