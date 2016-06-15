@@ -2228,7 +2228,7 @@ Details of Threading Parameters
 ...............................
 
 - Default values have proved to be sufficient in most cases
-- ``thread_pool_min``, ``thread_pool_max`` and ``thread_pools`` are the most common threading parameters to tune.
+- ``thread_pool_min`` and ``thread_pool_max`` are the most common threading parameters to tune.
 - Run extra threads to avoid creating them on demand
 
 .. container:: handout
