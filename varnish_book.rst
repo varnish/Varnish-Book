@@ -3318,9 +3318,9 @@ VCL Built-in Functions and Keywords
 
 - ``call subroutine``
 - ``return(action)``
-- ``new()``
-- ``set()``
-- ``unset()``
+- ``new``
+- ``set``
+- ``unset``
 
 All functions are available in all subroutines, except the listed in the table below.
 
