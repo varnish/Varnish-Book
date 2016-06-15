@@ -2948,7 +2948,7 @@ Freshness
 .......
 
 - Response header field calculated at the cache server, i.e., Varnish
-- Varnish send an additional response header field, ``Age``, to indicate the age of the cache
+- Varnish sends an additional response header field, ``Age``, to indicate the age of the cache
 - Clients (and Varnish) will use the ``Age`` header field to determine the freshness of a cache
 - ``max-age``-based equation: ``cache duration = max-age - Age``
 - ``Age`` can be used to disallow caches at the client side
@@ -3447,7 +3447,7 @@ VCL – ``vcl_backend_response``
 
 - Override cache time for certain URLs
 - Strip ``Set-Cookie`` header fields that are not needed
-- Strip bugged ``Vary`` header fields
+- Strip buggy ``Vary`` header fields
 - Add helper-headers to the object for use in banning (more information in later sections)
 - Sanitize server response
 - Apply other caching policies
@@ -3962,7 +3962,7 @@ VCL – ``vcl_hit``
    The background fetch is an asynchronous call that inserts a *fresher* requested object in the cache.
    Grace time is explained in the `Grace Mode`_ section.
 
-   ``restart`` starts again the transaction, and increases the restart counter.
+   ``restart`` restarts the transaction, and increases the restart counter.
    If the number of restarts is higher than ``max_restarts`` counter, Varnish emits a *guru meditation* error.
 
    ``synth(status code, reason)`` returns the specified status code to the client and abandon the request.
@@ -4754,7 +4754,7 @@ Random Directors
 
    *Hash* directors typically use the requested URL or the client identity (e.g. session cookie) to compute the hash key.
    Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
-   Therefore, *hash* directors select always the same backend for a given input.
+   Therefore, *hash* directors always select the same backend for a given input.
    This is also known as *sticky* session load balancing.
    You can learn more about sticky sessions in https://www.varnish-software.com/blog/proper-sticky-session-load-balancing-varnish.
 
