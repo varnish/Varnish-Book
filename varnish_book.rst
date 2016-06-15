@@ -3450,7 +3450,6 @@ VCL – ``vcl_backend_response``
 - Strip bugged ``Vary`` header fields
 - Add helper-headers to the object for use in banning (more information in later sections)
 - Sanitize server response
-- Override cache duration
 - Apply other caching policies
 
 .. container:: handout
