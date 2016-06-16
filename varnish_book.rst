@@ -2056,7 +2056,6 @@ Tunable Parameters
 
    A few debug commands exist in the CLI, which can be revealed with ``help -d``. 
    These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
-   They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
 
    .. tip::
 
@@ -4834,7 +4833,7 @@ Analyzing health probes
       # varnishlog -g raw -i Backend_health
       0 Backend_health - default Still healthy 4--X-RH 5 3 5 0.012166 0.013693 HTTP/1.0 200 OK
 
-- ``varnishadm debug.health``::
+- ``varnishadm backend.list -p``::
 
       Backend default is Healthy
       Current states  good:  5 threshold:  3 window:  5
@@ -4899,9 +4898,9 @@ Analyzing health probes
    Note that `Still` indicates unchanged state, `Back` and `Went` indicate a change of state.
    The second word indicates the present state.
 
-   .. varnishadm debug.health
+   .. varnishadm backend.list -p
 
-   Another method to analyze health probes is by calling ``varnishadm debug.health``.
+   Another method to analyze health probes is by calling ``varnishadm backend.list -p``.
    This command presents first data from the last ``Backend_health`` log::
 
      Backend default is Healthy
@@ -4919,7 +4918,8 @@ Analyzing health probes
 
    .. varnishadm backend.list
 
-   Still another form to analyze your probes is by calling ``varnishadm backend.list``.
+   Still another form to analyze your probes is by calling ``varnishadm backend.list``
+   without the -p parameter.
    At this point, the output of this command should be clear for the careful reader.
 
 Demo: Health Probes
@@ -4932,7 +4932,7 @@ See the power of health probes!
    Suggested steps for the demo:
 
    #. Configure a probe like in `Health Checks`_.
-   #. Run ``watch -n.5 "varnishadm debug.health"`` in one terminal
+   #. Run ``watch -n.5 "varnishadm backend.list -p"`` in one terminal
    #. Run ``watch -n.5 "varnishadm backend.list"`` in another terminal
    #. Start and stop your backend
       For this, you might want to simulate very quickly a backend with the command ``python -m SimpleHTTPServer [port]``.
