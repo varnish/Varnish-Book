@@ -877,7 +877,7 @@ Varnish ``DAEMON_OPTS``::
       }
 
    For Varnish to accept incoming encrypted connections from clients, you need a terminator for encrypted connections such as hitch https://github.com/varnish/hitch.
-   Varnish Plus has integrated this functionality and you can easily configure it as detailed in `SSL/TLS frontend support with hitch`_.
+   Varnish Cache Plus 4.1 has integrated this functionality and you can easily configure it as detailed in `SSL/TLS frontend support with hitch`_.
 
 VCL Reload
 ..........
@@ -2056,7 +2056,6 @@ Tunable Parameters
 
    A few debug commands exist in the CLI, which can be revealed with ``help -d``. 
    These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
-   They are hidden for a reason, and the only exception is perhaps ``debug.health``, which is somewhat common to use.
 
    .. tip::
 
@@ -4834,7 +4833,7 @@ Analyzing health probes
       # varnishlog -g raw -i Backend_health
       0 Backend_health - default Still healthy 4--X-RH 5 3 5 0.012166 0.013693 HTTP/1.0 200 OK
 
-- ``varnishadm debug.health``::
+- ``varnishadm debug.healt`` in Varnish 4.0 or ``varnishadm backend.list -p`` in Varnish 4.1::
 
       Backend default is Healthy
       Current states  good:  5 threshold:  3 window:  5
@@ -4897,11 +4896,13 @@ Analyzing health probes
    - Went sick
 
    Note that `Still` indicates unchanged state, `Back` and `Went` indicate a change of state.
-   The second word indicates the present state.
+   The second word, `healthy` or `sick`, indicates the present state.
 
-   .. varnishadm debug.health
+   .. 
+     ``varnishadm debug.health`` in Varnish 4.0
+     ``varnishadm backend.list -p`` in Varnish 4.1
 
-   Another method to analyze health probes is by calling ``varnishadm debug.health``.
+   Another method to analyze health probes is by calling ``varnishadm debug.health`` in Varnish 4.0 or ``varnishadm backend.list -p`` in Varnish 4.1.
    This command presents first data from the last ``Backend_health`` log::
 
      Backend default is Healthy
@@ -4917,11 +4918,6 @@ Analyzing health probes
       RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR--RR----RRRRRRRRRRRR Good Recv
       HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH--HH----HHHHHHHHHHHH Happy     
 
-   .. varnishadm backend.list
-
-   Still another form to analyze your probes is by calling ``varnishadm backend.list``.
-   At this point, the output of this command should be clear for the careful reader.
-
 Demo: Health Probes
 ...................
 
@@ -4931,12 +4927,14 @@ See the power of health probes!
 
    Suggested steps for the demo:
 
-   #. Configure a probe like in `Health Checks`_.
-   #. Run ``watch -n.5 "varnishadm debug.health"`` in one terminal
-   #. Run ``watch -n.5 "varnishadm backend.list"`` in another terminal
+   #. Configure a probe as shown in `Health Checks`_.
+   #. For Varnish 4.0, run ``watch -n.5 "varnishadm debug.health"`` in one terminal
+   #. For Varnish 4.1, run ``watch -n.5 "varnishadm backend.list -p"`` in one terminal
    #. Start and stop your backend
       For this, you might want to simulate very quickly a backend with the command ``python -m SimpleHTTPServer [port]``.
    #. The watch command makes the effect of an animated health prober!
+
+   
 
 Grace Mode
 ----------
@@ -5959,7 +5957,7 @@ SSL/TLS frontend support with hitch
 - Varnish supports SSL/TLS encryption
 
   - Backend encryption in Varnish Cache
-  - Client encryption in Varnish Plus with *hitch*
+  - Client encryption in Varnish Cache Plus 4.1 with *hitch*
 
 - Hitch: network proxy that terminates SSL/TLS connections and forwards the unencrypted traffic
 - Configuration file: ``/etc/hitch/hitch.conf``
