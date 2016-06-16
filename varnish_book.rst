@@ -1336,8 +1336,8 @@ Transactions
 
 .. note::
 
-   The `-d` parameter to ``varnishlog`` makes it output all existing records in the
-   shared memory log (VSL) instead of showing live transactions. The same parameter
+   The ``-d`` option of ``varnishlog`` makes it output all existing records in the
+   shared memory log (VSL) instead of showing live transactions.  The same parameter
    is also available for ``varnishncsa``.
 
 .. figure 8
@@ -2368,16 +2368,17 @@ Timers
 Exercise: Tune ``first_byte_timeout``
 -------------------------------------
 
-- Set ``first_byte_timeout`` to 1 seconds.
+- Delay backend responses for over 1 second
+- Set ``first_byte_timeout`` to 1 second
 - Check how Varnish times out the request to the backend.
 
 .. container:: handout
 
-   To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze ``varnishlog`` and ``varnishstat``.
-   You can do that by executing them in shell.
-   If you need help, look at both solutions we suggest: `Solution: Tune first_byte_timeout and test it against your real backend`_.
+   For the purpose of this exercise, we suggest to create a simple CGI script to insert response delay in a real backend.
+   To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze the output of ``varnishlog`` and ``varnishstat``.
+   If you need help, look at `Solution: Tune first_byte_timeout and test it against your real backend`_.
 
-   Alternatively, you can read and assert VSL records and counters in ``varnishtest``.
+   Alternatively, you can use ``delay`` in a mockup backend in ``varnishtest`` and assert VSL records and counters to verify the effect of ``first_byte_timeout``.
    The subsection `Solution: Tune first_byte_timeout and test it against mock-up server`_ shows you how to do it.
 
 Exercise: Configure Threading
@@ -7828,7 +7829,7 @@ Solution: Tune ``first_byte_timeout`` and test it against your real backend
         echo "Content-type: text/plain"
         echo "Cache-control: max-age=0"
         echo
-        echo "Hello world"
+        echo "Delayed page"
 	date
 
 - Make it executable.
