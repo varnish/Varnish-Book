@@ -1532,16 +1532,20 @@ Exercise: Filter Varnish Log Records
 
 .. varnishlog -I ReqURL:favicon\.ico$ -d
 
-- Use ``varnishlog`` to print transactions for `Service Unavailable` (``RespStatus == 503``) responses
+- Provoke Varnish to get the `Service Unavailable` (``RespStatus == 503``) response from the backend
+- Use ``varnishlog`` to filter and print only this error
 
 .. container:: handout
 
-   There are multiple ways to filter log records.
-   The purpose of this exercise is that you try the query option ``-q``, but you might also want to use the include tags ``-i`` or ``-I`` option and ``grep``.
+   There are multiple ways to provoke your backend fail.
+   For example, misconfigure your backend in Varnish or stop your backend.
+
+   You can filter and print specific messages from the ``varnishlog`` in many ways.
+   The purpose of this exercise is to use the query option ``-q``, but you can also use the include tags option ``-i`` or ``-I`` and the ``grep`` command.
    
    .. note::
 
-      You can also use ``varnishtest`` to provoke a `Service Unavailable` response and assert it by reading VSL with ``logexpect``.
+      You can also use ``varnishtest`` to provoke a `Service Unavailable` response and assert it by reading VSL with `logexpect`_.
 
 .. TOFIX: Here there is an empty page in slides
 .. Look at util/strip-class.gawk
@@ -4973,9 +4977,8 @@ Grace Mode
    2) by setting the variable ``beresp.grace`` in VCL, or
    3) by changing the grace default value with ``varnishadm param.set default_grace <value>``.
 
-   In the first case, Varnish parses ``stale-while-revalidate`` automatically, as in: ``"Cache-control: max-age=5, stale-while-revalidate=30"``.
-   In this example, the result of the variables of the fetched objects are: ``obj.ttl=5`` and ``obj.grace=30``.
-   The second and third case are self descriptive.
+   Varnish 4.1 parses ``stale-while-revalidate`` automatically from the ``Cache-control`` header field.
+   For example, when receiving ``"Cache-control: max-age=5, stale-while-revalidate=30"``, Varnish 4.1 sets ``obj.ttl=5`` and ``obj.grace=30`` automatically.
 
    .. note::
 
