@@ -829,20 +829,22 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
         -T 127.0.0.1:6082 -t 120 -S /etc/varnish/secret \
         - s malloc,256MB -F
 
-Configure Varnish
------------------
+Exercise: Configure Varnish
+---------------------------
 
-- Configure Varnish to use real backends
+- Configure listening ports for client requests and Varnish administration
 
 Varnish ``DAEMON_OPTS``::
 
   -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
   -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
+- Configure one backend in VCL
+  
 .. container:: handout
 
    See `Table 3 <#table-3>`_ and locate the Varnish configuration file for your installation.
-   Open and edit that file to listen on port ``80`` and have a management interface on port `1234`.
+   Open and edit that file to listen to client requests on port ``80`` and have the management interface on port `1234`.
 
    In Ubuntu and Debian, this is configured with options ``-a`` and ``-T`` of variable  ``DAEMON_OPTS``.
    In CentOS, RHEL, and Fedora, use ``VARNISH_LISTEN_PORT`` and ``VARNISH_ADMIN_LISTEN_PORT`` respectively.
@@ -852,10 +854,10 @@ Varnish ``DAEMON_OPTS``::
 
    The default VCL file location is ``/etc/varnish/default.vcl``.
    You can change this location by editing the configuration file.
-   The VCL file contains your VCL and backend definitions.
+   The VCL file contains the backend definitions.
 
    In this book, we use Apache as backend.
-   Before continuing, make sure you have Apache installed and configured to listen in port ``8080``.
+   Before continuing, make sure you have Apache installed and configured to listen on port ``8080``.
    See `Appendix F: Apache as Backend`_ if you do not know how to do it.
 
    Edit ``/etc/varnish/default.vcl`` to use Apache as backend::
@@ -2370,7 +2372,7 @@ Exercise: Tune ``first_byte_timeout``
 
 - Delay backend responses for over 1 second
 - Set ``first_byte_timeout`` to 1 second
-- Check how Varnish times out the request to the backend.
+- Check how Varnish times out the request to the backend
 
 .. container:: handout
 
@@ -5971,7 +5973,7 @@ SSL/TLS frontend support with hitch
 
    Backend encryption is useful for deployments with geographically distributed origin servers such as CDNs.
    Varnish supports SSL/TLS encryption to secure communication on both: backend and frontend.
-   SSL/TLS configuration for connections between Varnish and the backend is described in `Configure Varnish`_.
+   SSL/TLS configuration for connections between Varnish and the backend is described in `Exercise: Configure Varnish`_.
 
    Varnish Plus allows you to encrypt and decrypt frontend connections without third-party solutions.
    For this purpose, Varnish Plus uses hitch_.
