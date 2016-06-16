@@ -1334,6 +1334,11 @@ Transactions
 
    $ varnishlog -d
 
+.. note::
+
+   The `-d` parameter to ``varnishlog`` makes it output all existing records in the
+   shared memory log (VSL) instead of showing live transactions. The same parameter
+   is also available for ``varnishncsa``.
 
 .. figure 8
 
