@@ -796,7 +796,10 @@ Exercise: Install Varnish
    :header-rows: 2
    :file: tables/varnish_configuration_files.csv
 
-[1] Create a *drop-in* systemd service file in ``/etc/systemd/system/varnish.service.d/customexec.conf``::
+[1] There is no configuration file.
+Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
+
+[2] Create a *drop-in* systemd service file in ``/etc/systemd/system/varnish.service.d/customexec.conf``::
 
    [Service]
    ExecStart=
@@ -806,10 +809,12 @@ Exercise: Install Varnish
 This file overrides the ``ExecStart`` option of the default configuration shipped with Varnish Cache.
 Run ``systemctl daemon-reload`` to make sure systemd picks up the new configuration before restarting Varnish.
 
-[2] There is no configuration file.
-Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
+[3] Create a *drop-in* systemd service file in ``/etc/systemd/system/varnishlog.service.d/customexec.conf`` to customize your ``varnishlog`` configuration.
 
-[3] There is no configuration file.
+[4] Create a *drop-in* systemd service file in ``/etc/systemd/system/varnishncsa.service.d/customexec.conf``.
+In this file you can for example set ``VARNISHNCSA_ENABLED=1``.
+
+[5] There is no configuration file.
 Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` instead.
 
 .. container:: handout
