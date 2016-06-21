@@ -796,8 +796,15 @@ Exercise: Install Varnish
    :header-rows: 2
    :file: tables/varnish_configuration_files.csv
 
-[1] The file does not exist by default.
-Copy it from ``/lib/systemd/system/`` and edit it.
+[1] Create a *drop-in* systemd service file in ``/etc/systemd/system/varnish.service.d/customexec.conf``::
+
+   [Service]
+   ExecStart=
+   ExecStart=/usr/sbin/varnishd -a :80 -T localhost:6082 -f \
+   /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,256m
+
+This file overrides the ``ExecStart`` option of the default configuration shipped with Varnish Cache.
+Run ``systemctl daemon-reload`` to make sure systemd picks up the new configuration before restarting Varnish.
 
 [2] There is no configuration file.
 Use the command ``chkconfig varnishlog/varnishncsa on/off`` instead.
