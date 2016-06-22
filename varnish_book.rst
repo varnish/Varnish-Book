@@ -2392,7 +2392,7 @@ Exercise: Tune ``first_byte_timeout``
    To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze the output of ``varnishlog`` and ``varnishstat``.
    If you need help, look at `Solution: Tune first_byte_timeout and test it against your real backend`_.
 
-   Alternatively, you can use ``delay`` in a mockup backend in ``varnishtest`` and assert VSL records and counters to verify the effect of ``first_byte_timeout``.
+   Alternatively, you can use ``delay`` in a mock-up backend in ``varnishtest`` and assert VSL records and counters to verify the effect of ``first_byte_timeout``.
    The subsection `Solution: Tune first_byte_timeout and test it against mock-up server`_ shows you how to do it.
 
 Exercise: Configure Threading
@@ -3246,11 +3246,11 @@ The VCL Finite State Machine
 
 .. container:: handout
 
-   Before we begin looking at VCL code, it's worth trying to understand the fundamental concepts behind VCL.
+   Before we begin looking at VCL code, we should learn the fundamental concepts behind VCL.
    When Varnish processes a request, it starts by parsing the request itself.
-   Next, Varnish separates the request method from headers, verifying that it's a valid HTTP request and so on.
-
+   Later, Varnish separates the request method from headers, verifying that it is a valid HTTP request and so on.
    When the basic parsing has completed, the very first policies are checked to make decisions.
+
    Policies are a set of rules that the VCL code uses to make a decision.
    Policies help to answer questions such as: should Varnish even attempt to find the requested resource in the cache?
    In this example, the policies are in the ``vcl_recv`` subroutine.
@@ -3415,34 +3415,25 @@ Variables in VCL subroutines
    :header-rows: 1
    :file: tables/variable_availability.csv
 
-The *State* column lists the different states in a request work-flow.
-States are handled by subroutines, which have a leading ``vcl_`` prefix name.
-
-The *Variables* columns list the prefix of the available variables.
-Most but not all of the prefixed variables are readable (R) or writable (W) at the given state.
-To have a detailed availability of each variable, refer to the VCL man page by typing: ``man vcl``.
-
 .. container:: handout
 
-   `Table 17 <#table-17>`_ shows the availability of variables in different states of the Varnish finite state machine.
-   In addition to the variable prefixes in `Table 17 <#table-17>`_, there are other three variables prefixes; ``client.*``, ``server.*``, and ``storage.*``, which are accessible from all subroutines at the frontend (client) side.
-   Another variable is ``now``, which is accessible from all subroutines.
- 
-   These additional prefixes and variables are practically accessible everywhere.
+   `Table 17 <#table-17>`_ shows the availability of variables in each VCL subroutine and whether the variables are readable (R) or writable (W).
+   The variables meant in this table are those which follow the prefix ``req.``, ``bereq.``, ``beresp.``, ``obj.``, or ``resp.``.
+   Recall that every transaction in Varnish is always in a state.
+   Each state is represented by its correspondent subroutine.
 
-   Remember that changes made to ``beresp.`` variables are stored in ``obj.``.
-   ``resp.`` variables are copies of what is about to be returned to the client.
-   The values of ``resp.`` variables come possibly from ``obj.``. 
-
-   A change to ``beresp.`` variables, in other words, affects ``obj.`` and ``resp.`` variables. 
-   Similar semantics apply to ``req.`` and  ``bereq.`` variables.
+   Most variables are self-explanatory but not how they influence each other, thus a brief explanation follows:
+   Values of request (``req.``) variables are assigned to backend request (``bereq.``) variables.
+   However, those values may slightly differ, because Varnish may modify client requests.
+   For example, ``HEAD`` requests coming from clients may be converted to ``GET`` requests towards the backend.
    
-   Variables belonging to the backend request (``bereq.``) are assigned with values from the original request (``req.``).
-   However, their values may slightly differ, because Varnish may modify HTTP requests methods.
-   For example, client requests with ``HEAD`` methods may be converted to backend requests with ``GET`` methods.
-
-   Many but not all of the variables are self-explanatory.
+   Changes in backend response (``beresp.``) variables affect response (``resp.``) and object (``obj.``) variables.
+   Many of the ``obj`` variables are set in ``resp.``, which are to be sent to the clients.
    To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
+
+   Additional variable prefixes from `Table 17 <#table-17>`_ are; ``client.*``, ``server.*``, and ``storage.*``.
+   These prefixes are accessible from the subroutines at the frontend (client) side.
+   Yet another variables is ``now``, which is accessible from all subroutines. 
 
 Detailed Varnish Request Flow for the Backend Worker Thread
 -----------------------------------------------------------
@@ -4852,7 +4843,7 @@ Analyzing health probes
       # varnishlog -g raw -i Backend_health
       0 Backend_health - default Still healthy 4--X-RH 5 3 5 0.012166 0.013693 HTTP/1.0 200 OK
 
-- ``varnishadm debug.healt`` in Varnish 4.0 or ``varnishadm backend.list -p`` in Varnish 4.1::
+- ``varnishadm debug.health`` in Varnish 4.0 or ``varnishadm backend.list -p`` in Varnish 4.1::
 
       Backend default is Healthy
       Current states  good:  5 threshold:  3 window:  5
