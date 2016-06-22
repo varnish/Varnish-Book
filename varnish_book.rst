@@ -2762,7 +2762,7 @@ Cache Matching
    .. good usage
 
    The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
-   For example, a web page can be delivered compressed or uncompressed depending on the client.
+   For example, a compressed or uncompressed web page can be delivered depending on the client.
    For more details on how to use ``Vary`` for compressions, refer to https://www.varnish-cache.org/docs/trunk/users-guide/compression.html.
 
    .. TODO for the author: Add compression to the Saving a Request chapter.
@@ -5151,14 +5151,25 @@ Access Control Lists (ACLs)
 Compression
 -----------
 
-- Make a decision on where to compress
+- Where to compress? backend or Varnish?
+- Parameter to toggle: ``http_gzip_support``
+- VCL variable ``beresp.do_gzip`` to zip and ``beresp.do_gunzip`` to unzip
+
+::
+
+   sub vcl_backend_response {
+       if (beresp.http.content-type ~ "text") {
+          set beresp.do_gzip = true;
+       }
+   }
+
 - Avoid compressing already compressed files
 - Works with ESI
 
 .. container:: handout
 
    It is sensible to compress objects before storing them in cache.
-   Objects can be compressed either at the backend or your Varnish server, so you have to make a decision on where to do it.
+   Objects can be compressed either at the backend or your Varnish server, so you have to make the decision on where to do it.
    Factors that you should take into consideration are:
 
    - where to store the logic of what should be compressed and what not
@@ -5167,17 +5178,18 @@ Compression
    Also, keep in mind that files such as JPEG, PNG, GIF or MP3 are already compressed.
    So you should avoid compressing them again in Varnish.
    
-   If you compose your content using Edge Side Includes (ESI), you should know that ESI and GZIP work together.
+   By default, ``http_gzip_support`` is on, which means that Varnish follows the behavior described in https://www.varnish-cache.org/docs/trunk/phk/gzip.html and https://www.varnish-cache.org/docs/trunk/users-guide/compression.html.
+   If you want to have full control on *what* is compressed and *when*, set the ``http_gzip_support`` parameter to off, and activate compression based on specific rules in your VCL code.
+   Implement these rules in ``vcl_backend_response`` and then set ``beresp.do_gzip`` or ``beresp.do_gunzip`` as the example above.
+
+   If you compose your content using Edge Side Includes (ESI), you should know that ESI and gzip work together.
    Next chapter explains how to compose your content using Varnish and Edge Side Includes (ESI).
-
-   Further details on compression mechanisms in Varnish can be found at:
-
-   - https://www.varnish-cache.org/docs/trunk/phk/gzip.html
-   - https://www.varnish-cache.org/docs/trunk/users-guide/compression.html
 
    .. note::
 
-      Compression is enabled by default in Varnish 4.0.
+      Compression in Varnish uses and manipulates the ``Accept-Encoding`` and ``Content-Encoding`` HTTP header fields.
+      ``Etag`` validation might also be weakened.
+      Refer to https://www.varnish-cache.org/docs/trunk/phk/gzip.html and https://www.varnish-cache.org/docs/trunk/users-guide/compression.html for all details about compression.
 
 Content Composition
 ===================
