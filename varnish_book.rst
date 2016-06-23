@@ -7736,30 +7736,33 @@ Solution: Install Varnish
 -------------------------
 
 All the following commands are for Ubuntu and must be executed with root permissions.
-First, make sure you have ``apt-transport-https`` and ``curl``::
+First, make sure you have ``apt-transport-https``::
 
   $ apt-get install apt-transport-https
-  $ apt-get install curl
 
-To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4 on Ubuntu 14.04 trusty::
+To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4.0 or 4.1 on Ubuntu 14.04 trusty::
 
   $ curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
     | apt-key add -
 
-To use the **varnish-cache.org** repository and install **Varnish Cache** 4 on Ubuntu 14.04 trusty::
+To use the **varnish-cache.org** repository and install **Varnish Cache** 4.0 or 4.1 on Ubuntu 14.04 trusty::
 
   $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
   $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
     /etc/apt/sources.list.d/varnish-cache.list
 
-If you are installing **Varnish Cache Plus**, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list``::
+If you are installing Varnish Cache 4.1, replace ``varnish-4.0`` for ``varnish-4.1`` in the command above.
 
-   # Remember to replace DISTRO and RELEASE with what applies to your system.
-   # distro=(debian|ubuntu), RELEASE=(precise|trusty|wheezy|jessie)
+If you are installing **Varnish Cache Plus** 4.0 or 4.1, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` or ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` respectively::
 
-   # Varnish Cache Plus 4.0 and VMODs
+   # Remember to replace 4.x, DISTRO and RELEASE with what applies to your system.
+   # 4.x=(4.0|4.1)
+   # distro=(debian|ubuntu),
+   # RELEASE=(precise|trusty|wheezy|jessie)
+
+   # Varnish Cache Plus 4.x and VMODs
    $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   $ varnish-4.0-plus
+   $ varnish-4.x-plus
 
    # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
    $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
@@ -7791,12 +7794,12 @@ Finally, verify the version you have installed::
    Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
    However, these packages might still work fine on newer releases.
 
-   To use Varnish Cache Plus repositories on RHEL 6, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo``::
+   To use Varnish Cache Plus 4.0 or 4.1 repositories on RHEL 6, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo`` or ``/etc/yum.repos.d/varnish-4.1-plus.repo``, and change ``4.x`` for the version you want to install::
 
-      [varnish-4.0-plus]
+      [varnish-4.x-plus]
       name=Varnish Cache Plus
       baseurl=https://<username>:<password>@repo.varnish-software.com/redhat
-      /varnish-4.0-plus/el$releasever
+      /varnish-4.x-plus/el$releasever
       enabled=1
       gpgcheck=0
 
