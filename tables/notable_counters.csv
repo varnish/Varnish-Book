@@ -1,4 +1,8 @@
 Counter;Description 
+``MAIN.cache_hit``;Indicates the number of objects delivered to clients without fetching them from the backend
+``MAIN.cache_hitpass``;Counts how many times the `hit-for-pass`_ object has been hit, i.e., Varnish passes the request to the backend.
+``MAIN.cache_miss``;Shows how many requested objects were fetched from the backend
+``MAIN.client_req``;Number of parseable client requests received
 ``MAIN.threads_limited``;Counts how many times ``varnishd`` hits the maximum allowed number of threads. The maximum number of Varnish threads is given by the parameter ``thread_pool_max``. Issue the command ``varnishadm param.show thread_pool_max`` to see this parameter. 
 ``MAIN.threads_failed``;Increases every time ``pthread_create()`` fails. You can avoid this situation by tuning the maximum number of processes available with the ``ulimit -u`` command. You may also look at the ``thread-max`` Linux parameter in ``/proc/sys/kernel/threads-max``. 
 ``MAIN.thread_queue_len`` ;Shows the current number of sessions waiting for a thread. This counter is first introduced in Varnish 4. 
@@ -6,5 +10,3 @@ Counter;Description
 ``MAIN.sess_dropped``;Counts how many times sessions are dropped because ``varnishd`` hits the maximum thread queue length. You may consider to increase the ``thread_queue_limit`` Varnish parameter as a solution to drop less sessions. 
 ``MAIN.n_lru_nuked``;Number of least recently used (LRU) objects thrown out to make room for new objects. If this is zero, there is no reason to enlarge your cache. Otherwise, your cache is evicting objects due to space constraints. In this case, consider increasing the size of your cache.
 ``MAIN.n_object``;Number of cached objects
-``MAIN.client_req``;Number of client requests
-``MAIN.losthdr``;Counts HTTP header overflows produced either by client or server

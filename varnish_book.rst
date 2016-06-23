@@ -1733,7 +1733,7 @@ Notable Counters
 
 .. container:: handout
 
-   Varnish provides a large number of counters for information, and debugging purposes.
+   Varnish provides a large number of counters for information and debugging purposes.
    `Table 8 <#table-8>`_ presents counters that are typically important.
    Other counters may be relevant only for Varnish developers when providing support.
 
