@@ -2762,7 +2762,7 @@ Cache Matching
    .. good usage
 
    The most common usage of ``Vary`` is ``Vary: Accept-Encoding``, which tells Varnish that the content might look different depending on the request ``Accept-Encoding`` header.
-   For example, a compressed or uncompressed web page can be delivered depending on the client.
+   For example, a web page can be delivered compressed or uncompressed depending on the client.
    For more details on how to use ``Vary`` for compressions, refer to https://www.varnish-cache.org/docs/trunk/users-guide/compression.html.
 
    .. TODO for the author: Add compression to the Saving a Request chapter.
