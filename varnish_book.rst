@@ -879,19 +879,19 @@ Varnish ``DAEMON_OPTS``::
        .port = "8080";
      }
 
-   Varnish supports SSL/TLS encryption.
+   Varnish Cache Plus supports SSL/TLS encryption.
    To encrypt connections between Varnish and the backend, you specify it as follows::
 
       backend default {
         .host = "host.name";
-	.port = "https";       # This defaults to https when SSL
-	.ssl = 1;              # Turns on SSL support
-	.ssl_nosni = 1;        # Disable SNI extension
-	.ssl_noverify = 1;     # Don't verify peer
+        .port = "https";       # This defaults to https when SSL
+        .ssl = 1;              # Turns on SSL support
+        .ssl_nosni = 1;        # Disable SNI extension
+        .ssl_noverify = 1;     # Don't verify peer
       }
 
    For Varnish to accept incoming encrypted connections from clients, you need a terminator for encrypted connections such as hitch https://github.com/varnish/hitch.
-   Varnish Cache Plus 4.1 has integrated this functionality and you can easily configure it as detailed in `SSL/TLS frontend support with hitch`_.
+   Varnish Plus 4.1 has integrated this functionality and you can easily configure it as detailed in `SSL/TLS frontend support with hitch`_.
 
 VCL Reload
 ..........
@@ -5977,7 +5977,7 @@ SSL/TLS frontend support with hitch
 
 - Varnish supports SSL/TLS encryption
 
-  - Backend encryption in Varnish Cache
+  - Backend encryption in Varnish Cache Plus
   - Client encryption in Varnish Cache Plus 4.1 with *hitch*
 
 - Hitch: network proxy that terminates SSL/TLS connections and forwards the unencrypted traffic
@@ -5991,7 +5991,7 @@ SSL/TLS frontend support with hitch
    SSL/TLS configuration for connections between Varnish and the backend is described in `Exercise: Configure Varnish`_.
 
    Varnish Plus allows you to encrypt and decrypt frontend connections without third-party solutions.
-   For this purpose, Varnish Plus uses hitch_.
+   For this purpose, Varnish Plus provides hitch_.
    Following are the steps to configure Varnish to accept SSL/TLS connections.
 
    #. Install hitch::
