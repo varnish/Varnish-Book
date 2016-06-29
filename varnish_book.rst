@@ -609,11 +609,10 @@ Varnish is designed to:
    .. VMODs
 
    VMODs are typically coded in VCL and C programming language.
-   A VMOD is a shared library, which can be called from VCL code.
+   In practice, a VMOD is a shared library with functions that can be called from VCL code.
 
-   The standard (``std``) VMOD, for instance, is a VMOD included in Varnish Cache.
-   These modules let you extend the functionality of VCL by pulling in custom-written features.
-   Some examples include non-standard header manipulation, access to *memcached* or complex normalization of headers.
+   The standard (``std``) VMOD, included in Varnish Cache, extends the functionality of VCL.
+   ``std`` VMOD includes non-standard header manipulation, complex header normalization and access to *memcached* among other functionalities.
    `Appendix D: VMOD Development`_ explains in more details how VMODs work and how to develop yours.
 
    .. shared memory
