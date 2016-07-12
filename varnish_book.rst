@@ -1943,30 +1943,29 @@ VCL Compilation
 Storage Backends
 ----------------
 
-Varnish supports different methods to allocate space for the cache.
-You can choose one method with the ``-s`` option of ``varnishd``.
+- The storage option ``-s`` defines the size of your cache and where it is stored
+- Use ``varnishd -s`` followed by one of the following methods to allocate space for the cache:
 
-- *malloc*
-- *file*
-- *persistent* (deprecated)
-- *Varnish Massive Storage Engine (MSE)* in **Varnish Plus** only
-
-.. note::
-
-   As a rule of thumb use: *malloc* if it fits in memory, or *file* otherwise.
-   Expect around 1kB of overhead per object cached.
+  - ``malloc``
+  - ``file``
+  - ``persistent`` (deprecated)
+  - ``mse`` *Varnish Massive Storage Engine (MSE)* in **Varnish Plus** only
 
 .. container:: handout
 
    .. malloc
 
-   They approach the same basic problem from different angles.
-   With the ``-s malloc`` method, Varnish will request the entire size of the cache with a malloc() (memory allocation) library call.
-   The operating system divides the cache between memory and disk by swapping out what it can't fit in memory.
+   The ``-s <malloc[,size]>`` option calls ``malloc()`` to allocate memory space for every object that goes into the cache.
+   If the allocated space cannot fit in memory, the operating system automatically swaps the needed space to disk.
+
+   Varnish uses the *jemalloc* implementation.
+   Although jemalloc emphasizes fragmentation avoidance, fragmentation still occurs.
+   Jemalloc worst case of memory fragmentation is 20%, therefore, expect up to this percentage of additional memory usage.
+   In addition to memory fragmentation you should consider an additional 5% overhead as described later in this section.
 
    .. file
 
-   Another possibility is to use the ``-s file`` storage backend.
+   Another option is ``-s <file,path[,size[,granularity]]>``.
    This option creates a file on a filesystem to contain the entire cache.
    Then, the operating system maps the entire file into memory if possible.
 
@@ -1974,40 +1973,49 @@ You can choose one method with the ``-s`` option of ``varnishd``.
    .. varnish-cache/docs/phinx/phk/persistent.rst
 
    The ``-s file`` storage method does not retain data when you stop or restart Varnish!
-   For this purpose, Varnish provides a persistence option ``-s persistent``.
-   The usage of this option, however, is strongly discouraged mainly because of the consistency issues that arise with it.
+   For persistence, use the option ``-s persistent``.
+   The usage of this option, however, is strongly discouraged mainly because of consistency issues that might arise with it.
 
    .. MSE
 
-   The Varnish `Massive Storage Engine` (MSE) is an improved storage method for Varnish Plus only.
+   The Varnish `Massive Storage Engine` (MSE) option ``-s <mse,path[,path...]]>`` is an improved storage method for Varnish Plus only.
    MSE main improvements are decreased disk I/O load and lower storage fragmentation.
-   MSE is designed to store and handle over 100 TB.
+   MSE is designed to store and handle over 100 TB with persistence, which makes it very useful for video on demand setups.
 
    MSE uses a hybrid of two cache algorithms, least recently used (LRU) and least frequently used (LFU), to manage memory.
-   Benchmarks show that this algorithm outperforms the ``malloc`` and ``file`` strategies.
+   Benchmarks show that this algorithm outperforms ``malloc`` and ``file``.
    MSE also implements a mechanism to eliminate internal fragmentation.
-   For more details about its design, implementation and benchmark results, please visit https://www.varnish-software.com/blog/introducing-varnish-massive-storage-engine.
+
+   The latest version of MSE requires a bookkeeping file.
+   Caches in the order of gigabytes require a bookkeeping file of around 1% of the storage size.
+   Caches in the order of terabytes should have a bookkeeping file size around 0.5% of storage size.
+
+   For detailed instructions on how to configure MSE, please refer to the Varnish Plus documentation.
+   For more details about its features and previous versions, please visit https://info.varnish-software.com/blog/varnish-mse-persistence.
 
    .. Choosing the storage backend
 
-   When choosing storage backend, use `malloc` if your cache will be contained entirely or mostly in memory.
-   If your cache will exceed the available physical memory, you have two options: `file` or MSE.
-   We recommend you to use MSE because it performs much better than `file` storage backend.
+   When choosing storage backend, use ``malloc`` if your cache will be contained entirely or mostly in memory.
+   If your cache will exceed the available physical memory, you have two options: ``file`` or ``mse``.
+   We recommend you to use MSE because it performs much better than ``file`` storage backend.
 
-   .. TODO for the author: update the overhead size
+   .. overhead
 
-   It is important to keep in mind that the size you specify with the
-   ``-s`` option is the size for the actual cache. Varnish has an
-   overhead on top of this for keeping track of the cache, so the
-   actual memory footprint of Varnish will exceed what the '-s'
-   argument specifies if the cache is full. The current estimate
-   (subject to change on individual Varnish-versions) is that about
-   1kB of overhead needed for each object. For 1 million objects, that
-   means 1GB extra memory usage.
+   There is a storage overhead in Varnish, so the actual memory footprint of Varnish exceeds what the ``-s`` argument specifies if the cache is full.
+   The current estimated overhead is 1kB per object.
+   For 1 million objects, that means 1GB extra memory usage.
+   This estimate might slightly vary between Varnish versions.
+   
+   In addition to the overhead per object, Varnish requires memory to manage the cache and handle its own operation.
+   Our tests show that an estimate of 5% of overhead is accurate enough.
+   This overhead applies equally to ``malloc``, ``file`` or ``mse`` options.
 
-   In addition to the per-object overhead, there is also a fairly
-   static overhead which you can calculate by starting Varnish without
-   any objects. Typically around 100MB.
+   For more details about memory usage in Varnish, please refer to https://info.varnish-software.com/blog/understanding-varnish-cache-memory-usage.
+   
+      .. note::
+
+      As a rule of thumb use: ``malloc`` if the space you want to allocate fits in memory, if not, use ``file`` or ``mse``.
+      Remember that there is about 5% memory overhead and do not forget to consider the memory needed for fragmentation in ``malloc`` or the disk space for the bookkeeping file in ``mse``.
 
 The Varnish Shared memory Log (VSL)
 -----------------------------------
