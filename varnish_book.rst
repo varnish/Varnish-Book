@@ -2012,7 +2012,7 @@ Storage Backends
 
    For more details about memory usage in Varnish, please refer to https://info.varnish-software.com/blog/understanding-varnish-cache-memory-usage.
    
-      .. note::
+   .. note::
 
       As a rule of thumb use: ``malloc`` if the space you want to allocate fits in memory, if not, use ``file`` or ``mse``.
       Remember that there is about 5% memory overhead and do not forget to consider the memory needed for fragmentation in ``malloc`` or the disk space for the bookkeeping file in ``mse``.
