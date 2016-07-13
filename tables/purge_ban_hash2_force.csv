@@ -1,7 +1,7 @@
-,Purge,Soft Purge,Bans,Force Cache Misses,Hashtwo – Surrogate keys
+,Purge,Soft Purge,Bans,Force Cache Misses,Surrogate keys
 Targets,Specific object (with all its variants),Specific object (with all its variants),Regex patterns,One specific object (with all its variants),All objects with a common hashtwo key
 Frees memory,Immediately,After grace time,After pattern is checked and matched,No,Immediately
 Scalability,High,High,High if used properly,Low; memory usage increases because old objects are not invalidated.,High
 CLI,No,No,Yes,No,No
 VCL,Yes,Yes,Yes,Yes,Yes
-Availability,Varnish Cache,Varnish Cache,Varnish Cache,Varnish Cache,Xkey VMOD with Varnish Cache 4.1 or later
+Availability,Varnish Cache,Varnish Cache,Varnish Cache,Varnish Cache,Hashtwo VMOD in Varnish Plus 4.0 or xkey VMOD in Varnish Cache 4.1

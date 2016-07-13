@@ -105,6 +105,7 @@ strcmp
 README
 HTTPie
 httpie
+softpurge
 Softpurge
 varnishtop
 urlencoded
@@ -195,7 +196,6 @@ EVent
 ttfb
 HHHHHHHHHHHH
 mse
-MSE
 cacher
 pdf
 uniq
@@ -402,7 +402,7 @@ Solaris
 el
 www
 VCLsourcecode
-Xkey
+xkey
 eq
 berespbytes
 signIn

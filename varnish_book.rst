@@ -2162,7 +2162,7 @@ You need to enable https support in the package manager and install our public k
   curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt | 
   apt-key add -
 
-You add the Varnish Plus repository to ``/etc/apt/sources.list.d/varnish-plus.list``::
+You add the Varnish Plus repository o ``/etc/apt/sources.list.d/varnish-plus.list``::
 
   # Varnish Tuner
   deb https://<username>:<password>@repo.varnish-software.com/ubuntu 
@@ -4124,8 +4124,8 @@ Cache Invalidation
 
 - Cache invalidation is an important part of your cache policy
 - Varnish automatically invalidates expired objects
-- You can however pro-actively invalidate objects with Varnish
-- You should define cache invalidation rules **before caching objects** specially in production environments
+- You can proactively invalidate objects with Varnish
+- You should define your cache invalidation rules **before caching objects** specially in production environments
 
 .. container:: handout
 
@@ -4153,23 +4153,22 @@ Cache Invalidation
      - May create multiple objects as side effect
      - Does not necessarily free up memory at once
 
-   4) Hashtwo / Xkey
+   4) Surrogate keys
 
      - For websites with the need for cache invalidation at a very large scale
      - Varnish Software's implementation of surrogate keys
      - Flexible cache invalidation based on cache tags
-     - Xkey VMOD open sourced as part of the Varnish Cache 4.1 release
+     - Available as hashtwo VMOD in Varnish Plus 4.0
+     - Available as xkey VMOD in Varnish Cache 4.1 and later
 
-Purge vs. Bans vs. Hashtwo vs. Cache Misses
--------------------------------------------
+Purge - Bans - Cache Misses - Surrogate Keys
+--------------------------------------------
 
-Which one to use and when?
-
-.. TODO for the editor: have PURGE in the first column of the table, because the next section is PURGE
+Which and when to use?
 
 .. table 18
 
-.. csv-table:: Table :counter:`table`: Comparison Between: Purge, Softpurge, Bans, Force Cache Misses and Hashtwo
+.. csv-table:: Table :counter:`table`: Comparison Between: Purge, Softpurge, Bans, Force Cache Misses and Surrogate keys (hashtwo/xkey)
    :name: purge_ban_hash2_force
    :header-rows: 1
    :widths: 14,18,18,18,18,18
@@ -4190,14 +4189,14 @@ Which one to use and when?
 
    or follow these guidelines:
 
-   - If you need to invalidate more than one item at a time, consider to use *bans* or *hashtwo*.
-   - If it takes a long time to pull content from the backend into Varnish, consider to force cache misses by using ``req.hash_always_miss``.
+   - If you need to invalidate more than one item at a time, consider using *bans* or *hashtwo/xkey*.
+   - If it takes a long time to pull content from the backend into Varnish, consider forcing cache misses by using ``req.hash_always_miss``.
 
-   The rest of the chapter teaches you more about each mechanism.
+   The rest of the chapter teaches you more about these cache invalidation mechanisms.
 
    .. note::
-      Purge and Hashtwo work very similar.
-      The main difference is that they have and act on different hash keys.
+      Purge and hashtwo/xkey work very similar.
+      The main difference is that they act on different hash keys.
 
 HTTP PURGE
 ----------
@@ -4324,7 +4323,11 @@ Exercise: ``PURGE`` an article from the backend
    This is useful if you want to build responses using the cached object while updating it.
    
    Softpurge is a VMOD part of varnish-modules https://github.com/varnish/varnish-modules.
-   For installation and usage details, please refer to its own documentation https://github.com/varnish/varnish-modules/blob/master/docs/softpurge.rst.
+   For installation and usage details, please refer to its own documentation https://github.com/varnish/varnish-modules/blob/master/docs/vmod_softpurge.rst.
+
+   .. tip::
+
+      The xkey VMOD has the softpurge functionality too.
 
 Banning
 -------
@@ -4550,15 +4553,15 @@ Force Cache Misses
       In such cases, the newest copy is always used.
       Keep in mind that duplicated objects will stay as long as their time-to-live is positive.
 
-Hashtwo (Varnish Software Implementation of Surrogate Keys)
------------------------------------------------------------
+Hashtwo/Xkey (Varnish Software Implementation of Surrogate Keys)
+----------------------------------------------------------------
 
-- Hashtwo is Varnish Software's implementation of surrogate keys
+- Hashtwo or xkey are the Varnish Software's implementation of surrogate keys
+- Hashtwo is available in Varnish Cache Plus 3.x and 4.0 only
+- Xkey is open source and is available in Varnish Cache 4.1 or later
 - Cache invalidation based on cache tags
 - Adds patterns easily to be matched against
 - Highly scalable
-- Hashtwo is distributed as a VMOD for Varnish Plus only!
-- Install the Varnish Plus VMODs
 
 .. container:: handout
 
@@ -4570,16 +4573,16 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
    Two important distinctions between them is that *purges* remove a single object (with its variants), whereas *bans* perform cache invalidation based on matching expressions.
    However, there are cases where none of these mechanisms are optimal.
 
-   *Hashtwo* creates a second hash key to link cached objects based on cache tags.
+   *Hashtwo/xkey* creates a second hash key to link cached objects based on cache tags.
    This hash keys provide the means to invalidate cached objects with common cache tags.
 
-   In practice, *Hashtwo* create cache invalidation patterns, which can be tested and invalidated immediately just as *purges* do.
-   In addition, *Hashtwo* is much more efficient than *bans* because of two reasons:
+   In practice, *hashtwo/xkey* create cache invalidation patterns, which can be tested and invalidated immediately just as *purges* do.
+   In addition, *hashtwo/xkey* is much more efficient than *bans* because of two reasons:
    1) looking up *hash keys* is much more efficient than traversing ban-lists, and
    2) every time you test a ban expression, it checks every object in the cache that is older than the ban itself.
 
-   The hashtwo VMOD is pre-built for supported versions and can be installed using regular package managers from the Varnish Software repositories.
-   Once the repository is in place you can issue the following commands to install the VMOD:
+   The hashtwo and xkey VMOD are pre-built for supported versions and can be installed using regular package managers from the Varnish Software repositories.
+   Once your repository is properly configured, as indicated in `Solution: Install Varnish`_, issue the following commands to install the hashtwo VMOD:
 
    On Debian or Ubuntu::
    
@@ -4593,14 +4596,19 @@ Hashtwo (Varnish Software Implementation of Surrogate Keys)
 
      import hashtwo;
 
-VCL Example Using Hashtwo
-.........................
+   Xkey is a part of varnish-modules https://github.com/varnish/varnish-modules.
+   For installation and usage details, please refer to its own documentation https://github.com/varnish/varnish-modules/blob/master/docs/vmod_xkey.rst.
 
-.. Most of the content in this subsection comes from ``man vmod_hashtwo``.
+   .. tip::
 
-On an e-commerce site the backend application issues a ``X-HashTwo`` HTTP header field for every product that is referenced on that
-page.
-The header for a certain page might look like this::
+      The xkey VMOD has a softpurge function as well.
+
+Example Using Hashtwo or Xkey
+.............................
+
+- Use case: E-commerce site
+- Same logic for hashtwo and xkey
+- HTTP response header from web page containing three products: ``8155054``, ``166412`` and ``234323``::
 
   HTTP/1.1 200 OK
   Server: Apache/2.2.15
@@ -4608,12 +4616,16 @@ The header for a certain page might look like this::
   X-HashTwo: 166412
   X-HashTwo: 234323
 
-The VCL example code::
+- HTTP request header to purge pages containing product ``166412``::
+
+  GET / HTTP/1.1
+  Host: www.example.com
+  X-HashTwo-Purge: 166412
+
+- VCL example code for hashtwo::
 
   import hashtwo;
 
-  # In this example the key to be purged is specified on the
-  # X-HashTwo-Purge header.
   sub vcl_recv {
     if (req.http.X-HashTwo-Purge) {
       if (hashtwo.purge(req.http.X-HashTwo-Purge) != 0) {
@@ -4624,35 +4636,38 @@ The VCL example code::
     }
   }
 
-  # Normally the backend is responsible for setting the header.
-  # If you were to do it in VCL it will look something like this:
-  sub vcl_backend_response {
-    set beresp.http.X-HashTwo = "secondary_hash_key";
-  }
+.. container:: handout
 
-In order to keep the web pages in sync with the database, a trigger is set up in the database.
-When a stock keeping unit (SKU) is updated, an HTTP request towards the Varnish server is triggered.
-This request invalidates every cached object with the matching ``X-HashTwo`` header::
+   .. Most of the content in this subsection comes from ``man vmod_hashtwo``.
 
-  GET / HTTP/1.1
-  Host: www.example.com
-  X-HashTwo-Purge: 166412
+   On an e-commerce site the backend application adds the ``X-HashTwo`` HTTP header field for every product that is included in a web page.
+   The header for a certain page might look like the one above.
+   If you use xkey instead of hashtwo, you should rename that header so you do not get confused.
 
-Note the ``X-HashTwo-Purge`` HTTP header field.
+   Normally the backend is responsible for setting these headers.
+   If you were to do it in VCL, it will look something like this::
 
-Based on the VCL code above, Varnish finds the objects and purge them.
-After that, Varnish responds with::
+     sub vcl_backend_response {
+       set beresp.http.X-HashTwo = "secondary_hash_key";
+     }
 
-  HTTP/1.1 200 Purged
-  Date: Thu, 24 Apr 2014 17:08:28 GMT
-  X-Varnish: 1990228115
-  Via: 1.1 Varnish
+   In the VCL code above, the hashtwo key to be purged is the value in the ``X-HashTwo-Purge`` HTTP header.
+   In order to keep the web pages in sync with the database, you can set up a trigger in your database.
+   In that way, when a product is updated, an HTTP request towards Varnish is triggered.
+   For example, the request above invalidates every cached object with the matching hashtwo header in ``hashtwo.purge(req.http.X-HashTwo-Purge)`` or ``xkey.purge(req.http.X-Key-Purge)`` for the xkey VMOD.
 
-The objects are now cleared.
+   After purging, Varnish should respond something like::
 
-.. warning::
+     HTTP/1.1 200 Purged
+     Date: Thu, 24 Apr 2014 17:08:28 GMT
+     X-Varnish: 1990228115
+     Via: 1.1 Varnish
 
-   You should protect purges with ACLs from unauthorized hosts.
+   The objects are now cleared.
+
+   .. warning::
+
+      You should protect purges with ACLs from unauthorized hosts.
 
 Saving a Request
 ================
@@ -5544,8 +5559,8 @@ Varnish Plus Software Components
 
 The Varnish Plus offer of software products includes:
 
-   - Varnish Massive Storage Engine (MSE), described in the `Storage Backends`_ section.
-   - `Hashtwo (Varnish Software Implementation of Surrogate Keys)`_
+   - Varnish Massive Storage Engine (MSE) described in `Storage Backends`_,
+   - Hashtwo (Varnish Software Implementation of Surrogate Keys) described in `Hashtwo/Xkey (Varnish Software Implementation of Surrogate Keys)`_,
    - `Varnish Tuner`_
    - `Varnish Administration Console (VAC)`_,
    - `Varnish Custom Statistics (VCS)`_,
