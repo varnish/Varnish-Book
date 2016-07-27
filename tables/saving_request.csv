@@ -3,6 +3,7 @@
 **Health Checks**,x,,
 **Grace Mode**,x,x,
 **Retry a Request**,x,,
+**Saint Mode**,x,,
 **Tune Backend Properties**,,,x
 **Access Control Lists (ACL)**,,,x
 **Compression**,,X,

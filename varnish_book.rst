@@ -4610,31 +4610,31 @@ Example Using Hashtwo or Xkey
 - Same logic for hashtwo and xkey
 - HTTP response header from web page containing three products: ``8155054``, ``166412`` and ``234323``::
 
-  HTTP/1.1 200 OK
-  Server: Apache/2.2.15
-  X-HashTwo: 8155054
-  X-HashTwo: 166412
-  X-HashTwo: 234323
+     HTTP/1.1 200 OK
+     Server: Apache/2.2.15
+     X-HashTwo: 8155054
+     X-HashTwo: 166412
+     X-HashTwo: 234323
 
 - HTTP request header to purge pages containing product ``166412``::
 
-  GET / HTTP/1.1
-  Host: www.example.com
-  X-HashTwo-Purge: 166412
+     GET / HTTP/1.1
+     Host: www.example.com
+     X-HashTwo-Purge: 166412
 
 - VCL example code for hashtwo::
 
-  import hashtwo;
+     import hashtwo;
 
-  sub vcl_recv {
-    if (req.http.X-HashTwo-Purge) {
-      if (hashtwo.purge(req.http.X-HashTwo-Purge) != 0) {
-         return (purge);
-      } else {
-        return (synth(404, "Key not found"));
-      }
-    }
-  }
+     sub vcl_recv {
+       if (req.http.X-HashTwo-Purge) {
+	 if (hashtwo.purge(req.http.X-HashTwo-Purge) != 0) {
+	    return (purge);
+	 } else {
+	   return (synth(404, "Key not found"));
+	 }
+       }
+     }
 
 .. container:: handout
 
@@ -5114,6 +5114,54 @@ Exercise: Grace
       This is now called ``return (retry)``, and jumps back up to ``vcl_backend_fetch``.
 
    .. TODO for the author: Think or ask around for meaningful examples of ``restart`` as a mechanism for backends in problematic situations.
+
+Saint Mode
+----------
+
+- Saint mode is implemented as a backend director with the following capabilities:
+
+  - Fine-grained health checks; maintains a blacklist of relations between objects and backends
+  - Objects have a blacklist TTL
+  - Backends in the blacklist have a threshold of related objects
+
+    - Backends with objects below the threshold can be selected to serve other objects
+    - Backends with objects above the threshold are marked as sick for all objects
+
+- Available in Varnish Cache 4.1 or later
+
+.. container:: handout
+
+   Saint mode complements regular `Health Checks`_ by marking backend sicks for specific object.
+   Saint mode is a VMOD that maintains a blacklist of objects and related backends.
+   Each blacklisted object has a TTL, which denotes the time it stays in the blacklist.
+
+   .. partially and fully sick backend
+
+   If the number of blacklisted objects for a backend are below a threshold, the backend is considered partially sick.
+   Requests for blacklisted objects might be sent to another backend.
+   When the number of blacklisted objects for a backend exceeds a threshold, the backend is marked as sick for all requests.
+
+   .. example
+
+   **vcl/saintmode.vcl** below is typical usage of saint mode.
+   In this example, a request with a ``500`` response status would be retried to another backend.
+
+   .. include:: vcl/saintmode.vcl
+      :literal:   
+
+   An alternative is to build the response with a stale object.
+   For that, you would ``return(abandon)``, ``restart`` the request in ``vcl_synth``, check for ``req.restarts`` in ``vcl_recv``.
+   To get a better idea on how to do it, please take a look the ``stale-if-error`` snippet in https://github.com/fgsch/vcl-snippets/blob/master/v4/stale-if-error.vcl.
+
+   .. fine-grained debugging?
+
+   The fine-grained checks of saint mode help to spot problems in malfunctioning backends.
+   For example, if the request for the object *foo* returns ``200 OK`` HTTP response without content (``Content-Length = 0``), you can blacklist that specific object for that specific backend.
+   You can also print the object with ``std.log`` and filter it in ``varnishlog``.
+
+   .. note::
+
+      For more information, please refer to its own documentation in https://github.com/varnish/varnish-modules/blob/master/docs/vmod_saintmode.rst.
 
 Tune Backend Properties
 -----------------------
