@@ -4971,28 +4971,28 @@ See the power of health probes!
 Grace Mode
 ----------
 
-- A `graced` object is an object that has expired, but is still kept in cache.
-- `Grace mode` is when Varnish uses a `graced` object.
-- `Grace mode` is a feature to mitigate thread pile-ups, that allows Varnish to continue serving requests when the backend cannot do it.
-- Varnish can use a graced objects in many different ways.
-- ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed.
+- A `graced` object is an object that has expired, but is kept in cache for a given `grace` time
+- `Grace mode` is when Varnish uses a `graced` object
+- Grace mode is a feature to mitigate the accumulation of requests for expired objects
+- Grace mode allows Varnish to build responses from expired objects
+- ``beresp.grace`` defines the time that Varnish keeps an object after ``beresp.ttl`` has elapsed
 
 .. container:: handout
 
-   .. what is grace mode
+   .. motivation and definition
 
-   To understand best *grace mode*, recall `Figure 2 <#figure-2>`_, which shows the lifetime of cached objects.
-   When Varnish is in *grace mode*, Varnish is capable of delivering a stale object and issues an asynchronous refresh request.
-   When possible, Varnish delivers a fresh object, otherwise Varnish builds a response from a stale object.
+   The main goal of `grace mode` is to avoid requests to pile up whenever a popular object has expired in cache.
+   To understand better grace mode, recall `Figure 2 <#figure-2>`_ which shows the lifetime of cached objects.
+   When possible, Varnish delivers a fresh object, otherwise Varnish builds a response from a stale object and triggers an asynchronous refresh request.
    This procedure is also known as ``stale-while-revalidate``.
 
    .. use cases
 
    The typical way to use grace is to store an object for several hours after its ``TTL`` has elapsed.
    In this way, Varnish has always a copy to be delivered immediately, while fetching a new object asynchronously.
-   If the backend is healthy, a graced object does not get older than a few seconds (after its TTL has elapsed).
-   If the backend is sick, Varnish may be delivering a graced object up to its maximum grace time.
-   The following VCL code illustrates a normal usage of grace.
+   This asynchronous fetch ensures that graced objects do not get older than a few seconds, unless there are no available backends.
+
+   The following VCL code illustrates a typical use of grace:
 
    .. include:: vcl/grace.vcl
       :literal:
@@ -5005,8 +5005,9 @@ Grace Mode
    2) by setting the variable ``beresp.grace`` in VCL, or
    3) by changing the grace default value with ``varnishadm param.set default_grace <value>``.
 
-   Varnish 4.1 parses ``stale-while-revalidate`` automatically from the ``Cache-control`` header field.
-   For example, when receiving ``"Cache-control: max-age=5, stale-while-revalidate=30"``, Varnish 4.1 sets ``obj.ttl=5`` and ``obj.grace=30`` automatically.
+   Varnish 4.1 parses ``stale-while-revalidate`` automatically from the ``Cache-Control`` header field.
+   For example, when receiving ``"Cache-Control: max-age=5, stale-while-revalidate=30"``, Varnish 4.1 sets ``obj.ttl=5`` and ``obj.grace=30`` automatically.
+   To see a working example on how Varnish works with ``Cache-Control``, see the VTC in `Understanding Grace using varnishtest`_.
 
    .. note::
 
@@ -5035,21 +5036,6 @@ or set in VCL::
    In this timeline example, it is assumed that the object is never refreshed.
    If you do not want that objects with a negative ``TTL`` are delivered, set ``beresp.grace = 0``.
    The downside of this is that all grace functionality is disabled, regardless any reason.
-
-Understanding Grace
-...................
-
-- A request is already pending for some specific content
-- No healthy backend is available
-
-.. container:: handout
-
-   The main goal of `grace mode` is to avoid requests to pile up whenever a popular object has expired in cache. 
-   As long as a request is waiting for new content, Varnish delivers graced objects instead of queuing incoming requests.
-   These requests may come from different clients, thus, large number of clients benefit from `grace mode` setups.
-
-   Grace can also be explained when comparing the caching behavior with ``TTL``.
-   Such comparison is explained in a VTC in the subsection `Understanding Grace using varnishtest`_.
 
 Exercise: Grace
 ...............
