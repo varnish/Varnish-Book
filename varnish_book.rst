@@ -3688,20 +3688,18 @@ Summary of VCL Basics
    **If your own VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.**
    If you just need a little modification of a subroutine, you can use the code from  ``{varnish-source-code}/bin/varnishd/builtin.vcl`` as a template.
 
-VCL Built-in Subroutines
-========================
+VCL Subroutines
+===============
 
-- Cover the VCL built-in subroutines: ``vcl_recv``, ``vcl_pass``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_hash``, ``vcl_hit``, ``vcl_miss``, ``vcl_deliver``, and ``vcl_synth``
-- If your VCL code does not reach a return statement, the built-in VCL subroutine is executed after yours.
+- Typical subroutines to customize: ``vcl_recv``, ``vcl_pass``, ``vcl_backend_fetch``, ``vcl_backend_response``, ``vcl_hash``, ``vcl_hit``, ``vcl_miss``, ``vcl_deliver``, and ``vcl_synth``
+- If your VCL subroutine does return, you skip the built-in VCL subroutine
+- The built-in VCL subroutines **are always** appended to yours
 
 .. container:: handout
 
    This chapter covers the VCL subroutines where you customize the behavior of Varnish.
-   However, this chapter does not define caching policies.
    VCL subroutines can be used to: add custom headers, change the appearance of the Varnish error message, add HTTP redirect features in Varnish, purge content, and define what parts of a cached object is unique.
-
-   After this chapter, you should know what all the VCL subroutines can be used for.
-   You should also be ready to dive into more advanced features of Varnish and VCL.
+   After this chapter, you should know where to add your custom policies and you will be ready to dive into more advanced features of Varnish and VCL.
 
    .. Note::
 
@@ -7013,7 +7011,7 @@ Appendix D: VMOD Development
    The appendix takes you through the simplest possible VMOD: the `Hello, World` VMOD.
 
    To learn most out of this appendix, you should have understood at least the following chapters of this book:
-   `Design Principles`_, `Getting Started`_, `VCL Basics`_, `VCL Built-in Subroutines`_.
+   `Design Principles`_, `Getting Started`_, `VCL Basics`_, `VCL Subroutines`_.
 
 VMOD Basics
 -----------
