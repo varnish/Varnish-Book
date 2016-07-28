@@ -21,7 +21,7 @@ cat <<__EOF__
           Tollef Fog Heen,
 	  Jérôme Renard
 :Copyright: Varnish Software AS 2010-2015, Redpill Linpro AS 2008-2009
-:Versions: Documentation ${v} / ${varnishtested}
+:Versions: Documentation version ${v} / ${varnishtested}
 :Date: $(date +%Y-%m-%d)
 :License: The material is available under a CC-BY-NC-SA license. See
 	  http://creativecommons.org/licenses/by-nc-sa/3.0/ for the full

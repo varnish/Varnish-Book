@@ -2,6 +2,9 @@ RST2PDF=/usr/bin/rst2pdf
 BDIR=build
 PICK = "./util/pickchapter2.igawk"
 
+version = $(subst version-,,$(shell git describe --always --dirty))
+versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
+
 pdf_slide_style = ui/pdf_slide.style
 pdf_style = ui/pdf.style
 
@@ -29,9 +32,6 @@ common = ${mergedrst} \
 
 bookutil =  util/frontpage.rst \
 	    util/printheaders.rst
-
-version = $(subst version-,,$(shell git describe --always --dirty))
-versionshort = $(subst version-,,$(shell git describe --always --abbrev=0))
 
 targets = book slides sphinx
 
