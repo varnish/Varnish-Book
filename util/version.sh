@@ -13,7 +13,7 @@ else
 fi
 which git &> /dev/null || exit 1
 
-v="$(git describe --always --dirty)"
+v="$(git describe --always)"
 
 cat <<__EOF__
 :Authors: Francisco Velázquez (\`Varnish Software\`_),
