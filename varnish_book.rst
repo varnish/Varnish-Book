@@ -3425,22 +3425,26 @@ Variables in VCL subroutines
 .. container:: handout
 
    `Table 17 <#table-17>`_ shows the availability of variables in each VCL subroutine and whether the variables are readable (R) or writable (W).
-   The variables meant in this table are those which follow the prefix ``req.``, ``bereq.``, ``beresp.``, ``obj.``, or ``resp.``.
-   Recall that every transaction in Varnish is always in a state.
-   Each state is represented by its correspondent subroutine.
+   The variables in this table are listed per subroutine and follow the prefix ``req.``, ``bereq.``, ``beresp.``, ``obj.``, or ``resp.``.
+   Recall that every transaction in Varnish is always in a state, and each state is represented by its correspondent subroutine.
 
    Most variables are self-explanatory but not how they influence each other, thus a brief explanation follows:
-   Values of request (``req.``) variables are assigned to backend request (``bereq.``) variables.
+   Values of request (``req.``) variables are automatically assigned to backend request (``bereq.``) variables.
    However, those values may slightly differ, because Varnish may modify client requests.
    For example, ``HEAD`` requests coming from clients may be converted to ``GET`` requests towards the backend.
    
    Changes in backend response (``beresp.``) variables affect response (``resp.``) and object (``obj.``) variables.
-   Many of the ``obj`` variables are set in ``resp.``, which are to be sent to the clients.
-   To get more information about a particular variable, consult the VCL man page or ask the instructor at the course.
+   Many of the ``obj.`` variables are set in ``resp.``, which are to be sent to the clients.
+   To get more information about a particular variable, consult the VCL man page or ask your instructor.
 
    Additional variable prefixes from `Table 17 <#table-17>`_ are; ``client.*``, ``server.*``, and ``storage.*``.
    These prefixes are accessible from the subroutines at the frontend (client) side.
-   Yet another variables is ``now``, which is accessible from all subroutines. 
+   Yet another variable is ``now``, which is accessible from all subroutines. 
+
+   Support for global variables with a lifespan across transactions and VCLs is achieved with the variable VMOD.
+   This VMOD keeps the variables and its values as long as the VMOD is loaded.
+   Supported data types are strings, integers and real numbers.
+   For more information about the variable VMOD, please visit https://github.com/varnish/varnish-modules/blob/master/docs/vmod_var.rst.
 
 Detailed Varnish Request Flow for the Backend Worker Thread
 -----------------------------------------------------------
