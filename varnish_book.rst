@@ -889,7 +889,7 @@ Varnish ``DAEMON_OPTS``::
         .ssl_noverify = 1;     # Don't verify peer
       }
 
-   For Varnish to accept incoming encrypted connections from clients, you need a terminator for encrypted connections such as hitch https://github.com/varnish/hitch.
+   For Varnish to accept incoming encrypted connections, you need a terminator for encrypted connections such as `hitch` https://github.com/varnish/hitch.
    Varnish Plus 4.1 has integrated this functionality and you can easily configure it as detailed in `SSL/TLS frontend support with hitch`_.
 
 VCL Reload
@@ -1241,7 +1241,7 @@ Exercise: Fetch Data Through Varnish
 .. container:: handout
 
    ``-p hH`` specifies HTTPie to print only request and response headers, but not the content.
-   The typical HTTP response is "200 OK" or "404 File not found".
+   The typical HTTP response is ``200 OK`` or ``404 File not found``.
    Feel free to try removing some of the options and observe the effect.
    For more information about the HTTPie command, type ``man http``.
 
@@ -6045,12 +6045,11 @@ SSL/TLS frontend support with hitch
 .. container:: handout
 
    Backend encryption is useful for deployments with geographically distributed origin servers such as CDNs.
-   Varnish supports SSL/TLS encryption to secure communication on both: backend and frontend.
+   Varnish supports SSL/TLS encryption to secure communication on both: backend and frontend without third-party solutions.
    SSL/TLS configuration for connections between Varnish and the backend is described in `Exercise: Configure Varnish`_.
 
-   Varnish Plus allows you to encrypt and decrypt frontend connections without third-party solutions.
-   For this purpose, Varnish Plus provides hitch_.
-   Following are the steps to configure Varnish to accept SSL/TLS connections.
+   Varnish Plus integrates hitch_, which can have tens of thousands of listening sockets and hundreds of thousands of certificates.
+   Following are the steps to configure Varnish to accept SSL/TLS connections with hitch.
 
    #. Install hitch::
 
@@ -6060,7 +6059,7 @@ SSL/TLS frontend support with hitch
 
 	$ /etc/pki/tls/certs/make-dummy-cert your-cdn.pem
 
-      For the purposes of this book, we create a *dummy* key and certification file concatenated in the ``.pem`` file.  
+      For the purposes of this book, we create a *dummy* key and certification file concatenated in the ``.pem`` file.
       See https://github.com/varnish/hitch/blob/master/docs/certificates.md for alternative methods.
 
    #. Configure hitch in ``/etc/hitch/hitch.conf``::
@@ -7774,16 +7773,18 @@ Appendix F: Apache as Backend
    #. Verify that Apache works by typing ``http -h localhost``.
       You should see a ``200 OK`` response from Apache.
    #. Change Apache's port from 80 to 8080.
-      In Ubuntu or Debian, you do this in `/etc/apache2/ports.conf` and `/etc/apache2/sites-enabled/000-default.conf`.
+      In Ubuntu or Debian, you do this in ``/etc/apache2/ports.conf`` and ``/etc/apache2/sites-enabled/000-default.conf``.
       In CentOS, RHEL or Fedora, edit ``/etc/httpd/conf/httpd.conf``.
    #. Restart Apache.
       In Ubuntu or Debian type ``service apache2 restart``.
       In CentOS, RHEL or Fedora::
 
-	$ systemctl enable httpd.service
-	$ apachectl start
+    	$ systemctl enable httpd.service
+	    $ apachectl start
 
-   #. Verify that Apache still works by typing ``http -h localhost:8080``.
+   #. Verify that Apache listens on port ``8080``::
+
+        http -h localhost:8080
 
 Appendix G: Solutions
 =====================
@@ -7811,30 +7812,30 @@ To use the **varnish-cache.org** repository and install **Varnish Cache** 4.0 or
 
 If you are installing Varnish Cache 4.1, replace ``varnish-4.0`` for ``varnish-4.1`` in the command above.
 
-If you are installing **Varnish Cache Plus** 4.0 or 4.1, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` or ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` respectively::
+If you are installing **Varnish Cache Plus** 4.0 or 4.1, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` or ``/etc/apt/sources.list.d/varnish-4.1-plus.list`` respectively::
 
    # Remember to replace 4.x, DISTRO and RELEASE with what applies to your system.
    # 4.x=(4.0|4.1)
-   # distro=(debian|ubuntu),
+   # DISTRO=(debian|ubuntu),
    # RELEASE=(precise|trusty|wheezy|jessie)
 
    # Varnish Cache Plus 4.x and VMODs
-   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   $ varnish-4.x-plus
+   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   varnish-4.x-plus
 
    # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
-   $ deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   $ non-free
+   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+   non-free
 
 Re-synchronize the package index files of your repository::
 
    $ apt-get update
 
-Install **Varnish Cache Plus**::
+To install **Varnish Cache Plus**::
 
    $ apt-get install varnish-plus
 
-Install **Varnish-Cache**::
+To install **Varnish-Cache**::
 
    $ apt-get install varnish
 
