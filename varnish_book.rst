@@ -3067,8 +3067,6 @@ Exercise: Use `article.php` to test ``Age``
        - ``Cache-Control`` is both a **request** and a **response** header field.
        - ``Expires`` always returns an absolute time
        - ``Expires`` is a **response** header field only
-
-   ``Expires`` works best for files that are part of a website design like JavaScripts stylesheets or images.
    
    .. tip::
 
