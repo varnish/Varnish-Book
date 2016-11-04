@@ -846,14 +846,16 @@ Exercise: Configure Varnish
 ---------------------------
 
 - Configure listening ports for client requests and Varnish administration
+- In CentOS 7:
 
-Varnish ``DAEMON_OPTS``::
+  - ``/etc/varnish/varnish.params``
+  - Variable substitution in ``/usr/lib/systemd/system/varnish.service``::
 
-  -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
-  -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
+      -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT}
+      -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT}
 
-- Configure one backend in VCL
-  
+- Configure one backend in VCL file ``/etc/varnish/default.vcl``
+
 .. container:: handout
 
    See `Table 3 <#table-3>`_ and locate the Varnish configuration file for your installation.
@@ -1350,7 +1352,7 @@ Transactions
 - The sooner a transaction ends, the sooner you see it
 - ``-d`` reads all existing records in the shared memory log (VSL) instead of showing only last transactions
 - See `Figure 8 <#figure-8>`_ and
-  `Figure 9 <#figure-9>`_
+  `Figure 9 <#figure-9>`_ in the book
 
 .. figure 8
 
