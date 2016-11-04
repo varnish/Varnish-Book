@@ -3690,9 +3690,9 @@ Summary of VCL Basics
 ---------------------
 
 - VCL is all about policies
-- VCL provides a state machine for controlling Varnish
+- Built-in VCL subroutines map the Varnish finite state machine
 - Each request is handled independently
-- Building a VCL file is done one line at a time
+- Recommendation: Building a VCL file is done one line at a time
 
 .. container:: handout
 
@@ -4122,7 +4122,7 @@ Example: Redirecting requests with ``vcl_synth``
 Exercise: Modify the HTTP response header fields
 ------------------------------------------------
 
-- Add a header field holding the string ``HIT`` if the requested resourced was found in cache, or ``MISS`` otherwise
+- Add a header field holding the string ``HIT`` if the requested resource was found in cache, or ``MISS`` otherwise
 - "Rename" the ``Age`` header field to ``X-Age``
 
 .. container:: handout
