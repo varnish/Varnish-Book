@@ -466,7 +466,7 @@ Varnish Cache and Varnish Software Timeline
 - 2005: Ideas! Verdens Gang (www.vg.no, Norway's biggest newspaper) were looking for alternative cache solutions
 - 2006: Work began:
   Redpill Linpro was in charge of project management, infrastructure and supporting development.
-  Poul-Henning Kamp did the majority of the actual development.3
+  Poul-Henning Kamp did the majority of the actual development.
 - 2006: Varnish 1.0 is released
 - 2008: Varnish 2.0 is released
 - 2008: ``varnishtest`` is introduced
@@ -485,6 +485,8 @@ Varnish Cache and Varnish Software Timeline
 - 2015: Varnish API Engine is released
 - 2015: Gartner names Varnish Software as a 2015 ‘Cool Vendor’ in Web-Scale Platforms
 - 2015: Varnish Plus supports SSL/TLS
+- 2016: Varnish in the cloud
+- 2016: Varnish 5.0 is released
 
 .. container:: handout
 
@@ -1338,22 +1340,27 @@ Log Layout
 Transactions
 ------------
 
-.. TODO for the author: Add diagram that shows different transactions
-   The diagram shows: 
-
-   - the sooner a transaction ends, the sooner you see it
-
 ::
 
-   $ varnishlog -d
+   $ varnishlog -g <session|request|vxid|raw> -d    
 
-.. note::
 
-   The ``-d`` option of ``varnishlog`` makes it output all existing records in the
-   shared memory log (VSL) instead of showing live transactions.  The same parameter
-   is also available for ``varnishncsa``.
+- You can see transactions in groups ``<session|request|vxid|raw>``
+- The default is to group by ``vxid``
+- The sooner a transaction ends, the sooner you see it
+- ``-d`` reads all existing records in the shared memory log (VSL) instead of showing only last transactions
+- See `Figure 8 <#figure-8>`_ and
+  `Figure 9 <#figure-9>`_
 
 .. figure 8
+
+.. figure:: ui/img/transactions.svg
+   :align: center
+   :width: 85%
+
+   Figure :counter:`figure`: Transacions Grouping
+
+.. figure 9
 
 .. figure:: ui/img/cache_miss_request_default.svg
    :align: center
@@ -1444,7 +1451,7 @@ Example of Transaction Grouping with ``varnishlog``
 
    $ varnishlog -g request -i Begin,Link -d
 
-.. figure 9
+.. figure 10
 
 .. figure:: ui/img/cache_miss_request_grouping.svg
    :width: 70%
@@ -1453,7 +1460,7 @@ Example of Transaction Grouping with ``varnishlog``
 
 .. container:: handout
 
-   `Figure 9 <#figure-9>`_ shows a client request in a *cache miss* scenario.
+   `Figure 10 <#figure-10>`_ shows a client request in a *cache miss* scenario.
    In the figure, ``varnishlog`` returns records grouped by request.
    For simplicity, we use the ``-i`` option to include only the ``Begin`` and ``Link`` tags.
 
@@ -1493,7 +1500,17 @@ Query Language
   
 Examples of Varnish log queries::
 
-   varnishlog -q 'RespStatus < 500'
+  varnishlog -g 'VCL_call ~MISS'
+  varnishlog -i Timestamp
+  Requests taking more than 5 seconds:
+  varnishlog -i Timestamp:Fetch[2] > 5
+
+  Diffference between std.log and std.syslog?
+  vsl_mask + trace
+
+timestamp contains timing information for the varnish worker threads.
+
+  varnishlog -q 'RespStatus < 500'OB
    varnishlog -g request -q 'ReqURL eq "/"'
    varnishlog -g request -q 'Backend ~ default'
 
@@ -1674,28 +1691,28 @@ Exercise: Filter Varnish Log Records
 
       You can also see many parameters in real-time graphs with the `Varnish Administration Console (VAC)`_.
 
-      .. figure 10
+      .. figure 11
 
       .. figure:: ui/img/vac_hit_meter.png
          :width: 70%
 
          Figure :counter:`figure`: Cache Hit Meter
 
-      .. figure 11
+      .. figure 12
 
       .. figure:: ui/img/vac_hitrate.png
          :width: 100%
 
          Figure :counter:`figure`: Hit vs Miss vs Hit for Pass
 
-      .. figure 12
+      .. figure 13
 
       .. figure:: ui/img/vac_hitrate_req.png
          :width: 100%
 
          Figure :counter:`figure`: Req/sec, and Hit/sec
 
-      .. figure 13
+      .. figure 14
 
       .. figure:: ui/img/vac_realtime_counters.png
          :width: 70%
@@ -1786,7 +1803,7 @@ This section covers:
 Varnish Architecture
 --------------------
 
-.. figure 14
+.. figure 15
 
 .. figure:: ui/img/architecture.svg
    :align: center
@@ -1796,7 +1813,7 @@ Varnish Architecture
 
 .. container:: handout
 
-   `Figure 14 <#figure-14>`_ shows a block diagram of the Varnish architecture.
+   `Figure 15 <#figure-15>`_ shows a block diagram of the Varnish architecture.
    The diagram shows the data flow between the principal parts of Varnish.
 
    The main block is the `Manager` process, which is contained in the ``varnishd`` binary program.
@@ -1812,7 +1829,7 @@ Varnish Architecture
    .. vagent2
 
    The Varnish Agent *vagent2* is an open source HTTP REST interface that exposes ``varnishd`` services to allow remote control and monitoring.
-   *vagent2* offers a web UI as shown in `Figure 15 <#figure-15>`_, but you can write your own UI since *vagent2* is an open interface.
+   *vagent2* offers a web UI as shown in `Figure 16 <#figure-16>`_, but you can write your own UI since *vagent2* is an open interface.
    Some features of *vagent2* are:
 
    - VCL uploading, downloading, persisting (storing to disk).
@@ -1822,7 +1839,7 @@ Varnish Architecture
    - banning
    - ``varnishstat`` in JSON format
 
-   .. figure 15
+   .. figure 16
 
    .. figure:: ui/img/vagent2.png
       :width: 100%
@@ -2086,7 +2103,7 @@ Tunable Parameters
 
       Parameters can also be configured via the `Varnish Administration Console (VAC)`_ as shown in the figure below.
 
-      .. figure 16
+      .. figure 17
 
       .. figure:: ui/img/vac_parameters.png
 	 :width: 100%
@@ -2198,7 +2215,7 @@ Threading Model
 - The child process runs multiple threads in two thread pools
 - Threads accept new connections and delegate them
 - One worker threads per client request – it's common to use hundreds of worker threads
-- Expire-threads evict old content from the cache
+- Expiradmine-threads evict old content from the cache
 
 .. table 9
 
@@ -2332,20 +2349,20 @@ The ``workspace_client`` and ``workspace_backend`` are parameters that could sti
 
 - ``workspace_client`` – incoming HTTP header workspace from the client
 - ``workspace_backend`` – bytes of HTTP protocol workspace for backend HTTP req/resp
-- ESI typically requires exponential growth
+- Tune it if you have many big headers or have a VMOD that uses too much memory
 - Remember: it is virtual, not physical memory
 
 .. container:: handout
 
-        Workspaces are some of the things you can change with parameters. 
-        Sometimes you may have to increase them to avoid running out of workspace.
+    Workspaces are some of the things you can change with parameters. 
+    Sometimes you may have to increase them to avoid running out of workspace.
 
 	The ``workspace_client`` parameter states how much memory can be allocated for each HTTP session.
 	This space is used for tasks like string manipulation of incoming headers.
 	The ``workspace_backend`` parameter indicates how much memory can be allocated to modify objects returned from the backend.
 	After an object is modified, its exact size is allocated and the object is stored read-only.
 
-        As most of the parameters can be left unchanged, we will not go through all of them.
+    As most of the parameters can be left unchanged, we will not go through all of them.
 	You can take a look at the list of parameter by issuing ``varnishadm param.show -l`` to get information about what they can do.
 
 Timers
@@ -2445,7 +2462,7 @@ This chapter covers:
 Protocol Basics
 ---------------
 
-.. figure 17
+.. figure 18
 
 .. figure:: ui/img/httprequestflow.png
    :align: center
@@ -2706,7 +2723,7 @@ When to serve a cached object?
 Cache Matching
 --------------
 
-.. figure 18
+.. figure 19
 
 .. figure:: ui/img/httpcachehit.png
     :align: center
@@ -2717,7 +2734,7 @@ Cache Matching
 - Cache-hits are used to reuse, update or invalidate caches
 - Objects may have variants (``Vary`` and ``Etag``)
  
-.. figure 19
+.. figure 20
 
 .. figure:: ui/img/httpcachemiss.png
     :align: center
@@ -2727,11 +2744,11 @@ Cache Matching
 
 .. container:: handout
 
-   `Figure 18 <#figure-18>`_ shows the flow diagram of a *cache-hit*.
+   `Figure 19 <#figure-19>`_ shows the flow diagram of a *cache-hit*.
    A cache-hit occurs when the requested object (URI) matches a stored HTTP response message (cache).
    If the matched stored message is valid to construct a response for the client, Varnish serves construct a response and serves it without contacting the origin server.
 
-   `Figure 19 <#figure-19>`_ shows the flow diagram of a *cache-miss*.
+   `Figure 20 <#figure-20>`_ shows the flow diagram of a *cache-miss*.
    A *cache-miss* happens when Varnish does not match a cache.
    In this case, Varnish forwards the request to the origin server.
 
@@ -2853,7 +2870,7 @@ Cache Matching
 
        If-None-Match: "1edec-3e3073913b100"
 
-   .. figure 20
+   .. figure 21
 
    .. figure:: ui/img/httpifnonematch.png
       :align: center
@@ -2879,7 +2896,7 @@ Cache Matching
 
        If-Modified-Since: Wed, 01 Sep 2004 13:24:52 GMT
 
-   .. figure 21
+   .. figure 22
 
    .. figure:: ui/img/httpifmodifiedsince.png
       :align: center
@@ -3145,7 +3162,7 @@ Varnish Finite State Machine
 
 .. Todo for the author: consider to create state tables as B.4 State Tables in Real Time Streaming Protocol 2.0 (RTSP).
 
-- VCL workflow seen as a finite state machine – See `Figure 22 <#figure-22>`_ in the book
+- VCL workflow seen as a finite state machine – See `Figure 23 <#figure-23>`_ in the book
 - States are conceptualized and implemented as subroutines, e.g., ``sub vcl_recv``
 - Built-in subroutines start with ``vcl_``, which is a reserved prefix
 - ``return (action)`` terminates subroutines, where ``action`` is a keyword that indicates the next step to do
@@ -3163,7 +3180,7 @@ Varnish Finite State Machine
 
 .. container:: handout
 
-   .. figure 22
+   .. figure 23
 
    .. figure:: ui/img/simplified_fsm.svg
       :align: center
@@ -3181,10 +3198,10 @@ Varnish Finite State Machine
    Each state has available certain parameters that you can use in your VCL code.
    For example: response HTTP headers are only available after ``vcl_backend_fetch`` state.
 
-   `Figure 22 <#figure-22>`_ shows a simplified version of the Varnish finite state machine.
+   `Figure 23 <#figure-23>`_ shows a simplified version of the Varnish finite state machine.
    This version shows by no means all possible transitions, but only a typical set of them.
-   `Figure 23 <#figure-23>`_ and
-   `Figure 24 <#figure-24>`_ show the detailed version of the state machine for the **frontend** and **backend**  worker respectively.
+   `Figure 24 <#figure-24>`_ and
+   `Figure 25 <#figure-25>`_ show the detailed version of the state machine for the **frontend** and **backend**  worker respectively.
 
    .. Subroutines
 
@@ -3216,8 +3233,8 @@ Varnish Finite State Machine
 Detailed Varnish Request Flow for the Client Worker Thread
 ----------------------------------------------------------
 
-- `Figure 23 <#figure-23>`_ shows the detailed request flow diagram of the backend worker.
-- The grayed box is detailed in `Figure 24 <#figure-24>`_.
+- `Figure 24 <#figure-24>`_ shows the detailed request flow diagram of the backend worker.
+- The grayed box is detailed in `Figure 25 <#figure-25>`_.
 
 .. This slide does not contain bullets because it conflicts with the size of the diagram.
 
@@ -3228,7 +3245,7 @@ Detailed Varnish Request Flow for the Client Worker Thread
 
 .. container:: handout
 
-   .. figure 23
+   .. figure 24
 
    .. figure:: ui/img/detailed_fsm.svg
       :align: center
@@ -3447,18 +3464,18 @@ Variables in VCL subroutines
 Detailed Varnish Request Flow for the Backend Worker Thread
 -----------------------------------------------------------
 
-- See `Figure 24 <#figure-24>`_ in the book
+- See `Figure 25 <#figure-25>`_ in the book
 
 .. container:: handout
 
    .. TODO for the editor: improve layout of this figure
 
-   .. figure 24
+   .. figure 25
 
    .. figure:: ui/img/detailed_fsm_backend.svg
       :width: 100%
 
-   `Figure 24 <#figure-24>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
+   `Figure 25 <#figure-25>`_ shows the ``vcl_backend_fetch``, ``vcl_backend_response`` and ``vcl_backend_error`` subroutines.
    These subroutines are the backend-counterparts to ``vcl_recv``.
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to define your caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
@@ -3477,7 +3494,7 @@ VCL – ``vcl_backend_response``
 
 .. container:: handout
 
-   `Figure 24 <#figure-24>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
+   `Figure 25 <#figure-25>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
    The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
 
    Backends might respond with a ``304`` HTTP headers.
@@ -4436,7 +4453,7 @@ Banning
 
       You can also execute ban expressions via the `Varnish Administration Console (VAC)`_.
 
-      .. figure 25
+      .. figure 26
 
       .. figure:: ui/img/vac_bans.png
 	 :width: 100%
@@ -4960,8 +4977,8 @@ See the power of health probes!
    Suggested steps for the demo:
 
    #. Configure a probe as shown in `Health Checks`_.
-   #. For Varnish 4.0, run ``watch -n.5 "varnishadm debug.health"`` in one terminal
-   #. For Varnish 4.1, run ``watch -n.5 "varnishadm backend.list -p"`` in one terminal
+   #. For Varnish 4.0, run ``watch -n.5 varnishadm debug.health`` in one terminal
+   #. For Varnish 4.1, run ``watch -n.5 varnishadm backend.list -p`` in one terminal
    #. Start and stop your backend
       For this, you might want to simulate very quickly a backend with the command ``python -m SimpleHTTPServer [port]``.
    #. The watch command makes the effect of an animated health prober!
@@ -5421,8 +5438,9 @@ Edge Side Includes
 - What is ESI?
 - How to use ESI?
 - Testing ESI without Varnish
+- ESI has a linear growth complexity
 
-.. figure 26
+.. figure 27
 
 .. figure:: ui/img/esi.png
    :align: center
@@ -5434,7 +5452,7 @@ Edge Side Includes
 
    Edge Side Includes or ESI is a small markup language for dynamic web page assembly at the reverse proxy level.
    The reverse proxy analyses the HTML code, parses ESI specific markup and assembles the final result before flushing it to the client.
-   `Figure 26 <#figure-26>`_ depicts this process.
+   `Figure 27 <#figure-27>`_ depicts this process.
 
    With ESI, Varnish can be used not only to deliver objects, but to glue them together. 
    The most typical use case for ESI is a news article with a most recent news box at the side. 
@@ -5669,7 +5687,7 @@ Varnish Administration Console (VAC)
 Overview Page of the Varnish Administration Console
 ...................................................
 
-.. figure 27
+.. figure 28
 
 .. figure:: ui/img/vac_screenshot_1.png
    :width: 70%
@@ -5681,7 +5699,7 @@ Configuration Page of the Varnish Administration Console
 
 .. TODO for the author: update screenshot to contain instances of Varnish 4
 
-.. figure 28
+.. figure 29
 
 .. figure:: ui/img/vac_screenshot_2.png
    :width: 70%
@@ -5691,7 +5709,7 @@ Configuration Page of the Varnish Administration Console
 Banning Page of the Varnish Administration Console
 ..................................................
 
-.. figure 29
+.. figure 30
 
 .. figure:: ui/img/vac_screenshot_3.png
    :width: 70%
@@ -5706,7 +5724,7 @@ Varnish Custom Statistics (VCS)
 - Provides an API to retrieve statistics
 - Provides a GUI that presents lists and charts to get a quick overview of the key metrics that matters you
 
-.. figure 30
+.. figure 31
 
 .. figure:: ui/img/vcs-dsms.svg
    :width: 100%
@@ -5746,8 +5764,8 @@ Varnish Custom Statistics (VCS)
 
    .. demo
    
-   `Figure 31 <#figure-31>`_ and 
-   `Figure 32 <#figure-32>`_ are screenshots of the VCS GUI.
+   `Figure 32 <#figure-32>`_ and 
+   `Figure 33 <#figure-33>`_ are screenshots of the VCS GUI.
    These screenshots are from the demo on http://vcsdemo.varnish-software.com.
    Your instructor can provide you credential for you to try the demo online.
 
@@ -5971,7 +5989,7 @@ Screenshots of GUI
 
 .. container:: handout
 
-   .. figure 31
+   .. figure 32
 
    .. figure:: ui/img/vcsui_header_2.png
       :width: 100%
@@ -5982,7 +6000,7 @@ Screenshots of GUI
 
 |
 
-   .. figure 32 
+   .. figure 33 
 
    .. figure:: ui/img/vcs-ui-chart.png
       :width: 100%
@@ -5997,7 +6015,7 @@ Varnish High Availability (VHA)
 - Two-server, circular, multi-master replication
 - Requests to replicate content against Varnish servers, not the backend
 
-.. figure 33
+.. figure 34
 
 .. figure:: ui/img/vha.svg
    :width: 100%
@@ -7306,7 +7324,7 @@ Implementing Functions
 The Workspace Memory Model
 ..........................
 
-.. figure 34
+.. figure 35
 
 .. figure:: ui/img/workspace_memory_model.svg
    :width: 100%
@@ -7792,93 +7810,108 @@ This appendix contains the solutions of exercises throughout the book.
 Solution: Install Varnish
 -------------------------
 
-All the following commands are for Ubuntu and must be executed with root permissions.
-First, make sure you have ``apt-transport-https``::
-
-  $ apt-get install apt-transport-https
-
-To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4.0 or 4.1 on Ubuntu 14.04 trusty::
-
-  $ curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
-    | apt-key add -
-
-To use the **varnish-cache.org** repository and install **Varnish Cache** 4.0 or 4.1 on Ubuntu 14.04 trusty::
-
-  $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-  $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
-    /etc/apt/sources.list.d/varnish-cache.list
-
-If you are installing Varnish Cache 4.1, replace ``varnish-4.0`` for ``varnish-4.1`` in the command above.
-
-If you are installing **Varnish Cache Plus** 4.0 or 4.1, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` or ``/etc/apt/sources.list.d/varnish-4.1-plus.list`` respectively::
-
-   # Remember to replace 4.x, DISTRO and RELEASE with what applies to your system.
-   # 4.x=(4.0|4.1)
-   # DISTRO=(debian|ubuntu),
-   # RELEASE=(precise|trusty|wheezy|jessie)
-
-   # Varnish Cache Plus 4.x and VMODs
-   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   varnish-4.x-plus
-
-   # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
-   deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
-   non-free
-
-Re-synchronize the package index files of your repository::
-
-   $ apt-get update
-
-To install **Varnish Cache Plus**::
-
-   $ apt-get install varnish-plus
-
-To install **Varnish-Cache**::
-
-   $ apt-get install varnish
-
-Finally, verify the version you have installed::
-
-   $ varnishd -V
+- Solution for systemd Ubuntu and Debian
+- Solution for systemd Fedora/RHEL7+/CentOS 7+
 
 .. container:: handout
 
-   All software related to **Varnish Cache Plus** including VMODs are available in RedHat and Debian package repositories.
-   These repositories are available on http://repo.varnish-software.com/, using your customer specific username and password.
+  Varnish is already distributed in many package repositories, but those packages might contain an outdated Varnish version.
+  Therefore, we recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
+  Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
+  However, these packages might still work fine on newer releases.
 
-   Varnish is already distributed in many package repositories, but those packages might contain an outdated Varnish version.
-   Therefore, we recommend you to use the packages provided by varnish-software.com for *Varnish Cache Plus* or varnish-cache.org for *Varnish Cache*.
-   Please be advised that we only provide packages for LTS releases, not all the intermediate releases.
-   However, these packages might still work fine on newer releases.
+  All software related to **Varnish Cache Plus** including VMODs are available in RedHat and Debian package repositories.
+  These repositories are available on http://repo.varnish-software.com/, using your customer specific username and password.
 
-   To use Varnish Cache Plus 4.0 or 4.1 repositories on RHEL 6, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo`` or ``/etc/yum.repos.d/varnish-4.1-plus.repo``, and change ``4.x`` for the version you want to install::
+  All the following commands are for **systemd Ubuntu or Debian** and must be executed with root permissions.
+  First, make sure you have ``apt-transport-https``::
 
-      [varnish-4.x-plus]
-      name=Varnish Cache Plus
-      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat
-      /varnish-4.x-plus/el$releasever
-      enabled=1
-      gpgcheck=0
+    $ apt-get install apt-transport-https
 
-      [varnish-admin-console]
-      name=Varnish Administration Console
-      baseurl=
-      https://<username>:<password>@repo.varnish-software.com/redhat
-      /vac/el$releasever
-      enabled=1
-      gpgcheck=0
+  To use the **varnish-software.com** repository and install **Varnish Cache Plus** 4.0 or 4.1 on Ubuntu 14.04 trusty::
 
-      [varnishtuner]
-      name=Varnish Tuner
-      baseurl=
-      https://<username>:<password>@repo.varnish-software.com/redhat
-      /varnishtuner/el$releasever
-      enabled=1
-      gpgcheck=0
+    $ curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt \
+      | apt-key add -
 
-   .. note::
+  To use the **varnish-cache.org** repository and install **Varnish Cache** 4.0 or 4.1 on Ubuntu 14.04 trusty::
 
-      More details on Varnish Plus installation can be found at http://files.varnish-software.com/pdfs/varnish-cache-plus-manual-latest.pdf
+    $ curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+    $ echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> \
+      /etc/apt/sources.list.d/varnish-cache.list
+
+  If you are installing Varnish Cache 4.1, replace ``varnish-4.0`` for ``varnish-4.1`` in the command above.
+
+  If you are installing **Varnish Cache Plus** 4.0 or 4.1, add the repositories for VMODs in ``/etc/apt/sources.list.d/varnish-4.0-plus.list`` or ``/etc/apt/sources.list.d/varnish-4.1-plus.list`` respectively::
+
+     # Remember to replace 4.x, DISTRO and RELEASE with what applies to your system.
+     # 4.x=(4.0|4.1)
+     # DISTRO=(debian|ubuntu),
+     # RELEASE=(precise|trusty|wheezy|jessie)
+
+     # Varnish Cache Plus 4.x and VMODs
+     deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+     varnish-4.x-plus
+
+     # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
+     deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
+     non-free
+
+  Re-synchronize the package index files of your repository::
+
+     $ apt-get update
+
+  To install **Varnish Cache Plus** and VMODs::
+
+     $ apt-get install varnish-plus
+     $ apt-get install varnish-plus-vmods-extra
+
+  To install **Varnish-Cache**::
+
+     $ apt-get install varnish
+
+  Finally, verify the version you have installed::
+
+     $ varnishd -V
+
+  To use Varnish Cache Plus 4.0 or 4.1 repositories on **systemd Fedora/RHEL7+/CentOS 7+**, put the following in ``/etc/yum.repos.d/varnish-4.0-plus.repo`` or ``/etc/yum.repos.d/varnish-4.1-plus.repo``, and change ``4.x`` for the version you want to install::
+
+     [varnish-4.x-plus]
+     name=Varnish Cache Plus
+     baseurl=https://<username>:<password>@repo.varnish-software.com/redhat
+     /varnish-4.x-plus/el$releasever
+     enabled=1
+     gpgcheck=0
+
+     [varnish-admin-console]
+     name=Varnish Administration Console
+     baseurl=
+     https://<username>:<password>@repo.varnish-software.com/redhat
+     /vac/el$releasever
+     enabled=1
+     gpgcheck=0
+
+     [varnishtuner]
+     name=Varnish Tuner
+     baseurl=
+     https://<username>:<password>@repo.varnish-software.com/redhat
+     /varnishtuner/el$releasever
+     enabled=1
+     gpgcheck=0
+
+
+  Then, execute the following::
+
+    $ yum update
+    $ yum install varnish-plus
+    $ yum install varnish-plus-vmods-extra
+
+  Finally, verify the version you have installed::
+
+    $ varnishd -V
+
+  .. note::
+
+    More details on Varnish Plus installation can be found at http://files.varnish-software.com/pdfs/varnish-cache-plus-manual-latest.pdf
 
 Solution: Test Apache as Backend with ``varnishtest``
 -----------------------------------------------------
@@ -7907,7 +7940,7 @@ Solution: Tune ``first_byte_timeout`` and test it against your real backend
         echo "Cache-control: max-age=0"
         echo
         echo "Delayed page"
-	date
+        date
 
 - Make it executable.
 - Test that your CGI works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``

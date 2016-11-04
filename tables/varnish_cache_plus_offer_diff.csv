@@ -11,11 +11,11 @@ directors,Yes,Yes
 purge,Yes,Yes
 ban,Yes,Yes
 force cache misses,Yes,Yes
+Hashtwo/xkeys (Varnish Software Implementation of Surrogate Keys),Yes,Yes
 vagent2,Yes,Yes
 Massive Storage Engine (MSE),No,Yes
 `Varnish Administration Console (VAC)`_,No,Yes
 `Varnish Tuner`_,No,Yes
-Hashtwo (Varnish Software Implementation of Surrogate Keys),No,Yes
 `Varnish Custom Statistics (VCS)`_,No,Yes
 `Varnish High Availability (VHA)`_,No,Yes
 `SSL/TLS frontend support with hitch`_,Yes,Yes
