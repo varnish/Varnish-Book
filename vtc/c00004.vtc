@@ -24,6 +24,7 @@ varnish v1 -vcl+backend {
         return (purge);
      }
      else if (req.http.Cookie){
+        # Forces Varnish to cache requests with cookies
         return (hash);
      }
    }

@@ -905,9 +905,11 @@ VCL Reload
 
    service varnish reload
 
-or
+or::
 
-::
+   systemctl reload varnish
+
+or::
 
    varnishadm vcl.load vcl01 /etc/varnish/default.vcl
    varnishadm vcl.use vcl01
@@ -1551,8 +1553,8 @@ timestamp contains timing information for the varnish worker threads.
    .. Benefits for others
 
    The grouping and the query log processing all happens in the ``varnishlog`` API.
-   This means that other programs using this API automatically get grouping and query language.
-   For example, ``logexpect`` as we shall see next.
+   This means that other programs using this API automatically get grouping and query language, just as ``logexpect`` does.
+   See `logexpect`_ to learn more about it.
 
    .. tip::
 
@@ -2099,7 +2101,7 @@ Tunable Parameters
    If you do not have a very specific need, it is generally better to use the default values.
 
    A few debug commands exist in the CLI, which can be revealed with ``help -d``. 
-   These commands are meant exclusively for development or testing, and many of them are downright dangerous. 
+   These commands are meant exclusively for development or testing, and many of them are downright dangerous.
 
    .. tip::
 
@@ -2117,8 +2119,15 @@ Varnish Tuner
 
 - Command ``varnishtuner``
 - Suggested values for system variables and Varnish parameters are **installation specific**
-- With our without user input
+- With or without user input
 - Available for Varnish Plus only
+- Install::
+
+    yum install varnishtuner
+
+or::
+
+  apt-get install varnishtuner
 
 .. container:: handout
 
@@ -3120,7 +3129,7 @@ Exercise: Test Various Cache Headers Fields with a Real Browser
 .. container:: handout
 
    When performing this exercise, try to see if you can spot the patterns.
-   There are many levels of cache on the web, and you have to consider them besides Varnish.
+   There are many levels of cache on the web, and you have to consider them in addition to your Varnish installation.
    If it has not happened already, it is likely that the local cache of your browser will confuse you at least a few times through this course.
    When that happens, pull up ``varnishlog``, ``varnishstat`` and another browser, or use client mock-ups in ``varnishtest`` instead of browsers.
 
@@ -5539,7 +5548,7 @@ Exercise: Enable ESI and Cookies
 .. container:: handout
 
    See the suggested solutions of `Exercise: Handle Cookies with Vary and hash_data() in varnishtest`_ to get an idea on how to solve this exercise.
-   Try to avoid ``return (hash);`` in `vcl_recv`  and ``return (deliver);`` in ``vcl_backend_response`` as much as you can.
+   Try to avoid ``return (hash);`` in ``vcl_recv``  and ``return (deliver);`` in ``vcl_backend_response`` as much as you can.
    This is a general rule to make safer Varnish setups.
 
    During the exercise, make sure you understand all the cache mechanisms at play.
@@ -6615,7 +6624,7 @@ Example of Transactions in ``varnishtest``
    Therefore, it is able to group and query the Varnishlog just as ``varnishlog`` does.
    In addition, ``logexpect`` allows you to assert what you are expecting to appear in VSL.
 
-   Note ``logexpect l1 -wait`` at the end of the script.
+   Note ``logexpect l1 -wait`` at the end of the VTC script above.
    Without it, the test would finish successfully without concluding the assert in ``l1``, because ``varnishtest`` would not wait for it.
    ``-wait`` instructs the executor of ``varnishtest`` to wait until ``l1`` is done.
 
@@ -7786,6 +7795,8 @@ Appendix F: Apache as Backend
 
      $ apt-get install httpie
 
+   .. Remember to create the testing resource in /var/www/html/
+
    Next:
 
    #. Verify that Apache works by typing ``http -h localhost``.
@@ -8003,7 +8014,7 @@ Solution: Configure Threading with ``varnishtest``
 
    The test proves that ``varnishd`` starts with the number of threads indicated in ``thread_pool_min``.
    Changes in ``thread_pool_min`` and ``thread_pool_max`` are applied by the thread herder, which handles the thread pools and adds or removes threads if necessary.
-   To learn more about other maintenance threads see https://www.varnish-cache.org/trac/wiki/VarnishInternals.
+   To learn more about other maintenance threads, visit https://www.varnish-cache.org/trac/wiki/VarnishInternals.
 
    ``c00001.vtc`` is a simplified version of ``Varnish-Cache/bin/varnishtest/tests/r01490.vtc``.
 
