@@ -1623,16 +1623,6 @@ Exercise: Filter Varnish Log Records
    MAIN.n_vcl                                                 1         0.00          .           0.00         0.00         0.00
    MAIN.bans                                                  1         0.00          .           1.00         1.00         1.00
    MAIN.n_gunzip                                              4         0.00          .           0.00         0.00         0.01
-   MGT.uptime                                            171488         1.00         1.00         1.00         1.00         1.00
-   SMA.s0.c_req                                               8         0.00          .           0.00         0.01         0.01
-   SMA.s0.c_bytes                                         15968         0.00          .           0.01        18.98        27.33
-   SMA.s0.c_freed                                         11976         0.00          .           0.00        12.17        18.56
-   SMA.s0.g_alloc                                             2         0.00          .           2.00         1.70         1.62
-   SMA.s0.g_bytes                                          3992         0.00          .        3991.87      3398.82      3235.53
-   SMA.s0.g_space                                     268431464         0.00          .   268431464.13 268432057.18 268432220.47
-   VBE.default(127.0.0.1,,8080).bereq_hdrbytes              630         0.00          .           0.00         0.70         1.13
-   VBE.default(127.0.0.1,,8080).beresp_hdrbytes            1128         0.00          .           0.00         1.34         1.93
-   VBE.default(127.0.0.1,,8080).beresp_bodybytes          13024         0.00          .           0.01        15.48        22.29
 
    MAIN.cache_hit                                                                                                         INFO
    Cache hits:
@@ -1654,17 +1644,15 @@ Exercise: Filter Varnish Log Records
 
 .. container:: handout
 
-   ``varnishstat`` looks only at counters.
-   These counters are easily found in VSL, and are typically polled at reasonable interval to give the impression of real-time updates. 
+   ``varnishstat`` looks only at counters, which give a good representation of the general health of Varnish.
    Counters, unlike the rest of the log, are not directly mapped to a single request, but represent how many times a specific action has occurred since Varnish started.
+   These counters are easily found in VSL, and are typically polled at reasonable interval to give the impression of real-time updates. 
 
-   ``varnishstat`` gives a good representation of the general health of Varnish.
-   Unlike all other tools, ``varnishstat`` does not read log entries, but counters that Varnish updates in real-time.
-   It can be used to determine your request rate, memory usage, thread usage, number of failed backend connections, and more.
+   ``varnishstat`` can be used to determine the request rate, memory usage, thread usage, number of failed backend connections, and more.
    ``varnishstat`` gives you information just about anything that is not related to a specific request.
 
    There are over a hundred different counters available.
-   To increase the usefulness of ``varnishstat``, only counters with a value different from 0 is shown by default.
+   To increase the usefulness of ``varnishstat``, only counters with a value different from 0 are shown by default.
 
    ``varnishstat`` can be used interactively, or it can display the current values of all the counters with the ``-1`` option.
    Both methods allow you to specify specific counters using ``-f field1 -f field2 ..`` to limit the list.
@@ -1676,18 +1664,18 @@ Exercise: Filter Varnish Log Records
 
    .. intervals
 
-   `Hitrate n` and `avg(n)` are related, where `n` is the number intervals.
-   `avg(n)`  measures the cache hit rate within `n` intervals.
+   ``Hitrate n`` and ``avg(n)`` are related, where `n` is the number intervals.
+   ``avg(n)``  measures the cache hit rate within `n` intervals.
    The default interval time is one second.
    You can configure the interval time with the ``-w`` option.
 
    Since there is no historical data of counters changes, ``varnishstat`` has to compute the average while it is running.
-   Therefore, when you start ``varnishstat``, `Hitrate` values start at 1, then they increase to 10, 100 and 1000.
-   In the example above, the interval is one second.
+   Therefore, when you start ``varnishstat``, the values of ``Hitrate n`` start at 1, then they increase to 10, 100 and 1000.
+   In the above example, the interval is one second.
    The hitrate average ``avg(n)`` show data for the last 10, 100, and 438 seconds.
    The average hitrate is 0.9967 (or 99.67%) for the last 10 seconds, 0.5686 for the last 100 seconds and 0.3870 for the last 438 seconds.
 
-   In the above example Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
+   In the above example, Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
    Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
    *Gauges* normally start with a ``g_`` prefix.
 
@@ -2008,8 +1996,9 @@ Storage Backends
    MSE also implements a mechanism to eliminate internal fragmentation.
 
    The latest version of MSE requires a bookkeeping file.
-   Caches in the order of gigabytes require a bookkeeping file of around 1% of the storage size.
-   Caches in the order of terabytes should have a bookkeeping file size around 0.5% of storage size.
+   The size of this bookkeeping file depends on the cache size.
+   Cache sizes in the order of gigabytes require a bookkeeping file of around 1% of the storage size.
+   Cache sizes in the order of terabytes should have a bookkeeping file size around 0.5% of storage size.
 
    For detailed instructions on how to configure MSE, please refer to the Varnish Plus documentation.
    For more details about its features and previous versions, please visit https://info.varnish-software.com/blog/varnish-mse-persistence.
@@ -2051,7 +2040,8 @@ The Varnish Shared memory Log (VSL)
    VSL operates on a circular buffer.
    Therefore, there is no a start or an end of it, but you can issue ``varnishlog -d`` to see old log entries.
 
-   VSL is 80MB large by default, which gives a certain history, but it is not persistent unless you instruct Varnish to do otherwise.
+   VSL is 80MB large by default and is not persistent, unless you instruct Varnish to do otherwise.
+   VSL is memory space mapped under ``/var/lib/varnish/``.
    To change the size of the VSL, see the option ``-l`` in the man page of ``varnishd``.
 
    .. I/O operations
@@ -2060,11 +2050,6 @@ The Varnish Shared memory Log (VSL)
    You can avoid I/O by mounting the VSL as a temporary file storage (`tmpfs`).
    This is typically configured in ``/etc/fstab``, and the `shm-log` is normally kept under ``/var/lib/varnish/`` or equivalent locations.
    You need to restart ``varnishd`` after mounting it as `tmpfs`.
-
-   .. no persistent
-
-   VSL is not persistent, i.e., all its data is in memory.
-   This memory space is mapped under ``/var/lib/varnish/``.   
 
    .. warning::
 
@@ -2164,7 +2149,8 @@ or::
    Varnish Tuner is available for Varnish Plus series only.
 
    .. warning::
-          Copying Varnish Tuner suggestions to other systems might not be a good idea.
+
+      Copying Varnish Tuner suggestions to other systems might not be a good idea.
 
 Varnish Tuner Persistence
 .........................
@@ -4449,8 +4435,9 @@ Banning
 
    .. note::
 
-      You may accumulate a lot of ban expressions based in ``req.*`` variables if you have many objects with long TTL that are seldom accessed.
-      This accumulation occurs because bans are kept until all cached objects have been checked against them.
+      You should avoid ban expressions that match against ``req.*``, because these expressions are tested only by client requests, not the ban lurker.
+      In other words, a ``req.*`` ban expression will be removed from the ban list only after a request matches it.
+      Consequently, you have the risk of accumulating a very large number of ban expressions.
       This might impact CPU usage and thereby performance.
 
       Therefore, we recommend you to avoid ``req.*`` variables in your ban expressions, and to use ``obj.*`` variables instead.
@@ -5352,7 +5339,7 @@ Cookies
    .. note::
 
       If you need to handle cookies, consider using the ``cookie`` VMOD from https://github.com/lkarsten/libvmod-cookie.
-      This VMOD handles cookies with convenient parsing and formatting functions without the need of regular expressions.
+      This VMOD handles cookies with convenient parsing and formatting functions without the need of regular-expressions.
 
 ``Vary`` and Cookies
 ....................
@@ -6210,7 +6197,7 @@ Design and debug:
    Two of the perhaps most useful variants of ``varnishtop`` are:
 
    - ``varnishtop -i BereqURL``: creates a list of URLs requested at the backend.
-     Use this to find out which URL is the most requested.
+     Use this to find out which URL is the most fetched.
    - ``varnishtop -i RespStatus``: lists what status codes Varnish returns to clients.
 
    You may also combine taglist as in the above example.
@@ -6222,8 +6209,8 @@ Design and debug:
    Some other possibly useful examples are:
 
    - ``varnishtop -i ReqUrl``: displays what URLs are most frequently requested from clients.
-   - ``varnishtop -i ReqHeader -C -I 'User-Agent:.*Linux.*'``: lists ``User-Agent`` headers that contain the ignoring case ``Linux`` string.
-     This example is useful for Linux users, since most web browsers in Linux report themselves as Linux.
+   - ``varnishtop -i ReqHeader -C -I 'User-Agent:.*Linux.*'``: lists ``User-Agent`` headers that contain the regular-expression and ignoring case ``Linux`` string.
+     This example is useful to filter requests from Linux users, since most web browsers in Linux report themselves as Linux.
    - ``varnishtop -i RespStatus``: lists status codes received in clients from backends.
    - ``varnishtop -i VCL_call``: shows what VCL functions are used.
    - ``varnishtop -i ReqHeader -I Referrer`` shows the most common referrer addresses.
@@ -6401,7 +6388,7 @@ The Varnish Test Case (VTC) Language
 
    Since Varnish is a proxy, we expect to receive the response from the backend via Varnish.
    Therefore, ``c1`` expects ``varnish`` in the ``via`` HTTP header field.
-   We use tilde ``~`` as match operator of regular expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
+   We use tilde ``~`` as match operator of regular-expressions because the exact text in ``resp.http.via`` depends on the Varnish version you have installed.
 
    Finally, you start client ``c1`` with the ``-run`` command.
 
@@ -6638,7 +6625,7 @@ Example of Transactions in ``varnishtest``
       vsl arguments (vsl_arg.c)
       -b                   Only display backend records
       -c                   Only display client records
-      -C                   Caseless regular expressions
+      -C                   Caseless regular-expressions
       -i <taglist>         Include tags
       -I <[taglist:]regex> Include by regex
       -L <limit>           Incomplete transaction limit
@@ -6651,7 +6638,7 @@ Example of Transactions in ``varnishtest``
       skip: [uint|*]               Max number of record to skip
       vxid: [uint|*|=]             vxid to match
       tag:  [tagname|*|=]          Tag to match against
-      regex:                       regular expression to match against (optional)
+      regex:                       regular-expression to match against (optional)
       *:                           Match anything
       =:                           Match value of last successfully matched record
 
