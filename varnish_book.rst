@@ -4539,7 +4539,6 @@ Force Cache Misses
 - Causes Varnish to look the object up in cache, but ignore any copy it finds
 - Useful way to do a controlled refresh of a specific object
 - If the server is down, the cached object is left untouched
-- Depending on the Varnish version, it might leave extra copies in the cache
 - Useful to refresh slowly generated content
 
 .. container:: handout
