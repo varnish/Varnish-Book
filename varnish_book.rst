@@ -2940,11 +2940,11 @@ The ``Cache-Control`` header field specifies directives that **must** be applied
       In order to avoid any confusion with this argument think of it as a "store-but-do-no-serve-from-cache-without-revalidation" instruction.
    - ``max-age``: Specifies the period in seconds during which the cache is considered fresh.
    - ``s-maxage``: Like ``max-age`` but it applies only to public caches.
-   - ``must-revalidate``: Indicates that a stale cache item can not be served without revalidation with the origin server first.
+
 
    Example of a ``Cache-Control`` header::
 
-       Cache-Control: public, must-revalidate, max-age=2592000
+       Cache-Control: public, max-age=2592000
 
    A more hands-on explanation as VTC can be found in the subsection `Understanding Cache-Control in varnishtest`_.
 
@@ -3044,11 +3044,6 @@ Exercise: Use `article.php` to test ``Age``
    ..  It might be relevant to mention this and or update it in this chapter.
    ..  Varnish obeys only the first HTTP header field it finds of ``s-maxage`` in ``Cache-Control``, ``max-age`` in ``Cache-Control`` or the ``Expire`` header.
    ..  However, it is often necessary to check the values of other headers too -- ``vcl_backend_*`` are the places to do that.
-
-   .. TODO for the author: Identify the behavior for different browsers and describe it
-   ..
-      An easy way to see the difference between having and removing ``must-revalidate`` is to wait more than 10 seconds between clicking the link.
-      When having ``must-revalidate``, you should never see an ``Age`` over 10, which is contrary to tests without ``must-revalidate``.
 
     .. tip::
 
