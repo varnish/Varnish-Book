@@ -1504,17 +1504,16 @@ Query Language
   
 Examples of Varnish log queries::
 
-  varnishlog -g 'VCL_call ~MISS'
+  varnishlog -q 'VCL_call ~MISS'
   varnishlog -i Timestamp
   Requests taking more than 5 seconds:
   varnishlog -i Timestamp:Fetch[2] > 5
 
-  Diffference between std.log and std.syslog?
   vsl_mask + trace
 
 timestamp contains timing information for the varnish worker threads.
 
-  varnishlog -q 'RespStatus < 500'OB
+  varnishlog -q 'RespStatus < 500'
    varnishlog -g request -q 'ReqURL eq "/"'
    varnishlog -g request -q 'Backend ~ default'
 
