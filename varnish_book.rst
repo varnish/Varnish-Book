@@ -6202,7 +6202,7 @@ Design and debug:
    Some other possibly useful examples are:
 
    - ``varnishtop -i ReqUrl``: displays what URLs are most frequently requested from clients.
-   - ``varnishtop -i ReqHeader -C -I 'User-Agent:.*Linux.*'``: lists ``User-Agent`` headers that contain the regular-expression and ignoring case ``Linux`` string.
+   - ``varnishtop -i ReqHeader -C 'User-Agent:.*Linux.*'``: lists ``User-Agent`` headers that contain the regular-expression and ignoring case ``Linux`` string.
      This example is useful to filter requests from Linux users, since most web browsers in Linux report themselves as Linux.
    - ``varnishtop -i RespStatus``: lists status codes received in clients from backends.
    - ``varnishtop -i VCL_call``: shows what VCL functions are used.
