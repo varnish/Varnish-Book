@@ -6312,7 +6312,7 @@ Exercise: Try ``varnishstat``, ``varnishlog`` and ``varnishhist``
    You can use ``varnishtest`` when configuring your Varnish installation, i.e., writing VCL code, or developing VMODs.
    ``varnishtest`` has its own language: the *Varnish Test Case (VTC) language*.
    This language has a fairly simple syntax.
-   In fact, when designing your caching algorithm or any other functionality in Varnish, we recommend you first to write *Varnish Case Tests* (VTCs) as part of your design.
+   In fact, when designing your caching algorithm or any other functionality in Varnish, we recommend you first to write *Varnish Test Cases* (VTCs) as part of your design.
    VTCs are also useful to reproduce bugs when filing a bug report.
 
    There are many ``.vtc`` files included in Varnish Cache under ``bin/varnishtest/tests/``.
@@ -7056,7 +7056,7 @@ VMOD Basics
 
    A VMOD is a shared library with some C functions which can be called from VCL code.
    The standard (std) VMOD, for instance, is a VMOD included in Varnish Cache.
-   We have already used the std VMOD in this book to check whether a backend is healthy with by calling ``std.healthy()``.   
+   We have already used the std VMOD in this book to check whether a backend is healthy by calling ``std.healthy()``.   
 
    .. When to use in-line C or VMODs?
 
