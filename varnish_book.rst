@@ -5449,6 +5449,8 @@ Edge Side Includes
 - How to use ESI?
 - Testing ESI without Varnish
 - ESI has a linear growth complexity
+- Serial ESI available in Varnish Cache
+- Parallel ESI in Varnish Plus only
 
 .. figure 27
 
