@@ -1362,7 +1362,7 @@ Transactions
    :align: center
    :width: 85%
 
-   Figure :counter:`figure`: Transacions Grouping
+   Figure :counter:`figure`: Transactions Grouping
 
 .. figure 9
 
@@ -2211,7 +2211,7 @@ Threading Model
 - The child process runs multiple threads in two thread pools
 - Threads accept new connections and delegate them
 - One worker threads per client request – it's common to use hundreds of worker threads
-- Expiradmine-threads evict old content from the cache
+- Expire-threads evict old content from the cache
 
 .. table 9
 
@@ -3402,7 +3402,7 @@ Legal Return Actions
    :name: subroutines_legal_returns_backend
    :delim: ,
    :header-rows: 1
-   :widths: 25,15,15,15,15,15
+   :widths: 30,18,9,10,12,9,9,9
    :file: tables/subroutine_legal_returns_backend.csv
 
 .. container:: handout
@@ -3456,6 +3456,7 @@ Detailed Varnish Request Flow for the Backend Worker Thread
 -----------------------------------------------------------
 
 - See `Figure 25 <#figure-25>`_ in the book
+- Review of return actions: ``fetch``, ``deliver``, ``retry`` and  ``abandon``
 
 .. container:: handout
 
@@ -3471,6 +3472,18 @@ Detailed Varnish Request Flow for the Backend Worker Thread
    You can use data provided by the client in ``vcl_recv`` or even ``vcl_backend_fetch`` to define your caching policy.
    An important difference is that you have access to ``bereq.*`` variables in ``vcl_backend_fetch``.
 
+   As detailed in `Legal Return Actions`_, ``vcl_backend_fetch`` can return ``fetch`` or ``abandon``, ``vcl_backend_response`` can return ``deliver``, ``retry`` or ``abandon``, and ``vcl_backend_error`` can return ``deliver`` or ``retry``.
+
+   The ``fetch`` action transmits the request to the backend.
+   The ``abandon`` action discards any possible response from the backend.
+   The ``deliver`` action builds a response with the response from the backend and send it to the client.
+
+   An important difference between ``deliver`` and ``abandon`` is that ``deliver`` stores the response in the cache, whereas ``abandon`` does not.
+   You can leverage this difference with stale objects.
+   For example, in ``5xx`` server error, you might want to build a response with an stale object instead of sending the error to the client.
+
+   The ``retry`` action re-enters ``vcl_backend_fetch`` as further detailed in `retry Return Action`_.
+   The functionality of these return actions are the same for the subroutines where they are valid.
    You will learn more about ``vcl_backend_fetch`` in the next chapter, but before we review ``vcl_backend_response`` because the backend response is normally processed there.
 
 VCL – ``vcl_backend_response``
@@ -3485,8 +3498,10 @@ VCL – ``vcl_backend_response``
 
 .. container:: handout
 
-   `Figure 25 <#figure-25>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: *deliver*, *abandon*, or *retry*.
-   The *deliver* terminating action may or may not insert the object into the cache depending on the response of the backend.
+   `Figure 25 <#figure-25>`_ shows that ``vcl_backend_response`` may terminate with one of the following actions: ``deliver``, ``retry`` and ``abandon``.
+   The ``deliver`` terminating action may or may not insert the object into the cache depending on the response of the backend.
+   The ``retry`` action makes Varnish to transmit the request to the backend again by calling the ``vcl_backend_fetch`` subroutine.
+   The ``abandon`` action discards any response from the backend.
 
    Backends might respond with a ``304`` HTTP headers.
    ``304`` responses happen when the requested object has not been modified since the timestamp ``If-Modified-Since`` in the HTTP header.
@@ -3922,7 +3937,7 @@ VCL – ``vcl_backend_fetch``
    The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error`` depending on the response from the server.
 
    If Varnish receives a syntactically correct HTTP response, Varnish pass control to ``vcl_backend_response``.
-   Syntactically correct HTTP responeses include HTTP ``5xx`` error codes.
+   Syntactically correct HTTP responses include HTTP ``5xx`` error codes.
    If Varnish does not receive a HTTP response, it passes control to ``vcl_backend_error``.
 
 VCL – ``vcl_hash``

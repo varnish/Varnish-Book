@@ -1,6 +1,6 @@
-subroutine,scope,abandon,retry,ok,fail
-*vcl_backend_error*,backend, ,x, , 
-*vcl_backend_fetch*,backend,x,, , 
-*vcl_backend_response*,backend,x,x, , 
-*vcl_init*,vcl.load, , ,x,x
-*vcl_fini*,vcl.discard, , ,x, 
+subroutine,scope,fetch,deliver,abandon,retry,ok,fail
+*vcl_backend_fetch*,backend,x,,x,, , 
+*vcl_backend_response*,backend,,x,x,x, , 
+*vcl_backend_error*,backend,,x,,x,, 
+*vcl_init*,vcl.load,,, , ,x,x
+*vcl_fini*,vcl.discard,,, , ,x, 
