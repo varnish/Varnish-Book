@@ -3917,9 +3917,13 @@ VCL – ``vcl_backend_fetch``
    However, all objects from *pass* requests are never cached, regardless the ``bereq.uncacheable`` variable.
 
    ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
-   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` routine.
+   The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` subroutine.
    The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
-   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error``.
+   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error`` depending on the response from the server.
+
+   If Varnish receives a syntactically correct HTTP response, Varnish pass control to ``vcl_backend_response``.
+   Syntactically correct HTTP responeses include HTTP ``5xx`` error codes.
+   If Varnish does not receive a HTTP response, it passes control to ``vcl_backend_error``.
 
 VCL – ``vcl_hash``
 ------------------
