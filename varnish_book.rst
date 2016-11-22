@@ -777,7 +777,7 @@ Exercise: Install Varnish
 -------------------------
 
 - Install Varnish
-- Use packages provided by 
+- Use packages provided by
 
   - varnish-software.com for Varnish Cache Plus
   - varnish-cache.org for Varnish Cache
@@ -785,6 +785,10 @@ Exercise: Install Varnish
 - When you are done, verify your Varnish version, run ``varnishd -V``
 
 .. container:: handout
+
+   For official training courses, a ``varnish-plus`` package should already be
+   available for installation. When in doubt, ask your instructor to confirm
+   which package should be installed.
 
    You may skip this exercise if already have a well configured environment to test Varnish.
    In case you get stuck, you may look at the proposed solution.
