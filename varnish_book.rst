@@ -3370,7 +3370,7 @@ All functions are available in all subroutines, except the listed in the table b
 
 .. container:: handout
 
-   VCL offers a handful of simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control to the Varnish Run Time (VRT) environment.
+   VCL offers many simple to use built-in functions that allow you to modify strings, add bans, restart the VCL state engine and return control to the Varnish Run Time (VRT) environment.
    This book describes the most important functions in later sections, so the description at this point is brief.
 
    .. regsub and regsuball
