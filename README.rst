@@ -160,6 +160,15 @@ Building with `sphinx`
   This is a limitation to create the PDF with sphinx.
 - Fonts are not resized in notes or other cases such ``:class: tinycode``.
 
+Docker
+-----
+For using Dockerfile you need run this commands:
+
+```
+$ docker  build -t varnish-book .
+$ docker run -v $PWD/build:/build varnish-book make
+```
+
 Legal
 -----
 
