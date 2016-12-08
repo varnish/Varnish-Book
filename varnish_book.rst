@@ -1041,7 +1041,7 @@ You can use the ``varnishadm`` utility to:
    2. Changes are not persistent across restarts of Varnish. 
       If you change a parameter and you want the change to persist after you restart Varnish,
       you need to store your changes in the configuration file of the boot script.
-      The location of the configuration file is is in `Table 3 <#table-3>`_
+      The location of the configuration file is in `Table 3 <#table-3>`_
 
    ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
    You can now provide access to the interface on a per user basis by adjusting the read permission on the secret file.
@@ -3436,7 +3436,8 @@ Variables in VCL subroutines
 
    `Table 17 <#table-17>`_ shows the availability of variables in each VCL subroutine and whether the variables are readable (R) or writable (W).
    The variables in this table are listed per subroutine and follow the prefix ``req.``, ``bereq.``, ``beresp.``, ``obj.``, or ``resp.``.
-   Recall that every transaction in Varnish is always in a state, and each state is represented by its correspondent subroutine.
+   However, predefined variables does not strictly follow the table, for example, ``req.restarts`` is readable but not writable.
+   In order to see the exact description of predefined variables, consult the VCL man page or ask your instructor.
 
    Most variables are self-explanatory but not how they influence each other, thus a brief explanation follows:
    Values of request (``req.``) variables are automatically assigned to backend request (``bereq.``) variables.
@@ -3445,16 +3446,20 @@ Variables in VCL subroutines
    
    Changes in backend response (``beresp.``) variables affect response (``resp.``) and object (``obj.``) variables.
    Many of the ``obj.`` variables are set in ``resp.``, which are to be sent to the clients.
-   To get more information about a particular variable, consult the VCL man page or ask your instructor.
 
-   Additional variable prefixes from `Table 17 <#table-17>`_ are; ``client.*``, ``server.*``, and ``storage.*``.
+   Additional variable prefixes from `Table 17 <#table-17>`_ are; ``client.``, ``server.``, ``local``, ``remote``, and ``storage.``.
    These prefixes are accessible from the subroutines at the frontend (client) side.
-   Yet another variable is ``now``, which is accessible from all subroutines. 
+   Yet another variable is ``now``, which is accessible from all subroutines.
 
    Support for global variables with a lifespan across transactions and VCLs is achieved with the variable VMOD.
    This VMOD keeps the variables and its values as long as the VMOD is loaded.
    Supported data types are strings, integers and real numbers.
    For more information about the variable VMOD, please visit https://github.com/varnish/varnish-modules/blob/master/docs/vmod_var.rst.
+
+   .. note::
+
+      Recall that every transaction in Varnish is always in a state, and each state is represented by its correspondent subroutine.
+
 
 Detailed Varnish Request Flow for the Backend Worker Thread
 -----------------------------------------------------------
@@ -6780,7 +6785,7 @@ Understanding ``Cache-Control`` in ``varnishtest``
 
      -hdr "Cache-control: max-age=3"
 
-   from the first ``txresp``, and you you will that the second request will contain a body length of 5.
+   from the first ``txresp``, and you will that the second request will contain a body length of 5.
 
    .. tip::
 

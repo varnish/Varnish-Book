@@ -85,14 +85,14 @@ The following is an incomplete list of targets:
 
 ``make slides``
         Builds slides in PDF format.
-	This slides are to be used in a training course.
+        This slides are to be used in a training course.
 
 ``make clean``
         removes build/
 
 ``make util/param.rst``
         Updates the default values of your Varnish installation.
-	These values are the ones to be used in your book building.
+	    These values are the ones to be used in your book building.
 
 ``make sourceupdate``
         Calls ``util/param.rst`` rule and will call other rules to update the sources of the book.
