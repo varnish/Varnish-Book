@@ -3379,9 +3379,8 @@ All functions are available in all subroutines, except the listed in the table b
 
    .. regsub and regsuball
 
-   ``regsub()`` and ``regsuball()`` have the same syntax and does the almost same thing:
-   They both take a string ``str`` as input, search it with a regular-expression ``regex`` and replace it with another string.
-   The difference between ``regsub()`` and ``regsuball()`` is that the latter changes all occurrences while the former only affects the first match.
+   ``regsub()`` and ``regsuball()`` take a string ``str`` as input, search it with a regular-expression ``regex`` and replace it with another string.
+   ``regsub()`` changes only the first match, and ```regsuball()`` changes all occurrences.
 
    .. ban
 
@@ -6223,7 +6222,7 @@ Design and debug:
      Use this to find out which URL is the most fetched.
    - ``varnishtop -i RespStatus``: lists what status codes Varnish returns to clients.
 
-   You may also combine taglist as in the above example.
+   ``varnishtop`` uses the ``varnishlog`` API, therefore you may also combine tag lists as in the above example.
    Even more, you may apply `Query Language`_ ``-q`` options.
    For example, ``varnishtop -q 'respstatus > 400'`` shows you counters for responses where client seem to have erred.
 
