@@ -2109,7 +2109,8 @@ Varnish Tuner
 - Suggested values for system variables and Varnish parameters are **installation specific**
 - With or without user input
 - Available for Varnish Plus only
-- Install::
+
+Installation::
 
     yum install varnishtuner
 
