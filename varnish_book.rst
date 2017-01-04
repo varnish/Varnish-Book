@@ -2407,15 +2407,17 @@ Timers
 Exercise: Tune ``first_byte_timeout``
 -------------------------------------
 
-- Delay backend responses for over 1 second
+- Access a slow resource on the backend
 - Set ``first_byte_timeout`` to 1 second
 - Check how Varnish times out the request to the backend
 
 .. container:: handout
 
-   For the purpose of this exercise, we suggest to create a simple CGI script to insert response delay in a real backend.
+   For the purpose of this exercise we use a CGI script that waits 5 seconds before responding::
+
+       http localhost/cgi-bin/sleep
+
    To check how ``first_byte_timeout`` impacts the behavior of Varnish, analyze the output of ``varnishlog`` and ``varnishstat``.
-   If you need help, look at `Solution: Tune first_byte_timeout and test it against your real backend`_.
 
    Alternatively, you can use ``delay`` in a mock-up backend in ``varnishtest`` and assert VSL records and counters to verify the effect of ``first_byte_timeout``.
    The subsection `Solution: Tune first_byte_timeout and test it against mock-up server`_ shows you how to do it.
@@ -7951,32 +7953,6 @@ Solution: Assert Counters in ``varnishtest``
 
 .. include:: vtc/b00005.vtc
    :literal:
-
-Solution: Tune ``first_byte_timeout`` and test it against your real backend
----------------------------------------------------------------------------
-
-- Create a CGI script in ``/usr/lib/cgi-bin/test.cgi`` containing::
-
-        #! /bin/sh
-        sleep 5
-        echo "Content-type: text/plain"
-        echo "Cache-control: max-age=0"
-        echo
-        echo "Delayed page"
-        date
-
-- Make it executable.
-- Test that your CGI works without involving Varnish by issuing ``http localhost:8080/cgi-bin/test.cgi``
-- Test your CGI through Varnish by issuing ``http localhost:80/cgi-bin/test.cgi``
-
-.. container:: handout
-
-   In this solution, we have used HTTPie to send a request to the backend, but you can also test your real backend with ``varnishtest``.
-
-   .. tip::
-
-      Remember to enable the CGI module in Apache.
-      One way to do that is by issuing the commands: ``a2enmod cgid``, and then ``service apache2 restart``.
 
 Solution: Tune ``first_byte_timeout`` and test it against mock-up server
 ------------------------------------------------------------------------
