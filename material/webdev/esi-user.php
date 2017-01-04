@@ -2,7 +2,8 @@
 header('Content-Type: text/html');
 header('Cache-Control: max-age=30, s-maxage=20');
 header('Vary: Cookie');
-$date = new DateTime();
+$utc = new DateTimeZone("UTC");
+$date = new DateTime("now", $utc);
 $now = $date->format( DateTime::RFC2822 );
 ?>
 <p>This is content on the user-specific ESI-include. This part of 

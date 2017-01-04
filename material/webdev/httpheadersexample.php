@@ -3,7 +3,8 @@ date_default_timezone_set('UTC');
 define( 'LAST_MODIFIED_STRING', 'Sat, 09 Sep 2000 22:00:00 GMT' );
 
 // expires_date : 10s after page generation
-$expires_date = new DateTime();
+$utc = new DateTimeZone("UTC");
+$expires_date = new DateTime("now", $utc);
 $expires_date->add(new DateInterval('PT10S'));
 
 $headers = array(

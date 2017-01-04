@@ -1,7 +1,8 @@
 <?php
 header('Content-Type: text/html');
 header('Cache-Control: max-age=30, s-maxage=3600');
-$date = new DateTime();
+$utc = new DateTimeZone("UTC");
+$date = new DateTime("now", $utc);
 $now = $date->format( DateTime::RFC2822 );
 $setc = "";
 if( isset($_POST['k']) and $_POST['k'] !== '' and

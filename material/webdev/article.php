@@ -1,6 +1,7 @@
 <?php
 header("Cache-Control: max-age=10");
-$date = new DateTime();
+$utc = new DateTimeZone("UTC");
+$date = new DateTime("now", $utc);
 $now = $date->format( DateTime::RFC2822 );
 ?>
 
