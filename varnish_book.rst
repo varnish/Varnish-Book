@@ -2423,7 +2423,7 @@ Exercise: Tune ``first_byte_timeout``
 Exercise: Configure Threading
 -----------------------------
 
-- Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 10 threads running at any given time, but never more than 15.
+- Change the ``thread_pool_min`` and ``thread_pool_max`` parameters to get 10 threads running at any given time, but never more than 20.
 - Execute ``varnishadm param.show <parameter>`` to see parameter details.
 
 .. TODO for the author: find out whether ``thread_pool_timeout`` is the one that modify the herder sleep time.  Explain it!
@@ -8005,6 +8005,7 @@ Solution: Configure Threading with ``varnishadm`` and ``varnishstat``
 ---------------------------------------------------------------------
 
 - Use ``varnishadm param.set`` to set the value of ``thread_pool_min`` and ``thread_pool_max``.
+- Remember that the values are per thread pool, the default value for ``thread_pools`` is 2.
 - Monitor the `MAIN.threads` counter in ``varnishstat`` to see how many threads are running while performing this exercise.
 
 Solution: Configure Threading with ``varnishtest``
