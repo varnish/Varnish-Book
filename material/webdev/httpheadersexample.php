@@ -35,8 +35,7 @@ if( isset( $_GET['h'] ) and $_GET['h'] !== '' )
             $headers['Etag'] = md5( 12345 );
 
             if( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) and
-                $_SERVER['HTTP_IF_MODIFIED_SINCE'] == 
-		LAST_MODIFIED_STRING ) {
+                $_SERVER['HTTP_IF_MODIFIED_SINCE'] == LAST_MODIFIED_STRING ) {
                 header( "HTTP/1.1 304 Not Modified" );
                 exit(  );
             }
@@ -90,8 +89,7 @@ function toUTCDate( DateTime $date )
 	    Test Expires response header field</a></li>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?h=cache-control">
 	    Test Cache-Control response header field</a></li>
-            <li><a href="<?=$_SERVER['PHP_SELF']?>?
-	    h=cache-control-override">
+            <li><a href="<?=$_SERVER['PHP_SELF']?>?h=cache-control-override">
 	    Test Cache-Control and Expires</a></li>
             <li><a href="<?=$_SERVER['PHP_SELF']?>?h=last-modified">
 	    Test Last-Modified/If-Modified-Since response header fields</a></li>
