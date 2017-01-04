@@ -3022,7 +3022,7 @@ Exercise: Use `article.php` to test ``Age``
 #. Copy ``article.php`` from ``Varnish-Book/material/webdev/`` to  ``/var/www/html/``
 #. Send a request to `article.php` via Varnish, and see the response ``Age`` header field in ``varnishlog -g request -i ReqHeader,RespHeader``
 #. Click the link several times and refresh your browser. Can you identify patterns?
-#. Analyze the output of ``varnishstat -f MAIN.client_req -f MAIN.cache_hit`` in addition to ``varnishlog``
+#. Analyze the output of ``varnishstat -f MAIN.client_req -f MAIN.cache_*`` in addition to ``varnishlog``
 #. Can you use the ``Age`` field to determine whether Varnish made a cache hit?
 #. What is the difference between caching time in Varnish and the client?
 #. Use different browsers and analyze whether their internal caches work different
