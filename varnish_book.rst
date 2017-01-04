@@ -5411,7 +5411,7 @@ For that, prepare the testbed and test with HTTPie:
 #. Copy the file ``material/webdev/cookies.php`` to ``/var/www/html/cookies.php``.
 #. Send different requests in HTTPie changing ``/cookies.php`` and ``user=Alice`` for ``/article.html`` and ``user=Bob``, e.g.::
 
-    http -p hH http://localhost/cookies.php "Cookie: user=Alice"
+    http http://localhost/cookies.php "Cookie: user=Alice"
 
 .. vary
 
