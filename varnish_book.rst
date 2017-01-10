@@ -925,7 +925,7 @@ or::
    You can have multiple compiled files in Varnish.
    To see them, run::
 
-     varnish vcl.list
+     varnishadm vcl.list
 
    To apply a compiled VCL program, type::
 
