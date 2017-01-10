@@ -1505,15 +1505,15 @@ Query Language
 
 - Operators: ``== != < <= > >= eq ne ~ !~``
 - Operands: ``a-z A-Z 0-9 + - _ . *``
-  
+
 Examples of Varnish log queries::
 
   varnishlog -q 'VCL_call ~MISS'
   varnishlog -i Timestamp
-  Requests taking more than 5 seconds:
-  varnishlog -i Timestamp:Fetch[2] > 5
 
-  vsl_mask + trace
+Requests taking more than 5 seconds::
+
+  varnishlog -q 'Timestamp:Fetch[2] > 5'
 
 timestamp contains timing information for the varnish worker threads.
 
