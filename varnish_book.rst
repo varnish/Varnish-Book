@@ -1419,14 +1419,14 @@ Transaction Groups
 - Transaction groups are hierarchical
 - Levels are equal to relationships (parents and children)::
  
-   Level 1: Client request (cache miss)
-     Level 2: Backend request
-     Level 2: ESI subrequest (cache miss)
-       Level 3: Backend request
-       Level 3: Backend request (VCL restart)
-       Level 3: ESI subrequest (cache miss)
-         Level 4: Backend request
-     Level 2: ESI subrequest (cache hit)
+    Level 1: Client request (cache miss)
+      Level 2: Backend request
+      Level 2: ESI subrequest (cache miss)
+        Level 3: Backend request
+        Level 3: Backend request (VCL restart)
+        Level 3: ESI subrequest (cache miss)
+          Level 4: Backend request
+      Level 2: ESI subrequest (cache hit)
 
 .. container:: handout
 
@@ -1680,7 +1680,7 @@ Exercise: Filter Varnish Log Records
 
    In the above example, Varnish has served 1055 requests and is currently serving roughly 7.98 requests per second.
    Some counters do not have "per interval" data, but are *gauges* with values that increase and decrease.
-   *Gauges* normally start with a ``g_`` prefix.
+   *Gauges* start with a ``g_`` prefix.
 
    .. tip::
 
@@ -1724,11 +1724,11 @@ Exercise: Filter Varnish Log Records
 
         - A/B testing
         - Measuring click-through rate
-	- Track slow pages and cache misses
-	- Analyze what is "hot" right now in a news website
-	- Track changes in currency conversions in e-commerce
-	- Track changes in Stock Keeping Units (SKUs) behavior in e-commerce
-	- Track number of unique consumers of HLS/HDS/DASH video streams
+	    - Track slow pages and cache misses
+	    - Analyze what is "hot" right now in a news website
+	    - Track changes in currency conversions in e-commerce
+	    - Track changes in Stock Keeping Units (SKUs) behavior in e-commerce
+	    - Track number of unique consumers of HLS/HDS/DASH video streams
 
 Notable Counters
 ................
@@ -6229,7 +6229,7 @@ Design and debug:
    Even more, you may apply `Query Language`_ ``-q`` options.
    For example, ``varnishtop -q 'respstatus > 400'`` shows you counters for responses where client seem to have erred.
 
-   .. TODO for the author: to make an example with -g and -q.
+   .. TODO for the author: to make an example with -g
 
    Some other possibly useful examples are:
 
