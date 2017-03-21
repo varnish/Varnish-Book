@@ -655,10 +655,12 @@ How objects are stored
 
 	.. multiple objects
 
-	HTTP specifies that multiple objects can be served from the same URL, depending on the preferences of the client.
-	For instance, content in *gzip* format is sent only to clients that indicate *gzip* support.
-	Varnish stores various objects under one key.
-	Upon a client request, Varnish selects the object that matches the client preferences.
+    HTTP specifies that multiple objects can be served from the same URL depending on the preferences of the client.
+    For instance, content in gzip format is sent only to clients that indicate *gzip* support.
+    Varnish stores a single compressed object under one hash key.
+
+    Upon a client request, Varnish checks the ``Accept-Encoding`` header field.
+    If the client does not accept gzip objects, Varnish decompresses the object on the fly and sends it to the client.
 
 Object Lifetime
 ---------------
