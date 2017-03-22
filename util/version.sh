@@ -29,7 +29,7 @@ cat <<__EOF__
 	  please contact training@varnish-software.com.
 :Contact: For any questions regarding this training material, please
           contact training@varnish-software.com.
-:Web:     http://www.varnish-software.com/book/
+:Web:     https://info.varnish-software.com/the-varnish-book
 :Source:  http://github.com/varnish/Varnish-Book/
 
 .. _Varnish Software: http://www.varnish-software.com/
