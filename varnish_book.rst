@@ -439,21 +439,7 @@ Varnish Cache and Varnish Plus
    `Table 1 <#table-1>`_ shows the components covered in this book and their availability for Varnish Cache users and Varnish Plus customers.
    The covered components of Varnish Plus are described in the `Varnish Plus Software Components`_ chapter.
    For more information about the complete Varnish Plus offer, please visit https://www.varnish-software.com/what-is-varnish-plus.
-
-   .. Supported platforms
-
-   At the moment of writing this book, Varnish Cache supports the operating systems and Linux distributions listed in `Table 2 <#table-2>`_.
-
-   .. table 2
-
-   .. csv-table:: Table :counter:`table`: Varnish Cache and Varnish Plus supported platforms
-      :name: Varnish Cache and Varnish Plus supported platforms
-      :delim: ,
-      :header-rows: 1
-      :widths: 50,25,25
-      :file: tables/supported_platforms.csv
-
-   Varnish Cache and Varnish Plus support only 64-bit systems.
+   A list of supported platforms can be found in https://www.varnish-software.com/customers/#platforms.
 
    .. note::
 
