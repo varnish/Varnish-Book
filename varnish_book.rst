@@ -3268,6 +3268,8 @@ VCL Syntax
 - No loops, state-limited variables
 - Terminating statements with a keyword for next action as argument of the ``return()`` function, i.e.: ``return(action)``
 - Domain-specific
+- ``include "foo.vcl";`` to include a VCL file
+- ``import foo;`` to load Varnish modules (VMODs)
 
 .. TODO for the author:
    give a reference to .el highlighting lisp file for emacs
@@ -3294,8 +3296,19 @@ VCL Syntax
    For example, "look this up in cache", "do not look this up in the cache", or "generate an error message".
    To check which actions are available at a given built-in subroutine, see the `Legal Return Actions`_ section or see the manual page of VCL.
 
-   VCL code is part of Varnish Test Cases (VTC) in ``varnishtest``.
-   To learn how to insert your VCL code in a VTC, refer to the subsection `VCL in varnishtest`_.
+   VCL has two directives to use contents from another file.
+   These directives are ``include`` and ``import``, and they are used for **different* purpose.
+
+   ``include`` is used to insert VCL code from another file.
+   Varnish looks for files to include in the directory specified by the ``vcl_dir`` parameter of ``varnishd``.
+   Note the quotation marks in the ``include`` syntax.
+
+   ``import`` is used to load VMODs and make available their functions into your VCL code.
+   Varnish looks for VMODs to load in the directory specified by the ``vmod_dir`` parameter of ``varnishd``.
+   Note the lack of quotation marks in the ``import`` syntax.
+
+   You can use the ``include`` and ``import`` in ``varnishtest``.
+   To learn more on how to test your VCL code in a VTC, refer to the subsection `VCL in varnishtest`_.
 
    .. warning::
    
@@ -6791,6 +6804,9 @@ VCL in ``varnishtest``
    ``varnishtest`` allows you to insert VCL code with the ``-vcl`` directive  when declaring a Varnish server.
    This VCL code is inserted above the subroutines in built-in code in ``{varnish-source-code}/bin/varnishd/builtin.vcl``.
    Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
+
+   ``varnishtest`` allows you insert VCL code from an external file using the ``include "foo.vcl";`` directive, or load VMODs using the ``import foo;`` directive.
+   For examples on how to use ``include`` and ``import``, refer to the the available VTC files in your Varnish distribution under the directory ``varnish-cache-plus/bin/varnishtest/tests/``.
 
 ``PURGE`` in ``varnishtest``
 ............................

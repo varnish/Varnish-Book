@@ -1,4 +1,4 @@
-personal_ws-1.1 en 506 
+personal_ws-1.1 en 507 
 ajax
 apache
 google
@@ -19,10 +19,10 @@ github
 delim
 arg
 httpifnonematch
-HTTP's
 https
-vmods
+HTTP's
 VMODs
+vmods
 Naghibi
 nosni
 HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
@@ -49,6 +49,7 @@ buf
 charset
 backends
 SKUs
+dir
 cnt
 cacheable
 Verdens
@@ -61,8 +62,8 @@ RespProtocol
 CType
 SHared
 Henning
-DNS
 CSS
+DNS
 csv
 compressions
 httprequestflow
@@ -111,8 +112,8 @@ CDNs
 HMAC
 strcmp
 README
-HTTPie
 httpie
+HTTPie
 phinx
 softpurge
 varnishtop
@@ -148,8 +149,8 @@ cliok
 sudo
 txreq
 RESTful
-ipv
 IPv
+ipv
 Argv
 uint
 acceptor
@@ -165,8 +166,8 @@ clierr
 LFU
 metadata
 saintmode
-freebsd
 FreeBSD
+freebsd
 gunzip
 linux
 Economization
@@ -178,12 +179,12 @@ Aondio
 enmod
 mgt
 releasever
-RespStatus
 respstatus
+RespStatus
 vmodtool
 getNonMasqueraded
-hashtwo
 HashTwo
+hashtwo
 tIncluded
 DDoS
 workspace
@@ -298,20 +299,20 @@ helloworldtest
 varnishapi
 ubuntu
 Footbar
-VBE
 rst
+VBE
 VCA
 ccgroup
-vcc
 src
+vcc
 recv
 subrequest
 util
 SQL
 VDD
 VBP
-VAV
 vcl
+VAV
 VXIDs
 tls
 setsebool
@@ -351,8 +352,8 @@ url
 testbed
 hdrbytes
 Arianna
-utf
 vlu
+utf
 BereqURL
 malloc
 usr
@@ -429,8 +430,8 @@ xkey
 eq
 berespbytes
 signIn
-hH
 Hh
+hH
 sema
 Finstad
 addr
@@ -491,8 +492,8 @@ localhost
 vstatdprobe
 Karstensen
 varnishlog
-Etag
 ETag
+Etag
 AES
 substring
 noverify
