@@ -1505,10 +1505,6 @@ Requests taking more than 5 seconds::
 
 timestamp contains timing information for the varnish worker threads.
 
-  varnishlog -q 'RespStatus < 500'
-   varnishlog -g request -q 'ReqURL eq "/"'
-   varnishlog -g request -q 'Backend ~ default'
-
 .. container:: handout
 
    .. Query Log Language
@@ -6327,6 +6323,7 @@ The Varnish Test Case (VTC) Language
 - Starts real instance of ``varnishd``
 - Simulates clients
 - Asserts using ``expect``
+- ``expect`` supports regular expressions
 
 **b00001.vtc**
 
@@ -6358,8 +6355,8 @@ The Varnish Test Case (VTC) Language
    In this example we declare a simulated origin server::
 
      server s1 {
-	rxreq
-	txresp
+       rxreq
+       txresp
      } -start
 
    All server declarations must start with ``s``.
@@ -6390,10 +6387,9 @@ The Varnish Test Case (VTC) Language
    To simulate a client::
 
       client c1 {
-	 txreq
-	 rxresp
-
-	 expect resp.http.via ~ "varnish"
+        txreq
+        rxresp
+        expect resp.http.via ~ "varnish"
       } -run
 
    Simulated clients in ``varnishtest`` start with ``c``.
@@ -6614,6 +6610,7 @@ Example of Transactions in ``varnishtest``
 
 - Allows you to assert log records
 - Uses ``varnishlog`` API
+- Supports regular expressions
 
 .. include:: vtc/l00000.vtc
    :literal:
