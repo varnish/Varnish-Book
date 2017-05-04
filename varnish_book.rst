@@ -3297,7 +3297,7 @@ VCL Syntax
    To check which actions are available at a given built-in subroutine, see the `Legal Return Actions`_ section or see the manual page of VCL.
 
    VCL has two directives to use contents from another file.
-   These directives are ``include`` and ``import``, and they are used for **different* purpose.
+   These directives are ``include`` and ``import``, and they are used for **different** purpose.
 
    ``include`` is used to insert VCL code from another file.
    Varnish looks for files to include in the directory specified by the ``vcl_dir`` parameter of ``varnishd``.
@@ -4277,15 +4277,12 @@ VCL – ``vcl_purge``
 Example: ``PURGE``
 ..................
 
-**vcl/PURGE.vcl**
+**vcl/purge.vcl**
 
-.. include:: vcl/PURGE.vcl
+.. include:: vcl/purge.vcl
    :literal:
 
 .. container:: handout
-
-   ``acl`` is a reserved keyword that is used to create `Access Control Lists (ACLs)`_.
-   ACLs are used to control which client IP addresses are allowed to purge cached objects.
 
    In the example above, ``return (purge)`` ends execution of ``vcl_recv`` and jumps to ``vcl_hash``.
    When ``vcl_hash`` calls ``return(lookup)``, Varnish purges the object and then calls ``vcl_purge``.
@@ -4295,6 +4292,9 @@ Example: ``PURGE``
       http -p hH --proxy=http:http://localhost PURGE www.example.com
 
    Alternatively, you can test it with ``varnishtest`` as in the subsection `PURGE in varnishtest`_.
+
+   In order to control the IP addresses that are allowed to send ``PURGE``, you can use Access Control Lists (ACLs).
+   A purge example using ACLs is in the `Access Control Lists (ACLs)`_ section.
 
 Exercise: ``PURGE`` an article from the backend
 ...............................................
