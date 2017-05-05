@@ -4786,9 +4786,9 @@ Directors
    .. note::
 
       Directors are defined as loadable VMODs in Varnish 4.
-      See the ``vmod_directors`` man page for more information.
+      See the `vmod_directors <https://varnish-cache.org/docs/4.1/reference/vmod_directors.generated.html>`_ man page for more information and examples.
 
-   .. warning::
+.. warning::
 
       If you declare backend servers, but do not use them, ``varnishd`` returns error by default.
       You can avoid this situation by turning off the runtime parameter ``vcc_err_unref``.
