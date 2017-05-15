@@ -1918,7 +1918,7 @@ VCL Compilation
 
 - Command to print VCL code compiled to C language and exit::
 
-   $varnishd -C -f <vcl_filename>
+   varnishd -C -f <vcl_filename>
 
 - Useful to check whether your VCL code compiles correctly.
 
@@ -3245,7 +3245,7 @@ The VCL Finite State Machine
 - Each request is processed separately
 - Each request is independent from others at any given time
 - States are related, but isolated
-- ``return(action);`` exits one state and instructs Varnish to proceed to the next state
+- ``return(action);`` exits the current state and instructs Varnish to proceed to the next state
 - Built-in VCL code is always present and appended below your own VCL
 
 .. container:: handout
@@ -3258,6 +3258,11 @@ The VCL Finite State Machine
    Policies are a set of rules that the VCL code uses to make a decision.
    Policies help to answer questions such as: should Varnish even attempt to find the requested resource in the cache?
    In this example, the policies are in the ``vcl_recv`` subroutine.
+
+   .. warning::
+   
+      If you define your own subroutine and execute ``return (action);`` in it, control is passed to the Varnish Run Time (VRT) environment.
+      In other words, your ``return (action);`` skips the built-it subroutine.
 
 VCL Syntax
 ----------
@@ -3309,39 +3314,6 @@ VCL Syntax
 
    You can use the ``include`` and ``import`` in ``varnishtest``.
    To learn more on how to test your VCL code in a VTC, refer to the subsection `VCL in varnishtest`_.
-
-   .. warning::
-   
-      If you define your own subroutine and call it from one of the built-in subroutines, executing ``return(foo)`` does not return execution from your custom subroutine to the default function, but returns execution from VCL to Varnish.
-
-Built-in ``vcl_recv``
----------------------
-
-.. include:: vcl/default-vcl_recv.vcl
-   :literal:
-
-- We will revisit ``vcl_recv`` after we learn more about built-in functions, keywords, variables and return actions
-
-.. container:: handout
-
-   The built-in VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
-   It has two main uses:
-
-   #. Only handle recognized HTTP methods.
-   #. Cache requests with ``GET`` and ``HEAD`` headers.
-
-   Policies for no caching data are to be defined in your VCL.
-   Built-in VCL code is executed right after any user-defined VCL code, and is always present.
-   You can not remove built-in subroutines, however, you can avoid them if your VCL code reaches one of the terminating actions: ``pass``, ``pipe``, ``hash``, or ``synth``.
-   These terminating actions return control from the VRT (Varnish Run-Time) to Varnish.
-
-   For a well-behaving Varnish server, most of the logic in the built-in VCL is needed.
-   Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
-
-   We will revisit and discuss in more detail the ``vcl_recv`` subroutine in ``VCL Built-in Subroutines``, but before, let's learn more about built-in functions, keywords, variables and return actions
-
-   .. TODO: Consider to mention why SPDY is not supported in Varnish.
-   .. https://www.varnish-software.com/blog/why-i-dont-spdy
 
 VCL Built-in Functions and Keywords
 -----------------------------------
@@ -3459,6 +3431,45 @@ Variables in VCL subroutines
 
       Recall that every transaction in Varnish is always in a state, and each state is represented by its correspondent subroutine.
 
+Built-in ``vcl_recv``
+---------------------
+
+.. include:: vcl/default-vcl_recv.vcl
+   :literal:
+
+- We will revisit ``vcl_recv`` after we learn more about built-in functions, keywords, variables and return actions
+
+.. container:: handout
+
+   The built-in VCL for ``vcl_recv`` is designed to ensure a safe caching policy even with no modifications in VCL.
+   It has two main uses:
+
+   #. Only handle recognized HTTP methods.
+   #. Cache requests with ``GET`` and ``HEAD`` headers.
+
+   Policies for no caching data are to be defined in your VCL.
+   Built-in VCL code is executed right after any user-defined VCL code, and is always present.
+   You can not remove built-in subroutines, however, you can avoid them if your VCL code reaches one of the terminating actions: ``pass``, ``pipe``, ``hash``, or ``synth``.
+   These terminating actions return control from the VRT (Varnish Run-Time) to Varnish.
+
+   For a well-behaving Varnish server, most of the logic in the built-in VCL is needed.
+   Consider either replicating all the built-in VCL logic in your own VCL code, or let your client requests be handled by the built-in VCL code.
+
+   We will revisit and discuss in more detail the ``vcl_recv`` subroutine in ``VCL Built-in Subroutines``, but before, let's learn more about built-in functions, keywords, variables and return actions
+
+   .. TODO: Consider to mention why SPDY is not supported in Varnish.
+   .. https://www.varnish-software.com/blog/why-i-dont-spdy
+
+Exercise: Configure ``vcl_recv`` to avoid caching all requests to the URL ``/admin``
+....................................................................................
+
+#. Find and open the ``built-in.vcl`` code, and analyze the ``vcl_recv`` subroutine
+#. Create your VCL code to avoid caching all URLs under ``/admin``
+#. Compile your VCL code to C language, and analyze how the ``built-in.vcl`` code is appended
+
+.. container:: handout
+
+  If you need help, see `Solution: Configure vcl_recv to avoid caching all requests to the URL /admin`_.
 
 Detailed Varnish Request Flow for the Backend Worker Thread
 -----------------------------------------------------------
@@ -3942,8 +3953,8 @@ VCL – ``vcl_backend_fetch``
    ``vcl_backend_fetch`` has two possible terminating actions, *fetch* or *abandon*.
    The *fetch* action sends the request to the backend, whereas the *abandon* action calls the ``vcl_synth`` subroutine.
    The built-in ``vcl_backend_fetch`` subroutine simply returns the ``fetch`` action.
-   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error`` depending on the response from the server.
 
+   The backend response is processed by ``vcl_backend_response`` or ``vcl_backend_error`` depending on the response from the server.
    If Varnish receives a syntactically correct HTTP response, Varnish pass control to ``vcl_backend_response``.
    Syntactically correct HTTP responses include HTTP ``5xx`` error codes.
    If Varnish does not receive a HTTP response, it passes control to ``vcl_backend_error``.
@@ -6806,7 +6817,7 @@ VCL in ``varnishtest``
    Since ``builtin.vcl`` already includes ``vcl 4.0;``, you do not need to add it in ``varnishtest``.
 
    ``varnishtest`` allows you insert VCL code from an external file using the ``include "foo.vcl";`` directive, or load VMODs using the ``import foo;`` directive.
-   For examples on how to use ``include`` and ``import``, refer to the the available VTC files in your Varnish distribution under the directory ``varnish-cache-plus/bin/varnishtest/tests/``.
+   For examples on how to use ``include`` and ``import``, refer to the available VTC files in your Varnish distribution under the directory ``varnish-cache-plus/bin/varnishtest/tests/``.
 
 ``PURGE`` in ``varnishtest``
 ............................
@@ -7977,6 +7988,37 @@ Solution: Tune ``first_byte_timeout`` and test it against mock-up server
    ``b00006.vtc`` is copied from ``Varnish-Cache/bin/varnishtest/tests/b00023.vtc``
    We advise you to take a look at the many tests under ``Varnish-Cache/bin/varnishtest/tests/``.
    You will learn so much about Varnish when analyzing them.
+
+Solution: Configure ``vcl_recv`` to avoid caching all requests to the URL ``/admin``
+------------------------------------------------------------------------------------
+
+VCL code::
+
+  vcl 4.0;
+
+  backend default {
+    .host = "127.0.0.1";
+    .port = "8080";
+  }
+
+  sub vcl_recv {
+    if (req.url ~ "^/admin") {
+      return(pass);
+	}
+  }
+
+Command to compile and visualize result in ``less``::
+
+  varnishd -C -f recv.vcl 2>&1 | less
+
+.. container:: handout
+
+  In this suggested solution, the backend is configured to a local IP address and port.
+  Since we are not running this code, you can configure it as you want.
+
+  Note the use of the match comparison operator ``~`` in regular expression.
+
+  In the output of the compiler you should be able to find your VCL code and the built-in VCL code appended to it.
 
 Solution: Configure Threading with ``varnishadm`` and ``varnishstat``
 ---------------------------------------------------------------------
