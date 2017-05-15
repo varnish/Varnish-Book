@@ -8004,7 +8004,7 @@ VCL code::
   sub vcl_recv {
     if (req.url ~ "^/admin") {
       return(pass);
-	}
+    }
   }
 
 Command to compile and visualize result in ``less``::
