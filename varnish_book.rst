@@ -4772,7 +4772,8 @@ Directors
 
    There are several different director selection methods available, they are: random, round-robin, fallback, and hash.
    The next backend to be selected depends on the selection method.
-   The simplest directors available are the *round-robin* and the *random* director.
+   You can specify the timeout before unsued backend connections are closed by setting the ``backend_idle_timeout`` parameter.
+   How to tune this and other parameters is further explained in the `Tuning`_ section.
 
    A *round-robin* director takes only a backend list as argument.
    This director type picks the first backend for the first request, then the second backend for the second request, and so on.
@@ -4784,8 +4785,6 @@ Directors
    considered a backend so you can actually stack directors. You could for
    instance have directors for active and passive clusters, and put those
    directors behind a fallback director.
-
-   .. TOUPDATE for the author: In 4.1 idle backend connections are closed.
 
    *Random* directors are seeded with either a random number or a hash key.
    Next section explains their commonalities and differences.
