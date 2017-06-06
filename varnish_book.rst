@@ -6539,8 +6539,8 @@ Setting Parameters in ``varnishtest``
    Parameters can also be set in ``varnishtest``.
    To execute commands via the CLI, you have three options: ``-cli "command"``, ``-cliok "command"`` and ``-clierr "status" "command"``.
    ``-cli`` executes a command without checking the return status.
-   ``-clickok`` executes a command and expects it to return OK 200 status.
-   ``-clickerr`` executes a command and checks whether the expected return ``status`` matches.
+   ``-cliok`` executes a command and expects it to return OK 200 status.
+   ``-clierr`` executes a command and checks whether the expected return ``status`` matches.
 
    .. note::
 
