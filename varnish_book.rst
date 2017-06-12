@@ -881,7 +881,7 @@ Exercise: Configure Varnish
         .host = "host.name";
         .port = "https";       # This defaults to https when SSL
         .ssl = 1;              # Turns on SSL support
-        .ssl_nosni = 1;        # Disable SNI extension
+        .ssl_nosni = 0;        # Disable SNI extension
         .ssl_noverify = 1;     # Don't verify peer
       }
 
