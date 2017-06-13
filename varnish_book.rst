@@ -2386,7 +2386,7 @@ Timers
            Another use-case for increasing ``connect_timeout`` occurs when virtual machines are involved as they can increase the connection time significantly.
 
 	.. tip::
-	   More information in https://www.varnish-software.com/blog/understanding-timeouts-varnish-cache.
+	   More information in https://info.varnish-software.com/blog/understanding-timeouts-varnish-cache .
 
 Exercise: Tune ``first_byte_timeout``
 -------------------------------------
