@@ -4460,9 +4460,9 @@ Banning
 
    .. ban best practices
 
-   Bans can be free memory in a very scalable manner if used properly.
+   Bans can free memory in a very scalable manner if used properly.
    Bans free memory only after a ban expression hits an object.
-   However, since bans do not prevent new backend responses to be inserted in the cache, client requests that trigger the eviction of an object will most likely insert a new one.
+   However, since bans do not prevent new backend responses from being inserted in the cache, client requests that trigger the eviction of an object will most likely insert a new one matching the ban.
    Therefore, ban lurker banning is more effective when freeing memory, as we shall see next.
 
    .. note::
