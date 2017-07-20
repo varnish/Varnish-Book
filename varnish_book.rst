@@ -3458,7 +3458,7 @@ Built-in ``vcl_recv``
    We will revisit and discuss in more detail the ``vcl_recv`` subroutine in ``VCL Built-in Subroutines``, but before, let's learn more about built-in functions, keywords, variables and return actions
 
    .. TODO: Consider to mention why SPDY is not supported in Varnish.
-   .. https://www.varnish-software.com/blog/why-i-dont-spdy
+   .. https://info.varnish-software.com/blog/why-i-dont-spdy
 
 Exercise: Configure ``vcl_recv`` to avoid caching all requests to the URL ``/admin``
 ....................................................................................
@@ -4820,7 +4820,7 @@ Random Directors
 
    .. description of random directors
 
-   The *random* director picks a backend randomly.
+   The *random* director picks a backend randomly
    It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the selection of the backends.
    The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
    The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
@@ -4837,7 +4837,7 @@ Random Directors
    Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
    Therefore, *hash* directors always select the same backend for a given input.
    This is also known as *sticky* session load balancing.
-   You can learn more about sticky sessions in https://info.varnish-software.com/blog/proper-sticky-session-load-balancing-varnish , converting mentions of the *client* director in this Varnish 3 article to *hash director*, as noted below.
+   You can learn more about sticky sessions in https://info.varnish-software.com/blog/proper-sticky-session-load-balancing-varnish.
 
    Hash directors are useful to load balance in front of other Varnish caches or other web accelerators.
    In this way, cached objects are not duplicated across different cache servers.
@@ -5790,7 +5790,7 @@ Varnish Custom Statistics (VCS)
    VCS is a great tool when you want to test some functionality in your backend.
    For that, you can separate your requests into different groups, handle their requests accordingly, analyze the results and conclude whether your new functionality should be applied to all groups.
    This type of tests are called *A/B testing*.
-   If you want to learn how to implement A/B testing in Varnish, please refer to https://www.varnish-software.com/blog/live-ab-testing-varnish-and-vcs.
+   If you want to learn how to implement A/B testing in Varnish, please refer to https://info.varnish-software.com/blog/live-ab-testing-varnish-and-vcs.
 
    .. demo
    
