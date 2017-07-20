@@ -4837,7 +4837,7 @@ Random Directors
    Since the hash key is always the same for a given input, the output of the *hash* director is always the same for a given hash key.
    Therefore, *hash* directors always select the same backend for a given input.
    This is also known as *sticky* session load balancing.
-   You can learn more about sticky sessions in https://www.varnish-software.com/blog/proper-sticky-session-load-balancing-varnish.
+   You can learn more about sticky sessions in https://info.varnish-software.com/blog/proper-sticky-session-load-balancing-varnish , converting mentions of the *client* director in this Varnish 3 article to *hash director*, as noted below.
 
    Hash directors are useful to load balance in front of other Varnish caches or other web accelerators.
    In this way, cached objects are not duplicated across different cache servers.
