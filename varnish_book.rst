@@ -4820,7 +4820,7 @@ Random Directors
 
    .. description of random directors
 
-   The *random* director picks a backend randomly
+   The *random* director picks a backend randomly.
    It has one per-backend parameter called ``weight``, which provides a mechanism for balancing the selection of the backends.
    The selection mechanism of the random director may be regarded as traffic distribution if the amount of traffic is the same per request and per backend.
    The random director also has a director-wide counter called ``retries``, which increases every time the director selects a sick backend.
