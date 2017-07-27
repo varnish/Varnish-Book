@@ -6097,61 +6097,68 @@ SSL/TLS frontend support with hitch
    Varnish Plus integrates hitch_, which can have tens of thousands of listening sockets and hundreds of thousands of certificates.
    Following are the steps to configure Varnish to accept SSL/TLS connections with hitch.
 
-   #. Install hitch::
+   #. Configure your package repository as explained in `Solution: Install Varnish`_.
 
-	$ yum install hitch
+   #. Install hitch in RedHat systems::
+
+        $ yum install varnish-plus-addon-ssl
+
+      or Ubuntu based systems::
+
+        $ apt-get install varnish-plus-addon-ssl
 
    #. Create a key ``.pem`` file::
 
-	$ /etc/pki/tls/certs/make-dummy-cert your-cdn.pem
+        $ /etc/pki/tls/certs/make-dummy-cert your-cdn.pem
 
       For the purposes of this book, we create a *dummy* key and certification file concatenated in the ``.pem`` file.
-      See https://github.com/varnish/hitch/blob/master/docs/certificates.md for alternative methods.
+      See https://docs.varnish-software.com/tutorials/hitch-letsencrypt/ or https://github.com/varnish/hitch/blob/master/docs/certificates.md for alternative methods.
 
    #. Configure hitch in ``/etc/hitch/hitch.conf``::
 
-	frontend = "[*]:443"
-	backend = "[127.0.0.1]:6081"
-	pem-file = "/path/to/your-cdn.pem"
-	ciphers = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
-	prefer-server-ciphers = off
-	ssl-engine = ""
-	workers = 1
-	backlog = 100
-	keepalive = 3600
-	chroot = ""
-	user = "hitch"
-	group = "hitch"
-	quiet = off
-	syslog = on
-	syslog-facility = "daemon"
-	daemon = on
-	write-ip = off
-	write-proxy-v1 = on
-	write-proxy-v2 = off
-	proxy-proxy = off
-	sni-nomatch-abort = off
+        frontend = "[*]:443"
+	    backend = "[127.0.0.1]:6081"
+	    pem-file = "/path/to/your-cdn.pem"
+	    ciphers = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+	    prefer-server-ciphers = off
+	    ssl-engine = ""
+	    workers = 1
+	    backlog = 100
+	    keepalive = 3600
+	    chroot = ""
+	    user = "hitch"
+	    group = "hitch"
+	    quiet = off
+	    syslog = on
+	    syslog-facility = "daemon"
+	    daemon = on
+	    write-ip = off
+	    write-proxy-v1 = on
+	    write-proxy-v2 = off
+	    proxy-proxy = off
+	    sni-nomatch-abort = off
 
    #. If your server is behind a firewall, ensure it can accept HTTPS connections.
 
    #. In ``/etc/varnish/varnish.params``, configure Varnish Plus to listen to
       ``PROXY`` requests on port ``6081``::
 
-	DAEMON_OPTS="-a :6081,PROXY"
+        DAEMON_OPTS="-a :6081,PROXY"
 
    #. Start hitch::
 
-	$ service hitch start
+	    $ service hitch start
 
       At the moment of writing this text, ``service hitch start`` did not output starting errors.  
       You should check whether hitch has started, if not, try the following command to debug::
 
-	$ /usr/sbin/hitch --pidfile=/run/hitch/hitch.pid \
-	--config=/etc/hitch/hitch.conf
+	    $ /usr/sbin/hitch --pidfile=/run/hitch/hitch.pid \
+	    --config=/etc/hitch/hitch.conf
 
    .. note::
 
-      Hitch has its own documentation at https://github.com/varnish/hitch
+      Hitch has its own documentation in its man pages ``man hitch`` and ``man hitch.conf``.
+      Additional information at https://github.com/varnish/hitch.
 
 .. _hitch: https://github.com/varnish/hitch
 
@@ -7888,6 +7895,8 @@ Solution: Install Varnish
      deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
      varnish-4.x-plus
 
+
+
      # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
      deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
      non-free
@@ -7899,6 +7908,7 @@ Solution: Install Varnish
   To install **Varnish Cache Plus** and VMODs::
 
      $ apt-get install varnish-plus
+     $ apt-get install varnish-plus-addon-ssl
      $ apt-get install varnish-plus-vmods-extra
 
   To install **Varnish-Cache**::
