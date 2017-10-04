@@ -832,7 +832,7 @@ Use the command ``systemctl start/stop/enable/disable/ varnishlog/varnishncsa`` 
         $ sudo /usr/sbin/varnishd -j unix,user=varnish,ccgroup=varnish \
         -P /var/run/varnish.pid -f /etc/varnish/default.vcl -a :80 -a :6081,PROXY \
         -T 127.0.0.1:6082 -t 120 -S /etc/varnish/secret \
-        - s malloc,256MB -F
+        -s malloc,256MB -F
 
 Exercise: Configure Varnish
 ---------------------------
@@ -4586,8 +4586,6 @@ Force Cache Misses
    In this case, the current cached object is untouched.
    Therefore, client requests that do not enable ``req.hash_always_miss`` keep getting the old and untouched cached content.
 
-   .. TODO: what happen with those that send ``req.hash_always_miss=true;``? What do they get in case that the server is down?
-
    Two important use cases for using ``req.hash_always_miss`` are when you want to:
    1) control who takes the penalty for waiting around for the updated content (e.g. a script you control), and 
    2) ensure that content is not evicted before it is updated.
@@ -5457,7 +5455,7 @@ For that, prepare the testbed and test with HTTPie:
 
    This exercise is all about ``Vary`` and hash mechanisms.
    These mechanisms can also be tested and learned through ``varnishtest``.
-   If you have time and curious enough, please do the `Exercise: Handle Cookies with Vary and hash_data() in varnishtest`_.
+   If you have time and are curious enough, please do the `Exercise: Handle Cookies with Vary and hash_data() in varnishtest`_.
    After solving these exercises, you will understand very well how ``Vary`` and ``hash_data();`` work.
 
 Edge Side Includes
@@ -5745,6 +5743,8 @@ Banning Page of the Varnish Administration Console
    :width: 70%
 
    Figure :counter:`figure`: Banning page of the Varnish Administration Console
+
+.. TODO: This screenshot is very similar to vac_bans.png, consider to remove it.
 
 Varnish Custom Statistics (VCS)
 -------------------------------
