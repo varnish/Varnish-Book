@@ -5366,7 +5366,7 @@ Cookies
 
    .. note::
 
-      If you need to handle cookies, consider using the ``cookie`` VMOD from https://github.com/lkarsten/libvmod-cookie.
+      If you need to handle cookies, consider using the ``cookie`` VMOD from https://github.com/varnish/varnish-modules/blob/master/docs/vmod_cookie.rst.
       This VMOD handles cookies with convenient parsing and formatting functions without the need of regular-expressions.
 
 ``Vary`` and Cookies
