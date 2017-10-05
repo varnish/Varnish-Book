@@ -1501,7 +1501,7 @@ Examples of Varnish log queries::
 
 Requests taking more than 5 seconds::
 
-  varnishlog -q 'Timestamp:Fetch[2] > 5'
+  varnishlog -q 'Timestamp:Fetch[2] > 5.0'
 
 timestamp contains timing information for the varnish worker threads.
 
@@ -2170,7 +2170,7 @@ You add the Varnish Plus repository o ``/etc/apt/sources.list.d/varnish-plus.lis
   deb https://<username>:<password>@repo.varnish-software.com/ubuntu 
   <distribution_codename> non-free
 
-Where ``<distribution_codename>`` is the codename of  your Linux distribution, for example: trusty, debian, or wheezy.
+Where ``<distribution_codename>`` is the codename of  your Linux distribution, for example: ``trusty``, ``debian``, or ``wheezy``.
 
 Then::
 
@@ -4770,7 +4770,7 @@ Directors
 
    There are several different director selection methods available, they are: random, round-robin, fallback, and hash.
    The next backend to be selected depends on the selection method.
-   You can specify the timeout before unsued backend connections are closed by setting the ``backend_idle_timeout`` parameter.
+   You can specify the timeout before unused backend connections are closed by setting the ``backend_idle_timeout`` parameter.
    How to tune this and other parameters is further explained in the `Tuning`_ section.
 
    A *round-robin* director takes only a backend list as argument.
