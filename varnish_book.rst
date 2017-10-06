@@ -740,7 +740,7 @@ Utility programs part of the Varnish distribution:
    - view the most up-to-date documentation for parameters, and
    - more.
 
-   `The Management Interface varnishadm`_ section explains in more detail this utility.
+   `The front-end varnishadm of the Varnish Command Line Interface (CLI)`_ section explains in more detail this utility.
 
    .. varnishlog
 
@@ -1004,8 +1004,8 @@ Test Varnish Using Apache as Backend
    You can also define and test connectivity against any backend in ``varnishtest``.
    Learn how to it by doing the `Exercise: Test Apache as Backend with varnishtest`_.
 
-The Management Interface ``varnishadm``
----------------------------------------
+The front-end ``varnishadm`` of the Varnish Command Line Interface (CLI)
+------------------------------------------------------------------------
 
 You can use the ``varnishadm`` utility to:
 
@@ -1017,13 +1017,11 @@ You can use the ``varnishadm`` utility to:
 
 .. container:: handout
 
-   Varnish offers a management command line interface (CLI) to control a running Varnish instance.
-   This interface implements a list of management commands in the ``varnishadm`` utility program.
-   ``varnishadm`` establishes a connection to the Varnish daemon ``varnishd``.
-
-   To connect to the management interface, issue the command ``varnishadm``.
-   If there are many Varnish instances running in one machine, specify the instance with the ``-n`` option.
-   Keep the following in mind when using the management interface:
+   Varnish has a command line interface (CLI) which can control and change most of the operational parameters and the configuration of the Varnish daemon, without interrupting the running service.
+   ``varnishadm`` is front-end to the Varnish interface.
+   In practice, it is a utility program with a set of functions that interact with the Varnish daemon ``varnishd``.
+   If there are many Varnish instances running in one machine, specify the instance with the ``-n`` option of ``varnishadm``.
+   Keep the following in mind when issuing commands to the Varnish daemon:
 
    1. Changes take effect on the running Varnish daemon instance without need to restart it.
    2. Changes are not persistent across restarts of Varnish. 
@@ -1032,16 +1030,19 @@ You can use the ``varnishadm`` utility to:
       The location of the configuration file is in `Table 3 <#table-3>`_
 
    ``varnishadm`` uses a non-encrypted key stored in a secret file to authenticate and connect to a Varnish daemon.
-   You can now provide access to the interface on a per user basis by adjusting the read permission on the secret file.
-   The location of the secret file is ``/etc/varnish/secret`` by default, but you can use the ``-S`` option to specify other location.
+   You can control access by adjusting the read permission on the secret file.
+   ``varnishadm`` looks for the secret file in ``/etc/varnish/secret`` by default, but you can use the ``-S`` option to specify another location.
    The content of the file is a shared secret, which is a string generated under Varnish installation.
    
-   The management interface authenticates with a challenge-response mechanism.
+   ``varnishadm`` authenticates with a challenge-response mechanism.
    Therefore, the shared secret is never transmitted, but a challenge and the response to the challenge.
    This authentication mechanism offers a reasonably good access control, but it does not protect the data transmitted over the connection.
    Therefore, it is very important to avoid eavesdroppers like in the man-in-the-middle attack.
    The simplest way to avoid eavesdroppers is to configure the management interface listening address of ``varnishd`` to listen only on localhost (127.0.0.1).
    You configure this address with the ``-T`` option of the ``varnishd`` command.
+
+   For convenience, ``varnishadm`` has an embedded command line tool.
+   You can access it by simply issuing ``varnishadm`` in the terminal.
 
    .. tip::
       Varnish provides many on-line reference manuals.
@@ -1801,7 +1802,7 @@ Varnish Architecture
    The main driver for these design decisions is security, which is explain at `Security barriers in Varnish` https://www.varnish-cache.org/docs/trunk/phk/barriers.html.
 
    The Manager's command line interface (CLI) is accessible through:
-   1) ``varnishadm`` as explained in `The Management Interface varnishadm`_ section,
+   1) ``varnishadm`` as explained in `The front-end varnishadm of the Varnish Command Line Interface (CLI)`_ section,
    2) the Varnish Agent *vagent2*, or
    3) the `Varnish Administration Console (VAC)`_ (via *vagent2*)
 
@@ -6235,7 +6236,7 @@ Design and debug:
 
    Two of the perhaps most useful variants of ``varnishtop`` are:
 
-   - ``varnishtop -i BereqURL``: creates a list of URLs requested at the backend.
+   - ``varnishtop -i BereqURL``: creates a list of requested URLsx at the backend.
      Use this to find out which URL is the most fetched.
    - ``varnishtop -i RespStatus``: lists what status codes Varnish returns to clients.
 
