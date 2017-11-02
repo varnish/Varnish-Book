@@ -1039,8 +1039,8 @@ You can use the ``varnishadm`` utility to:
    The management interface authenticates with a challenge-response mechanism.
    Therefore, the shared secret is never transmitted, but a challenge and the response to the challenge.
    This authentication mechanism offers a reasonably good access control, but it does not protect the data transmitted over the connection.
-   Therefore, it is very important to avoid eavesdroppers like in the man-in-the-middle attack.
-   The simplest way to avoid eavesdroppers is to configure the management interface listening address of ``varnishd`` to listen only on localhost (127.0.0.1).
+
+   In order to avoid eavesdroppers like in the man-in-the-middle attack, we recommend that you configure the management interface listening address of ``varnishd`` to listen only on ``localhost`` (``127.0.0.1`` IP address).
    You configure this address with the ``-T`` option of the ``varnishd`` command.
 
    .. tip::
