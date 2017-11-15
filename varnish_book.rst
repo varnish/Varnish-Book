@@ -499,7 +499,7 @@ Varnish Cache and Varnish Software Timeline
    As of November 2015, the VGB positions are filled by Poul-Henning Kamp (Architect), Rogier Mulhuijzen (Community) and Lasse Karstensen (Varnish Software).
    On a day-to-day basis, there is little need to interfere with the general flow of development.
 
-What Is New in Varnish 4?
+What is new in Varnish 4?
 -------------------------
 
 - Version statement ``vcl 4.0;``
@@ -529,7 +529,7 @@ What Is New in Varnish 4?
 - The builtin VCL now honors ``Cache-Control: no-cache`` (and friends) to indicate uncacheable content from the backend
 - ``remove`` keyword replaced by ``unset``
 - ``X-Forwarded-For`` is now set before ``vcl_recv``
-- ``session_linger`` has been renamed to ``timeout_linger`` and it is in seconds now (previously was milliseconds)
+- ``session_linxger`` has been renamed to ``timeout_linger`` and it is in seconds now (previously was milliseconds)
 - ``sess_timeout`` is renamed to ``timeout_idle``
 - Increasing ``sess_workspace`` is not longer necessary, you may need to increase either `workspace_backend` or `workspace_client`
 - ``thread_pool_purge_delay`` is renamed to ``thread_pool_destroy_delay`` and it is in seconds now
@@ -540,7 +540,7 @@ What Is New in Varnish 4?
 .. container:: handout
 
    The above list tries to summarize the most important changes from Varnish Cache 3 to Varnish Cache 4.
-   For more information, please visit: https://www.varnish-cache.org/docs/trunk/whats-new/upgrading.html
+   For more information, please visit: https://varnish-cache.org/docs/4.1/whats-new/index.html
 
    If you want to migrate your VCL code from Varnish 3 to Varnish 4, you may be interested in looking at the *varnish3to4* script.
    See the `VCL Migrator from Varnish 3 to Varnish 4`_ section for more information.
