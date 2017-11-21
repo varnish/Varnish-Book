@@ -12,3 +12,4 @@ varnish_tutorial-*.tar.bz2
 *~
 ui/img/*_fsm.pdf
 \#*
+/varnish_book.html

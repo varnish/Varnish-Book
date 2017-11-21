@@ -2087,114 +2087,6 @@ Tunable Parameters
 
 	 Figure :counter:`figure`: GUI to configure parameters via the `Varnish Administration Console (VAC)`_.
 
-Varnish Tuner
--------------
-
-- Command ``varnishtuner``
-- Suggested values for system variables and Varnish parameters are **installation specific**
-- With or without user input
-- Available for Varnish Plus only
-
-Installation::
-
-    yum install varnishtuner
-
-or::
-
-  apt-get install varnishtuner
-
-.. container:: handout
-
-   .. outside Varnish
-
-   The biggest potential for improvement is outside Varnish. 
-   First and foremost in tuning the network stack and the TCP/IP connection handling.
-   
-   .. history
-
-   Varnish Tuner is a program toolkit based on the experience and documentation we have built.
-   The toolkit tries to gather as much information as possible from your installation and decides which parameters need tuning.
-
-   .. Specific per system
-
-   The tuning advice that the toolkit gives is specific to that system.  
-   The Varnish Tuner gathers information from the system it is running in.
-   Based on that information, it suggests values for systems variables of your OS and parameters for your Varnish installation that can be beneficial to tune.
-   Varnish Tuner includes the following information for each suggested system variable or parameter:
-
-   - current value
-   - suggested value
-   - text explaining why it is advised to be changed
-
-   .. user interaction
-
-   ``varnishtuner`` requires by default user input to produce its output.
-   If you are not sure about the requested input, you can instruct ``varnishtuner`` to do not suggest parameters that require user input.
-   For this, you issue ``varnishtuner -n``.
-
-   .. varnish plus
-
-   Varnish Tuner is valuable to both experts and non-experts.
-   Varnish Tuner is available for Varnish Plus series only.
-
-   .. warning::
-
-      Copying Varnish Tuner suggestions to other systems might not be a good idea.
-
-Varnish Tuner Persistence
-.........................
-
-The output of ``varnishtuner`` updates every time you introduce a new input or execute a suggested command.
-However, the result of the suggested commands are not necessarily persistent, which means that they do not survive a reboot or restart of Varnish Cache.
-To make the tuning persistent, you can add do the following:
-
-- Specify the Varnish parameters in the configuration file.
-- Specify the ``sysctl`` system variables in ``/etc/sysctl.conf`` or in ``/etc/sysctl.d/varnishtuner.conf`` (if ``/etc/sysctl.d/`` is included).
-
-To see the usage documentation of Varnish Tuner, execute: ``varnishtuner --help``.
-
-Install Varnish Tuner
-.....................
-
-**Ubuntu Trusty 14.04**
-
-Packages in our repositories are signed and distributed via https.
-You need to enable https support in the package manager and install our public key first::
-
-  apt-get install -y apt-transport-https
-  curl https://<username>:<password>@repo.varnish-software.com/GPG-key.txt | 
-  apt-key add -
-
-You add the Varnish Plus repository o ``/etc/apt/sources.list.d/varnish-plus.list``::
-
-  # Varnish Tuner
-  deb https://<username>:<password>@repo.varnish-software.com/ubuntu 
-  <distribution_codename> non-free
-
-Where ``<distribution_codename>`` is the codename of  your Linux distribution, for example: ``trusty``, ``debian``, or ``wheezy``.
-
-Then::
-
-  apt-get update
-  apt-get install varnishtuner 
-
-.. container:: handouts
-
-    Above are the installation instructions for Ubuntu to get Varnish Tuner from our repositories.
-    Replace the ``<username>`` and ``<password>`` with the ones of your Varnish Plus subscription.
-    If you do not know them, please send an email to our support email to recover them. 
-
-    **Red Hat Enterprise Linux 6**
-
-    To install Varnish Plus on RHEL6, put the following lines into ``/etc/yum.repos.d/varnish-plus.repo``::
-
-      [varnishtuner]
-      name=Varnishtuner
-      baseurl=https://<username>:<password>@repo.varnish-software.com/redhat/ \
-      varnishtuner/el6
-      enabled=1
-      gpgcheck=0
-
 Threading Model
 ---------------
 
@@ -4795,7 +4687,7 @@ Directors
    .. note::
 
       Directors are defined as loadable VMODs in Varnish 4.
-      See the `vmod_directors <https://varnish-cache.org/docs/4.1/reference/vmod_directors.generated.html>`_ man page for more information and examples.
+      See the vmod_directors_ man page for more information and examples.
 
 .. warning::
 
@@ -4803,6 +4695,8 @@ Directors
       You can avoid this situation by turning off the runtime parameter ``vcc_err_unref``.
       However, this practice is strongly discouraged.
       Instead, we advise to declare only what you use.
+
+ .. _vmod_directors: https://varnish-cache.org/docs/4.1/reference/vmod_directors.generated.html
 
 Random Directors
 ................
@@ -5642,7 +5536,6 @@ The Varnish Plus offer of software products includes:
 
    - Varnish Massive Storage Engine (MSE) described in `Storage Backends`_,
    - Hashtwo (Varnish Software Implementation of Surrogate Keys) described in `Hashtwo/Xkey (Varnish Software Implementation of Surrogate Keys)`_,
-   - `Varnish Tuner`_
    - `Varnish Administration Console (VAC)`_,
    - `Varnish Custom Statistics (VCS)`_,
    - `Varnish High Availability (VHA)`_,
@@ -7898,7 +7791,7 @@ Solution: Install Varnish
 
 
 
-     # non-free contains VAC, VCS, Varnish Tuner and proprietary VMODs.
+     # non-free contains VAC, VCS and proprietary VMODs.
      deb https://<username>:<password>@repo.varnish-software.com/DISTRO RELEASE \
      non-free
 
@@ -7936,15 +7829,6 @@ Solution: Install Varnish
      /vac/el$releasever
      enabled=1
      gpgcheck=0
-
-     [varnishtuner]
-     name=Varnish Tuner
-     baseurl=
-     https://<username>:<password>@repo.varnish-software.com/redhat
-     /varnishtuner/el$releasever
-     enabled=1
-     gpgcheck=0
-
 
   Then, execute the following::
 
