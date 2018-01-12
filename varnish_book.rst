@@ -1889,10 +1889,12 @@ The main functions of the *Cacher* are:
 .. container:: handout
 
    Varnish uses workspaces to reduce the contention between each thread when they need to acquire or modify memory.
-   There are multiple workspaces, but the most important one is the session workspace, which is used to manipulate session data.
-   An example is changing `www.example.com` to `example.com` before it is entered into the cache, to reduce the number of duplicates.
+   There are multiple workspaces, but in Varnish 4 and later, the most important ones are ``workspace_client`` and ``workspace_backend``.
+   Memory in ``workspace_client`` is used to manipulate data at the frontend side of the Varnish state machine, i.e., request data.
+   ``workspace_backend`` is used to manipulate data fetched from the backend side.
+   As an example, think about the memory needed to normalize an object's ``Host`` header from ``www.example.com`` to ``example.com`` before it is stored in the cache.
 
-   It is important to remember that even if you have 5 MB of session workspace and are using 1000 threads, the actual memory usage is not 5 GB.
+   If you have 5 MB of workspace and are using 1000 threads, the actual memory usage is not 5 GB.
    The virtual memory usage will indeed be 5GB, but unless you actually use the memory, this is not a problem.
    Your memory controller and operating system will keep track of what you actually use.
 
@@ -1905,7 +1907,7 @@ The main functions of the *Cacher* are:
    The first part is counters, the second part is request data. 
    To view the actual data, a number of tools exist that parses the VSL.
 
-   Since the log-data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose. 
+   Since the log data is not meant to be written to disk in its raw form, Varnish can afford to be very verbose.
    You then use one of the log-parsing tools to extract the piece of information you want -- either to store it permanently or to monitor Varnish in real-time.
 
    .. TODO for the author: this can be an exercise.
@@ -6653,13 +6655,14 @@ Understanding ``Last-Modified`` and ``If-Modified-Since`` in ``varnishtest``
    The example above is a modified version of ``Varnish-Cache/bin/varnishtest/tests/b00039.vtc`` and it shows the usage of ``Last-Modified`` and ``If-Modified-Since`` header fields.
    The example introduces how to insert VCL code in ``varnishtest``::
 
-      sub vcl_backend_response {
-         set beresp.ttl = 2s;
-	 set beresp.grace = 5s;
-	 # beresp.was_304 is ``true`` if the response from the backend was
-	 # a positive result of a conditional fetch (``304 Not Modified``).
-	 set beresp.http.was-304 = beresp.was_304;
-      }
+     sub vcl_backend_response {
+       set beresp.ttl = 2s;
+       set beresp.grace = 5s;
+
+       # beresp.was_304 is ``true`` if the response from the backend was
+       # a positive result of a conditional fetch (``304 Not Modified``).
+       set beresp.http.was-304 = beresp.was_304;
+     }
 
    You will learn all details about VCL in the following sections, but for now it is enough to understand that this code sets the time to live TTL and grace time of cached objects to 2 and 5 seconds respectively.
    Recall the object lifetime from `Figure 2 <#figure-2>`_ to understand the expected behavior.

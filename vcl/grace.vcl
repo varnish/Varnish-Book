@@ -2,7 +2,7 @@ sub vcl_hit {
     if (obj.ttl >= 0s) {
         # Normal hit
         return (deliver);
-    } elsif (std.healthy(req.backend_hint)) {
+   }  elsif (std.healthy(req.backend_hint)) {
         # The backend is healthy
         # Fetch the object from the backend
         return (fetch);
