@@ -22,7 +22,7 @@ sub vcl_backend_response {
 
 sub vcl_deliver {
     # We remove resp.http.x-* HTTP header fields,
-    # because the client does not neeed them
+    # because the client does not need them
     unset resp.http.x-url;  
     unset resp.http.x-host; 
 }
