@@ -2,32 +2,33 @@ varnishtest "Rewrite URL and Host Header Fields"
 
 server s1 {
         rxreq
-        expect req.http.Host == "example.com"
-        expect req.http.ReqURL == "/sport/index.html"
+        expect req.http.x-host == "sport.example.com"
+        expect req.http.x-url == "/index.html"
+        expect req.http.host == "example.com"
+        expect req.url == "/sport/index.html"
         txresp
-}
+} -start
 
-varnish v1 -vcl {
-   backend default {
-      .host = "93.184.216.34"; # example.com
-      .port = "80";
-   }
+varnish v1 -vcl+backend {
    sub vcl_recv {
        set req.http.x-host = req.http.host;
        set req.http.x-url = req.url;
-       set req.http.host = regsub(req.http.host, "^www\.", "");
-
+       
        /* Alternative 1 */
-       if (req.http.host == "sport.example.com") {
-           set req.http.host = "example.com";
-           set req.url = "/sport" + req.url;
-       }
+       set req.http.host = regsub(req.http.host, "^sport\.", "");
+       set req.url = "/sport" + req.url;
 
        /* Alternative 2 */
-       # if (req.http.host ~ "^sport\.") {
-       #     set req.http.host = regsub(req.http.host,"^sport\.", "");
-       #     set req.url = regsub(req.url, "^", "/sport");
-       # }
+       #if (req.http.host == "sport.example.com") {
+       #    set req.http.host = "example.com";
+       #    set req.url = "/sport" + req.url;
+       #}
+
+       /* Alternative 3 */
+       #if (req.http.host ~ "^sport\.") {
+       #    set req.http.host = regsub(req.http.host,"^sport\.", "");
+       #    set req.url = regsub(req.url, "^", "/sport");
+       #}
    }
 } -start
 
