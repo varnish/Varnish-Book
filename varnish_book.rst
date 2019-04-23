@@ -7951,23 +7951,24 @@ Solution: Rewrite URL and Host Header Fields
 ::
 
  sub vcl_recv {
+       set req.http.x-host = req.http.host;
+       set req.http.x-url = req.url;
+       
+       /* Alternative 1 */
+       set req.http.host = regsub(req.http.host, "^sport\.", "");
+       set req.url = "/sport" + req.url;
 
-     set req.http.x-host = req.http.host;
-     set req.http.x-url = req.url;
+       /* Alternative 2 */
+       #if (req.http.host == "sport.example.com") {
+       #    set req.http.host = "example.com";
+       #    set req.url = "/sport" + req.url;
+       #}
 
-     set req.http.host = regsub(req.http.host, "^www\.", "");
-
-     /* Alternative 1 */
-     if (req.http.host == "sport.example.com") {
-         set req.http.host = "example.com";
-         set req.url = "/sport" + req.url;
-      }
-
-      /* Alternative 2 */
-      if (req.http.host ~ "^sport\.") {
-        set req.http.host = regsub(req.http.host,"^sport\.", "");
-        set req.url = regsub(req.url, "^", "/sport");
-      }
+       /* Alternative 3 */
+       #if (req.http.host ~ "^sport\.") {
+       #    set req.http.host = regsub(req.http.host,"^sport\.", "");
+       #    set req.url = regsub(req.url, "^", "/sport");
+       #}
  }
 
 .. container:: handout
