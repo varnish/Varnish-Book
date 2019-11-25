@@ -20,14 +20,12 @@ if( isset( $_GET['h'] ) and $_GET['h'] !== '' )
         break;
 
         case "cache-control":
-            $headers['Cache-Control'] = "public, must-revalidate, 
-	    max-age=3600, s-maxage=3600";
+            $headers['Cache-Control'] = "public, must-revalidate, max-age=3600, s-maxage=3600";
         break;
 
         case "cache-control-override":
             $headers['Expires'] = toUTCDate($expires_date);
-            $headers['Cache-Control'] = "public, must-revalidate, 
-	    max-age=2, s-maxage=2";
+            $headers['Cache-Control'] = "public, must-revalidate, max-age=2, s-maxage=2";
         break;
 
         case "last-modified":
