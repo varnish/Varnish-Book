@@ -289,7 +289,7 @@ The Webdev course requires that you:
    Additional examples from different Varnish versions are available at https://www.varnish-cache.org/trac/wiki/VCLExamples.
    These examples are maintained by the community.
    
-   For those interested in development, the developers arrange weekly bug washes were recent tickets and development is discussed. 
+   For those interested in development, the developers arrange weekly bug washes where recent tickets and development is discussed. 
    This usually takes place on Mondays around 13:00 CET on the IRC channel `#varnish-hacking` on `irc.linpro.net`.
 
    Errata, updates and general improvements of this book are available at its repository https://github.com/varnish/Varnish-Book.
