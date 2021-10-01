@@ -10,7 +10,7 @@ echo "Timestamp: \n"
 print( "\n" );
 ?>
 
-<esi:include src="/cgi-bin/date.cgi"/>
+<esi:include src="/cgi-bin/esi-date.cgi"/>
 
 </BODY>
 </HTML>
