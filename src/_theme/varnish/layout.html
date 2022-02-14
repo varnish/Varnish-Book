@@ -9,7 +9,39 @@
 #}
 {% extends "basic/layout.html" %}
 {% block extrahead %}
+<div class="hide-disclaimer" id="disclaimer">
+  <div>
+    <button class="close" onclick="hideDisclaimer()">&times;</button>
+    <h4>Disclaimer</h4>
+    <p>The content of this book is heavily outdated and refers to a version of Varnish that is end-of-life. We have published a new book that focuses on Varnish 6.</p>
+    <p class="book-link"><a style href="https://info.varnish-software.com/resources/varnish-6-by-example-book" target="_blank">Download Varnish 6 by Example</a></p>
+    <p class="dont-show"><button onclick="dontShow()">Don't show message again</button></p>
+  </div>
+</div>
 <script type="text/javascript">
+  const disclaimer = document.getElementById('disclaimer')
+  disclaimer.addEventListener('click', hideDisclaimer)
+
+  function hideDisclaimer () {
+    disclaimer.remove()
+  }
+
+  function dontShow () {
+    if (window.localStorage) {
+      window.localStorage.setItem('hide_disclaimer', '1')
+      hideDisclaimer()
+    }
+  }
+
+  if (window.localStorage) {
+    if (window.localStorage.getItem('hide_disclaimer') === '1') {
+      hideDisclaimer()
+    } else {
+      setTimeout(() => {
+        disclaimer.classList.remove('hide-disclaimer')
+      }, 100);
+    }
+  }
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-15491050-2']);
